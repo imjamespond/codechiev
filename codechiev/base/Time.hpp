@@ -23,9 +23,9 @@ namespace codechiev {
         public:
             Time(int64_t t = 0);
             
-            static Time now();
-            static Time nowTm();
-            static Time getClockTime();
+            static Time Now();
+            static Time NowTm();
+            static Time GetClockTime();
             static void SleepMillis(int64_t);
             
             

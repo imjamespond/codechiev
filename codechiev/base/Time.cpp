@@ -14,14 +14,14 @@ using namespace codechiev::base;
 
 Time::Time(int64_t t):timeMillis_(t){}
 
-Time Time::now() {
+Time Time::Now() {
     struct timeval tv;
     ::gettimeofday(&tv, NULL);
     int64_t seconds = tv.tv_sec;
     return Time(seconds * MILLIS_SEC + tv.tv_usec * .001);
 }
 
-Time Time::nowTm() {
+Time Time::NowTm() {
     time_t rawtime;
     struct tm * ptm;
     ::time(&rawtime);

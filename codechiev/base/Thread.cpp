@@ -42,6 +42,7 @@ Thread::~Thread()
 void
 Thread::run()
 {
+    assert(!gThreadData);
     gThreadData = this;
     
     if(func_)
