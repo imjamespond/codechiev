@@ -14,6 +14,7 @@
 #include "base/BlockingQueue.hpp"
 #include "base/Logger.hpp"
 #include "base/Random.hpp"
+#include "base/Time.hpp"
 
 #include <windows.h>
 
@@ -26,10 +27,10 @@ void print()
     {
         count=0;
         int64_t millis = random(100,110);
-        Sleep(millis);
+        Time::SleepMillis(millis);
         if(count)
         {
-            LOG_INFO<<Thread::ThreadName()<< "-" << static_cast<int>(::GetCurrentProcessId())<<" sleep:"<<millis;
+            LOG_INFO<<Thread::ThreadName()<< "-" << Thread::GetTid()<<" sleep:"<<millis;
         }
     }
     else

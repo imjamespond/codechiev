@@ -10,6 +10,7 @@
 #include <errno.h>
 //#include <sys/syscall.h>
 #ifdef __MINGW32__
+#include <windows.h>
 #endif // __MINGW32__
 
 using namespace codechiev::base;
@@ -100,15 +101,16 @@ int
 Thread::GetTid()
 {
     //return ::syscall(SYS_gettid);//prohibited in os?
+    int threadid(0);
     #ifdef OS_WINDOWS
     uint64_t tid;
     pthread_t self;
     self = ::pthread_self();
     ::pthread_threadid_np(self, &tid);
-    return static_cast<int>(tid) ;
+    threadid = static_cast<int>(tid) ;
     #endif
-
     #ifdef __MINGW32__
-    return 0;
+    threadid = static_cast<int>(::GetCurrentThreadId());
     #endif // __MINGW32__
+    return threadid;
 }
