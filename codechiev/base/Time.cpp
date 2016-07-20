@@ -9,6 +9,9 @@
 #include "Time.hpp"
 #include <time.h>
 #include <sys/time.h>
+#ifdef __MINGW32__
+#include <windows.h>
+#endif // __MINGW32__
 
 using namespace codechiev::base;
 
@@ -42,7 +45,12 @@ Time::SleepMillis(int64_t millis)
     structure pointed to by rem unless rem is NULL.  The value of *rem
     can then be used to call nanosleep() again and complete the specified
     pause (but see NOTES).*/
+
+#ifdef __MINGW32__
+    Sleep(millis);
+#else
     ::nanosleep(&tm, nullptr);
+#endif // __MINGW32__
 }
 
 void

@@ -8,15 +8,17 @@
 
 #include "Thread.hpp"
 #include <errno.h>
-#include <sys/syscall.h>
+//#include <sys/syscall.h>
+#ifdef __MINGW32__
+#endif // __MINGW32__
 
 using namespace codechiev::base;
 
 #define handle_error_en(en, msg) \
-do { errno = en; perror(msg); exit(EXIT_FAILURE); } while (0)
+//do { errno = en; perror(msg); exit(EXIT_FAILURE); } while (0)
 
 #define handle_error(msg) \
-do { perror(msg); exit(EXIT_FAILURE); } while (0)
+//do { perror(msg); exit(EXIT_FAILURE); } while (0)
 
 static void *
 start_routine(void *arg)
@@ -44,10 +46,10 @@ Thread::run()
 {
     assert(!gThreadData);
     gThreadData = this;
-    
+
     if(func_)
         func_();
-    
+
     //There are several ways in which a thread may be terminated:
     //The thread !!!returns normally!!! from its starting routine. Its work is done.
     //The thread makes a call to the pthread_exit subroutine - !!!whether its work is done or not!!!.
@@ -76,7 +78,7 @@ Thread::start()
 void
 Thread::join()
 {
-    //The programmer is able to !!!obtain the target thread's termination return status!!! if it was !!!!specified in the target thread's call to pthread_exit(). 
+    //The programmer is able to !!!obtain the target thread's termination return status!!! if it was !!!!specified in the target thread's call to pthread_exit().
     int s;
     s = ::pthread_join(thread_, nullptr);
     if (s != 0)
@@ -90,7 +92,7 @@ Thread::ThreadName()
     {
         return gThreadData->getThreadName();
     }
-    
+
     return "no name for this thread";
 }
 
@@ -98,9 +100,15 @@ int
 Thread::GetTid()
 {
     //return ::syscall(SYS_gettid);//prohibited in os?
+    #ifdef OS_WINDOWS
     uint64_t tid;
     pthread_t self;
     self = ::pthread_self();
     ::pthread_threadid_np(self, &tid);
     return static_cast<int>(tid) ;
+    #endif
+
+    #ifdef __MINGW32__
+    return 0;
+    #endif // __MINGW32__
 }

@@ -7,6 +7,7 @@
 //
 
 #include "Random.hpp"
+#include <ctime>
 #include <boost/random/random_device.hpp>
 
 using namespace codechiev::base;
