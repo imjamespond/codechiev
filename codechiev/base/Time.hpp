@@ -10,6 +10,7 @@
 #define Time_hpp
 
 #include <stdint.h>
+#include <string>
 
 namespace codechiev {
     namespace base {
@@ -26,13 +27,19 @@ namespace codechiev {
             static Time Now();
             static Time NowTm();
             static Time GetClockTime();
-            static void SleepMillis(int64_t);
             
+            static void
+            SleepMillis(int64_t);
+            
+            static std::string
+            GetSimpleString();
             
             inline int64_t
             getMillis(){return timeMillis_;}
+            
             void
             operator=(int64_t);
+            
             int64_t
             operator-(Time&);
         private:

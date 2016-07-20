@@ -57,14 +57,13 @@ namespace codechiev {
             
             void read(int len)
             {
+                reader_+=len;
+            }
+            
+            void readall()
+            {
                 int rb = readable();
-                if(rb>=len)
-                {
-                    reader_+=len;
-                }else
-                {
-                    reader_+=rb;
-                }
+                read(rb);
             }
             
             void write(int len)
@@ -76,14 +75,13 @@ namespace codechiev {
             
             void move()
             {
-                int len = writer_ - reader_;
-                assert(len>=0);
-                ::memcpy(buffer_, buffer_+reader_, len);
+                int rb = readable();
+                ::memcpy(buffer_, buffer_+reader_, rb);
                 reader_=0;
-                writer_=len;
+                writer_=rb;
             }
             
-            const char* buffer()
+            const char* str()
             {
                 return buffer_+reader_;
             }

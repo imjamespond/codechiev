@@ -21,21 +21,22 @@ int main(int argc, const char * argv[]) {
     FixedBuffer<8> buffer;
     
     buffer.append("12345678");
-    printf("%s\n",buffer.buffer());
+    printf("%s\n",buffer.str());
     
     buffer.read(4);
     buffer.move();
-    printf("%s\n",buffer.buffer());
+    printf("%s\n",buffer.str());
     
     buffer.append("foo");
-    printf("%s\n",buffer.buffer());
+    printf("%s\n",buffer.str());
     
     buffer.append("bar");
-    printf("%s\n",buffer.buffer());
+    printf("%s\n",buffer.str());
 
-    
-    buffer.append(" run");
-    printf("%s\n",buffer.buffer());
+    buffer.readall();
+    buffer.move();
+    buffer.append("helloworld");
+    printf("%s\n",buffer.str());
 
     return 0;
 }

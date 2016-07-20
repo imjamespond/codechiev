@@ -56,3 +56,13 @@ Time::operator-(Time & t)
 {
     return this->timeMillis_-t.getMillis();
 }
+
+#include <ctime>
+std::string
+Time::GetSimpleString()
+{
+    std::time_t result = std::time(nullptr);
+    return std::asctime(std::localtime(&result));
+}
+
+

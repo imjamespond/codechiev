@@ -17,31 +17,41 @@ namespace codechiev {
         class Logger
         {
         public:
-            enum Type
+            enum Level
             {
                 Trace,
                 Debug,
                 Info,
                 Warn,
                 Error,
-                TypeSize,
+                LevelSize,
             };
-            explicit Logger(Type);
+            explicit Logger(const char* , const char* , int , Level );
+            ~Logger();
+            
+            Logger &operator<<(const char*);
+            Logger &operator<<(const std::string&);
+            Logger &operator<<( int);
+            Logger &operator<<( float);
+            Logger &operator<<( double);
         private:
-            Type type_;
+            Level level_;
+            FixedBuffer<256> buffer_;
         };
         
         class LoggerStream
         {
-        public:
-            LoggerStream();
-            
-            
-            
-        private:
-            FixedBuffer<256> buffer;
         };
     }
 }
+
+extern codechiev::base::Logger::Level gLevel;
+#define LOG_CHECK( lv ) if(lv>=gLevel)\
+    Logger(__FILE__,__func__,__LINE__,lv)
+#define LOG_DEBUG LOG_CHECK(Logger::Debug)
+#define LOG_TRACE LOG_CHECK(Logger::Trace)
+#define LOG_INFO LOG_CHECK(Logger::Info)
+#define LOG_WARN LOG_CHECK(Logger::Warn)
+#define LOG_ERROR LOG_CHECK(Logger::Error)
 
 #endif /* Logger_hpp */
