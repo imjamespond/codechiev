@@ -11,7 +11,10 @@
 #include <errno.h>
 
 #include "base/BlockingQueue.hpp"
-#include "base/Mutex.hpp"
+#include "base/Logger.hpp"
+#include "base/Random.hpp"
+
+#include <windows.h>
 
 using namespace codechiev::base;
 
@@ -21,30 +24,29 @@ void print()
     if(count)
     {
         count=0;
+        int64_t millis = random(1,100);
+        Sleep(millis);
         if(count)
         {
-            printf("count:%d\n",count);
+            LOG_INFO<<Thread::ThreadName()<< " sleep:"<<millis;
         }
     }
     else
     {
         count++;
     }
-    
-    printf("current thread: %s - %d, %d\n",Thread::ThreadName().c_str(), Thread::GetTid(), errno);
 }
 
 int main(int argc, const char * argv[]) {
-    
+
     BlockingQueue<10> queue;
     queue.commence();
-    
-    while(1)
+
+    for(int i=0; i<999; i++)
     {
-        BlockingQueue<10>::blocking_job job = boost::bind(&print);
-        queue.addJob(job);
+        queue.addJob(boost::bind(&print));
     }
-    
-    
+
+    queue.addJob(boost::bind(&BlockingQueue<10>::stop, &queue));
     return 0;
 }

@@ -32,7 +32,7 @@ Logger::Level initLoggerLevel()
         gDetail = true;
         return Logger::Error;
     }
-    
+
     return Logger::Info;
 }
 Logger::Level gLevel=initLoggerLevel();
@@ -58,8 +58,9 @@ level_(lv)
 Logger::~Logger()
 {
     this->operator<<(", ")<<Time::GetSimpleString();
-    
-    printf("%s", buffer_.str());
+
+    fwrite(buffer_.str(),1,buffer_.readable(),stdout);
+    fflush(stdout);
 }
 
 Logger&
@@ -78,6 +79,13 @@ Logger::operator<<(const std::string & str)
 
 Logger&
 Logger::operator<<(int val)
+{
+    buffer_.append(boost::lexical_cast<std::string>(val).c_str());
+    return *this;
+}
+
+Logger&
+Logger::operator<<(int64_t val)
 {
     buffer_.append(boost::lexical_cast<std::string>(val).c_str());
     return *this;

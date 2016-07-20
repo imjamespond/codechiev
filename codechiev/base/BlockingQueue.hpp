@@ -11,6 +11,7 @@
 
 #include <deque>
 #include <vector>
+#include <exception>
 #include <boost/lexical_cast.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/function.hpp>
@@ -22,15 +23,20 @@
 
 namespace codechiev {
     namespace base {
-        
+
+        class QueueBreak : public std::exception
+        {
+        public:
+        };
+
         template <int ThreadNum>
         class BlockingQueue : boost::noncopyable
         {
         public:
             typedef boost::function<void()> blocking_job;
             typedef std::deque<blocking_job > blocking_queue;
-            BlockingQueue():runnig_(false) {}
-            
+            BlockingQueue():running_(false) {}
+
         public:
             typedef boost::shared_ptr<Thread> thread_ptr;
             typedef std::vector<thread_ptr> thread_vec;
@@ -38,21 +44,21 @@ namespace codechiev {
             Condition cond_;
             Mutex mutex_;
             blocking_queue queue_;
-            bool runnig_;
-            
+            bool running_;
+
         public:
-            void addJob(blocking_job &job)
+            void addJob(const blocking_job &job)
             {
                 MutexGuard lock(&mutex_);
                 queue_.push_back(job);
-                
+
                 cond_.notify();
             }
-            
-            blocking_job takeJob()
+
+            blocking_job takeJob() throw(QueueBreak)
             {
                 MutexGuard lock(&mutex_);
-                while(queue_.size()==0)
+                while(queue_.size()==0 && running_)
                 {
                     cond_.wait(mutex_);//release mutex and block here
                 }
@@ -64,47 +70,70 @@ namespace codechiev {
                     job = queue_.front();
                     queue_.pop_front();
                 }
-                
+
                 if(queue_.size())
                     cond_.notify();
-                
+
+                if(!running_)
+                {
+                    throw QueueBreak();
+                }
+
                 return job;
             }
-            
-            
+
             void runInThread()
             {
                 while(1)
                 {
                     blocking_job job = takeJob();
-                    
+
                     if(job)
                     {
-                        job();//synchronize by user
+                        try
+                        {
+                            job();//synchronize by user
+                        }catch(QueueBreak& e)
+                        {
+                            fprintf(stderr, "%s", e.what());
+                        }catch(std::exception &e)
+                        {
+                            fprintf(stderr, "%s", e.what());
+                        }
+
                     }
                 }
             }
-            
+
             void commence()
             {
-                if(runnig_)
+                if(running_)
                 {
                     return;
                 }
-                
-                runnig_ = true;
-                
+
+                running_ = true;
+
                 for(int i=0; i<ThreadNum; i++)
                 {
                     std::string name="blocking-thread:";
                     name+=boost::lexical_cast<std::string>(i);
                     thread_ptr thread(new Thread(name, boost::bind(&BlockingQueue::runInThread,this)));
                     threads_.push_back(thread);
-                    
+
                     thread->start();
                 }
             }
-            
+
+            void stop()
+            {
+                if(running_)
+                {
+                    running_=false;
+                    cond_.notifyall();
+                }
+            }
+
             ~BlockingQueue()
             {
                 thread_vec::iterator it;
@@ -115,8 +144,8 @@ namespace codechiev {
                 }
             }
         };
-        
-        
+
+
     }
 }
 
