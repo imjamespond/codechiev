@@ -20,6 +20,7 @@
 #include "Condition.hpp"
 #include "Mutex.hpp"
 #include "Thread.hpp"
+#include "Logger.hpp"
 
 namespace codechiev {
     namespace base {
@@ -64,6 +65,11 @@ namespace codechiev {
                 }
                 //printf("thread wake: %s %d, and should do some job assignment here:%d\n",
                 //Thread::ThreadName().c_str(), Thread::GetTid(), count);
+                if(!running_)
+                {
+                    throw QueueBreak();
+                }
+
                 blocking_job job = 0;
                 if(queue_.size())
                 {
@@ -74,11 +80,6 @@ namespace codechiev {
                 if(queue_.size())
                     cond_.notify();
 
-                if(!running_)
-                {
-                    throw QueueBreak();
-                }
-
                 return job;
             }
 
@@ -86,21 +87,18 @@ namespace codechiev {
             {
                 while(1)
                 {
-                    blocking_job job = takeJob();
-
-                    if(job)
+                    try
                     {
-                        try
-                        {
+                        blocking_job job = takeJob();
+                        if(job)
                             job();//synchronize by user
-                        }catch(QueueBreak& e)
-                        {
-                            fprintf(stderr, "%s", e.what());
-                        }catch(std::exception &e)
-                        {
-                            fprintf(stderr, "%s", e.what());
-                        }
-
+                    }catch(const QueueBreak& e)
+                    {
+                        LOG_INFO<<"blocking queue quit...";
+                        ::pthread_exit(nullptr);
+                    }catch(const std::exception &e)
+                    {
+                        fprintf(stderr, "%s", e.what());
                     }
                 }
             }

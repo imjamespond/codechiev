@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <boost/bind.hpp>
 #include <errno.h>
+#include <exception>
 
 #include "base/BlockingQueue.hpp"
 #include "base/Logger.hpp"
@@ -24,11 +25,11 @@ void print()
     if(count)
     {
         count=0;
-        int64_t millis = random(1,100);
+        int64_t millis = random(100,110);
         Sleep(millis);
         if(count)
         {
-            LOG_INFO<<Thread::ThreadName()<< " sleep:"<<millis;
+            LOG_INFO<<Thread::ThreadName()<< "-" << static_cast<int>(::GetCurrentProcessId())<<" sleep:"<<millis;
         }
     }
     else
