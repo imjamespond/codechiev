@@ -30,7 +30,8 @@ void print()
         Time::SleepMillis(millis);
         if(count)
         {
-            LOG_INFO<<Thread::ThreadName()<< "-" << Thread::GetTid()<<" sleep:"<<millis;
+            //LOG_INFO<<Thread::ThreadName()<< "-" << Thread::GetTid()<<" sleep:"<<millis;
+            throw std::runtime_error(std::string("count error..."));
         }
     }
     else

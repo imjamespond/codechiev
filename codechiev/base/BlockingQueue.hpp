@@ -94,11 +94,11 @@ namespace codechiev {
                             job();//synchronize by user
                     }catch(const QueueBreak& e)
                     {
-                        LOG_INFO<<"blocking queue quit...";
+                        LOG_INFO<<"thread exit...";
                         ::pthread_exit(nullptr);
                     }catch(const std::exception &e)
                     {
-                        fprintf(stderr, "%s", e.what());
+                        LOG_ERROR<<e.what();
                     }
                 }
             }
