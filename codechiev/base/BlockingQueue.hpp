@@ -71,7 +71,7 @@ namespace codechiev {
                 //Thread::ThreadName().c_str(), Thread::GetTid(), count);
                 if(!running_)
                 {
-                    throw QueueBreak();
+                    throw QueueBreak("QueueBreak");
                 }
 
                 blocking_job job = 0;
@@ -98,7 +98,7 @@ namespace codechiev {
                             job();//synchronize by user
                     }catch(const QueueBreak& e)
                     {
-                        LOG_INFO<<"thread exit...";
+                        LOG_INFO<<e.what();
                         ::pthread_exit(nullptr);
                     }catch(const std::exception &e)
                     {

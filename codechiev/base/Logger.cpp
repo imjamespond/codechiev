@@ -8,28 +8,46 @@
 
 #include "Logger.hpp"
 #include "Time.hpp"
+#include "Thread.hpp"
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
 
 using namespace codechiev::base;
 
-bool gDetail(false);
+unsigned int gDetail(0);
+enum Detail
+{
+    DetailThread=1,
+    DetailFile=2,
+    DetailFunc=4,
+};
 Logger::Level initLoggerLevel()
 {
+    
+    if(::getenv("LoggerThread"))
+    {
+        gDetail|=DetailThread;
+    }
+    if(::getenv("LoggerFile"))
+    {
+        gDetail|=DetailFile;
+    }
+    if(::getenv("LoggerFunc"))
+    {
+        gDetail|=DetailFunc;
+    }
+    
     if(::getenv("LoggerDebug"))
     {
-        gDetail = true;
         return Logger::Debug;
     }else if(::getenv("LoggerTrace"))
     {
-        gDetail = true;
         return Logger::Trace;
     }else if(::getenv("LoggerWarn"))
     {
         return Logger::Warn;
     }else if(::getenv("LoggerError"))
     {
-        gDetail = true;
         return Logger::Error;
     }
 
@@ -41,7 +59,7 @@ void setLoggerLevel(Logger::Level lv)
 {
     gLevel=lv;
 }
-void setLoggerDetail(bool detail)
+void setLoggerDetail(unsigned int detail)
 {
     gDetail=detail;
 }
@@ -49,20 +67,24 @@ void setLoggerDetail(bool detail)
 
 const char *kLoggerLevels[Logger::LevelSize]=
 {
-    "Trace",
-    "Debug",
-    "Info",
-    "Warn",
-    "Error"
+    "trace",
+    "debug",
+    "info",
+    "warn",
+    "error"
 };
 
 Logger::Logger(const char* file, const char* func, int line, Level lv):
 level_(lv)
 {
     this->operator<<(kLoggerLevels[lv]);
-    if(gDetail)
-        this->operator<<(" file:")<<file<<" func:"<<func<<" line:"<<line;
-    this->operator<<(" :");
+    if(gDetail&DetailFile)
+        this->operator<<(" file:")<<file<<" line:"<<line;
+    if(gDetail&DetailFunc)
+        this->operator<<(" func:")<<func;
+    if(gDetail&DetailThread)
+        this->operator<<(" thread:")<<Thread::ThreadName()<<" tid:"<<Thread::Tid();
+    this->operator<<(" log:");
 }
 
 Logger::~Logger()
@@ -93,13 +115,6 @@ Logger::operator<<(int val)
     buffer_.append(boost::lexical_cast<std::string>(val).c_str());
     return *this;
 }
-Logger&
-Logger::operator<<(int64_t val)
-{
-    buffer_.append(boost::lexical_cast<std::string>(val).c_str());
-    return *this;
-}
-
 Logger&
 Logger::operator<<(int64_t val)
 {

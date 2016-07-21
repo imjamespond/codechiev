@@ -29,7 +29,7 @@ namespace codechiev {
             void cancel();
             inline std::string getThreadName();
             static std::string ThreadName();
-            static int GetTid();
+            static int Tid();
             
         private:
             std::string name_;

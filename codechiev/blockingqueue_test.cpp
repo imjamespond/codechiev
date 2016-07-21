@@ -43,8 +43,6 @@ void print()
 
 int main(int argc, const char * argv[]) {
     
-    ::setLoggerDetail(false);
-    
     BlockingQueue<10> queue;
     queue.commence();
     

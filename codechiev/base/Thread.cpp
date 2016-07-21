@@ -105,18 +105,17 @@ Thread::ThreadName()
 }
 
 int
-Thread::GetTid()
+Thread::Tid()
 {
     //return ::syscall(SYS_gettid);//prohibited in os?
     int threadid(0);
-    #ifdef OS_WINDOWS
+    #ifdef __APPLE__
     uint64_t tid;
     pthread_t self;
     self = ::pthread_self();
     ::pthread_threadid_np(self, &tid);
     threadid = static_cast<int>(tid) ;
-    #endif
-    #ifdef __MINGW32__
+    #elif __MINGW32__
     threadid = static_cast<int>(::GetCurrentThreadId());
     #endif // __MINGW32__
     return threadid;
