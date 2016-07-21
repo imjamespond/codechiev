@@ -20,6 +20,7 @@
 #include "Condition.hpp"
 #include "Mutex.hpp"
 #include "Thread.hpp"
+#include "Logger.hpp"
 
 namespace codechiev {
     namespace base {
@@ -66,63 +67,62 @@ namespace codechiev {
                 {
                     cond_.wait(mutex_);//release mutex and block here
                 }
-                //printf("thread wake: %s %d, and should do some job assignment here:%d\n",Thread::ThreadName().c_str(), Thread::GetTid(), running_);
-                
+                //printf("thread wake: %s %d, and should do some job assignment here:%d\n",
+                //Thread::ThreadName().c_str(), Thread::GetTid(), count);
+                if(!running_)
+                {
+                    throw QueueBreak();
+                }
+
                 blocking_job job = 0;
                 if(queue_.size())
                 {
                     job = queue_.front();
                     queue_.pop_front();
                 }
-                
+
                 if(queue_.size())
                     cond_.notify();
-                
-                if(!running_)
-                {
-                    throw QueueBreak("queue break");
-                }
-                
+
                 return job;
             }
-            
-            
+
             void runInThread()
             {
                 while(1)
                 {
-                    blocking_job job = takeJob();
-                    
-                    if(job)
+                    try
                     {
-                        try {
+                        blocking_job job = takeJob();
+                        if(job)
                             job();//synchronize by user
-                        } catch (QueueBreak &e) {
-                            fprintf(stderr, "%s", e.what());
-                            break;
-                        } catch (std::exception &e) {
-                            fprintf(stderr, "%s", e.what());
-                        }
+                    }catch(const QueueBreak& e)
+                    {
+                        LOG_INFO<<"thread exit...";
+                        ::pthread_exit(nullptr);
+                    }catch(const std::exception &e)
+                    {
+                        LOG_ERROR<<e.what();
                     }
                 }
             }
-            
+
             void commence()
             {
                 if(running_)
                 {
                     return;
                 }
-                
+
                 running_ = true;
-                
+
                 for(int i=0; i<ThreadNum; i++)
                 {
                     std::string name="blocking-thread:";
                     name+=boost::lexical_cast<std::string>(i);
                     thread_ptr thread(new Thread(name, boost::bind(&BlockingQueue::runInThread,this)));
                     threads_.push_back(thread);
-                    
+
                     thread->start();
                 }
             }
@@ -136,7 +136,7 @@ namespace codechiev {
                     cond_.notifyall();
                 }
             }
-            
+
             ~BlockingQueue()
             {
                 for(thread_vec::iterator it=threads_.begin(); it!=threads_.end(); it++)
@@ -146,8 +146,8 @@ namespace codechiev {
                 }
             }
         };
-        
-        
+
+
     }
 }
 

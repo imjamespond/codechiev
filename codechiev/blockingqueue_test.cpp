@@ -9,8 +9,10 @@
 #include <stdio.h>
 #include <boost/bind.hpp>
 #include <errno.h>
+#include <exception>
 
 #include "base/BlockingQueue.hpp"
+#include "base/Logger.hpp"
 #include "base/Random.hpp"
 #include "base/Time.hpp"
 #include "base/Logger.hpp"
@@ -23,11 +25,12 @@ void print()
     if(count)
     {
         count=0;
-        int64_t millis = random(1, 10);
+        int64_t millis = random(100,110);
         Time::SleepMillis(millis);
         if(count)
         {
-            LOG_TRACE<<"sleep:"<<millis<< " thread:"<<Thread::ThreadName()<< " tid:"<<Thread::GetTid();
+            //LOG_INFO<<Thread::ThreadName()<< "-" << Thread::GetTid()<<" sleep:"<<millis;
+            throw std::runtime_error(std::string("count error..."));
         }
     }
     else

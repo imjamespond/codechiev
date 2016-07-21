@@ -11,11 +11,12 @@
 
 #include <stdio.h>
 #include <string>
+#include <string.h>
 #include <assert.h>
 
 namespace codechiev {
     namespace base {
-        
+
         template <int BUFFER_SIZE>
         class FixedBuffer
         {
@@ -24,21 +25,21 @@ namespace codechiev {
             {
                 ::memset(buffer_, 0, BUFFER_SIZE);
             }
-            
+
             int readable()
             {
                 int rb = writer_-reader_;
                 assert(rb>=0);
                 return rb;
             }
-            
+
             int writable()
             {
                 int wb = BUFFER_SIZE-writer_;
                 assert(wb>=0);
                 return wb;
             }
-            
+
             void append(const char *str)
             {
                 int len = static_cast<int>(::strlen(str));
@@ -54,25 +55,25 @@ namespace codechiev {
                     write(wb);
                 }
             }
-            
+
             void read(int len)
             {
                 reader_+=len;
             }
-            
+
             void readall()
             {
                 int rb = readable();
                 read(rb);
             }
-            
+
             void write(int len)
             {
                 writer_+=len;
                 assert(writer_<BUFFER_SIZE);
                 buffer_[writer_]='\0';
             }
-            
+
             void move()
             {
                 int rb = readable();
@@ -80,18 +81,18 @@ namespace codechiev {
                 reader_=0;
                 writer_=rb;
             }
-            
+
             const char* str()
             {
                 return buffer_+reader_;
             }
-            
+
         private:
             int writer_;
             int reader_;
             char buffer_[BUFFER_SIZE];
         };
-        
+
     }
 }
 

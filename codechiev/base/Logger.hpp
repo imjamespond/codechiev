@@ -13,7 +13,7 @@
 
 namespace codechiev {
     namespace base {
-        
+
         class Logger
         {
         public:
@@ -28,7 +28,7 @@ namespace codechiev {
             };
             explicit Logger(const char* , const char* , int , Level );
             ~Logger();
-            
+
             Logger &operator<<(const char*);
             Logger &operator<<(const std::string&);
             Logger &operator<<( int);
@@ -39,7 +39,7 @@ namespace codechiev {
             Level level_;
             FixedBuffer<256> buffer_;
         };
-        
+
         class LoggerStream
         {
         };
