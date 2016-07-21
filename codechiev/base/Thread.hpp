@@ -26,6 +26,7 @@ namespace codechiev {
             void run();
             void start();
             void join();
+            void cancel();
             inline std::string getThreadName();
             static std::string ThreadName();
             static int GetTid();

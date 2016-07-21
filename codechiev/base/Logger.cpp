@@ -37,6 +37,16 @@ Logger::Level initLoggerLevel()
 }
 Logger::Level gLevel=initLoggerLevel();
 
+void setLoggerLevel(Logger::Level lv)
+{
+    gLevel=lv;
+}
+void setLoggerDetail(bool detail)
+{
+    gDetail=detail;
+}
+
+
 const char *kLoggerLevels[Logger::LevelSize]=
 {
     "Trace",
@@ -78,6 +88,12 @@ Logger::operator<<(const std::string & str)
 
 Logger&
 Logger::operator<<(int val)
+{
+    buffer_.append(boost::lexical_cast<std::string>(val).c_str());
+    return *this;
+}
+Logger&
+Logger::operator<<(int64_t val)
 {
     buffer_.append(boost::lexical_cast<std::string>(val).c_str());
     return *this;

@@ -23,18 +23,20 @@ Condition cond;
 Mutex cond_mutex;
 Mutex user_mutex;
 int count(0);
+bool running(true);
 void print()
 {
     while(1)
     {
         {
             MutexGuard lock(&cond_mutex);
-            while(count==0)
+            while(count==0&&running)
             {
                 cond.wait(cond_mutex);//release mutex and block here
             }
             printf("thread wake: %s %d, and should do some job assignment here:%d\n",
                    Thread::ThreadName().c_str(), Thread::GetTid(), count);
+            
             if(--count)
                 cond.notify();
         }
@@ -63,6 +65,11 @@ void wake(int ch)
     {
         count+=5;
         cond.notify();
+    }
+    if(ch=='q')
+    {
+        running=false;
+        cond.notifyall();
     }
 }
 

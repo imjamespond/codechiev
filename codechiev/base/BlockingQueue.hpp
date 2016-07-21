@@ -11,6 +11,7 @@
 
 #include <deque>
 #include <vector>
+#include <exception>
 #include <boost/lexical_cast.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/function.hpp>
@@ -23,13 +24,21 @@
 namespace codechiev {
     namespace base {
         
+        class QueueBreak :public std::exception
+        {
+        public:
+            explicit QueueBreak(const std::string& tx):text(tx){}
+            virtual char const* what() const throw() { return text.c_str();}
+            std::string text;
+        };
+        
         template <int ThreadNum>
         class BlockingQueue : boost::noncopyable
         {
         public:
             typedef boost::function<void()> blocking_job;
             typedef std::deque<blocking_job > blocking_queue;
-            BlockingQueue():runnig_(false) {}
+            BlockingQueue():running_(false) {}
             
         public:
             typedef boost::shared_ptr<Thread> thread_ptr;
@@ -38,10 +47,10 @@ namespace codechiev {
             Condition cond_;
             Mutex mutex_;
             blocking_queue queue_;
-            bool runnig_;
+            bool running_;
             
         public:
-            void addJob(blocking_job &job)
+            void addJob(const blocking_job &job)
             {
                 MutexGuard lock(&mutex_);
                 queue_.push_back(job);
@@ -49,15 +58,16 @@ namespace codechiev {
                 cond_.notify();
             }
             
-            blocking_job takeJob()
+            blocking_job takeJob() throw(QueueBreak)
             {
                 MutexGuard lock(&mutex_);
-                while(queue_.size()==0)
+                
+                while(queue_.size()==0 && running_)
                 {
                     cond_.wait(mutex_);//release mutex and block here
                 }
-                //printf("thread wake: %s %d, and should do some job assignment here:%d\n",
-                //Thread::ThreadName().c_str(), Thread::GetTid(), count);
+                //printf("thread wake: %s %d, and should do some job assignment here:%d\n",Thread::ThreadName().c_str(), Thread::GetTid(), running_);
+                
                 blocking_job job = 0;
                 if(queue_.size())
                 {
@@ -67,6 +77,11 @@ namespace codechiev {
                 
                 if(queue_.size())
                     cond_.notify();
+                
+                if(!running_)
+                {
+                    throw QueueBreak("queue break");
+                }
                 
                 return job;
             }
@@ -80,19 +95,26 @@ namespace codechiev {
                     
                     if(job)
                     {
-                        job();//synchronize by user
+                        try {
+                            job();//synchronize by user
+                        } catch (QueueBreak &e) {
+                            fprintf(stderr, "%s", e.what());
+                            break;
+                        } catch (std::exception &e) {
+                            fprintf(stderr, "%s", e.what());
+                        }
                     }
                 }
             }
             
             void commence()
             {
-                if(runnig_)
+                if(running_)
                 {
                     return;
                 }
                 
-                runnig_ = true;
+                running_ = true;
                 
                 for(int i=0; i<ThreadNum; i++)
                 {
@@ -105,10 +127,19 @@ namespace codechiev {
                 }
             }
             
+            void stop()
+            {
+                MutexGuard lock(&mutex_);
+                if(running_)
+                {
+                    running_=false;
+                    cond_.notifyall();
+                }
+            }
+            
             ~BlockingQueue()
             {
-                thread_vec::iterator it;
-                for(it=threads_.begin(); it!=threads_.end(); it++)
+                for(thread_vec::iterator it=threads_.begin(); it!=threads_.end(); it++)
                 {
                     thread_ptr thread = *it;
                     thread->join();

@@ -32,6 +32,7 @@ namespace codechiev {
             Logger &operator<<(const char*);
             Logger &operator<<(const std::string&);
             Logger &operator<<( int);
+            Logger &operator<<( int64_t);
             Logger &operator<<( float);
             Logger &operator<<( double);
         private:
@@ -45,6 +46,8 @@ namespace codechiev {
     }
 }
 
+extern void setLoggerDetail(bool);
+extern void setLoggerLevel(codechiev::base::Logger::Level);
 extern codechiev::base::Logger::Level gLevel;
 #define LOG_CHECK( lv ) if(lv>=gLevel)\
     Logger(__FILE__,__func__,__LINE__,lv)

@@ -83,6 +83,13 @@ Thread::join()
         handle_error_en(s, "pthread_join");
 }
 
+void
+Thread::cancel()
+{
+    if(::pthread_self() != thread_)
+        ::pthread_cancel(thread_);
+}
+
 std::string
 Thread::ThreadName()
 {
