@@ -46,7 +46,7 @@ namespace codechiev {
     }
 }
 
-extern void setLoggerDetail(bool);
+extern void setLoggerDetail(unsigned int);
 extern void setLoggerLevel(codechiev::base::Logger::Level);
 extern codechiev::base::Logger::Level gLevel;
 #define LOG_CHECK( lv ) if(lv>=gLevel)\
