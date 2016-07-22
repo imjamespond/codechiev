@@ -18,7 +18,8 @@ int count(0);
 Mutex mutex;
 void print()
 {
-    while(1)
+    int i(99999);
+    while(--i)
     {
         {
             //MutexGuard lock(&mutex);
