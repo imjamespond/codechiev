@@ -29,6 +29,7 @@ namespace codechiev {
         {
         public:
             explicit QueueBreak(const std::string& tx):text(tx){}
+            virtual ~QueueBreak(){};
             virtual char const* what() const throw() { return text.c_str();}
             std::string text;
         };
