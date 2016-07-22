@@ -35,7 +35,7 @@ void print()
                 cond.wait(cond_mutex);//release mutex and block here
             }
             printf("thread wake: %s %d, and should do some job assignment here:%d\n",
-                   Thread::ThreadName().c_str(), Thread::GetTid(), count);
+                   Thread::ThreadName().c_str(), Thread::Tid(), count);
             
             if(--count)
                 cond.notify();
@@ -46,7 +46,7 @@ void print()
             int64_t millis = random(500, 2000);
             Time::SleepMillis(millis);
             printf("finish job here: %s %d, sleep for: %lld\n",
-                   Thread::ThreadName().c_str(), Thread::GetTid(), millis);
+                   Thread::ThreadName().c_str(), Thread::Tid(), millis);
         }
 
     }
