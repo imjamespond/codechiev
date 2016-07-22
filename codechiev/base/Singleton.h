@@ -53,7 +53,7 @@ namespace codechiev
         template <class T>
         INIT_ONCE Singleton<T>::once_;
         template <class T>
-        T* Singleton<T>::t_ = nullptr;
+        T* Singleton<T>::t_ = NULL;
 #else
         template <class T>
         class Singleton

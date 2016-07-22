@@ -49,7 +49,7 @@ Time::SleepMillis(int64_t millis)
 #ifdef __MINGW32__
     Sleep(millis);
 #else
-    ::nanosleep(&tm, nullptr);
+    ::nanosleep(&tm, NULL);
 #endif // __MINGW32__
 }
 
@@ -69,7 +69,7 @@ Time::operator-(Time & t)
 std::string
 Time::GetSimpleString()
 {
-    std::time_t result = std::time(nullptr);
+    std::time_t result = std::time(NULL);
     return std::asctime(std::localtime(&result));
 }
 

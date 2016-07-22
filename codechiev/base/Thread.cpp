@@ -26,10 +26,10 @@ start_routine(void *arg)
 {
     Thread *thread = static_cast<Thread*>(arg);
     thread->run();
-    return nullptr;
+    return NULL;
 }
 
-__thread Thread* gThreadData(nullptr);
+__thread Thread* gThreadData(NULL);
 
 Thread::Thread(const std::string& name, const thread_func& func):
 name_(name), func_(func)
@@ -58,7 +58,7 @@ Thread::run()
     //The entire process is terminated due to making a call to either the exec() or !!!exit()!!!
     //If main() finishes first, without calling pthread_exit explicitly itself
     //The pthread_exit() routine allows the programmer to specify an optional termination status parameter. !!!This optional parameter is typically returned to threads "joining"!!! the terminated thread (covered later).
-    ::pthread_exit(nullptr);
+    ::pthread_exit(NULL);
 }
 
 void
@@ -70,7 +70,7 @@ Thread::start()
     //start_routine: the C routine that the thread will execute once it is created.
     //arg: A single argument that may be passed to start_routine. It must be passed by reference as a pointer cast of type void. !!!!NULL may be used if no argument is to be passed!!!!.
     int s;
-    s = ::pthread_create(&thread_, nullptr,
+    s = ::pthread_create(&thread_, NULL,
                        &start_routine, this);
     if (s != 0)
         handle_error_en(s, "pthread_create");
@@ -81,7 +81,7 @@ Thread::join()
 {
     //The programmer is able to !!!obtain the target thread's termination return status!!! if it was !!!!specified in the target thread's call to pthread_exit().
     int s;
-    s = ::pthread_join(thread_, nullptr);
+    s = ::pthread_join(thread_, NULL);
     if (s != 0)
         handle_error_en(s, "pthread_join");
 }

@@ -13,7 +13,7 @@ using namespace codechiev::base;
 
 Mutex::Mutex()
 {
-    ::pthread_mutex_init(&mutex_, nullptr);
+    ::pthread_mutex_init(&mutex_, NULL);
 }
 
 Mutex::~Mutex()

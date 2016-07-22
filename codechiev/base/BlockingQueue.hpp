@@ -99,7 +99,7 @@ namespace codechiev {
                     }catch(const QueueBreak& e)
                     {
                         LOG_INFO<<e.what();
-                        ::pthread_exit(nullptr);
+                        ::pthread_exit(NULL);
                     }catch(const std::exception &e)
                     {
                         LOG_ERROR<<e.what();

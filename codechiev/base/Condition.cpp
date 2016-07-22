@@ -13,7 +13,7 @@ using namespace codechiev::base;
 Condition::Condition()
 {
     //  There is only one attribute defined for condition variables: process-shared, which allows the condition variable to be seen by threads in other processes. The attribute object, if used, must be of type pthread_condattr_t (may be specified as NULL to accept defaults).
-    ::pthread_cond_init(&cond_, nullptr);
+    ::pthread_cond_init(&cond_, NULL);
 }
 
 Condition::~Condition()
