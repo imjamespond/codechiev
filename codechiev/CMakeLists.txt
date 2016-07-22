@@ -18,6 +18,4 @@ include_directories (${HEADER})
 set (MY_LIBS pthread rt)
 
 add_subdirectory(base)
-add_subdirectory(utility)
 add_subdirectory(net)
-add_subdirectory(db)
