@@ -9,6 +9,7 @@
 #ifndef Thread_hpp
 #define Thread_hpp
 
+#include <stdint.h>
 #include <string>
 #include <boost/noncopyable.hpp>
 #include <boost/function.hpp>
