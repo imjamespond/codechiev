@@ -81,7 +81,7 @@ int main(int argc, const char * argv[]) {
     {
         std::string name("thread-");
         name+=boost::lexical_cast<std::string>(i);
-        auto t = new Thread(name, boost::bind(&print));
+        Thread *t = new Thread(name, boost::bind(&print));//FIXME
         threads[i] = t;
         t->start();
     }
