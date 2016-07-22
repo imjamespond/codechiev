@@ -26,7 +26,6 @@ function_update()
 if [ "$1" = "build" ]; then
 	function_update
 	function_build ~/cpp/boost_1_61 `pwd`
-elif [ "$1" = "svn" ]; then
 else
 	echo "input build for build,\
 zip for zip."
