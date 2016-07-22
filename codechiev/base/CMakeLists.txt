@@ -11,9 +11,9 @@ target_link_libraries (${LIB} pthread rt)#link for this lib, rt is for get_clock
 
 
 message(STATUS "message please run \"make install\" : " ${CMAKE_INSTALL_PREFIX})
-install(TARGETS ${LIB} DESTINATION /data0/lib)
+install(TARGETS ${LIB} DESTINATION ${ROOT}/libs)
 file(GLOB HEADERS "*.h")
-install(FILES ${HEADERS} DESTINATION /data0/include/codechiev/base)
+install(FILES ${HEADERS} DESTINATION ${ROOT}/include/codechiev/base)
 
 enable_testing()
 set (BASE_HEADERS ${CMAKE_CURRENT_SOURCE_DIR})
