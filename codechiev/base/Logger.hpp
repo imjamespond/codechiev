@@ -9,6 +9,7 @@
 #ifndef Logger_hpp
 #define Logger_hpp
 
+#include <stdint.h>
 #include "FixedBuffer.h"
 
 namespace codechiev {
