@@ -25,7 +25,7 @@ function_update()
 
 if [ "$1" = "build" ]; then
 	function_update
-	function_build ~/cpp/boost_1_61 `pwd`
+	function_build ~/cpp/boost_1_61_0 `pwd`
 else
 	echo "input build for build,\
 zip for zip."
