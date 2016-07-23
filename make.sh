@@ -23,7 +23,7 @@ function_update()
 	git pull origin master
 }
 
-function_commitpush
+function_commitpush()
 {
 	git commit -a -m 'cm'
 	git push local master
