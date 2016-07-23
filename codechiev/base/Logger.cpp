@@ -23,20 +23,17 @@ enum Detail
 };
 Logger::Level initLoggerLevel()
 {
-    
-    if(::getenv("LoggerThread"))
-    {
+
+    #ifdef LoggerThread
         gDetail|=DetailThread;
-    }
-    if(::getenv("LoggerFile"))
-    {
+    #endif // LoggerThread
+    #ifdef LoggerFile
         gDetail|=DetailFile;
-    }
-    if(::getenv("LoggerFunc"))
-    {
+    #endif // LoggerFile
+    #ifdef LoggerFunc
         gDetail|=DetailFunc;
-    }
-    
+    #endif // LoggerFunc
+
     if(::getenv("LoggerDebug"))
     {
         return Logger::Debug;

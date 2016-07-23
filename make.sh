@@ -13,7 +13,6 @@ function_build()
 	cmake . ../$PROJECT \
 	-DBOOST_ROOT=$1 \
 	-DROOT=$2 
-	-DLoggerThread=1
 	make && make install
 
 	cd $PROJECT_PATH/build/base/tests
