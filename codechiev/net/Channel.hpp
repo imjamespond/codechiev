@@ -11,13 +11,16 @@
 
 namespace codechiev {
     namespace net {
-        
+
         class Channel
         {
         public:
-            Channel();
-            
+            Channel(int fd):fd_(fd){}
+            inline void setFd(int fd){fd_=fd;};
+            inline int getFd(){return fd_;}
+
         private:
+            int fd_;
         };
     }
 }

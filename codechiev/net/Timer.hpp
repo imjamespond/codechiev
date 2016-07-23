@@ -9,17 +9,19 @@
 #ifndef Timer_hpp
 #define Timer_hpp
 
+#include "Channel.hpp"
 #include <boost/noncopyable.hpp>
 
 namespace codechiev {
     namespace net {
-        
+
         class Timer : public boost::noncopyable
         {
         public:
             Timer();
-            
+
         private:
+            Channel channel_;
         };
     }
 }
