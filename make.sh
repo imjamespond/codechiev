@@ -28,7 +28,7 @@ function_commitpush()
 	git commit -a -m 'cm'
 	git push local master
 	ssh james@127.0.0.1 "cd ~/cpp/codechiev;
-	./make.sh build"
+	./make.sh bui"
 }
 
 if [ "$1" = "build" ]; then
