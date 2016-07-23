@@ -109,20 +109,17 @@ Thread::ThreadName()
 int
 Thread::Tid()
 {
-    //
-    int threadid(0);
-    #ifdef __linux___
-    threadid = static_cast<int>(::syscall(SYS_gettid));
+    #ifdef __linux__
+    return static_cast<int>(::syscall(SYS_gettid));
     #endif // __linux___
     #ifdef __APPLE__
     uint64_t tid;
     pthread_t self;
     self = ::pthread_self();
     ::pthread_threadid_np(self, &tid);
-    threadid = static_cast<int>(tid) ;
+    return static_cast<int>(tid) ;
     #endif // __APPLE__
     #ifdef __MINGW32__
-    threadid = static_cast<int>(::GetCurrentThreadId());
+    return static_cast<int>(::GetCurrentThreadId());
     #endif // __MINGW32__
-    return threadid;
 }
