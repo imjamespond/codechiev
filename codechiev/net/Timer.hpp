@@ -20,6 +20,9 @@ namespace codechiev {
         public:
             Timer();
 
+            void setTime();
+            void after();
+
         private:
             Channel channel_;
         };
