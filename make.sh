@@ -27,6 +27,7 @@ if [ "$1" = "build" ]; then
 	function_update
 	function_build ~/cpp/boost_1_61_0 `pwd`
 elif [ "$1" = "bui" ]; then
+	function_update
 	function_build ~/boost_1_59 `pwd`
 else
 	echo "input build for build,\
