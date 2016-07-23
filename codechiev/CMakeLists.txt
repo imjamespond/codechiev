@@ -10,7 +10,6 @@ add_definitions(-DLoggerDebug=1)
 add_definitions(-DLoggerThread=1)
 
 set (BOOST ${BOOST_ROOT})
-
 set (HEADER ${CMAKE_CURRENT_SOURCE_DIR})
 set (HEADER ${HEADER} ${BOOST})
 set (HEADER ${HEADER} ${ROOT})

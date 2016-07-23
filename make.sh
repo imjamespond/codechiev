@@ -25,7 +25,7 @@ function_update()
 
 function_commitpush
 {
-	git commit -m 'cm'
+	git commit -a -m 'cm'
 	git push local master
 }
 

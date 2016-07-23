@@ -8,7 +8,7 @@
 
 #include "Thread.hpp"
 #include <errno.h>
-#ifdef __linux___
+#ifdef __linux__
 #include <sys/syscall.h>
 #elifdef
 #include <windows.h>
@@ -110,7 +110,7 @@ Thread::Tid()
 {
     //
     int threadid(0);
-    #ifdef __linux___
+    #ifdef __linux__
     threadid = static_cast<int>(::syscall(SYS_gettid));//prohibited in os?
     #elif __APPLE__
     uint64_t tid;
