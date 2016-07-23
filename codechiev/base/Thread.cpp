@@ -10,7 +10,8 @@
 #include <errno.h>
 #ifdef __linux__
 #include <sys/syscall.h>
-#elif
+#endif // __linux__
+#ifdef __MINGW32__
 #include <windows.h>
 #endif // __MINGW32__
 
@@ -110,15 +111,17 @@ Thread::Tid()
 {
     //
     int threadid(0);
-    #ifdef __linux__
-    threadid = static_cast<int>(::syscall(SYS_gettid));//prohibited in os?
-    #elif __APPLE__
+    #ifdef __linux___
+    threadid = static_cast<int>(::syscall(SYS_gettid));
+    #endif // __linux___
+    #ifdef __APPLE__
     uint64_t tid;
     pthread_t self;
     self = ::pthread_self();
     ::pthread_threadid_np(self, &tid);
     threadid = static_cast<int>(tid) ;
-    #elif __MINGW32__
+    #endif // __APPLE__
+    #ifdef __MINGW32__
     threadid = static_cast<int>(::GetCurrentThreadId());
     #endif // __MINGW32__
     return threadid;
