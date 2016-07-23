@@ -5,8 +5,9 @@ PROJECT (CodeChiev)
 message("message root directory:${CMAKE_SOURCE_DIR}")
 message("message binary directory:${CMAKE_BINARY_DIR}")
 
-add_definitions(-DUSE_EPOLL=1)
-add_definitions(-DLOGGER_DEBUG=1)
+add_definitions(-DUseEpoll=1)
+add_definitions(-DLoggerDebug=1)
+add_definitions(-DLoggerThread=1)
 
 set (BOOST ${BOOST_ROOT})
 
