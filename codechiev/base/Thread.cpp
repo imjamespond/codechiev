@@ -8,8 +8,9 @@
 
 #include "Thread.hpp"
 #include <errno.h>
-//#include <sys/syscall.h>
-#ifdef __MINGW32__
+#ifdef __linux___
+#include <sys/syscall.h>
+#elif
 #include <windows.h>
 #endif // __MINGW32__
 
@@ -107,9 +108,11 @@ Thread::ThreadName()
 int
 Thread::Tid()
 {
-    //return ::syscall(SYS_gettid);//prohibited in os?
+    //
     int threadid(0);
-    #ifdef __APPLE__
+    #ifdef __linux___
+    threadid = static_cast<int>(::syscall(SYS_gettid));//prohibited in os?
+    #elif __APPLE__
     uint64_t tid;
     pthread_t self;
     self = ::pthread_self();

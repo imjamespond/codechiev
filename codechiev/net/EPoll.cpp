@@ -7,10 +7,11 @@
 //
 
 #include "EPoll.hpp"
+#include <sys/epoll.h>
 
 using namespace codechiev::net;
 
 EPoll::EPoll()
 {
-    
+
 }
