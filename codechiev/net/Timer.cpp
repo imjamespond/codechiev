@@ -8,6 +8,7 @@
 
 #include "Timer.hpp"
 #include "Channel.hpp"
+#include <assert.h>
 #include <sys/timerfd.h>
 
 using namespace codechiev::net;
