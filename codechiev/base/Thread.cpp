@@ -10,7 +10,7 @@
 #include <errno.h>
 #ifdef __linux___
 #include <sys/syscall.h>
-#elif
+#elifdef
 #include <windows.h>
 #endif // __MINGW32__
 
