@@ -18,6 +18,8 @@ function_build()
 	if [ "$3" != "" ]; then
 		cd $PROJECT_PATH/build/base/tests
 		ctest --output-on-failure .
+		cd $PROJECT_PATH/build/net/tests
+		ctest --output-on-failure .
 	fi
 }
 function_update()
