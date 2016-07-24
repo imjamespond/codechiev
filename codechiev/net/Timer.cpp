@@ -112,6 +112,7 @@ Timer::after(int64_t secs)
     while(1)
     {
         int len = ::read(channel_.getFd(), &exp, sizeof(uint64_t));
+        LOG_DEBUG<<"read";
         if(len==sizeof(uint64_t))
             LOG_DEBUG<<"time's up";
     }
