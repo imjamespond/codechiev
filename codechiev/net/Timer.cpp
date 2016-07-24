@@ -103,7 +103,7 @@ Timer::after(int64_t secs)
     new_value.it_value.tv_sec = now.tv_sec + secs;
     new_value.it_value.tv_nsec = now.tv_nsec;
 
-    new_value.it_interval.tv_sec = 2000;
+    new_value.it_interval.tv_sec = 1;
     new_value.it_interval.tv_nsec = 0;
 
     ::timerfd_settime(channel_.getFd(), TFD_TIMER_ABSTIME, &new_value, &old_value);
