@@ -11,6 +11,7 @@
 
 #include "Channel.hpp"
 #include <boost/noncopyable.hpp>
+#include <stdint.h>        /* Definition of uint64_t */
 
 namespace codechiev {
     namespace net {

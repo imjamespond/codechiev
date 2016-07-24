@@ -11,9 +11,7 @@
 #include <errno.h>
 #include <exception>
 
-#include "net/EventLoop.h"
-#include "net/EPoll.hpp"
-#include "base/Thread.hpp"
+#include <net/Timer.hpp>
 
 using namespace codechiev;
 
@@ -24,11 +22,8 @@ void print()
 }
 
 int main(int argc, const char * argv[]) {
-    
-    typedef net::EventLoop<net::EPoll> epoll_loop;
-    epoll_loop loop;
-    base::Thread t("",boost::bind(&epoll_loop::loop, &loop));
-    t.start();
-    t.join();
+
+    Timer timer;
+    timer.after(3000l);
     return 0;
 }

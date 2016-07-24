@@ -9,9 +9,13 @@
 #include "Timer.hpp"
 #include "Channel.hpp"
 #include <assert.h>
+#include <time.h>
 #include <sys/timerfd.h>
 
 using namespace codechiev::net;
+
+#define handle_error(msg) \
+               do { perror(msg); exit(EXIT_FAILURE); } while (0)
 
 /*These system calls create and operate on a timer that delivers timer
        expiration notifications via a file descriptor.They provide an
@@ -58,50 +62,55 @@ void
 Timer::setTime()
 {
     /*   timerfd_settime()
-       timerfd_settime() arms (starts) or disarms (stops) the timer referred
-       to by the file descriptor fd.
-
-       The new_value argument specifies *****the initial expiration and *****interval
-       for the timer.  The itimer structure used for this argument contains
-       two fields, each of which is in turn a structure of type timespec:
-
-           struct timespec {
-               time_t tv_sec;                /* Seconds
-               long   tv_nsec;               /* Nanoseconds
-           };
-
-           struct itimerspec {
-               struct timespec it_interval;  /* Interval for periodic timer
-               struct timespec it_value;     /* Initial expiration
-           };
-
-       new_value.it_value specifies the initial expiration of the timer, in
-       seconds and nanoseconds.  Setting either field of new_value.it_value
-       to a nonzero value arms the timer.  Setting both fields of
-       new_value.it_value to zero disarms the timer.
-
-       Setting one or both fields of new_value.it_interval to nonzero values
-       specifies the period, in seconds and nanoseconds, for repeated timer
-       expirations after the initial expiration.  If both fields of
-       new_value.it_interval are zero, the timer expires just once, at the
-       time specified by new_value.it_value.
-
-       The flags argument is either 0, to start a relative timer
-       (new_value.it_value specifies a time relative to the current value of
-       the clock specified by clockid), or TFD_TIMER_ABSTIME, to start an
-       absolute timer (new_value.it_value specifies an absolute time for the
+       The flags argument is *****either 0, to start a *****relative timer
+       (*****new_value.it_value specifies a time *****relative to the current value of
+       the clock specified by clockid), *****or TFD_TIMER_ABSTIME, to start an
+       *****absolute timer (new_value.it_value specifies an absolute time for the
        clock specified by clockid; that is, the timer will expire when the
        value of that clock reaches the value specified in
        new_value.it_value).
 
-       If the old_value argument is not NULL, then the itimerspec structure
-       that it points to is used to return the setting of the timer that was
+       If the *****old_value argument is not NULL, then the *****itimerspec structure
+       that it points to is used to *****return the setting of the timer***** that was
        current at the time of the call; see the description of
-       timerfd_gettime() following.*/
+       timerfd_gettime() following.
+ Set next expiration time of interval timer source UFD to UTMR.  If
+   FLAGS has the TFD_TIMER_ABSTIME flag set the timeout value is
+   absolute.  Optionally return the old expiration time in OTMR.
+extern int timerfd_settime (int __ufd, int __flags,
+			    __const struct itimerspec *__utmr,
+			    struct itimerspec *__otmr) __THROW;*/
+
+        int max_exp, fd;
+
+
+
+        struct itimerspec oldtime;
+
+
 }
 
 void
-Timer::after()
+Timer::after(int64_t secs)
 {
+    struct itimerspec new_value;
+    struct itimerspec old_value;
+    struct timespec now;
+    if (clock_gettime(CLOCK_REALTIME, &now) == -1)
+        handle_error("clock_gettime");
+    new_value.it_value.tv_sec = now.tv_sec + secs;
+    new_value.it_value.tv_nsec = now.tv_nsec;
 
+    new_value.it_interval.tv_sec = 2000;
+    new_value.it_interval.tv_nsec = 0;
+
+    ::timerfd_settime(channel_.getFd(), TFD_TIMER_ABSTIME, &new_value, &old_value);
+
+    uint64_t exp(0);
+    while(1)
+    {
+        int len = ::read(channel_.getFd(), &exp, sizeof(uint64_t));
+        if(len==sizeof(uint64_t))
+            LOG_DEBUG<<"time's up";
+    }
 }
