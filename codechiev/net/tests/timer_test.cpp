@@ -24,6 +24,6 @@ void print()
 int main(int argc, const char * argv[]) {
 
     net::Timer timer;
-    timer.after(3000l);
+    timer.after(3);
     return 0;
 }
