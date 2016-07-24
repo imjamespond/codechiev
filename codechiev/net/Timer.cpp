@@ -10,6 +10,7 @@
 #include "Channel.hpp"
 #include <assert.h>
 #include <time.h>
+#include <stdio.h>
 #include <sys/timerfd.h>
 
 using namespace codechiev::net;
