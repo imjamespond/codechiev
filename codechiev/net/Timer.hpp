@@ -22,7 +22,7 @@ namespace codechiev {
             Timer();
 
             void setTime();
-            void after();
+            void after(int64_t);
 
         private:
             Channel channel_;
