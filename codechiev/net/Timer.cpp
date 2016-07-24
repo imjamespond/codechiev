@@ -57,7 +57,47 @@ Timer::Timer():
 void
 Timer::setTime()
 {
+    /*   timerfd_settime()
+       timerfd_settime() arms (starts) or disarms (stops) the timer referred
+       to by the file descriptor fd.
 
+       The new_value argument specifies *****the initial expiration and *****interval
+       for the timer.  The itimer structure used for this argument contains
+       two fields, each of which is in turn a structure of type timespec:
+
+           struct timespec {
+               time_t tv_sec;                /* Seconds
+               long   tv_nsec;               /* Nanoseconds
+           };
+
+           struct itimerspec {
+               struct timespec it_interval;  /* Interval for periodic timer
+               struct timespec it_value;     /* Initial expiration
+           };
+
+       new_value.it_value specifies the initial expiration of the timer, in
+       seconds and nanoseconds.  Setting either field of new_value.it_value
+       to a nonzero value arms the timer.  Setting both fields of
+       new_value.it_value to zero disarms the timer.
+
+       Setting one or both fields of new_value.it_interval to nonzero values
+       specifies the period, in seconds and nanoseconds, for repeated timer
+       expirations after the initial expiration.  If both fields of
+       new_value.it_interval are zero, the timer expires just once, at the
+       time specified by new_value.it_value.
+
+       The flags argument is either 0, to start a relative timer
+       (new_value.it_value specifies a time relative to the current value of
+       the clock specified by clockid), or TFD_TIMER_ABSTIME, to start an
+       absolute timer (new_value.it_value specifies an absolute time for the
+       clock specified by clockid; that is, the timer will expire when the
+       value of that clock reaches the value specified in
+       new_value.it_value).
+
+       If the old_value argument is not NULL, then the itimerspec structure
+       that it points to is used to return the setting of the timer that was
+       current at the time of the call; see the description of
+       timerfd_gettime() following.*/
 }
 
 void

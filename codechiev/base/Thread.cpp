@@ -112,6 +112,7 @@ Thread::Tid()
     #ifdef __linux__
     return static_cast<int>(::syscall(SYS_gettid));
     #endif // __linux___
+
     #ifdef __APPLE__
     uint64_t tid;
     pthread_t self;
@@ -119,6 +120,7 @@ Thread::Tid()
     ::pthread_threadid_np(self, &tid);
     return static_cast<int>(tid) ;
     #endif // __APPLE__
+
     #ifdef __MINGW32__
     return static_cast<int>(::GetCurrentThreadId());
     #endif // __MINGW32__
