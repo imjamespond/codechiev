@@ -51,7 +51,7 @@ extern void setLoggerDetail(unsigned int);
 extern void setLoggerLevel(codechiev::base::Logger::Level);
 extern codechiev::base::Logger::Level gLevel;
 #define LOG_CHECK( lv ) if(lv>=gLevel)\
-    Logger(__FILE__,__func__,__LINE__,lv)
+    codechiev::base::Logger(__FILE__,__func__,__LINE__,lv)
 #define LOG_DEBUG LOG_CHECK(codechiev::base::Logger::Debug)
 #define LOG_TRACE LOG_CHECK(codechiev::base::Logger::Trace)
 #define LOG_INFO LOG_CHECK(codechiev::base::Logger::Info)
