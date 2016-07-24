@@ -34,19 +34,19 @@ Logger::Level initLoggerLevel()
         gDetail|=DetailFunc;
     #endif // LoggerFunc
 
-    if(::getenv("LoggerDebug"))
-    {
-        return Logger::Debug;
-    }else if(::getenv("LoggerTrace"))
-    {
+    //if(::getenv("LoggerDebug"))
+    #ifdef LoggerTrace
         return Logger::Trace;
-    }else if(::getenv("LoggerWarn"))
-    {
+    #endif // LoggerDebug
+    #ifdef LoggerDebug
+        return Logger::Debug;
+    #endif // LoggerDebug
+    #ifdef LoggerWarn
         return Logger::Warn;
-    }else if(::getenv("LoggerError"))
-    {
+    #endif // LoggerWarn
+    #ifdef LoggerError
         return Logger::Error;
-    }
+    #endif // LoggerError
 
     return Logger::Info;
 }
