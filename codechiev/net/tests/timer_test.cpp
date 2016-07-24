@@ -23,7 +23,7 @@ void print()
 
 int main(int argc, const char * argv[]) {
 
-    Timer timer;
+    net::Timer timer;
     timer.after(3000l);
     return 0;
 }
