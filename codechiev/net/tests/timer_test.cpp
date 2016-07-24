@@ -10,7 +10,7 @@
 #include <boost/bind.hpp>
 #include <errno.h>
 #include <exception>
-
+#include <base/Logger.hpp>
 #include <net/Timer.hpp>
 
 using namespace codechiev;

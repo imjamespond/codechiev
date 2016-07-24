@@ -44,7 +44,7 @@ using namespace codechiev::net;
        in flags to change the behavior of timerfd_create():
 
        TFD_NONBLOCK  Set the O_NONBLOCK file status flag on the new open
-                     file description.  Using this flag saves extra calls to
+                     file description.  Using this flag *****saves extra calls to
                      fcntl(2) to achieve the same result.
 
        TFD_CLOEXEC   Set the close-on-exec (FD_CLOEXEC) flag on the new file
@@ -71,7 +71,7 @@ Timer::after(int64_t secs)
     new_value.it_value.tv_sec = now.tv_sec + secs;
     new_value.it_value.tv_nsec = now.tv_nsec;
 
-    new_value.it_interval.tv_sec = 1;
+    new_value.it_interval.tv_sec = 0;
     new_value.it_interval.tv_nsec = 0;
 
     ::timerfd_settime(channel_.getFd(), TFD_TIMER_ABSTIME, &new_value, &old_value);
