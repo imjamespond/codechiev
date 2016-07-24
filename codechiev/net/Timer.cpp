@@ -8,6 +8,7 @@
 
 #include "Timer.hpp"
 #include "Channel.hpp"
+#include <base/Logger.hpp>
 #include <assert.h>
 #include <time.h>
 #include <stdio.h>
