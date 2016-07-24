@@ -55,7 +55,7 @@ using namespace codechiev::net;
        as zero.
        */
 Timer::Timer():
-    channel_(timerfd_create(CLOCK_REALTIME, TFD_NONBLOCK|TFD_CLOEXEC))
+    channel_(timerfd_create(CLOCK_REALTIME, TFD_CLOEXEC))
 {
     assert(channel_.getFd()>-1);
 }
