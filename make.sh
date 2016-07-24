@@ -12,11 +12,13 @@ function_build()
 	cd build/
 	cmake . ../$PROJECT \
 	-DBOOST_ROOT=$1 \
-	-DROOT=$2 
+	-DROOT=$2
 	make && make install
 
-	cd $PROJECT_PATH/build/base/tests
-	ctest --output-on-failure .
+	if [ "$3" != "" ]; then
+		cd $PROJECT_PATH/build/base/tests
+		ctest --output-on-failure .
+	fi
 }
 function_update()
 {
