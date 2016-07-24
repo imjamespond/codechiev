@@ -55,41 +55,9 @@ using namespace codechiev::net;
        as zero.
        */
 Timer::Timer():
-    channel_(timerfd_create(CLOCK_REALTIME, TFD_CLOEXEC))
+    channel_(timerfd_create(CLOCK_REALTIME, TFD_NONBLOCK|TFD_CLOEXEC))
 {
     assert(channel_.getFd()>-1);
-}
-
-void
-Timer::setTime()
-{
-    /*   timerfd_settime()
-       The flags argument is *****either 0, to start a *****relative timer
-       (*****new_value.it_value specifies a time *****relative to the current value of
-       the clock specified by clockid), *****or TFD_TIMER_ABSTIME, to start an
-       *****absolute timer (new_value.it_value specifies an absolute time for the
-       clock specified by clockid; that is, the timer will expire when the
-       value of that clock reaches the value specified in
-       new_value.it_value).
-
-       If the *****old_value argument is not NULL, then the *****itimerspec structure
-       that it points to is used to *****return the setting of the timer***** that was
-       current at the time of the call; see the description of
-       timerfd_gettime() following.
- Set next expiration time of interval timer source UFD to UTMR.  If
-   FLAGS has the TFD_TIMER_ABSTIME flag set the timeout value is
-   absolute.  Optionally return the old expiration time in OTMR.
-extern int timerfd_settime (int __ufd, int __flags,
-			    __const struct itimerspec *__utmr,
-			    struct itimerspec *__otmr) __THROW;*/
-
-        int max_exp, fd;
-
-
-
-        struct itimerspec oldtime;
-
-
 }
 
 void
@@ -107,13 +75,4 @@ Timer::after(int64_t secs)
     new_value.it_interval.tv_nsec = 0;
 
     ::timerfd_settime(channel_.getFd(), TFD_TIMER_ABSTIME, &new_value, &old_value);
-
-    uint64_t exp(0);
-    while(1)
-    {
-        int len = ::read(channel_.getFd(), &exp, sizeof(uint64_t));
-        LOG_DEBUG<<"read";
-        if(len==sizeof(uint64_t))
-            LOG_DEBUG<<"time's up";
-    }
 }

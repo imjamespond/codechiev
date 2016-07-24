@@ -24,6 +24,7 @@ namespace codechiev {
             void setTime();
             void after(int64_t);
 
+            inline Channel& getChannel(){return channel_;}
         private:
             Channel channel_;
         };
