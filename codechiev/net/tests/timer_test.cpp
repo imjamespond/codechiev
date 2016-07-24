@@ -31,7 +31,7 @@ int main(int argc, const char * argv[]) {
     while(1)
     {
         int len = ::read(timer.getChannel().getFd(), &exp, sizeof(uint64_t));
-        LOG_DEBUG<<"read";
+        //LOG_DEBUG<<"read";
         if(len==sizeof(uint64_t))
             LOG_DEBUG<<"time's up";
     }
