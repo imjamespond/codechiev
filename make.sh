@@ -43,6 +43,11 @@ elif [ "$1" = "bui" ]; then
 	function_build ~/boost_1_59 `pwd`
 elif [ "$1" = "cop" ]; then
 	function_commitpush
+elif [ "$1" = "coph" ]; then
+        git commit -a -m 'cm'
+        git push local master
+        ssh james@yuyouidea.com "cd ~/cpp/codechiev;
+        ./make.sh build"
 else
 	echo "input build for build,\
 zip for zip."
