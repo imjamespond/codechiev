@@ -51,7 +51,7 @@ int main(int argc, const char * argv[]) {
             typedef short data_t;
             data_t data(0);
             ssize_t len = ::read(channel->getFd(), &data, sizeof(data_t));//test level-trigger
-            LOG_DEBUG<<"read:"<<len<<", fd:"<<channel->getFd();
+            LOG_DEBUG<<"read:"<<len<<", fd:"<<channel->getFd()<<", errno:"<<errno;
             if(len==sizeof(data_t))
                 LOG_DEBUG<<"time's up";
         }
