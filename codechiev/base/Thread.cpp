@@ -104,7 +104,7 @@ Thread::ThreadName()
         return gThreadData->getThreadName();
     }
 
-    return "no name for this thread";
+    return "thread-???";
 }
 
 int
