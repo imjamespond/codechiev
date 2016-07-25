@@ -23,9 +23,6 @@ void print()
 }
 
 int main(int argc, const char * argv[]) {
-
-
-
     /*test blocking fd
     uint64_t exp(0);
     while(1)
