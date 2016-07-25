@@ -33,7 +33,7 @@ int main(int argc, const char * argv[]) {
         if(len==sizeof(uint64_t))
             LOG_DEBUG<<"time's up";
     }*/
-    net::Channel::chanenl_vec vec;
+
     net::Timer timer;
     net::EPoll epoll;
     epoll.addEvent(timer.getChannel());
@@ -41,9 +41,8 @@ int main(int argc, const char * argv[]) {
     for(int i=0; i<3; i++)
     {
         timer.after(3);
-
+        net::Channel::chanenl_vec vec;
         epoll.wait(vec);
-
         for(net::Channel::chanenl_vec::iterator it=vec.begin();
             it!=vec.end();
             it++)
