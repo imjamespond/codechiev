@@ -23,11 +23,11 @@ events_(MAX_EVENTS)
 }
 
 void
-EPoll::add(codechiev::net::Channel &channel)
+EPoll::addEvent(codechiev::net::Channel &channel)
 {
     int oper(EPOLL_CTL_ADD);
 #ifdef EPOLLET
-    oper|=EPOLL_CTL_ADD;
+    oper|=EPOLLET;
 #endif
     struct epoll_event ev;
     ev.events = EPOLLIN|EPOLLOUT;
@@ -43,6 +43,13 @@ EPoll::add(codechiev::net::Channel &channel)
         exit(EXIT_FAILURE);
     }
 }
+
+void
+EPoll::setEvent(codechiev::net::Channel &channel)
+{
+
+}
+
 
 void
 EPoll::wait(Channel::chanenl_vec &vec)

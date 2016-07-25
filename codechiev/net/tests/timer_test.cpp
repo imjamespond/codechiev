@@ -24,8 +24,7 @@ void print()
 
 int main(int argc, const char * argv[]) {
 
-    net::Timer timer;
-    timer.after(3);
+
 
     /*test blocking fd
     uint64_t exp(0);
@@ -38,8 +37,28 @@ int main(int argc, const char * argv[]) {
     }*/
     net::Channel::chanenl_vec vec;
     net::EPoll epoll;
-    epoll.add(timer.getChannel());
-    epoll.wait(vec);
+    
+    net::Timer timer;
+    for(int i=0; i<3; i++)
+    {
+        timer.after(3);
+        epoll.addEvent(timer.getChannel());
+        epoll.wait(vec);
+        
+        for(net::Channel::chanenl_vec::iterator it=vec.begin();
+            it!=vec.end();
+            it++)
+        {
+            net::Channel *channel = *it;
+            uint64_t exp(0);
+            ssize_t len = ::read(channel->getFd(), &exp, sizeof(uint64_t));
+            //LOG_DEBUG<<"read";
+            if(len==sizeof(uint64_t))
+                LOG_DEBUG<<"time's up";
+        }
+    }
+
+    
     
     return 0;
 }
