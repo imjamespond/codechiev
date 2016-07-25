@@ -45,7 +45,7 @@ elif [ "$1" = "cop" ]; then
 	function_commitpush
 elif [ "$1" = "coph" ]; then
         git commit -a -m 'cm'
-        git push local master
+        git push origin master
         ssh james@yuyouidea.com "cd ~/cpp/codechiev;
         ./make.sh build"
 else
