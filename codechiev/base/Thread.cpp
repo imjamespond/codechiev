@@ -18,10 +18,10 @@
 using namespace codechiev::base;
 
 #define handle_error_en(en, msg) \
-//do { errno = en; perror(msg); exit(EXIT_FAILURE); } while (0)
+do { errno = en; perror(msg); exit(EXIT_FAILURE); } while (0)
 
 #define handle_error(msg) \
-//do { perror(msg); exit(EXIT_FAILURE); } while (0)
+do { perror(msg); exit(EXIT_FAILURE); } while (0)
 
 static void *
 start_routine(void *arg)
@@ -117,7 +117,7 @@ Thread::Tid()
     uint64_t tid;
     pthread_t self;
     self = ::pthread_self();
-    ::pthread_threadid_np(self, &tid);
+    //::pthread_threadid_np(self, &tid);
     return static_cast<int>(tid) ;
     #endif // __APPLE__
 

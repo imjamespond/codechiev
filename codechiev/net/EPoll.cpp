@@ -7,11 +7,57 @@
 //
 
 #include "EPoll.hpp"
-#include <sys/epoll.h>
+#include <base/Logger.hpp>
+#include <cstdlib>
 
 using namespace codechiev::net;
 
-EPoll::EPoll()
+#define MAX_EVENTS 10
+EPoll::EPoll():epollch_(::epoll_create1(EPOLL_CLOEXEC)),
+events_(MAX_EVENTS)
 {
-
+    if (epollch_.getFd() == -1) {
+        perror("epoll_create1");
+        exit(EXIT_FAILURE);
+    }
 }
+
+void
+EPoll::add(codechiev::net::Channel &channel)
+{
+    int oper(EPOLL_CTL_ADD);
+#ifdef EPOLLET
+    oper|=EPOLL_CTL_ADD;
+#endif
+    struct epoll_event ev;
+    ev.events = EPOLLIN|EPOLLOUT;
+    ev.data.fd = epollch_.getFd();
+    ev.data.ptr = &channel;
+    
+    if(events_.size()==MAX_EVENTS)
+    {
+        events_.resize(events_.size()<<1);//double size
+    }
+    if (::epoll_ctl(epollch_.getFd(), oper, channel.getFd(), &ev) == -1) {
+        perror("epoll_ctl: listen_sock");
+        exit(EXIT_FAILURE);
+    }
+}
+
+void
+EPoll::wait(Channel::chanenl_vec &vec)
+{
+    int nfds = ::epoll_wait(epollch_.getFd(), events_.data(), static_cast<int>(events_.size()), -1);
+    if (nfds == -1) {
+        perror("epoll_wait");
+        exit(EXIT_FAILURE);
+    }
+    
+    for(int i=0; i<nfds; i++)
+    {
+        struct epoll_event& ev = events_[i];
+        vec.push_back( static_cast<Channel*>(ev.data.ptr) );
+    }
+    
+}
+

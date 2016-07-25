@@ -9,6 +9,9 @@
 #ifndef EPoll_hpp
 #define EPoll_hpp
 
+#include "Channel.hpp"
+#include <vector>
+#include <sys/epoll.h>
 #include <boost/noncopyable.hpp>
 
 namespace codechiev {
@@ -19,8 +22,13 @@ namespace codechiev {
         public:
             EPoll();
             
+            void wait(Channel::chanenl_vec&);
+            void add(Channel&);
             
+            typedef std::vector<struct epoll_event> epoll_events;
         private:
+            Channel epollch_;
+            epoll_events events_;
         };
     }
 }

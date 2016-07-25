@@ -12,6 +12,7 @@
 #include <exception>
 #include <base/Logger.hpp>
 #include <net/Timer.hpp>
+#include <net/EPoll.hpp>
 
 using namespace codechiev;
 
@@ -26,15 +27,19 @@ int main(int argc, const char * argv[]) {
     net::Timer timer;
     timer.after(3);
 
-
+    /*test blocking fd
     uint64_t exp(0);
     while(1)
     {
-        int len = ::read(timer.getChannel().getFd(), &exp, sizeof(uint64_t));
+        ssize_t len = ::read(timer.getChannel().getFd(), &exp, sizeof(uint64_t));
         //LOG_DEBUG<<"read";
         if(len==sizeof(uint64_t))
             LOG_DEBUG<<"time's up";
-    }
-
+    }*/
+    net::Channel::chanenl_vec vec;
+    net::EPoll epoll;
+    epoll.add(timer.getChannel());
+    epoll.wait(vec);
+    
     return 0;
 }
