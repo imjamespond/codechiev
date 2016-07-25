@@ -27,7 +27,7 @@ EPoll::addEvent(codechiev::net::Channel &channel)
 {
     struct epoll_event ev;
     ev.events = EPOLLIN|EPOLLOUT;
-#undef UseEpollET
+//#undef UseEpollET
 #ifdef UseEpollET
     ev.events |= EPOLLET;
     LOG_DEBUG<<"UseEpollET";
