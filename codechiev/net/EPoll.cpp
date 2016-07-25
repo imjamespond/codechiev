@@ -26,11 +26,11 @@ void
 EPoll::addEvent(codechiev::net::Channel &channel)
 {
     int oper(EPOLL_CTL_ADD);
-#ifdef EPOLLET
-    oper|=EPOLLET;
-#endif
     struct epoll_event ev;
     ev.events = EPOLLIN|EPOLLOUT;
+#ifdef EPOLLET
+    ev.events |= EPOLLET;
+#endif
     ev.data.fd = epollch_.getFd();
     ev.data.ptr = &channel;
     
