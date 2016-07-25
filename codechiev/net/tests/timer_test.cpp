@@ -37,13 +37,13 @@ int main(int argc, const char * argv[]) {
     net::Timer timer;
     net::EPoll epoll;
     epoll.addEvent(timer.getChannel());
-    
+
     for(int i=0; i<3; i++)
     {
         timer.after(3);
-        
+
         epoll.wait(vec);
-        
+
         for(net::Channel::chanenl_vec::iterator it=vec.begin();
             it!=vec.end();
             it++)
@@ -51,12 +51,12 @@ int main(int argc, const char * argv[]) {
             net::Channel *channel = *it;
             uint64_t exp(0);
             ssize_t len = ::read(channel->getFd(), &exp, sizeof(uint64_t)/2);//test level-trigger
-            //LOG_DEBUG<<"read";
+            LOG_DEBUG<<"read:"<<len;
             if(len==sizeof(uint64_t))
                 LOG_DEBUG<<"time's up";
         }
     }
-    
-    
+
+
     return 0;
 }
