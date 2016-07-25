@@ -27,7 +27,7 @@ EPoll::addEvent(codechiev::net::Channel &channel)
 {
     int oper(EPOLL_CTL_ADD);
 #ifdef EPOLLET
-    oper|=EPOLLET;
+    oper|=EPOLL_CTL_ADD;
 #endif
     struct epoll_event ev;
     ev.events = EPOLLIN|EPOLLOUT;
@@ -45,12 +45,6 @@ EPoll::addEvent(codechiev::net::Channel &channel)
 }
 
 void
-EPoll::setEvent(codechiev::net::Channel &channel)
-{
-
-}
-
-void
 EPoll::wait(Channel::chanenl_vec &vec)
 {
     int nfds = ::epoll_wait(epollch_.getFd(), events_.data(), static_cast<int>(events_.size()), -1);
@@ -64,5 +58,6 @@ EPoll::wait(Channel::chanenl_vec &vec)
         struct epoll_event& ev = events_[i];
         vec.push_back( static_cast<Channel*>(ev.data.ptr) );
     }
+    
 }
 
