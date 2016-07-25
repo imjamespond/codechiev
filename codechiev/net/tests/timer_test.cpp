@@ -48,7 +48,7 @@ int main(int argc, const char * argv[]) {
             it++)
         {
             net::Channel *channel = *it;
-            typedef uint64_t data_t;
+            typedef short data_t;
             data_t data(0);
             ssize_t len = ::read(channel->getFd(), &data, sizeof(data_t));//test level-trigger
             LOG_DEBUG<<"read:"<<len<<", fd:"<<channel->getFd();
