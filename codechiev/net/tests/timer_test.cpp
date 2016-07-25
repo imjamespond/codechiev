@@ -34,13 +34,14 @@ int main(int argc, const char * argv[]) {
             LOG_DEBUG<<"time's up";
     }*/
     net::Channel::chanenl_vec vec;
-    net::EPoll epoll;
-    
     net::Timer timer;
+    net::EPoll epoll;
+    epoll.addEvent(timer.getChannel());
+    
     for(int i=0; i<3; i++)
     {
         timer.after(3);
-        epoll.addEvent(timer.getChannel());
+        
         epoll.wait(vec);
         
         for(net::Channel::chanenl_vec::iterator it=vec.begin();
