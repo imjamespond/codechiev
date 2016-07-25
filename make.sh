@@ -46,7 +46,7 @@ elif [ "$1" = "cop" ]; then
 elif [ "$1" = "coph" ]; then
         git commit -a -m 'cm'
         git push origin master
-        ssh -p9726 james@yuyouidea.com "cd ~/cpp/codechiev;
+        ssh -p9726 web1@yuyouidea.com "cd ~/cpp/codechiev;
         ./make.sh build"
 else
 	echo "input build for build,\
