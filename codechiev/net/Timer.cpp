@@ -9,7 +9,6 @@
 #include "Timer.hpp"
 #include "Channel.hpp"
 #include <base/Logger.hpp>
-#include <assert.h>
 #include <time.h>
 #include <stdio.h>
 #include <sys/timerfd.h>
@@ -57,7 +56,10 @@ using namespace codechiev::net;
 Timer::Timer():
     channel_(timerfd_create(CLOCK_REALTIME, TFD_NONBLOCK|TFD_CLOEXEC))
 {
-    assert(channel_.getFd()>-1);
+    if (channel_.getFd() == -1) {
+        perror("timerfd_create");
+        exit(EXIT_FAILURE);
+    }
 }
 
 void

@@ -50,7 +50,6 @@ EPoll::setEvent(codechiev::net::Channel &channel)
 
 }
 
-
 void
 EPoll::wait(Channel::chanenl_vec &vec)
 {
@@ -65,6 +64,5 @@ EPoll::wait(Channel::chanenl_vec &vec)
         struct epoll_event& ev = events_[i];
         vec.push_back( static_cast<Channel*>(ev.data.ptr) );
     }
-    
 }
 
