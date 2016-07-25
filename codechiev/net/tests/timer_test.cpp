@@ -48,9 +48,12 @@ int main(int argc, const char * argv[]) {
             it++)
         {
             net::Channel *channel = *it;
-            typedef short data_t;
+            typedef uint64_t data_t;
             data_t data(0);
             ssize_t len = ::read(channel->getFd(), &data, sizeof(data_t));//test level-trigger
+            /*EINVAL fd was created via a call to timerfd_create(2) and the wrong
+              size buffer was given to read(); see timerfd_create(2) for
+              further information.*/
             LOG_DEBUG<<"read:"<<len<<", fd:"<<channel->getFd()<<", errno:"<<errno;
             if(len==sizeof(data_t))
                 LOG_DEBUG<<"time's up";
