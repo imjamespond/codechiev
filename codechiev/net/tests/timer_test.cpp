@@ -50,7 +50,7 @@ int main(int argc, const char * argv[]) {
         {
             net::Channel *channel = *it;
             uint64_t exp(0);
-            ssize_t len = ::read(channel->getFd(), &exp, sizeof(uint64_t));
+            ssize_t len = ::read(channel->getFd(), &exp, sizeof(uint64_t)/2);//test level-trigger
             //LOG_DEBUG<<"read";
             if(len==sizeof(uint64_t))
                 LOG_DEBUG<<"time's up";
