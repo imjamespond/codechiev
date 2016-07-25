@@ -7,6 +7,7 @@
 //
 
 #include "Thread.hpp"
+#include <stdio.h>
 #include <errno.h>
 #ifdef __linux__
 #include <sys/syscall.h>
