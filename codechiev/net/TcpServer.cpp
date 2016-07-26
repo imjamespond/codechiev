@@ -62,13 +62,13 @@ void
 TcpServer::pollEvent(const chanenl_vec &vec)
 {
     FixedBuffer<kBufferSize> buffer;
-
+Time::SleepMillis(2000l);
     for( chanenl_vec::const_iterator it=vec.begin();
         it!=vec.end();
         it++)
     {
         net::Channel *channel = *it;
-        LOG_TRACE<<"event:"<<channel->getEvent();Time::SleepMillis(2000l);
+        LOG_TRACE<<"event:"<<channel->getEvent();
         if (channel->getFd() == listench_.getFd())
         {
             channel_ptr connsock(new Channel(::accept(listench_.getFd(),
