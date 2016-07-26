@@ -56,6 +56,7 @@ TcpServer::start()
 }
 
 const int kBufferSize = 1024*1024;
+const int kBufferHalfSize = kBufferSize*.5;
 void
 TcpServer::pollEvent(const chanenl_vec &vec)
 {
@@ -81,12 +82,12 @@ TcpServer::pollEvent(const chanenl_vec &vec)
         {
             for(;;)
             {
-                if(buffer.writable()<=kBufferSize)
+                if(buffer.writable()<=kBufferHalfSize)
                 {
                     LOG_DEBUG<<buffer.str();
                     buffer.readall();
                 }
-                int len = static_cast<int>(::read(channel->getFd(), buffer.data(), kBufferSize*.5));
+                int len = static_cast<int>(::read(channel->getFd(), buffer.data(), kBufferHalfSize));
                 if(len)
                 {
                     buffer.write(len);
