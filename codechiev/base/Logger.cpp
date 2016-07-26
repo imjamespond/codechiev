@@ -77,6 +77,7 @@ level_(lv)
     this->operator<<(kLoggerLevels[lv]);
     if(gDetail&DetailFile)
     {
+        std::string str(file);
         std::size_t found = str.find_last_of("/\\");
         this->operator<<(" file:")<<str.substr(found+1)<<" line:"<<line;
     }
