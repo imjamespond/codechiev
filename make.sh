@@ -40,7 +40,7 @@ elif [ "$1" = "cop" ]; then
 	./make.sh bui"
 elif [ "$1" = "coph" ]; then
 	git commit -a -m 'cm'
-	git push origin master
+	git push yuyouidea master
 	ssh -p9726 web1@yuyouidea.com "cd ~/cpp/codechiev;
 	./make.sh build"
 else
