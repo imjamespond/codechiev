@@ -25,9 +25,10 @@ namespace codechiev {
             TcpServer();
             
             void start();
+            void pollHandle(const chanenl_vec&);
             
         private:
-            EventLoop<EPoll> loop;
+            EventLoop<EPoll> loop_;
         };
     }
 }

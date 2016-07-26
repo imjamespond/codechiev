@@ -21,7 +21,6 @@ namespace codechiev {
         class EventLoop : public boost::noncopyable
         {
         public:
-            typedef typename net::Channel::chanenl_vec chanenl_vec;
             typedef boost::function<void(const chanenl_vec&)> loop_handle_func;
             
             explicit EventLoop(const loop_handle_func& handle):

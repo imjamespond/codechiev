@@ -29,6 +29,8 @@ namespace codechiev {
             int fd_;
             int event_;
         };
+        
+        typedef Channel::chanenl_vec chanenl_vec;
     }
 }
 

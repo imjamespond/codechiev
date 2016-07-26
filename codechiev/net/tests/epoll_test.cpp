@@ -19,11 +19,10 @@
 
 using namespace codechiev;
 typedef net::EventLoop<net::EPoll> epoll_loop;
-typedef net::Channel::chanenl_vec chanenl_vec;
 int count(0);
-void print(const chanenl_vec &vec)
+void print(const net::chanenl_vec &vec)
 {
-    for( chanenl_vec::const_iterator it=vec.begin();
+    for( net::chanenl_vec::const_iterator it=vec.begin();
         it!=vec.end();
         it++)
     {
