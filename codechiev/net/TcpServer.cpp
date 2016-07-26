@@ -9,7 +9,7 @@
 #include "TcpServer.hpp"
 #include "EventLoop.h"
 #include "Channel.hpp"
-#include <base/Time.h>
+#include <base/Time.hpp>
 #include <base/FixedBuffer.h>
 #include <base/Logger.hpp>
 #include <sys/types.h>
@@ -68,7 +68,7 @@ TcpServer::pollEvent(const chanenl_vec &vec)
         it++)
     {
         net::Channel *channel = *it;
-        LOG_TRACE<<"event:"<<channel->getEvent();base::Time::SleepMillis(2000l);
+        LOG_TRACE<<"event:"<<channel->getEvent();Time::SleepMillis(2000l);
         if (channel->getFd() == listench_.getFd())
         {
             channel_ptr connsock(new Channel(::accept(listench_.getFd(),
