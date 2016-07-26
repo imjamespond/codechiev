@@ -29,7 +29,7 @@ ipaddr_(ip),port_(port)
         LOG_ERROR<<"errno:"<<errno;
         exit(EXIT_FAILURE);
     }
-    
+
     addrlen_ = sizeof(sockaddr_struct);
     LOG_DEBUG<<"create socket fd:"<<listench_.getFd();
 }
@@ -41,13 +41,13 @@ TcpServer::start()
     ::memset(&addrin_, 0, sizeof(sockaddr));
     addrin_.sin_family = AF_INET;
     setIpAddress(ipaddr_, port_, addrin_);
-    
+
     //The socket is bound to a local address
     ::bind(listench_.getFd(), (sockaddr_struct *) &addrin_, addrlen_);
-    
+
     //a queue limit for incoming connections
     ::listen(listench_.getFd(), QUEUE_LIMIT);
-    
+
     loop_.getPoll().addChannel(&listench_);
     loop_.loop();
 }
@@ -56,7 +56,7 @@ void
 TcpServer::pollEvent(const chanenl_vec &vec)
 {
     FixedBuffer<32> buffer;
-    
+
     for( chanenl_vec::const_iterator it=vec.begin();
         it!=vec.end();
         it++)
@@ -80,7 +80,11 @@ TcpServer::pollEvent(const chanenl_vec &vec)
                 if(len)
                 {
                     LOG_DEBUG<<len;
-                    if(buffer.writable())
+                    if(buffer.writable()<=4)
+                    {
+                        LOG_DEBUG<<buffer.str();
+                        buffer.readall();
+                    }
                     buffer.write(len);
                 }
                 if(EAGAIN==errno)
