@@ -9,6 +9,7 @@
 #include "TcpServer.hpp"
 #include "EventLoop.h"
 #include "Channel.hpp"
+#include <base/Time.h>
 #include <base/FixedBuffer.h>
 #include <base/Logger.hpp>
 #include <sys/types.h>
