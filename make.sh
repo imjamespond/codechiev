@@ -45,6 +45,7 @@ elif [ "$1" = "coph" ]; then
 	./make.sh build"
 elif [ "$1" = "netrst" ]; then
 	/etc/init.d/network restart
+	netstat -plant
 else
 	echo "input build for build,\
 zip for zip."
