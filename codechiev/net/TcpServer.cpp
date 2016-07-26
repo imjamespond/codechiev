@@ -67,7 +67,7 @@ TcpServer::pollEvent(const chanenl_vec &vec)
         it++)
     {
         net::Channel *channel = *it;
-        LOG_TRACE<<"event:"<<channel->getEvent();
+        LOG_TRACE<<"event:"<<channel->getEvent();Time::SleepMillis(2000l);
         if (channel->getFd() == listench_.getFd())
         {
             channel_ptr connsock(new Channel(::accept(listench_.getFd(),
