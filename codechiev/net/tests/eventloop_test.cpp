@@ -14,6 +14,7 @@
 #include <net/EventLoop.h>
 #include <net/Timer.hpp>
 #include <base/Thread.hpp>
+#include <base/Time.hpp>
 #include <base/Logger.hpp>
 
 using namespace codechiev;
@@ -21,7 +22,11 @@ using namespace codechiev;
 class TestPoll
 {
 public:
-    void poll(net::chanenl_vec& vec){}
+    void poll(net::chanenl_vec& vec)
+    {
+        LOG_DEBUG<<"TestPoll::poll";
+        base::Time::SleepMillis(1500l);
+    }
     
 };
 
