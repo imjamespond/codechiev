@@ -9,7 +9,6 @@
 #ifndef TcpServer_hpp
 #define TcpServer_hpp
 
-#include <stdio.h>
 #include <boost/noncopyable.hpp>
 #include "EPoll.hpp"
 #include "EventLoop.h"
@@ -22,13 +21,17 @@ namespace codechiev {
         class TcpServer: public boost::noncopyable
         {
         public:
-            TcpServer();
+            explicit TcpServer(const std::string&, uint16_t );
             
             void start();
-            void pollHandle(const chanenl_vec&);
+            void stop();
+            void pollEvent(const chanenl_vec&);
             
         private:
+            Channel servchannel_;
             EventLoop<EPoll> loop_;
+            std::string ipaddr_;
+            uint16_t port_;
         };
     }
 }
