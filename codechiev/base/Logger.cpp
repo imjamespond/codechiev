@@ -77,9 +77,10 @@ level_(lv)
     this->operator<<(kLoggerLevels[lv]);
     if(gDetail&DetailFile)
     {
-        boost::filesystem::path path(file);
-        this->operator<<(" file:")<<path.filename().c_str()<<" line:"<<line;//p.stem() without ext
+        std::size_t found = str.find_last_of("/\\");
+        this->operator<<(" file:")<<str.substr(found+1)<<" line:"<<line;
     }
+
     if(gDetail&DetailFunc)
         this->operator<<(" func:")<<func;
     if(gDetail&DetailThread)

@@ -10,7 +10,6 @@
 #define Logger_hpp
 
 #include <stdint.h>
-#include <boost/filesystem.hpp>
 #include "FixedBuffer.h"
 
 namespace codechiev {
