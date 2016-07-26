@@ -67,6 +67,7 @@ TcpServer::pollEvent(const chanenl_vec &vec)
         it++)
     {
         net::Channel *channel = *it;
+        LOG_TRACE<<"event:"<<channel->getEvent();
         if (channel->getFd() == listench_.getFd())
         {
             channel_ptr connsock(new Channel(::accept(listench_.getFd(),
@@ -94,7 +95,7 @@ TcpServer::pollEvent(const chanenl_vec &vec)
                 }
                 if(EAGAIN==errno)
                 {
-                    if(onMessage_)
+                    if(onMessage_&&buffer.readable())
                         onMessage_(buffer.str());
                     buffer.readall();
                     //set channel being interesting in read event
