@@ -52,7 +52,7 @@ TcpServer::start()
     //a queue limit for incoming connections
     ::listen(listench_.getFd(), QUEUE_LIMIT);
 
-    listench_->setEvent(EPOLLIN);
+    listench_.setEvent(EPOLLIN);
     loop_.getPoll().addChannel(&listench_);
     loop_.loop();
 }
