@@ -44,7 +44,7 @@ elif [ "$1" = "coph" ]; then
 	ssh -p9726 web1@yuyouidea.com "cd ~/cpp/codechiev;
 	./make.sh build"
 elif [ "$1" = "netrst" ]; then
-	/etc/init.d/networking restart
+	/etc/init.d/network restart
 else
 	echo "input build for build,\
 zip for zip."
