@@ -112,6 +112,7 @@ TcpServer::pollEvent(const chanenl_vec &vec)
                 }else
                 {
                     onClose(channel);
+                    break;
                 }
                 //reading done
                 if(EAGAIN==errno)
