@@ -29,7 +29,7 @@ namespace codechiev {
             inline int getFd(){return fd_;}
             inline void setEvent(int e){event_=e;}
             inline int getEvent(){return event_;}
-            inline void close(::close(fd_););
+            inline void close(){::close(fd_);}
 
         private:
             int fd_;
