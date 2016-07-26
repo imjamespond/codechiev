@@ -63,7 +63,6 @@ void
 TcpServer::pollEvent(const chanenl_vec &vec)
 {
     FixedBuffer<kBufferSize> buffer;
-Time::SleepMillis(2000l);
     for( chanenl_vec::const_iterator it=vec.begin();
         it!=vec.end();
         it++)
@@ -125,7 +124,8 @@ Time::SleepMillis(2000l);
                     onClose_(channel);
                 loop_.getPoll().delChannel(channel);
             }
-
         }
-    }
+    }//for
+
+    Time::SleepMillis(2000l);
 }
