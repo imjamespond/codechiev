@@ -121,6 +121,8 @@ Time::SleepMillis(2000l);
                 //loop_.getPoll().setChannel(channel);
             }else if(channel->getEvent() & (EPOLLHUP|EPOLLRDHUP) )
             {
+                if(onClose_)
+                    onClose_(channel);
                 loop_.getPoll().delChannel(channel);
             }
 
