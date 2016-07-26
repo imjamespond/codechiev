@@ -76,8 +76,14 @@ TcpServer::pollEvent(const chanenl_vec &vec)
         {
             for(;;)
             {
-                if(EAGAIN==::read(channel->getFd(), buffer.data(), 16))
+                int len = static_cast<int>(::read(channel->getFd(), buffer.data(), 4));
+                if(EAGAIN!=errno&&len)
                 {
+                    buffer.write(len);
+                }else
+                {
+                    LOG_DEBUG<<buffer.str();
+                    buffer.readall();
                     //set channel being interesting in read event
                     channel->setEvent(EPOLLIN);
                     loop_.getPoll().setChannel(channel);
