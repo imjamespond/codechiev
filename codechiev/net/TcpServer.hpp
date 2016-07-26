@@ -24,14 +24,19 @@ namespace codechiev {
         {
         public:
             typedef boost::unordered_map<int, channel_ptr> channel_map;
-            typedef boost::function<void> on_connect_func;
-            typedef boost::function<void> on_message_func;
-            typedef boost::function<void> on_close_func;
+            typedef boost::function<void(Channel*)> on_connect_func;
+            typedef boost::function<void(const char*)> on_message_func;
+            typedef boost::function<void()> on_close_func;
+
             explicit TcpServer(const std::string&, uint16_t );
 
             void start();
             void stop();
             void pollEvent(const chanenl_vec&);
+
+            inline void setOnConnect(const on_connect_func &func){onConnect_=func;}
+            inline void setOnMessage(const on_message_func &func){onMessage_=func;}
+            inline void setOnClose(const on_close_func &func){onClose_=func;}
 
         private:
             typedef struct sockaddr sockaddr_struct;
