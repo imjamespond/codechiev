@@ -6,11 +6,11 @@
 //  Copyright © 2016年 metasoft. All rights reserved.
 //
 
-#include <stdio.h>
 #include <base/Logger.hpp>
 #include <net/TcpServer.hpp>
 #include <base/Thread.hpp>
 #include <boost/bind.hpp>
+#include <errno.h>
 
 using namespace codechiev::base;
 using namespace codechiev::net;
