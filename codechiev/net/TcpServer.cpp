@@ -65,7 +65,7 @@ TcpServer::pollEvent(const chanenl_vec &vec)
                 LOG_ERROR<<("accept");
             }
             channels_[connsock->getFd()]=connsock;
-            loop_.getPoll().addChannel(connsock);
+            loop_.getPoll().addChannel(*(connsock.get()));
             LOG_DEBUG<<"new connection fd:"<<channel->getFd()<<", errno:"<<errno;
         }
     }
