@@ -43,8 +43,8 @@ onClose_(0)
 void
 TcpServer::start()
 {
-    int optval;
-    if (::setsockopt(listench_.getFd(), SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)) == -1)
+    int on(1);
+    if (::setsockopt(listench_.getFd(), SOL_SOCKET, SO_REUSEADDR, &on, sizeof on) == -1)
     {
         perror("setsockopt error");
         LOG_ERROR<<"errno:"<<errno;
@@ -76,7 +76,6 @@ TcpServer::pollEvent(const chanenl_vec &vec)
         it++)
     {
         net::Channel *channel = *it;
-        LOG_TRACE<<"event:"<<channel->getEvent();
         if (channel->getFd() == listench_.getFd())
         {
             channel_ptr connsock(new Channel(::accept(listench_.getFd(),
