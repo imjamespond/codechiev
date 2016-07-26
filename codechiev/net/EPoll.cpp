@@ -9,6 +9,7 @@
 #include "EPoll.hpp"
 #include <base/Logger.hpp>
 #include <cstdlib>
+#include <errno.h>
 
 using namespace codechiev::net;
 
