@@ -25,6 +25,7 @@ void onMessage(const char* msg)
 }
 void onClose(Channel* channel)
 {
+    channel->close();
     LOG_DEBUG<<"onClose fd:"<<channel->getFd()<<", errno:"<<errno;
 }
 int main(int argc, const char * argv[]) {

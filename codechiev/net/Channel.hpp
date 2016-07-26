@@ -21,7 +21,7 @@ namespace codechiev {
         {
         public:
             typedef std::vector<Channel*> chanenl_vec;
-            
+
             Channel(int fd):fd_(fd){}
             inline void setFd(int fd){fd_=fd;};
             inline void setNonBlock(){::fcntl(fd_, F_SETFL, O_NONBLOCK);}
@@ -29,12 +29,13 @@ namespace codechiev {
             inline int getFd(){return fd_;}
             inline void setEvent(int e){event_=e;}
             inline int getEvent(){return event_;}
+            inline void close(::close(fd_););
 
         private:
             int fd_;
             int event_;
         };
-        
+
         typedef Channel::chanenl_vec chanenl_vec;
         typedef boost::shared_ptr<Channel> channel_ptr;
     }

@@ -109,6 +109,10 @@ TcpServer::pollEvent(const chanenl_vec &vec)
                 if(len)
                 {
                     buffer.write(len);
+                }else
+                {
+                    if(onClose_)
+                        onClose_(channel);
                 }
                 if(EAGAIN==errno)
                 {

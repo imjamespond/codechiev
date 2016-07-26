@@ -17,7 +17,8 @@ using namespace codechiev::net;
 EPoll::EPoll():epollch_(::epoll_create1(EPOLL_CLOEXEC)),
 events_(MAX_EVENTS)
 {
-    if (epollch_.getFd() == -1) {
+    if (epollch_.getFd() == -1)
+    {
         perror("epoll_create1");
         exit(EXIT_FAILURE);
     }
@@ -38,7 +39,8 @@ EPoll::addChannel(Channel *channel)
     {
         events_.resize(events_.size()<<1);//double size
     }
-    if (::epoll_ctl(epollch_.getFd(), EPOLL_CTL_ADD, channel->getFd(), &ev) == -1) {
+    if (::epoll_ctl(epollch_.getFd(), EPOLL_CTL_ADD, channel->getFd(), &ev) == -1)
+    {
         perror("epoll_ctl: listen_sock");
         LOG_DEBUG<<"errno:"<<errno;
     }
@@ -53,7 +55,8 @@ EPoll::setChannel(Channel *channel)
     ev.data.fd = epollch_.getFd();
     ev.data.ptr = channel;
 
-    if (::epoll_ctl(epollch_.getFd(), EPOLL_CTL_MOD, channel->getFd(), &ev) == -1) {
+    if (::epoll_ctl(epollch_.getFd(), EPOLL_CTL_MOD, channel->getFd(), &ev) == -1)
+    {
         perror("epoll_ctl: EPOLL_CTL_MOD");
         LOG_DEBUG<<"errno:"<<errno;
     }
@@ -62,7 +65,8 @@ EPoll::setChannel(Channel *channel)
 void
 EPoll::delChannel(Channel *channel)
 {
-    if (::epoll_ctl(epollch_.getFd(), EPOLL_CTL_DEL, channel->getFd(), NULL) == -1) {
+    if (::epoll_ctl(epollch_.getFd(), EPOLL_CTL_DEL, channel->getFd(), NULL) == -1)
+    {
         perror("epoll_ctl: EPOLL_CTL_DEL");
         LOG_DEBUG<<"errno:"<<errno;
     }
@@ -72,7 +76,8 @@ void
 EPoll::poll(Channel::chanenl_vec &vec)
 {
     int nfds = ::epoll_wait(epollch_.getFd(), events_.data(), static_cast<int>(events_.size()), -1);
-    if (nfds == -1) {
+    if (nfds == -1)
+    {
         perror("epoll_wait");
         LOG_DEBUG<<"errno:"<<errno;
     }
