@@ -23,17 +23,21 @@ events_(MAX_EVENTS)
 }
 
 void
-EPoll::addEvent(codechiev::net::Channel &channel)
+EPoll::addChannel(codechiev::net::Channel &channel)
 {
     struct epoll_event ev;
-    ev.events = EPOLLIN|EPOLLOUT;
+    
 //#undef UseEpollET
 #ifdef UseEpollET
-    ev.events |= EPOLLET;
-    LOG_DEBUG<<"UseEpollET";
+    ev.events = EPOLLIN|EPOLLOUT |EPOLLET;
+    LOG_TRACE<<"UseEpollET";
+#else
+    ev.events = EPOLLIN|EPOLLOUT;
 #endif
     ev.data.fd = epollch_.getFd();
     ev.data.ptr = &channel;
+    
+    channel.setNonBlock();
 
     if(events_.size()==MAX_EVENTS)
     {
@@ -46,7 +50,7 @@ EPoll::addEvent(codechiev::net::Channel &channel)
 }
 
 void
-EPoll::setEvent(codechiev::net::Channel &channel)
+EPoll::setChannel(codechiev::net::Channel &channel)
 {
     struct epoll_event ev;
     ev.events = channel.getEvent();

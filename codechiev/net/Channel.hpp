@@ -9,7 +9,10 @@
 #ifndef Channel_hpp
 #define Channel_hpp
 
+#include <unistd.h>
+#include <fcntl.h>
 #include <vector>
+#include <boost/shared_ptr.hpp>
 
 namespace codechiev {
     namespace net {
@@ -21,6 +24,7 @@ namespace codechiev {
             
             Channel(int fd):fd_(fd){}
             inline void setFd(int fd){fd_=fd;};
+            inline void setNonBlock(){::fcntl(fd_, F_SETFL, O_NONBLOCK);}
             inline int getFd(){return fd_;}
             inline void setEvent(int e){event_=e;}
             inline int getEvent(){return event_;}
@@ -31,6 +35,7 @@ namespace codechiev {
         };
         
         typedef Channel::chanenl_vec chanenl_vec;
+        typedef boost::shared_ptr<Channel> channel_ptr;
     }
 }
 
