@@ -64,7 +64,7 @@ TcpServer::start()
     loop_.getPoll().addChannel(&listench_);
     loop_.loop();
 }
-
+#undef UseEpollET
 const int kBufferSize = 1024*1024;
 const int kBufferHalfSize = kBufferSize*.5;
 void
@@ -83,7 +83,7 @@ TcpServer::pollEvent(const chanenl_vec &vec)
             if (connsock->getFd() == -1) {
                 LOG_ERROR<<("accept");
             }
-            //#undef UseEpollET
+
             #ifdef UseEpollET
                 connsock->setEvent(EPOLLIN|EPOLLOUT |EPOLLET);
                 LOG_TRACE<<"UseEpollET";
@@ -119,17 +119,22 @@ TcpServer::pollEvent(const chanenl_vec &vec)
                     if(onMessage_&&buffer.readable())
                         onMessage_(buffer.str());
                     buffer.readall();
+                    #ifndef UseEpollET
                     //set channel being interesting in read event
-                    //channel->setEvent(EPOLLIN);//edge-trigger don't need
-                    //loop_.getPoll().setChannel(channel);
+                    channel->setEvent(EPOLLIN);//edge-trigger don't need
+                    loop_.getPoll().setChannel(channel);
+                    #endif
                     break;
                 }
 
             }
             }else if(channel->getEvent() & EPOLLOUT)
             {
-                //channel->setEvent(EPOLLIN);
-                //loop_.getPoll().setChannel(channel);
+                    #ifndef UseEpollET
+                    //set channel being interesting in read event
+                    channel->setEvent(EPOLLIN);//edge-trigger don't need
+                    loop_.getPoll().setChannel(channel);
+                    #endif
             }else if(channel->getEvent() & (EPOLLHUP|EPOLLRDHUP) )
             {
                 onClose(channel);
