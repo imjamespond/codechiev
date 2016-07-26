@@ -81,6 +81,11 @@ namespace codechiev {
                 reader_=0;
                 writer_=rb;
             }
+            
+            char* data()
+            {
+                return buffer_+reader_;
+            }
 
             const char* str()
             {

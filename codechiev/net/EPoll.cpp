@@ -23,7 +23,7 @@ events_(MAX_EVENTS)
 }
 
 void
-EPoll::addChannel(codechiev::net::Channel &channel)
+EPoll::addChannel(Channel *channel)
 {
     struct epoll_event ev;
     
@@ -35,30 +35,30 @@ EPoll::addChannel(codechiev::net::Channel &channel)
     ev.events = EPOLLIN|EPOLLOUT;
 #endif
     ev.data.fd = epollch_.getFd();
-    ev.data.ptr = &channel;
+    ev.data.ptr = channel;
     
-    channel.setNonBlock();
+    channel->setNonBlock();
 
     if(events_.size()==MAX_EVENTS)
     {
         events_.resize(events_.size()<<1);//double size
     }
-    if (::epoll_ctl(epollch_.getFd(), EPOLL_CTL_ADD, channel.getFd(), &ev) == -1) {
+    if (::epoll_ctl(epollch_.getFd(), EPOLL_CTL_ADD, channel->getFd(), &ev) == -1) {
         perror("epoll_ctl: listen_sock");
         exit(EXIT_FAILURE);
     }
 }
 
 void
-EPoll::setChannel(codechiev::net::Channel &channel)
+EPoll::setChannel(Channel *channel)
 {
     struct epoll_event ev;
-    ev.events = channel.getEvent();
+    ev.events = channel->getEvent();
 
     ev.data.fd = epollch_.getFd();
-    ev.data.ptr = &channel;
+    ev.data.ptr = channel;
 
-    if (::epoll_ctl(epollch_.getFd(), EPOLL_CTL_MOD, channel.getFd(), &ev) == -1) {
+    if (::epoll_ctl(epollch_.getFd(), EPOLL_CTL_MOD, channel->getFd(), &ev) == -1) {
         perror("epoll_ctl: EPOLL_CTL_MOD");
         exit(EXIT_FAILURE);
     }
@@ -76,7 +76,11 @@ EPoll::poll(Channel::chanenl_vec &vec)
     for(int i=0; i<nfds; i++)
     {
         struct epoll_event& ev = events_[i];
-        vec.push_back( static_cast<Channel*>(ev.data.ptr) );
+        Channel* channel = static_cast<Channel*>(ev.data.ptr);
+        channel->setEvent(ev.events);
+        vec.push_back( channel );
     }
+    
+    LOG_TRACE<<"epoll channels available:"<<nfds;
 }
 

@@ -8,12 +8,15 @@
 
 #include "TcpServer.hpp"
 #include "EventLoop.h"
+#include "Channel.hpp"
+#include <base/FixedBuffer.h>
 #include <base/Logger.hpp>
 #include <sys/types.h>
 #include <string>
 #include <errno.h>
 #include <boost/bind.hpp>
 
+using namespace codechiev::base;
 using namespace codechiev::net;
 
 TcpServer::TcpServer(const std::string& ip, uint16_t port):
@@ -52,6 +55,8 @@ TcpServer::start()
 void
 TcpServer::pollEvent(const chanenl_vec &vec)
 {
+    FixedBuffer<32> buffer;
+    
     for( chanenl_vec::const_iterator it=vec.begin();
         it!=vec.end();
         it++)
@@ -65,8 +70,24 @@ TcpServer::pollEvent(const chanenl_vec &vec)
                 LOG_ERROR<<("accept");
             }
             channels_[connsock->getFd()]=connsock;
-            loop_.getPoll().addChannel(*(connsock.get()));
+            loop_.getPoll().addChannel(connsock.get());
             LOG_DEBUG<<"new connection fd:"<<channel->getFd()<<", errno:"<<errno;
+        }else if(channel->getEvent() & EPOLLIN)
+        {
+            for(;;)
+            {
+                if(EAGAIN==::read(channel->getFd(), buffer.data(), 16))
+                {
+                    //set channel being interesting in read event
+                    channel->setEvent(EPOLLIN);
+                    loop_.getPoll().setChannel(channel);
+                    break;
+                }
+            }
+        }else if(channel->getEvent() & EPOLLOUT)
+        {
+            channel->setEvent(EPOLLIN);
+            loop_.getPoll().setChannel(channel);
         }
     }
 }

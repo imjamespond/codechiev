@@ -23,8 +23,8 @@ namespace codechiev {
             EPoll();
             
             void poll(chanenl_vec&);
-            void addChannel(Channel&);
-            void setChannel(Channel&);
+            void addChannel(Channel*);
+            void setChannel(Channel*);
             
             typedef std::vector<struct epoll_event> epoll_events;
         private:
