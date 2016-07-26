@@ -26,7 +26,7 @@ namespace codechiev {
             typedef boost::unordered_map<int, channel_ptr> channel_map;
             typedef boost::function<void(Channel*)> on_connect_func;
             typedef boost::function<void(const char*)> on_message_func;
-            typedef boost::function<void()> on_close_func;
+            typedef boost::function<void(Channel*)> on_close_func;
 
             explicit TcpServer(const std::string&, uint16_t );
 
