@@ -63,8 +63,9 @@ namespace codechiev {
 
             void readall()
             {
-                int rb = readable();
-                read(rb);
+                reader_=0;
+                writer_=0;
+                ::memset(buffer_, 0, BUFFER_SIZE);
             }
 
             void write(int len)
@@ -81,7 +82,7 @@ namespace codechiev {
                 reader_=0;
                 writer_=rb;
             }
-            
+
             char* data()
             {
                 return buffer_+writer_;
