@@ -11,7 +11,6 @@
 #include "Thread.hpp"
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
-#include <boost/filesystem.hpp>
 
 using namespace codechiev::base;
 
