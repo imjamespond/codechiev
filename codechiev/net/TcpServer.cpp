@@ -17,7 +17,7 @@
 using namespace codechiev::net;
 
 TcpServer::TcpServer(const std::string& ip, uint16_t port):
-listench_(::socket(AF_INET, SOCK_STREAM, 0)),
+listench_(::socket(AF_INET, SOCK_STREAM, SOCK_NONBLOCK|SOCK_CLOEXEC)),
 loop_(boost::bind(&TcpServer::pollEvent, this, _1)),
 ipaddr_(ip),port_(port)
 {
