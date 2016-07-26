@@ -36,7 +36,7 @@ int main(int argc, const char * argv[]) {
 
     net::Timer timer;
     net::EPoll epoll;
-    epoll.addChannel(timer.getChannel());
+    epoll.addChannel(&timer.getChannel());
 
     for(int i=0; i<3; i++)
     {
