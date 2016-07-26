@@ -28,13 +28,7 @@ EPoll::addChannel(Channel *channel)
 {
     struct epoll_event ev;
 
-//#undef UseEpollET
-#ifdef UseEpollET
-    ev.events = EPOLLIN|EPOLLOUT |EPOLLET;
-    LOG_TRACE<<"UseEpollET";
-#else
-    ev.events = EPOLLIN|EPOLLOUT;
-#endif
+    ev.events = channel->getEvent();
     ev.data.fd = epollch_.getFd();
     ev.data.ptr = channel;
 

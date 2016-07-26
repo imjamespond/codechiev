@@ -52,6 +52,7 @@ TcpServer::start()
     //a queue limit for incoming connections
     ::listen(listench_.getFd(), QUEUE_LIMIT);
 
+    listench_->setEvent(EPOLLIN);
     loop_.getPoll().addChannel(&listench_);
     loop_.loop();
 }
@@ -76,13 +77,22 @@ Time::SleepMillis(2000l);
             if (connsock->getFd() == -1) {
                 LOG_ERROR<<("accept");
             }
+            //#undef UseEpollET
+            #ifdef UseEpollET
+                connsock->setEvent(EPOLLIN|EPOLLOUT |EPOLLET);
+                LOG_TRACE<<"UseEpollET";
+            #else
+                connsock->setEvent(EPOLLIN|EPOLLOUT);
+            #endif
             channels_[connsock->getFd()]=connsock;
             loop_.getPoll().addChannel(connsock.get());
             if(onConnect_)
                 onConnect_(connsock.get());
-        }else if(channel->getEvent() & EPOLLIN)
+        }else
         {
-            for(;;)
+            if(channel->getEvent() & EPOLLIN)
+            {
+                for(;;)
             {
                 if(buffer.writable()<=kBufferHalfSize)
                 {
@@ -100,17 +110,19 @@ Time::SleepMillis(2000l);
                         onMessage_(buffer.str());
                     buffer.readall();
                     //set channel being interesting in read event
-                    channel->setEvent(EPOLLIN);
-                    loop_.getPoll().setChannel(channel);
+                    //channel->setEvent(EPOLLIN);//edge-trigger don't need
+                    //loop_.getPoll().setChannel(channel);
                     break;
                 }
             }
-        }else if(channel->getEvent() & EPOLLOUT)
-        {
-            channel->setEvent(EPOLLIN);
-            loop_.getPoll().setChannel(channel);
-        }else if(channel->getEvent() & (EPOLLHUP|EPOLLRDHUP) )
-        {
+            }else if(channel->getEvent() & EPOLLOUT)
+            {
+                //channel->setEvent(EPOLLIN);
+                //loop_.getPoll().setChannel(channel);
+            }else if(channel->getEvent() & (EPOLLHUP|EPOLLRDHUP) )
+            {
+                loop_.getPoll().delChannel(channel);
+            }
 
         }
     }
