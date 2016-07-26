@@ -76,15 +76,14 @@ TcpServer::pollEvent(const chanenl_vec &vec)
         {
             for(;;)
             {
+                if(buffer.writable()<=4)
+                {
+                    LOG_DEBUG<<buffer.str();
+                    buffer.readall();
+                }
                 int len = static_cast<int>(::read(channel->getFd(), buffer.data(), 4));
                 if(len)
                 {
-                    LOG_DEBUG<<len;
-                    if(buffer.writable()<=4)
-                    {
-                        LOG_DEBUG<<buffer.str();
-                        buffer.readall();
-                    }
                     buffer.write(len);
                 }
                 if(EAGAIN==errno)
