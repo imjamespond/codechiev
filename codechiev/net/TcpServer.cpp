@@ -55,7 +55,7 @@ TcpServer::start()
     loop_.loop();
 }
 
-const int kBufferSize 1024*1024;
+const int kBufferSize = 1024*1024;
 void
 TcpServer::pollEvent(const chanenl_vec &vec)
 {
