@@ -20,7 +20,7 @@ using namespace codechiev;
 class TestPoll
 {
 public:
-    
+    void poll(){}
     
 };
 
