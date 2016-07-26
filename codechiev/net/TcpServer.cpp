@@ -22,7 +22,10 @@ using namespace codechiev::net;
 TcpServer::TcpServer(const std::string& ip, uint16_t port):
 listench_(::socket(AF_INET, SOCK_STREAM| SOCK_NONBLOCK|SOCK_CLOEXEC, 0)),
 loop_(boost::bind(&TcpServer::pollEvent, this, _1)),
-ipaddr_(ip),port_(port)
+ipaddr_(ip),port_(port),
+onConnect_(0),
+onMessage_(0),
+onClose_(0)
 {
     if (listench_.getFd() == -1) {
         perror("socket error");
@@ -52,10 +55,11 @@ TcpServer::start()
     loop_.loop();
 }
 
+const int kBufferSize 1024*1024;
 void
 TcpServer::pollEvent(const chanenl_vec &vec)
 {
-    FixedBuffer<32> buffer;
+    FixedBuffer<kBufferSize> buffer;
 
     for( chanenl_vec::const_iterator it=vec.begin();
         it!=vec.end();
@@ -71,24 +75,26 @@ TcpServer::pollEvent(const chanenl_vec &vec)
             }
             channels_[connsock->getFd()]=connsock;
             loop_.getPoll().addChannel(connsock.get());
-            LOG_DEBUG<<"new connection fd:"<<channel->getFd()<<", errno:"<<errno;
+            if(onConnect_)
+                onConnect(connsock.get());
         }else if(channel->getEvent() & EPOLLIN)
         {
             for(;;)
             {
-                if(buffer.writable()<=4)
+                if(buffer.writable()<=kBufferSize)
                 {
                     LOG_DEBUG<<buffer.str();
                     buffer.readall();
                 }
-                int len = static_cast<int>(::read(channel->getFd(), buffer.data(), 4));
+                int len = static_cast<int>(::read(channel->getFd(), buffer.data(), kBufferSize*.5));
                 if(len)
                 {
                     buffer.write(len);
                 }
                 if(EAGAIN==errno)
                 {
-                    LOG_DEBUG<<buffer.str();
+                    if(onMessage_)
+                        onMessage_(buffer.str());
                     buffer.readall();
                     //set channel being interesting in read event
                     channel->setEvent(EPOLLIN);

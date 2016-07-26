@@ -10,6 +10,7 @@
 #define TcpServer_hpp
 
 #include <sys/socket.h>
+#include <boost/function.hpp>
 #include <boost/unordered_map.hpp>
 #include <boost/noncopyable.hpp>
 #include "EPoll.hpp"
@@ -18,22 +19,25 @@
 
 namespace codechiev {
     namespace net {
-        
+
         class TcpServer: public boost::noncopyable
         {
         public:
             typedef boost::unordered_map<int, channel_ptr> channel_map;
+            typedef boost::function<void> on_connect_func;
+            typedef boost::function<void> on_message_func;
+            typedef boost::function<void> on_close_func;
             explicit TcpServer(const std::string&, uint16_t );
-            
+
             void start();
             void stop();
             void pollEvent(const chanenl_vec&);
-            
+
         private:
             typedef struct sockaddr sockaddr_struct;
             typedef struct sockaddr_in sockaddrin_struct;
             typedef socklen_t sock_len;
-            
+
             Channel listench_;
             EventLoop<EPoll> loop_;
             std::string ipaddr_;
@@ -41,6 +45,10 @@ namespace codechiev {
             sockaddrin_struct addrin_;
             sock_len addrlen_;
             channel_map channels_;
+
+            on_connect_func onConnect_;
+            on_message_func onMessage_;
+            on_close_func onClose_;
         };
     }
 }
