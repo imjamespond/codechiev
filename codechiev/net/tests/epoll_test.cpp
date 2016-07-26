@@ -42,7 +42,7 @@ void print(const net::chanenl_vec &vec)
 int main(int argc, const char * argv[]) {
     net::Timer timer;
     
-    epoll_loop loop(boost::bind(&print));
+    epoll_loop loop(boost::bind(&print, _1));
     loop.getPoll().addEvent(timer.getChannel());
     base::Thread t("",boost::bind(&epoll_loop::loop, &loop));
     t.start();
