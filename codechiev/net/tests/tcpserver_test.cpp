@@ -17,7 +17,7 @@ using namespace codechiev::net;
 
 void onConnect(Channel* channel)
 {
-    LOG_DEBUG<<"onConnect fd:"<<channel->getFd()<<", errno:"<<errno;
+    LOG_DEBUG<<"onConnect fd:"<<channel->getFd();
 }
 void onMessage(const char* msg)
 {
@@ -25,8 +25,9 @@ void onMessage(const char* msg)
 }
 void onClose(Channel* channel)
 {
-    channel->close();
-    LOG_DEBUG<<"onClose fd:"<<channel->getFd()<<", errno:"<<errno;
+    if(channel->close()<0)
+        LOG_DEBUG<<"errno:"<<errno;
+    LOG_DEBUG<<"onClose fd:"<<channel->getFd();
 }
 int main(int argc, const char * argv[]) {
 
