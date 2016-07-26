@@ -11,6 +11,7 @@
 #include "Thread.hpp"
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
+#include <boost/filesystem.hpp>
 
 using namespace codechiev::base;
 
@@ -76,7 +77,10 @@ level_(lv)
 {
     this->operator<<(kLoggerLevels[lv]);
     if(gDetail&DetailFile)
-        this->operator<<(" file:")<<file<<" line:"<<line;
+    {
+        boost::filesystem::path(file);
+        this->operator<<(" file:")<<p.filename()<<" line:"<<line;//p.stem() without ext
+    }
     if(gDetail&DetailFunc)
         this->operator<<(" func:")<<func;
     if(gDetail&DetailThread)

@@ -16,16 +16,17 @@
 
 namespace codechiev {
     namespace net {
-        
+
         class EPoll : public boost::noncopyable
         {
         public:
             EPoll();
-            
+
             void poll(chanenl_vec&);
             void addChannel(Channel*);
             void setChannel(Channel*);
-            
+            void delChannel(Channel*);
+
             typedef std::vector<struct epoll_event> epoll_events;
         private:
             Channel epollch_;

@@ -9,6 +9,8 @@ add_definitions(-DUseEpoll=1)
 add_definitions(-DUseEpollET=1)
 add_definitions(-DLoggerTrace=1)
 add_definitions(-DLoggerThread=1)
+add_definitions(-DLoggerFile=1)
+add_definitions(-DLoggerFunc=1)
 
 set (BOOST ${BOOST_ROOT})
 set (HEADER ${CMAKE_CURRENT_SOURCE_DIR})

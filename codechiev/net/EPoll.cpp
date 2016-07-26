@@ -26,7 +26,7 @@ void
 EPoll::addChannel(Channel *channel)
 {
     struct epoll_event ev;
-    
+
 //#undef UseEpollET
 #ifdef UseEpollET
     ev.events = EPOLLIN|EPOLLOUT |EPOLLET;
@@ -36,7 +36,7 @@ EPoll::addChannel(Channel *channel)
 #endif
     ev.data.fd = epollch_.getFd();
     ev.data.ptr = channel;
-    
+
     channel->setNonBlock();
 
     if(events_.size()==MAX_EVENTS)
@@ -45,7 +45,7 @@ EPoll::addChannel(Channel *channel)
     }
     if (::epoll_ctl(epollch_.getFd(), EPOLL_CTL_ADD, channel->getFd(), &ev) == -1) {
         perror("epoll_ctl: listen_sock");
-        exit(EXIT_FAILURE);
+        LOG_DEBUG<<"errno:"errno;
     }
 }
 
@@ -60,7 +60,16 @@ EPoll::setChannel(Channel *channel)
 
     if (::epoll_ctl(epollch_.getFd(), EPOLL_CTL_MOD, channel->getFd(), &ev) == -1) {
         perror("epoll_ctl: EPOLL_CTL_MOD");
-        exit(EXIT_FAILURE);
+        LOG_DEBUG<<"errno:"errno;
+    }
+}
+
+void
+EPoll::delChannel(Channel *channel)
+{
+    if (::epoll_ctl(epollch_.getFd(), EPOLL_CTL_DEL, channel->getFd(), &ev) == -1) {
+        perror("epoll_ctl: EPOLL_CTL_DEL");
+        LOG_DEBUG<<"errno:"errno;
     }
 }
 

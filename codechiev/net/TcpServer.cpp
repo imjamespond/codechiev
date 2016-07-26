@@ -107,6 +107,9 @@ TcpServer::pollEvent(const chanenl_vec &vec)
         {
             channel->setEvent(EPOLLIN);
             loop_.getPoll().setChannel(channel);
+        }else if(channel->getEvent() & (EPOLLHUP|EPOLLRDHUP) )
+        {
+
         }
     }
 }
