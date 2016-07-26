@@ -21,7 +21,7 @@ using namespace codechiev;
 class TestPoll
 {
 public:
-    void poll(){}
+    void poll(net::chanenl_vec& vec){}
     
 };
 
