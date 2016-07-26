@@ -48,7 +48,7 @@ TcpServer::start()
     //a queue limit for incoming connections
     ::listen(listench_.getFd(), QUEUE_LIMIT);
     
-    loop_.getPoll().addChannel(listench_);
+    loop_.getPoll().addChannel(&listench_);
     loop_.loop();
 }
 
