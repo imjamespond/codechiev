@@ -11,22 +11,40 @@
 #include <errno.h>
 #include <exception>
 
-#include "net/EventLoop.h"
-#include "net/EPoll.hpp"
-#include "base/Thread.hpp"
+#include <net/EventLoop.h>
+#include <net/EPoll.hpp>
+#include <net/Timer.hpp>
+#include <base/Thread.hpp>
+#include <base/Logger.hpp>
 
 using namespace codechiev;
-
+typedef net::EventLoop<net::EPoll> epoll_loop;
+typedef net::Channel::chanenl_vec chanenl_vec;
 int count(0);
-void print()
+void print(const chanenl_vec &vec)
 {
-
+    for( chanenl_vec::const_iterator it=vec.begin();
+        it!=vec.end();
+        it++)
+    {
+        net::Channel *channel = *it;
+        typedef uint64_t data_t;
+        data_t data(0);
+        ssize_t len = ::read(channel->getFd(), &data, sizeof(data_t));//test level-trigger
+        /*EINVAL fd was created via a call to timerfd_create(2) and the wrong
+         size buffer was given to read(); see timerfd_create(2) for
+         further information.*/
+        LOG_DEBUG<<"read:"<<len<<", fd:"<<channel->getFd()<<", errno:"<<errno;
+        if(len==sizeof(data_t))
+            LOG_DEBUG<<"time's up";
+    }
 }
 
 int main(int argc, const char * argv[]) {
+    net::Timer timer;
     
-    typedef net::EventLoop<net::EPoll> epoll_loop;
-    epoll_loop loop;
+    epoll_loop loop(boost::bind(&print));
+    loop.getPoll().addEvent(timer.getChannel());
     base::Thread t("",boost::bind(&epoll_loop::loop, &loop));
     t.start();
     t.join();

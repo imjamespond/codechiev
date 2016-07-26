@@ -10,7 +10,8 @@
 #define EventLoop_hpp
 
 #include <boost/noncopyable.hpp>
-#include "../base/Thread.hpp"
+#include <boost/function.hpp>
+#include <base/Thread.hpp>
 #include "EPoll.hpp"
 
 namespace codechiev {
@@ -20,7 +21,11 @@ namespace codechiev {
         class EventLoop : public boost::noncopyable
         {
         public:
-            EventLoop()
+            typedef typename net::Channel::chanenl_vec chanenl_vec;
+            typedef boost::function<void(const chanenl_vec&)> loop_handle_func;
+            
+            explicit EventLoop(const loop_handle_func& handle):
+            poll_(),handle_(handle)
             {
                 tid_=base::Thread::Tid();
             }
@@ -31,13 +36,18 @@ namespace codechiev {
                 
                 while(1)
                 {
-                    
+                    chanenl_vec vec;
+                    poll_.poll(vec);
+                    handle_(vec);
                 }
             }
+            
+            inline TPoll& getPoll(){return poll_;}
             
         private:
             int tid_;
             TPoll poll_;
+            loop_handle_func handle_;
         };
     }
 }

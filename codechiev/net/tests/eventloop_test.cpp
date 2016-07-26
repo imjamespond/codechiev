@@ -26,7 +26,7 @@ void print()
 int main(int argc, const char * argv[]) {
     
     typedef net::EventLoop<net::EPoll> epoll_loop;
-    epoll_loop loop;
+    epoll_loop loop(boost::bind(&print));
     base::Thread t("",boost::bind(&epoll_loop::loop, &loop));
     t.start();
     t.join();
