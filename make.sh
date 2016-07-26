@@ -43,6 +43,8 @@ elif [ "$1" = "coph" ]; then
 	git push yuyouidea master
 	ssh -p9726 web1@yuyouidea.com "cd ~/cpp/codechiev;
 	./make.sh build"
+elif [ "$1" = "netrst" ]; then
+	/etc/init.d/networking restart
 else
 	echo "input build for build,\
 zip for zip."
