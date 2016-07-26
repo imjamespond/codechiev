@@ -72,7 +72,7 @@ EPoll::poll(Channel::chanenl_vec &vec)
         perror("epoll_wait");
         exit(EXIT_FAILURE);
     }
-
+    LOG_TRACE<<"epoll channels available:"<<nfds;
     for(int i=0; i<nfds; i++)
     {
         struct epoll_event& ev = events_[i];
@@ -80,7 +80,5 @@ EPoll::poll(Channel::chanenl_vec &vec)
         channel->setEvent(ev.events);
         vec.push_back( channel );
     }
-    
-    LOG_TRACE<<"epoll channels available:"<<nfds;
 }
 

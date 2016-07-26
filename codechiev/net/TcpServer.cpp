@@ -79,6 +79,7 @@ TcpServer::pollEvent(const chanenl_vec &vec)
                 int len = static_cast<int>(::read(channel->getFd(), buffer.data(), 4));
                 if(EAGAIN!=errno&&len)
                 {
+                    LOG_DEBUG<<len;
                     buffer.write(len);
                 }else
                 {

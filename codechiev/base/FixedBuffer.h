@@ -84,7 +84,7 @@ namespace codechiev {
             
             char* data()
             {
-                return buffer_+reader_;
+                return buffer_+writer_;
             }
 
             const char* str()
