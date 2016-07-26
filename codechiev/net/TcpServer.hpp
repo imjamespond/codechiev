@@ -54,6 +54,8 @@ namespace codechiev {
             on_connect_func onConnect_;
             on_message_func onMessage_;
             on_close_func onClose_;
+
+            void onClose(Channel *);
         };
     }
 }

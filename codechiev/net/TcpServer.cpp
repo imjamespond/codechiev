@@ -106,14 +106,7 @@ TcpServer::pollEvent(const chanenl_vec &vec)
                     buffer.readall();
                 }
                 int len = static_cast<int>(::read(channel->getFd(), buffer.data(), kBufferHalfSize));
-                if(len)
-                {
-                    buffer.write(len);
-                }else
-                {
-                    if(onClose_)
-                        onClose_(channel);
-                }
+
                 if(EAGAIN==errno)
                 {
                     if(onMessage_&&buffer.readable())
@@ -124,6 +117,14 @@ TcpServer::pollEvent(const chanenl_vec &vec)
                     //loop_.getPoll().setChannel(channel);
                     break;
                 }
+
+                if(len)
+                {
+                    buffer.write(len);
+                }else
+                {
+                    onClose(channel);
+                }
             }
             }else if(channel->getEvent() & EPOLLOUT)
             {
@@ -131,12 +132,18 @@ TcpServer::pollEvent(const chanenl_vec &vec)
                 //loop_.getPoll().setChannel(channel);
             }else if(channel->getEvent() & (EPOLLHUP|EPOLLRDHUP) )
             {
-                if(onClose_)
-                    onClose_(channel);
-                loop_.getPoll().delChannel(channel);
+                onClose(channel);
             }
         }
     }//for
 
     Time::SleepMillis(2000l);
+}
+
+void
+TcpServer::onClose(Channel* channel)
+{
+    loop_.getPoll().delChannel(channel);
+    if(onClose_)
+        onClose_(channel);
 }
