@@ -78,7 +78,7 @@ level_(lv)
     this->operator<<(kLoggerLevels[lv]);
     if(gDetail&DetailFile)
     {
-        boost::filesystem::path(file);
+        boost::filesystem::path path(file);
         this->operator<<(" file:")<<path.filename()<<" line:"<<line;//p.stem() without ext
     }
     if(gDetail&DetailFunc)
