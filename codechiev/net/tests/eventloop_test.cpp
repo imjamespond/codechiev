@@ -17,17 +17,23 @@
 
 using namespace codechiev;
 
-int count(0);
-void print()
+class TestPoll
 {
+public:
+    
+    
+};
 
+void pollHandle()
+{
+    
 }
 
 int main(int argc, const char * argv[]) {
     
-    typedef net::EventLoop<net::EPoll> epoll_loop;
-    epoll_loop loop(boost::bind(&print));
-    base::Thread t("",boost::bind(&epoll_loop::loop, &loop));
+    typedef net::EventLoop<TestPoll> test_loop;
+    test_loop loop(boost::bind(&pollHandle));
+    base::Thread t("",boost::bind(&test_loop::loop, &loop));
     t.start();
     t.join();
     return 0;

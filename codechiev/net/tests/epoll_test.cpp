@@ -20,7 +20,7 @@
 using namespace codechiev;
 typedef net::EventLoop<net::EPoll> epoll_loop;
 int count(0);
-void print(const net::chanenl_vec &vec)
+void loopHandle(const net::chanenl_vec &vec)
 {
     for( net::chanenl_vec::const_iterator it=vec.begin();
         it!=vec.end();
@@ -43,7 +43,7 @@ int main(int argc, const char * argv[]) {
     net::Timer timer;
     timer.after(3);
     
-    epoll_loop loop(boost::bind(&print, _1));
+    epoll_loop loop(boost::bind(&loopHandle, _1));
     loop.getPoll().addEvent(timer.getChannel());
     base::Thread t("",boost::bind(&epoll_loop::loop, &loop));
     t.start();
