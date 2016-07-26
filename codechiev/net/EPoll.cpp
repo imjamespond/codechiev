@@ -83,7 +83,7 @@ EPoll::poll(Channel::chanenl_vec &vec)
         Channel* channel = static_cast<Channel*>(ev.data.ptr);
         channel->setEvent(ev.events);
         vec.push_back( channel );
-        LOG_TRACE<<"event:"<<ev.events;
+        LOG_TRACE<<"event:"<<static_cast<int>(ev.events);
     }
 }
 
