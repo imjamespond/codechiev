@@ -106,7 +106,14 @@ TcpServer::pollEvent(const chanenl_vec &vec)
                     buffer.readall();
                 }
                 int len = static_cast<int>(::read(channel->getFd(), buffer.data(), kBufferHalfSize));
-
+                if(len)
+                {
+                    buffer.write(len);
+                }else
+                {
+                    onClose(channel);
+                }
+                //reading done
                 if(EAGAIN==errno)
                 {
                     if(onMessage_&&buffer.readable())
@@ -118,13 +125,6 @@ TcpServer::pollEvent(const chanenl_vec &vec)
                     break;
                 }
 
-                if(len)
-                {
-                    buffer.write(len);
-                }else
-                {
-                    onClose(channel);
-                }
             }
             }else if(channel->getEvent() & EPOLLOUT)
             {
