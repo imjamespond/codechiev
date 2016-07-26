@@ -38,7 +38,7 @@ namespace codechiev {
             Logger &operator<<( double);
         private:
             Level level_;
-            FixedBuffer<256> buffer_;
+            FixedBuffer<2048> buffer_;
         };
 
         class LoggerStream
