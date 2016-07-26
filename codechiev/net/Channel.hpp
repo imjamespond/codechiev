@@ -25,7 +25,7 @@ namespace codechiev {
             Channel(int fd):fd_(fd){}
             inline void setFd(int fd){fd_=fd;};
             inline void setNonBlock(){::fcntl(fd_, F_SETFL, O_NONBLOCK);}
-            inline void setCloseOnExec(){::fcntl(fd_, F_SETFD, FD_CLOEXEC)}
+            inline void setCloseOnExec(){::fcntl(fd_, F_SETFD, FD_CLOEXEC);}
             inline int getFd(){return fd_;}
             inline void setEvent(int e){event_=e;}
             inline int getEvent(){return event_;}
