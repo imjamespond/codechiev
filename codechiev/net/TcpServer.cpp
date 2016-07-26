@@ -35,14 +35,12 @@ void
 TcpServer::start()
 {
     struct sockaddr_in addr;
-    socklen_t socklen;
-    
     ::memset(&addr, 0, sizeof(sockaddr));
     addr.sin_family = AF_INET;
     setIpAddress(ipaddr_, port_, addr);
     
     //The socket is bound to a local address
-    ::bind(servchannel_.getFd(), (struct sockaddr *) &addr, socklen);
+    ::bind(servchannel_.getFd(), (struct sockaddr *) &addr, sizeof(struct sockaddr));
     
     //a queue limit for incoming connections
     ::listen(servchannel_.getFd(), QUEUE_LIMIT);
