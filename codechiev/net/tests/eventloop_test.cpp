@@ -33,7 +33,7 @@ void pollHandle(const net::chanenl_vec& vec)
 int main(int argc, const char * argv[]) {
     
     typedef net::EventLoop<TestPoll> test_loop;
-    test_loop loop(boost::bind(&pollHandle));
+    test_loop loop(boost::bind(&pollHandle, _1));
     base::Thread t("",boost::bind(&test_loop::loop, &loop));
     t.start();
     t.join();
