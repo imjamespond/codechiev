@@ -68,7 +68,7 @@ EPoll::setChannel(Channel *channel)
 void
 EPoll::delChannel(Channel *channel)
 {
-    if (::epoll_ctl(epollch_.getFd(), EPOLL_CTL_DEL, channel->getFd(), &ev) == -1) {
+    if (::epoll_ctl(epollch_.getFd(), EPOLL_CTL_DEL, channel->getFd(), NULL) == -1) {
         perror("epoll_ctl: EPOLL_CTL_DEL");
         LOG_DEBUG<<"errno:"<<errno;
     }
