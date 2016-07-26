@@ -79,7 +79,7 @@ level_(lv)
     if(gDetail&DetailFile)
     {
         boost::filesystem::path(file);
-        this->operator<<(" file:")<<p.filename()<<" line:"<<line;//p.stem() without ext
+        this->operator<<(" file:")<<path.filename()<<" line:"<<line;//p.stem() without ext
     }
     if(gDetail&DetailFunc)
         this->operator<<(" func:")<<func;
