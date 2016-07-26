@@ -28,7 +28,8 @@ onConnect_(0),
 onMessage_(0),
 onClose_(0)
 {
-    if (listench_.getFd() == -1) {
+    if (listench_.getFd() == -1)
+    {
         perror("socket error");
         LOG_ERROR<<"errno:"<<errno;
         exit(EXIT_FAILURE);
@@ -42,6 +43,13 @@ onClose_(0)
 void
 TcpServer::start()
 {
+    int optval;
+    if (::setsockopt(listench_.getFd(), SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)) == -1)
+    {
+        perror("setsockopt error");
+        LOG_ERROR<<"errno:"<<errno;
+        exit(EXIT_FAILURE);
+    }
     ::memset(&addrin_, 0, sizeof(sockaddr));
     addrin_.sin_family = AF_INET;
     setIpAddress(ipaddr_, port_, addrin_);
