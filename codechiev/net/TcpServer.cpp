@@ -158,16 +158,23 @@ TcpServer::onRead(Channel* channel)
             channel->setConnected(false);
             break;
         }
-        ssize_t len = static_cast<int>(::read(channel->getFd(), channel->getReadBuf()->data(), kBufferEachTimeSize));
+        int len = static_cast<int>(::read(channel->getFd(), channel->getReadBuf()->data(), kBufferEachTimeSize));
         LOG_TRACE<<"read:"<<len;
         if(len)
         {
-            channel->getReadBuf()->write(static_cast<int>(len));
+            channel->getReadBuf()->write(len);
         }else if(len==0)
         {
             channel->setConnected(false);
             break;
-        }else if(-1 == len && EAGAIN==errno)
+        }else
+        {
+            LOG_ERROR<<"read error";
+            channel->setConnected(false);
+            break;
+        }
+
+        if(EAGAIN==errno)
         {
             //prepare for next epoll wait
             channel->setEvent(EPOLLIN);
@@ -180,11 +187,6 @@ TcpServer::onRead(Channel* channel)
             }
 
             channel->getReadBuf()->readall();
-            break;
-        }else
-        {
-            LOG_ERROR<<"read error";
-            channel->setConnected(false);
             break;
         }
         //reading done
@@ -207,7 +209,14 @@ TcpServer::onWrite(Channel* channel)
         {
             channel->getWriteBuf()->read(len);
         }
-        else if(len==-1&&EAGAIN==errno)
+        else
+        {
+            LOG_ERROR<<"write error";
+            channel->setConnected(false);
+            break;
+        }
+
+        if(EAGAIN==errno)
         {
             if(channel->getWriteBuf()->readable())
             {
@@ -221,12 +230,7 @@ TcpServer::onWrite(Channel* channel)
             channel->writeEvent();
             break;
         }
-        else
-        {
-            LOG_ERROR<<"write error";
-            channel->setConnected(false);
-            break;
-        }
+
     }
 
 }

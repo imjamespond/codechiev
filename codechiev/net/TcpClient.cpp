@@ -119,11 +119,20 @@ TcpClient::onRead(Channel* channel)
         if(len)
         {
             channel->getReadBuf()->write(static_cast<int>(len));
-        }else if(len == 0)
+        }
+        else if(len == 0)
         {
             channel->setConnected(false);
             break;
-        }else if(-1 == len && EAGAIN==errno)
+        }
+        else
+        {
+            LOG_ERROR<<"read error";
+            channel->setConnected(false);
+            break;
+        }
+
+        if(EAGAIN==errno)
         {
             //prepare for next epoll wait
             channel->setEvent(EPOLLIN);
@@ -132,14 +141,10 @@ TcpClient::onRead(Channel* channel)
             if(onMessage_&&channel->getReadBuf()->readable())
             {
                 onMessage_(channel->getReadBuf()->str());
+                write(channel, "1234567890 qwertyuiopasdfghjklzxcvbnm QWERTYUIOPASDFGHJKLZXCVBNM");
             }
 
             channel->getReadBuf()->readall();
-            break;
-        }else
-        {
-            LOG_ERROR<<"read error";
-            channel->setConnected(false);
             break;
         }
         //reading done
@@ -163,7 +168,14 @@ TcpClient::onWrite(Channel* channel)
         {
             channel->getWriteBuf()->read(len);
         }
-        else if(len==-1&&EAGAIN==errno)
+        else
+        {
+            LOG_ERROR<<"write error";
+            channel->setConnected(false);
+            break;
+        }
+
+        if(EAGAIN==errno)
         {
             if(channel->getWriteBuf()->readable())
             {
@@ -175,12 +187,6 @@ TcpClient::onWrite(Channel* channel)
             loop_.getPoll().setChannel(channel);
 
             channel->writeEvent();
-            break;
-        }
-        else
-        {
-            LOG_ERROR<<"write error";
-            channel->setConnected(false);
             break;
         }
     }
