@@ -113,14 +113,14 @@ TcpServer::onConnect(Channel* channel)
 {
     socklen_t socklen = addr_.socklen;
     InetAddress addr;
-    int connfd = ::accept(channel_.getFd(),
+    int connfd = ::accept(channel->getFd(),
                           (struct sockaddr *) &addr.sockaddrin, &socklen);
     if (connfd == -1) {
         LOG_ERROR<<("accept");
         return;
     }
     channel_ptr connsock(new Channel(connfd));
-
+    connsock->setConnected(true);
 #ifdef UseEpollET
     connsock->setEvent(EPOLLIN|EPOLLOUT |EPOLLET);
     LOG_TRACE<<"UseEpollET";
@@ -136,10 +136,13 @@ TcpServer::onConnect(Channel* channel)
 void
 TcpServer::onClose(Channel* channel)
 {
-    if(onClose_)
-        onClose_(channel);
-    loop_.getPoll().delChannel(channel);
-    channels_.erase(channel->getFd());
+    if(channel->isConnected())
+    {
+        if(onClose_)
+            onClose_(channel);
+        loop_.getPoll().delChannel(channel);
+        channels_.erase(channel->getFd());//connected false
+    }
 }
 
 void

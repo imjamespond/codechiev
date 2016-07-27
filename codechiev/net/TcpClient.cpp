@@ -18,8 +18,7 @@ using namespace codechiev::net;
 
 TcpClient::TcpClient(const std::string& ip, uint16_t port):
 TcpEndpoint(ip, port),
-loop_(boost::bind(&TcpClient::pollEvent, this, _1)),
-connected_(false)
+loop_(boost::bind(&TcpClient::pollEvent, this, _1))
 {}
 
 void
@@ -67,7 +66,7 @@ TcpClient::pollEvent(const channel_vec &vec)
                 onRead(channel);
             }else if(channel->getEvent() & EPOLLOUT)
             {
-                if(connected_)
+                if(channel->isConnected())
                     onWrite(channel);
                 else
                     onConnect(channel);
@@ -82,7 +81,7 @@ TcpClient::pollEvent(const channel_vec &vec)
 void
 TcpClient::onConnect(Channel* channel)
 {
-    connected_ = true;
+    channel->setConnected(true);
 #ifdef UseEpollET
     channel->setEvent(EPOLLIN|EPOLLOUT |EPOLLET);
     LOG_TRACE<<"UseEpollET";
@@ -99,9 +98,13 @@ TcpClient::onConnect(Channel* channel)
 void
 TcpClient::onClose(Channel* channel)
 {
-    if(onClose_)
-        onClose_(channel);
-    loop_.getPoll().delChannel(channel);;
+    if(channel->isConnected())
+    {
+        if(onClose_)
+            onClose_(channel);
+        loop_.getPoll().delChannel(channel);
+        channel->setConnected(false);
+    }
 }
 
 void

@@ -29,7 +29,7 @@ namespace codechiev {
         public:
             typedef std::vector<Channel*> channel_vec_t;
 
-            Channel(int fd):fd_(fd){}
+            Channel(int fd):fd_(fd),event_(0),connected_(false){}
             ~Channel(){close();}
 
             inline void setFd(int fd){fd_=fd;};
@@ -40,7 +40,9 @@ namespace codechiev {
             inline int getFd(){return fd_;}
             inline void setEvent(int e){event_=e;}
             inline int getEvent(){return event_;}
-            inline int close(){return ::close(fd_);}
+            inline int close(){connected_=false; return ::close(fd_);}
+            inline isConnected(){return connected_;}
+            inline setConnected(bool val){connected_=val;}
 
             inline channel_buffer* getReadBuf(){return &readbuf_;}
             inline channel_buffer* getWriteBuf(){return &writebuf_;}
@@ -50,6 +52,7 @@ namespace codechiev {
         private:
             int fd_;
             int event_;
+            bool connected_;
 
             channel_buffer readbuf_;
             channel_buffer writebuf_;

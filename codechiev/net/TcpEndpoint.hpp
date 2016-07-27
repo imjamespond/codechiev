@@ -79,7 +79,6 @@ namespace codechiev {
             void write( const std::string&);
         private:
             EventLoop<EPoll> loop_;
-            bool connected_;
         };
     }
 }
