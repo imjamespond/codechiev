@@ -9,6 +9,7 @@
 #include "TcpEndpoint.hpp"
 #include <base/Logger.hpp>
 #include <boost/bind.hpp>
+#include <errno.h>
 
 using namespace codechiev::base;
 using namespace codechiev::net;
