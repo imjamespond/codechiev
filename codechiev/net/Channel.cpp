@@ -17,3 +17,9 @@ Channel::write(const std::string& msg)
 {
     writebuf_.append(msg.c_str());
 }
+
+void
+Channel::writeEvent()
+{
+    LOG_DEBUG<<"writeEvent fd:"<< fd_ <<" readable:"<<writebuf_.readable();
+}

@@ -157,10 +157,17 @@ TcpServer::onRead(Channel* channel)
         //reading done
         if(EAGAIN==errno)
         {
+
+#ifndef UseEpollET
+            //set channel being interesting in read event
+            channel->setEvent(EPOLLIN);//edge-trigger don't need
+            loop_.getPoll().setChannel(channel);
+#endif
+            
             if(onMessage_&&readbuf.readable())
             {
                 onMessage_(readbuf.str());
-                //write(channel, "Since even with edge-triggered epoll, multiple events can be\
+                write(channel, "Since even with edge-triggered epoll, multiple events can be\
                       generated upon receipt of multiple chunks of data, the caller has the\
                       option to specify the EPOLLONESHOT flag, to tell epoll to disable the\
                       associated file descriptor after the receipt of an event withepoll_wait(2).When the EPOLLONESHOT flag is specified,it is thecaller\'s responsibility to rearm the file descriptor usingepoll_ctl(2) with EPOLL_CTL_MOD.Interaction with autosleep\
@@ -171,11 +178,6 @@ TcpServer::onRead(Channel* channel)
             }
             
             readbuf.readall();
-#ifndef UseEpollET
-            //set channel being interesting in read event
-            channel->setEvent(EPOLLIN);//edge-trigger don't need
-            loop_.getPoll().setChannel(channel);
-#endif
             break;
         }
     }//for
@@ -205,6 +207,8 @@ TcpServer::onWrite(Channel* channel)
             }
             loop_.getPoll().setChannel(channel);
 #endif
+            
+            channel->writeEvent();
             break;
         }
     }

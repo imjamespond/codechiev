@@ -36,7 +36,7 @@ namespace codechiev {
             inline int close(){return ::close(fd_);}
 
             void write(const std::string&);
-            //void writeEvent();
+            void writeEvent();
             
             static const int kWriteBufferSize = 1024*32;
             static const int kWriteBufferEachTimeSize = 8;
