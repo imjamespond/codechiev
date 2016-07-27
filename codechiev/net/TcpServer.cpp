@@ -124,11 +124,11 @@ TcpServer::onConnect(Channel* channel)
     channel_ptr connsock(new Channel(connfd));
     connsock->setConnected(true);
 #ifdef UseEpollET
-    connsock->setEvent(EPOLLIN|EPOLLOUT |EPOLLET);
+    //connsock->setEvent(EPOLLIN|EPOLLOUT |EPOLLET|EPOLLONESHOT );
     LOG_TRACE<<"UseEpollET";
-#else
-    connsock->setEvent(EPOLLIN);
 #endif
+    connsock->setEvent(EPOLLIN);
+
     channels_[connsock->getFd()]=connsock;
     loop_.getPoll().addChannel(connsock.get());
     if(onConnect_)
@@ -169,11 +169,10 @@ TcpServer::onRead(Channel* channel)
             break;
         }else if(-1 == len && EAGAIN==errno)
         {
-//prepare for next epoll wait
-#ifndef UseEpollET
+            //prepare for next epoll wait
             channel->setEvent(EPOLLIN);
             loop_.getPoll().setChannel(channel);
-#endif
+
             if(onMessage_&&channel->getReadBuf()->readable())
             {
                 onMessage_(channel->getReadBuf()->str());
@@ -210,7 +209,6 @@ TcpServer::onWrite(Channel* channel)
         }
         else if(len==-1&&EAGAIN==errno)
         {
-#ifndef UseEpollET
             if(channel->getWriteBuf()->readable())
             {
                 channel->setEvent(EPOLLOUT);
@@ -219,7 +217,7 @@ TcpServer::onWrite(Channel* channel)
                 channel->setEvent(EPOLLIN);
             }
             loop_.getPoll().setChannel(channel);
-#endif
+
             channel->writeEvent();
             break;
         }
@@ -239,10 +237,8 @@ TcpServer::write(Channel *channel, const std::string& msg)
     channel->write(msg);
     if(channel->getWriteBuf()->readable())
     {
-#ifndef UseEpollET
         channel->setEvent(EPOLLOUT);
         loop_.getPoll().setChannel(channel);
-#endif
     }
 }
 
