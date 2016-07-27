@@ -138,24 +138,21 @@ TcpServer::onClose(Channel* channel)
     channel->close();
 }
 
-const int kReadBufferSize = 1024*1024;
-const int kReadBufferEachTimeSize = 16;
-FixedBuffer<kReadBufferSize> readbuf;//FIXME must be thread safe
 void
 TcpServer::onRead(Channel* channel)
 {
     for(;;)
     {
-        if(readbuf.writable()<=kReadBufferEachTimeSize)
+        if(channel->getReadBuf()->writable()<=kBufferEachTimeSize)
         {
-            LOG_ERROR<<"insufficient buffer:"<<readbuf.str();
-            readbuf.readall();
+            LOG_ERROR<<"insufficient buffer:"<<channel->getReadBuf()->str();
+            channel->getReadBuf()->readall();
         }
-        ssize_t len = static_cast<int>(::read(channel->getFd(), readbuf.data(), kReadBufferEachTimeSize));
+        ssize_t len = static_cast<int>(::read(channel->getFd(), channel->getReadBuf()->data(), kBufferEachTimeSize));
         LOG_TRACE<<"read:"<<len;
         if(len)
         {
-            readbuf.write(static_cast<int>(len));
+            channel->getReadBuf()->write(static_cast<int>(len));
         }else if(len==0)
         {
             onClose(channel);
@@ -171,9 +168,9 @@ TcpServer::onRead(Channel* channel)
             loop_.getPoll().setChannel(channel);
 #endif
             
-            if(onMessage_&&readbuf.readable())
+            if(onMessage_&&channel->getReadBuf()->readable())
             {
-                onMessage_(readbuf.str());
+                onMessage_(channel->getReadBuf()->str());
                 write(channel, "Since even with edge-triggered epoll, multiple events can be\
                       generated upon receipt of multiple chunks of data, the caller has the\
                       option to specify the EPOLLONESHOT flag, to tell epoll to disable the\
@@ -184,7 +181,7 @@ TcpServer::onRead(Channel* channel)
                       the device awake until the event has been processed, it is necessary");
             }
             
-            readbuf.readall();
+            channel->getReadBuf()->readall();
             break;
         }
     }//for
@@ -197,18 +194,18 @@ TcpServer::onWrite(Channel* channel)
 {
     for(;;)
     {
-        int readable = channel->readable();
-        int len = static_cast<int>(::write(channel->getFd(), channel->str(), readable));
+        int readable = channel->getWriteBuf()->readable();
+        int len = static_cast<int>(::write(channel->getFd(), channel->getWriteBuf()->str(), readable));
         LOG_TRACE<<"write:"<<len;
         if(readable==len)
         {
             channel->writeEvent();
-            channel->readall();
+            channel->getWriteBuf()->readall();
             break;
         }
         else if(len)
         {
-            channel->read(len);
+            channel->getWriteBuf()->read(len);
         }
         
         if(EAGAIN==errno)
@@ -233,12 +230,12 @@ void
 TcpServer::write(Channel *channel, const std::string& msg)
 {
     channel->write(msg);
-    
+    if(channel->getWriteBuf()->readable())
+    {
 #ifndef UseEpollET
-    //set channel being interesting in write event
-    channel->setEvent(EPOLLOUT);//edge-trigger don't need
-    loop_.getPoll().setChannel(channel);
+        channel->setEvent(EPOLLOUT);
+        loop_.getPoll().setChannel(&channel);
 #endif
-    
+    }
 }
 

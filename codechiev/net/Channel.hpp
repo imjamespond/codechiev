@@ -20,14 +20,14 @@ namespace codechiev {
     namespace net {
 
         
-        static const int kWriteBufferSize = 1024*32;
-        static const int kWriteBufferEachTimeSize = 8;
-        typedef codechiev::base::FixedBuffer<kWriteBufferSize> channel_buffer;
+        static const int kBufferSize = 1024*32;
+        static const int kBufferEachTimeSize = 8;
+        typedef codechiev::base::FixedBuffer<kBufferSize> channel_buffer;
         
         class Channel
         {
         public:
-            typedef std::vector<Channel*> chanenl_vec;
+            typedef std::vector<Channel*> channel_vec_t;
 
             Channel(int fd):fd_(fd){}
             
@@ -41,12 +41,8 @@ namespace codechiev {
             inline int getEvent(){return event_;}
             inline int close(){return ::close(fd_);}
             
-            inline const char* str(){return writebuf_.str();}
-            inline char* data(){return writebuf_.data();}
-            inline void read(int len){writebuf_.read(len);}
-            inline void readall(){writebuf_.readall();}
-            inline int readable(){return writebuf_.readable();}
-            //inline channel_buffer& getWriteBuf(){return writebuf_;}
+            inline channel_buffer* getReadBuf(){return &readbuf_;}
+            inline channel_buffer* getWriteBuf(){return &writebuf_;}
             
             void write(const std::string&);
             void writeEvent();
@@ -54,10 +50,11 @@ namespace codechiev {
             int fd_;
             int event_;
             
+            channel_buffer readbuf_;
             channel_buffer writebuf_;
         };
 
-        typedef Channel::chanenl_vec chanenl_vec;
+        typedef Channel::channel_vec_t channel_vec;
         typedef boost::shared_ptr<Channel> channel_ptr;
         
         inline int

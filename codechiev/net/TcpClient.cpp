@@ -51,10 +51,10 @@ TcpClient::close()
 }
 
 void
-TcpClient::pollEvent(const chanenl_vec &vec)
+TcpClient::pollEvent(const channel_vec &vec)
 {
     
-    for( chanenl_vec::const_iterator it=vec.begin();
+    for( channel_vec::const_iterator it=vec.begin();
         it!=vec.end();
         it++)
     {
@@ -105,24 +105,21 @@ TcpClient::onClose(Channel* channel)
     channel->close();
 }
 
-const int kReadBufferSize = 1024*1024;
-const int kReadBufferEachTimeSize = 16;
-FixedBuffer<kReadBufferSize> clientbuf;//FIXME must be thread safe
 void
 TcpClient::onRead(Channel* channel)
 {
     for(;;)
     {
-        if(clientbuf.writable()<=kReadBufferEachTimeSize)
+        if(channel->getReadBuf()->writable()<=kBufferEachTimeSize)
         {
-            LOG_ERROR<<"insufficient buffer:"<<clientbuf.str();
-            clientbuf.readall();
+            LOG_ERROR<<"insufficient buffer:"<<channel->getReadBuf()->str();
+            channel->getReadBuf()->readall();
         }
-        ssize_t len = static_cast<int>(::read(channel->getFd(), clientbuf.data(), kReadBufferEachTimeSize));
+        ssize_t len = static_cast<int>(::read(channel->getFd(), channel->getReadBuf()->data(), kBufferEachTimeSize));
         LOG_TRACE<<"read:"<<len;
         if(len)
         {
-            clientbuf.write(static_cast<int>(len));
+            channel->getReadBuf()->write(static_cast<int>(len));
         }else
         {
             onClose(channel);
@@ -137,12 +134,12 @@ TcpClient::onRead(Channel* channel)
             loop_.getPoll().setChannel(channel);
 #endif
             
-            if(onMessage_&&clientbuf.readable())
+            if(onMessage_&&channel->getReadBuf()->readable())
             {
-                onMessage_(clientbuf.str());
+                onMessage_(channel->getReadBuf()->str());
             }
             
-            clientbuf.readall();
+            channel->getReadBuf()->readall();
             break;
         }
     }//for
@@ -153,18 +150,18 @@ TcpClient::onWrite(Channel* channel)
 {
     for(;;)
     {
-        int readable = channel->readable();
-        int len = static_cast<int>(::write(channel->getFd(), channel->str(), readable));
+        int readable = channel->getWriteBuf()->readable();
+        int len = static_cast<int>(::write(channel->getFd(), channel->getWriteBuf()->str(), readable));
         LOG_TRACE<<"write:"<<len;
         if(readable==len)
         {
             channel->writeEvent();
-            channel->readall();
+            channel->getWriteBuf()->readall();
             break;
         }
         else if(len)
         {
-            channel->read(len);
+            channel->getWriteBuf()->read(len);
         }
         
         if(EAGAIN==errno)
@@ -174,7 +171,7 @@ TcpClient::onWrite(Channel* channel)
         }
     }
 #ifndef UseEpollET
-    if(channel->readable())
+    if(channel->wreadable())
     {
         channel->setEvent(EPOLLOUT);
     }else
@@ -188,8 +185,8 @@ TcpClient::onWrite(Channel* channel)
 void
 TcpClient::write(const std::string& msg)
 {
-    channel_.write(msg);
-    if(channel_.readable())
+    channel_->write(msg);
+    if(channel_.getWriteBuf()->readable())
     {
 #ifndef UseEpollET
         channel_.setEvent(EPOLLOUT);
