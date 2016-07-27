@@ -44,10 +44,9 @@ int main(int argc, const char * argv[]) {
         c=getchar();
         if(c == 10)
         {
-            // double return pressed!
+            client.write(msg);
             i=0;
             ::memset(msg, 0, sizeof msg);
-            client.write(msg);
         }else
         {
             msg[i++]=c;
