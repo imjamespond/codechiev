@@ -205,6 +205,7 @@ TcpServer::onWrite(Channel* channel)
             }
             loop_.getPoll().setChannel(channel);
 #endif
+            break;
         }
     }
 }
