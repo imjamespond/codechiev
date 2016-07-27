@@ -26,7 +26,7 @@ TcpClient::connect()
 {
     if (-1 == ::connect(channel_.getFd(), (struct sockaddr *) &addr_.sockaddrin, addr_.socklen))
     {
-        perror("bind error");
+        perror("connect error");
         LOG_ERROR<<"errno:"<<errno;
         exit(EXIT_FAILURE);
     }
