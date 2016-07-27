@@ -31,6 +31,8 @@ namespace codechiev {
             inline int getEvent(){return event_;}
             inline int close(){return ::close(fd_);}
 
+            int onRead();
+            int onWrite();
         private:
             int fd_;
             int event_;

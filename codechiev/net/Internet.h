@@ -18,12 +18,26 @@
 namespace codechiev {
     namespace net {
 
-        
-        inline void setIpAddress(const std::string& ip, uint16_t port, sockaddr_in& addr)
+        struct InetAddress
         {
-            addr.sin_port = ::htons(port);//host to network bytes order
-            ::inet_aton(ip.c_str(), &addr.sin_addr);
-        }
+            InetAddress(const std::string& ip, uint16_t po):
+            ipaddr(ip),port(po)
+            {
+                socklen = sizeof(struct sockaddr);
+                ::memset(&sockaddrin, 0, sizeof(struct sockaddr));
+                sockaddrin.sin_family = AF_INET;
+                sockaddrin.sin_port = ::htons(port);//host to network bytes order
+                ::inet_aton(ip.c_str(), &sockaddrin.sin_addr);
+            }
+            
+            std::string ipaddr;
+            uint16_t port;
+            
+            sockaddr_in sockaddrin;
+            socklen_t socklen;
+        };
+        
+        typedef struct InetAddress InetAddressSt;
     }
 }
 

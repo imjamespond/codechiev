@@ -39,23 +39,20 @@ namespace codechiev {
             inline void setOnClose(const on_close_func &func){onClose_=func;}
 
         private:
-            typedef struct sockaddr sockaddr_struct;
-            typedef struct sockaddr_in sockaddrin_struct;
-            typedef socklen_t sock_len;
-
             Channel listench_;
             EventLoop<EPoll> loop_;
-            std::string ipaddr_;
-            uint16_t port_;
-            sockaddrin_struct addrin_;
-            sock_len addrlen_;
+
+            InetAddressSt addr_;
             channel_map channels_;
 
             on_connect_func onConnect_;
             on_message_func onMessage_;
             on_close_func onClose_;
 
+            void onConnect(Channel *);
             void onClose(Channel *);
+            void onRead(Channel *);
+            void onWrite(Channel *);
         };
     }
 }

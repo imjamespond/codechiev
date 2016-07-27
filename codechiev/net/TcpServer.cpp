@@ -10,7 +10,6 @@
 #include "EventLoop.h"
 #include "Channel.hpp"
 #include <base/Time.hpp>
-#include <base/FixedBuffer.h>
 #include <base/Logger.hpp>
 #include <sys/types.h>
 #include <string>
@@ -23,7 +22,7 @@ using namespace codechiev::net;
 TcpServer::TcpServer(const std::string& ip, uint16_t port):
 listench_(::socket(AF_INET, SOCK_STREAM| SOCK_NONBLOCK|SOCK_CLOEXEC, 0)),
 loop_(boost::bind(&TcpServer::pollEvent, this, _1)),
-ipaddr_(ip),port_(port),
+addr_(ip, port),
 onConnect_(0),
 onMessage_(0),
 onClose_(0)
@@ -35,7 +34,6 @@ onClose_(0)
         exit(EXIT_FAILURE);
     }
 
-    addrlen_ = sizeof(sockaddr_struct);
     LOG_DEBUG<<"create socket fd:"<<listench_.getFd();
 }
 
@@ -50,12 +48,9 @@ TcpServer::start()
         LOG_ERROR<<"errno:"<<errno;
         exit(EXIT_FAILURE);
     }
-    ::memset(&addrin_, 0, sizeof(sockaddr));
-    addrin_.sin_family = AF_INET;
-    setIpAddress(ipaddr_, port_, addrin_);
 
     //The socket is bound to a local address
-    ::bind(listench_.getFd(), (sockaddr_struct *) &addrin_, addrlen_);
+    ::bind(listench_.getFd(), (struct sockaddr *) &addr_.sockaddrin, addr_.socklen);
 
     //a queue limit for incoming connections
     ::listen(listench_.getFd(), QUEUE_LIMIT);
@@ -65,12 +60,10 @@ TcpServer::start()
     loop_.loop();
 }
 #undef UseEpollET
-const int kBufferSize = 1024*1024;
-const int kBufferHalfSize = kBufferSize*.5;
 void
 TcpServer::pollEvent(const chanenl_vec &vec)
 {
-    FixedBuffer<kBufferSize> buffer;
+    
     for( chanenl_vec::const_iterator it=vec.begin();
         it!=vec.end();
         it++)
@@ -78,64 +71,15 @@ TcpServer::pollEvent(const chanenl_vec &vec)
         net::Channel *channel = *it;
         if (channel->getFd() == listench_.getFd())
         {
-            channel_ptr connsock(new Channel(::accept(listench_.getFd(),
-                                                      (sockaddr_struct *) &addrin_, &addrlen_)));
-            if (connsock->getFd() == -1) {
-                LOG_ERROR<<("accept");
-            }
-
-            #ifdef UseEpollET
-                connsock->setEvent(EPOLLIN|EPOLLOUT |EPOLLET);
-                LOG_TRACE<<"UseEpollET";
-            #else
-                connsock->setEvent(EPOLLIN|EPOLLOUT);
-            #endif
-            channels_[connsock->getFd()]=connsock;
-            loop_.getPoll().addChannel(connsock.get());
-            if(onConnect_)
-                onConnect_(connsock.get());
+            onConnect(channel);
         }else
         {
             if(channel->getEvent() & EPOLLIN)
             {
-                for(;;)
-            {
-                if(buffer.writable()<=kBufferHalfSize)
-                {
-                    LOG_DEBUG<<buffer.str();
-                    buffer.readall();
-                }
-                int len = static_cast<int>(::read(channel->getFd(), buffer.data(), kBufferHalfSize));
-                if(len)
-                {
-                    buffer.write(len);
-                }else
-                {
-                    onClose(channel);
-                    break;
-                }
-                //reading done
-                if(EAGAIN==errno)
-                {
-                    if(onMessage_&&buffer.readable())
-                        onMessage_(buffer.str());
-                    buffer.readall();
-                    #ifndef UseEpollET
-                    //set channel being interesting in read event
-                    channel->setEvent(EPOLLIN);//edge-trigger don't need
-                    loop_.getPoll().setChannel(channel);
-                    #endif
-                    break;
-                }
-
-            }
+                onRead(channel);
             }else if(channel->getEvent() & EPOLLOUT)
             {
-                    #ifndef UseEpollET
-                    //set channel being interesting in read event
-                    channel->setEvent(EPOLLIN);//edge-trigger don't need
-                    loop_.getPoll().setChannel(channel);
-                    #endif
+                onWrite(channel);
             }else if(channel->getEvent() & (EPOLLHUP|EPOLLRDHUP) )
             {
                 onClose(channel);
@@ -147,9 +91,82 @@ TcpServer::pollEvent(const chanenl_vec &vec)
 }
 
 void
+TcpServer::onConnect(Channel* channel)
+{
+    socklen_t socklen = addr_.socklen;
+    int connfd = ::accept(listench_.getFd(),
+             (struct sockaddr *) &addr_.sockaddrin, &socklen);
+    if (connfd == -1) {
+        LOG_ERROR<<("accept");
+        return;
+    }
+    channel_ptr connsock(new Channel(connfd));
+
+#ifdef UseEpollET
+    connsock->setEvent(EPOLLIN|EPOLLOUT |EPOLLET);
+    LOG_TRACE<<"UseEpollET";
+#else
+    connsock->setEvent(EPOLLIN|EPOLLOUT);
+#endif
+    channels_[connsock->getFd()]=connsock;
+    loop_.getPoll().addChannel(connsock.get());
+    if(onConnect_)
+        onConnect_(connsock.get());
+}
+
+void
 TcpServer::onClose(Channel* channel)
 {
     loop_.getPoll().delChannel(channel);
     if(onClose_)
         onClose_(channel);
 }
+
+const int kBufferSize = 1024*1024;
+const int kBufferHalfSize = kBufferSize*.5;
+FixedBuffer<kBufferSize> buffer;//FIXME must be thread safe
+void
+TcpServer::onRead(Channel* channel)
+{
+    for(;;)
+    {
+        if(buffer.writable()<=kBufferHalfSize)
+        {
+            LOG_DEBUG<<buffer.str();
+            buffer.readall();
+        }
+        int len = static_cast<int>(::read(channel->getFd(), buffer.data(), kBufferHalfSize));
+        if(len)
+        {
+            buffer.write(len);
+        }else
+        {
+            onClose(channel);
+            break;
+        }
+        //reading done
+        if(EAGAIN==errno)
+        {
+            if(onMessage_&&buffer.readable())
+                onMessage_(buffer.str());
+            buffer.readall();
+#ifndef UseEpollET
+            //set channel being interesting in read event
+            channel->setEvent(EPOLLIN);//edge-trigger don't need
+            loop_.getPoll().setChannel(channel);
+#endif
+            break;
+        }
+    }//for
+}
+
+void
+TcpServer::onWrite(Channel* channel)
+{
+#ifndef UseEpollET
+    //set channel being interesting in read event
+    channel->setEvent(EPOLLIN);//edge-trigger don't need
+    loop_.getPoll().setChannel(channel);
+#endif
+}
+
