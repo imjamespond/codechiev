@@ -37,7 +37,7 @@ TcpClient::connect()
             exit(EXIT_FAILURE);
         }
     }
-    
+
     channel_.setKeepAlive();
     channel_.setEvent(EPOLLOUT);
     loop_.getPoll().addChannel(&channel_);
@@ -47,13 +47,13 @@ TcpClient::connect()
 void
 TcpClient::close()
 {
-    
+
 }
 
 void
 TcpClient::pollEvent(const channel_vec &vec)
 {
-    
+
     for( channel_vec::const_iterator it=vec.begin();
         it!=vec.end();
         it++)
@@ -61,7 +61,7 @@ TcpClient::pollEvent(const channel_vec &vec)
         net::Channel *channel = *it;
         if (channel->getFd() == channel_.getFd())
         {
-            
+
             if(channel->getEvent() & EPOLLIN)
             {
                 onRead(channel);
@@ -89,7 +89,7 @@ TcpClient::onConnect(Channel* channel)
 #else
     channel->setEvent(EPOLLIN);
 #endif
-    
+
     loop_.getPoll().setChannel(channel);
     if(onConnect_)
         onConnect_(channel);
@@ -101,8 +101,7 @@ TcpClient::onClose(Channel* channel)
 {
     if(onClose_)
         onClose_(channel);
-    loop_.getPoll().delChannel(channel);
-    channel->close();
+    loop_.getPoll().delChannel(channel);;
 }
 
 void
@@ -112,36 +111,36 @@ TcpClient::onRead(Channel* channel)
     {
         if(channel->getReadBuf()->writable()<=kBufferEachTimeSize)
         {
-            LOG_ERROR<<"insufficient buffer:"<<channel->getReadBuf()->str();
-            channel->getReadBuf()->readall();
+            LOG_WARN<<"insufficient buffer:"<<channel->getReadBuf()->str();
+            onClose(channel);
+            break;
         }
         ssize_t len = static_cast<int>(::read(channel->getFd(), channel->getReadBuf()->data(), kBufferEachTimeSize));
         LOG_TRACE<<"read:"<<len;
         if(len)
         {
             channel->getReadBuf()->write(static_cast<int>(len));
-        }else
+        }else if(len == 0)
         {
             onClose(channel);
             break;
-        }
-        //reading done
-        if(EAGAIN==errno)
+        }else if(-1 == len && EAGAIN==errno)
         {
-            
+//prepare for next epoll wait
 #ifndef UseEpollET
             channel->setEvent(EPOLLIN);
             loop_.getPoll().setChannel(channel);
 #endif
-            
             if(onMessage_&&channel->getReadBuf()->readable())
             {
                 onMessage_(channel->getReadBuf()->str());
             }
-            
+
             channel->getReadBuf()->readall();
             break;
         }
+        //reading done
+
     }//for
 }
 
@@ -151,6 +150,10 @@ TcpClient::onWrite(Channel* channel)
     for(;;)
     {
         int readable = channel->getWriteBuf()->readable();
+        if(readable > kBufferEachTimeSize)
+        {
+            readable = kBufferEachTimeSize;
+        }
         int len = static_cast<int>(::write(channel->getFd(), channel->getWriteBuf()->str(), readable));
         LOG_TRACE<<"write:"<<len;
         if(readable==len)
@@ -162,9 +165,7 @@ TcpClient::onWrite(Channel* channel)
         else if(len)
         {
             channel->getWriteBuf()->read(len);
-        }
-        
-        if(EAGAIN==errno)
+        }else if(len==-1&&EAGAIN==errno)
         {
             channel->writeEvent();
             break;

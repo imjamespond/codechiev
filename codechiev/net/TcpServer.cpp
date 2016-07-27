@@ -33,7 +33,7 @@ onClose_(0)
         LOG_ERROR<<"errno:"<<errno;
         exit(EXIT_FAILURE);
     }
-    
+
     LOG_DEBUG<<"TcpEndpoint fd:"<<channel_.getFd();
 }
 
@@ -54,7 +54,7 @@ TcpServer::listen()
         LOG_ERROR<<"errno:"<<errno;
         exit(EXIT_FAILURE);
     }
-    
+
     //The socket is bound to a local address
     if (-1 == ::bind(channel_.getFd(), (struct sockaddr *) &addr_.sockaddrin, addr_.socklen))
     {
@@ -62,7 +62,7 @@ TcpServer::listen()
         LOG_ERROR<<"errno:"<<errno;
         exit(EXIT_FAILURE);
     }
-    
+
     //a queue limit for incoming connections
     if (-1 == ::listen(channel_.getFd(), QUEUE_LIMIT))
     {
@@ -70,7 +70,7 @@ TcpServer::listen()
         LOG_ERROR<<"errno:"<<errno;
         exit(EXIT_FAILURE);
     }
-    
+
     channel_.setEvent(EPOLLIN);
     loop_.getPoll().addChannel(&channel_);
     loop_.loop();
@@ -79,7 +79,7 @@ TcpServer::listen()
 void
 TcpServer::pollEvent(const channel_vec &vec)
 {
-    
+
     for( channel_vec::const_iterator it=vec.begin();
         it!=vec.end();
         it++)
@@ -102,7 +102,7 @@ TcpServer::pollEvent(const channel_vec &vec)
             }
         }
     }//for
-    
+
     Time::SleepMillis(10000l);//simulate combine event when using et
 }
 
@@ -118,7 +118,7 @@ TcpServer::onConnect(Channel* channel)
         return;
     }
     channel_ptr connsock(new Channel(connfd));
-    
+
 #ifdef UseEpollET
     connsock->setEvent(EPOLLIN|EPOLLOUT |EPOLLET);
     LOG_TRACE<<"UseEpollET";
@@ -137,7 +137,7 @@ TcpServer::onClose(Channel* channel)
     if(onClose_)
         onClose_(channel);
     loop_.getPoll().delChannel(channel);
-    channel->close();
+    channels_.erase(channel->getFd());
 }
 
 void
@@ -148,7 +148,8 @@ TcpServer::onRead(Channel* channel)
         if(channel->getReadBuf()->writable()<=kBufferEachTimeSize)
         {
             LOG_ERROR<<"insufficient buffer:"<<channel->getReadBuf()->str();
-            channel->getReadBuf()->readall();
+            onClose(channel);
+            break;
         }
         ssize_t len = static_cast<int>(::read(channel->getFd(), channel->getReadBuf()->data(), kBufferEachTimeSize));
         LOG_TRACE<<"read:"<<len;
@@ -159,33 +160,23 @@ TcpServer::onRead(Channel* channel)
         {
             onClose(channel);
             break;
-        }
-        //reading done
-        if(EAGAIN==errno)
+        }else if(-1 == len && EAGAIN==errno)
         {
-
+//prepare for next epoll wait
 #ifndef UseEpollET
-            //set channel being interesting in read event
-            channel->setEvent(EPOLLIN);//edge-trigger don't need
+            channel->setEvent(EPOLLIN);
             loop_.getPoll().setChannel(channel);
 #endif
-            
             if(onMessage_&&channel->getReadBuf()->readable())
             {
                 onMessage_(channel->getReadBuf()->str());
-                write(channel, "Since even with edge-triggered epoll, multiple events can be\
-                      generated upon receipt of multiple chunks of data, the caller has the\
-                      option to specify the EPOLLONESHOT flag, to tell epoll to disable the\
-                      associated file descriptor after the receipt of an event withepoll_wait(2).When the EPOLLONESHOT flag is specified,it is thecaller\'s responsibility to rearm the file descriptor usingepoll_ctl(2) with EPOLL_CTL_MOD.Interaction with autosleep\
-                      If the system is in autosleep mode via /sys/power/autosleep and an\
-                      event happens which wakes the device from sleep, the device driver\
-                      will keep the device awake only until that event is queued.  To keep\
-                      the device awake until the event has been processed, it is necessary");
+                write(channel, "the device awake until the event has been processed, it is necessary");
             }
-            
+
             channel->getReadBuf()->readall();
             break;
         }
+        //reading done
     }//for
 }
 
@@ -207,7 +198,7 @@ TcpServer::onWrite(Channel* channel)
         {
             channel->getWriteBuf()->read(len);
         }
-        
+
         if(EAGAIN==errno)
         {
             channel->writeEvent();

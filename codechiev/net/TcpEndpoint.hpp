@@ -31,14 +31,13 @@ namespace codechiev {
             typedef boost::function<void(Channel*)> on_close_func;
 
             explicit TcpEndpoint(const std::string&, uint16_t );
-            
+
             inline void setOnConnect(const on_connect_func &func){onConnect_=func;}
             inline void setOnMessage(const on_message_func &func){onMessage_=func;}
             inline void setOnClose(const on_close_func &func){onClose_=func;}
 
         protected:
             InetAddressSt addr_;
-            channel_map channels_;
             Channel channel_;
 
             on_connect_func onConnect_;
@@ -46,7 +45,7 @@ namespace codechiev {
             on_close_func onClose_;
 
         };
-        
+
         class TcpServer : public TcpEndpoint
         {
         public:
@@ -62,8 +61,9 @@ namespace codechiev {
             void write(Channel *, const std::string&);
         private:
             EventLoop<EPoll> loop_;
+            channel_map channels_;
         };
-        
+
         class TcpClient : public TcpEndpoint
         {
         public:

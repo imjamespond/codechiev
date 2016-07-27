@@ -21,7 +21,7 @@ namespace codechiev {
 
 
         static const int kBufferSize = 1024*32;
-        static const int kBufferEachTimeSize = 128;
+        static const int kBufferEachTimeSize = 4;
         typedef codechiev::base::FixedBuffer<kBufferSize> channel_buffer;
 
         class Channel
@@ -30,6 +30,7 @@ namespace codechiev {
             typedef std::vector<Channel*> channel_vec_t;
 
             Channel(int fd):fd_(fd){}
+            ~Channel(){close();}
 
             inline void setFd(int fd){fd_=fd;};
             inline void setNonBlock(){::fcntl(fd_, F_SETFL, O_NONBLOCK);}
