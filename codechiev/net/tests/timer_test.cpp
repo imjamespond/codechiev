@@ -41,9 +41,9 @@ int main(int argc, const char * argv[]) {
     for(int i=0; i<3; i++)
     {
         timer.after(3);
-        net::chanenl_vec vec;
+        net::channel_vec vec;
         epoll.poll(vec);
-        for(net::chanenl_vec::iterator it=vec.begin();
+        for(net::channel_vec::iterator it=vec.begin();
             it!=vec.end();
             it++)
         {
