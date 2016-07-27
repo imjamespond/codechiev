@@ -91,22 +91,22 @@ TcpClient::onClose(Channel* channel)
 
 const int kReadBufferSize = 1024*1024;
 const int kReadBufferEachTimeSize = 16;
-FixedBuffer<kReadBufferSize> readbuf;//FIXME must be thread safe
+FixedBuffer<kReadBufferSize> clientbuf;//FIXME must be thread safe
 void
 TcpClient::onRead(Channel* channel)
 {
     for(;;)
     {
-        if(readbuf.writable()<=kReadBufferEachTimeSize)
+        if(clientbuf.writable()<=kReadBufferEachTimeSize)
         {
-            LOG_ERROR<<"insufficient buffer:"<<readbuf.str();
-            readbuf.readall();
+            LOG_ERROR<<"insufficient buffer:"<<clientbuf.str();
+            clientbuf.readall();
         }
-        ssize_t len = static_cast<int>(::read(channel->getFd(), readbuf.data(), kReadBufferEachTimeSize));
+        ssize_t len = static_cast<int>(::read(channel->getFd(), clientbuf.data(), kReadBufferEachTimeSize));
         LOG_TRACE<<"read:"<<len;
         if(len)
         {
-            readbuf.write(static_cast<int>(len));
+            clientbuf.write(static_cast<int>(len));
         }else
         {
             onClose(channel);
@@ -122,12 +122,12 @@ TcpClient::onRead(Channel* channel)
             loop_.getPoll().setChannel(channel);
 #endif
             
-            if(onMessage_&&readbuf.readable())
+            if(onMessage_&&clientbuf.readable())
             {
-                onMessage_(readbuf.str());
+                onMessage_(clientbuf.str());
             }
             
-            readbuf.readall();
+            clientbuf.readall();
             break;
         }
     }//for
