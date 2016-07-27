@@ -52,7 +52,7 @@ int main(int argc, const char * argv[]) {
         {
             msg[i++]=c;
         }
-        
+        LOG_DEBUG<<prev;
         prev = c;
         
     }while(prev!='.');
