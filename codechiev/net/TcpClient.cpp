@@ -87,9 +87,9 @@ TcpClient::onConnect(Channel* channel)
     channel->setEvent(EPOLLIN);
 #endif
     
-    loop_.getPoll().setChannel(&channel);
+    loop_.getPoll().setChannel(channel);
     if(onConnect_)
-        onConnect_(&channel);
+        onConnect_(channel);
 }
 
 
