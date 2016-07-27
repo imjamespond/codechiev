@@ -93,7 +93,7 @@ const int kReadBufferSize = 1024*1024;
 const int kReadBufferEachTimeSize = 16;
 FixedBuffer<kReadBufferSize> readbuf;//FIXME must be thread safe
 void
-TcpServer::onRead(Channel* channel)
+TcpClient::onRead(Channel* channel)
 {
     for(;;)
     {
