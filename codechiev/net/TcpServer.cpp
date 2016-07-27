@@ -102,6 +102,8 @@ TcpServer::pollEvent(const channel_vec &vec)
             }
         }
     }//for
+    
+    Time::SleepMillis(10000l);//simulate combine event when using et
 }
 
 void
@@ -185,8 +187,6 @@ TcpServer::onRead(Channel* channel)
             break;
         }
     }//for
-    
-    Time::SleepMillis(10000l);//simulate combine event when using et
 }
 
 void
