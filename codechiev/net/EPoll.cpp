@@ -73,7 +73,7 @@ EPoll::delChannel(Channel *channel)
 }
 
 void
-EPoll::poll(Channel::chanenl_vec &vec)
+EPoll::poll(channel_vec &vec)
 {
     int nfds = ::epoll_wait(epollch_.getFd(), events_.data(), static_cast<int>(events_.size()), -1);
     if (nfds == -1)

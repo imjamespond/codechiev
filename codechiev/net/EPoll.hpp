@@ -22,7 +22,7 @@ namespace codechiev {
         public:
             EPoll();
 
-            void poll(chanenl_vec&);
+            void poll(channel_vec&);
             void addChannel(Channel*);
             void setChannel(Channel*);
             void delChannel(Channel*);
