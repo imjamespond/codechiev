@@ -93,10 +93,12 @@ TcpServer::pollEvent(const channel_vec &vec)
             if(channel->getEvent() & EPOLLIN)
             {
                 onRead(channel);
-            }else if(channel->getEvent() & EPOLLOUT)
+            }
+            if(channel->getEvent() & EPOLLOUT)
             {
                 onWrite(channel);
-            }else if(channel->getEvent() & (EPOLLHUP|EPOLLRDHUP) )
+            }
+            if(channel->getEvent() & (EPOLLHUP|EPOLLRDHUP) )
             {
                 onClose(channel);
             }
@@ -170,10 +172,15 @@ TcpServer::onRead(Channel* channel)
             if(onMessage_&&channel->getReadBuf()->readable())
             {
                 onMessage_(channel->getReadBuf()->str());
-                write(channel, "the device awake until the event has been processed, it is necessary");
+                write(channel, "1234567890 qwertyuiopasdfghjklzxcvbnm QWERTYUIOPASDFGHJKLZXCVBNM");
             }
 
             channel->getReadBuf()->readall();
+            break;
+        }else
+        {
+            LOG_ERROR<<"read error";
+            onClose(channel);
             break;
         }
         //reading done
@@ -186,35 +193,39 @@ TcpServer::onWrite(Channel* channel)
     for(;;)
     {
         int readable = channel->getWriteBuf()->readable();
+        if(readable > kBufferEachTimeSize)
+        {
+            readable = kBufferEachTimeSize;
+        }
         int len = static_cast<int>(::write(channel->getFd(), channel->getWriteBuf()->str(), readable));
         LOG_TRACE<<"write:"<<len;
-        if(readable==len)
-        {
-            channel->writeEvent();
-            channel->getWriteBuf()->readall();
-            break;
-        }
-        else if(len)
+        if(len && len==readable)
         {
             channel->getWriteBuf()->read(len);
         }
-
-        if(EAGAIN==errno)
+        else if(len==-1&&EAGAIN==errno)
         {
+#ifndef UseEpollET
+            if(channel->getWriteBuf()->readable())
+            {
+                channel->setEvent(EPOLLOUT);
+            }else
+            {
+                channel->setEvent(EPOLLIN);
+            }
+            loop_.getPoll().setChannel(channel);
+#endif
             channel->writeEvent();
             break;
         }
+        else
+        {
+            LOG_ERROR<<"write error";
+            onClose(channel);
+            break;
+        }
     }
-#ifndef UseEpollET
-    if(channel->getWriteBuf()->readable())
-    {
-        channel->setEvent(EPOLLOUT);
-    }else
-    {
-        channel->setEvent(EPOLLIN);
-    }
-    loop_.getPoll().setChannel(channel);
-#endif
+
 }
 
 void

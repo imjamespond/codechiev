@@ -138,6 +138,11 @@ TcpClient::onRead(Channel* channel)
 
             channel->getReadBuf()->readall();
             break;
+        }else
+        {
+            LOG_ERROR<<"read error";
+            onClose(channel);
+            break;
         }
         //reading done
 
@@ -156,31 +161,33 @@ TcpClient::onWrite(Channel* channel)
         }
         int len = static_cast<int>(::write(channel->getFd(), channel->getWriteBuf()->str(), readable));
         LOG_TRACE<<"write:"<<len;
-        if(readable==len)
-        {
-            channel->writeEvent();
-            channel->getWriteBuf()->readall();
-            break;
-        }
-        else if(len)
+        if(len && len==readable)
         {
             channel->getWriteBuf()->read(len);
-        }else if(len==-1&&EAGAIN==errno)
+        }
+        else if(len==-1&&EAGAIN==errno)
         {
+#ifndef UseEpollET
+            if(channel->getWriteBuf()->readable())
+            {
+                channel->setEvent(EPOLLOUT);
+            }else
+            {
+                channel->setEvent(EPOLLIN);
+            }
+            loop_.getPoll().setChannel(channel);
+#endif
             channel->writeEvent();
             break;
         }
+        else
+        {
+            LOG_ERROR<<"write error";
+            onClose(channel);
+            break;
+        }
     }
-#ifndef UseEpollET
-    if(channel->getWriteBuf()->readable())
-    {
-        channel->setEvent(EPOLLOUT);
-    }else
-    {
-        channel->setEvent(EPOLLIN);
-    }
-    loop_.getPoll().setChannel(channel);
-#endif
+
 }
 
 void
