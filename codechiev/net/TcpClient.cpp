@@ -134,17 +134,16 @@ TcpClient::onRead(Channel* channel)
 
         if(EAGAIN==errno)
         {
-            //prepare for next epoll wait
-            channel->setEvent(EPOLLIN);
+            if(channel->getWriteBuf()->readable())
+            {
+                channel->setEvent(EPOLLOUT);
+            }else
+            {
+                channel->setEvent(EPOLLIN);
+            }
             loop_.getPoll().setChannel(channel);
 
-            if(onMessage_&&channel->getReadBuf()->readable())
-            {
-                onMessage_(channel->getReadBuf()->str());
-                write(channel, "1234567890 qwertyuiopasdfghjklzxcvbnm QWERTYUIOPASDFGHJKLZXCVBNM");
-            }
-
-            channel->getReadBuf()->readall();
+            channel->writeEvent();
             break;
         }
         //reading done
