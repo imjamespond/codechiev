@@ -171,7 +171,7 @@ TcpClient::onWrite(Channel* channel)
         }
     }
 #ifndef UseEpollET
-    if(channel->wreadable())
+    if(channel->getWriteBuf()->readable())
     {
         channel->setEvent(EPOLLOUT);
     }else
