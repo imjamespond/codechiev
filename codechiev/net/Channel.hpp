@@ -40,12 +40,12 @@ namespace codechiev {
             
             static const int kWriteBufferSize = 1024*32;
             static const int kWriteBufferEachTimeSize = 8;
-            base::FixedBuffer<kWriteBufferSize>& getWriteBuf(){return writebuf_;}
+            codechiev::base::FixedBuffer<kWriteBufferSize>& getWriteBuf(){return writebuf_;}
         private:
             int fd_;
             int event_;
             
-            base::FixedBuffer<kWriteBufferSize> writebuf_;
+            codechiev::base::FixedBuffer<kWriteBufferSize> writebuf_;
         };
 
         typedef Channel::chanenl_vec chanenl_vec;

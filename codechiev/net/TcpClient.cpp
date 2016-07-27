@@ -7,7 +7,9 @@
 //
 
 #include "TcpEndpoint.hpp"
+#include "Channel.hpp"
 #include <base/Logger.hpp>
+#include <base/FixedBuffer.h>
 #include <boost/bind.hpp>
 #include <errno.h>
 
@@ -151,30 +153,36 @@ TcpClient::onWrite(Channel* channel)
 {
     for(;;)
     {
-        ssize_t len = ::write(channel->getFd(), channel->getWriteBuf().str(), channel->getWriteBuf().readable());
+        int readable = channel->getWriteBuf().readable();
+        ssize_t len = ::write(channel->getFd(), channel->getWriteBuf().str(), readable);
         LOG_TRACE<<"write:"<<len;
-        if(len)
+        if(readable==len)
+        {
+            channel->writeEvent();
+            channel->getWriteBuf().readall();
+            break;
+        }
+        else if(len)
         {
             channel->getWriteBuf().read(len);
         }
         
         if(EAGAIN==errno)
         {
-#ifndef UseEpollET
-            if(channel->getWriteBuf().readable())
-            {
-                channel->setEvent(EPOLLOUT);
-            }else
-            {
-                channel->setEvent(EPOLLIN);
-            }
-            loop_.getPoll().setChannel(channel);
-#endif
-            
             channel->writeEvent();
             break;
         }
     }
+#ifndef UseEpollET
+    if(channel->getWriteBuf().readable())
+    {
+        channel->setEvent(EPOLLOUT);
+    }else
+    {
+        channel->setEvent(EPOLLIN);
+    }
+    loop_.getPoll().setChannel(channel);
+#endif
 }
 
 void
