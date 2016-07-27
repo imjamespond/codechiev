@@ -37,12 +37,12 @@ int main(int argc, const char * argv[]) {
     Thread t("", boost::bind(&TcpClient::connect, &client));
     t.start();
     
-    int prev(0),i(0);
+    int c(0),i(0);
     char msg[128];
     do
     {
-        int c=getchar();
-        if(c == '\n' && prev == c)
+        c=getchar();
+        if(c == 10)
         {
             // double return pressed!
             i=0;
@@ -52,10 +52,9 @@ int main(int argc, const char * argv[]) {
         {
             msg[i++]=c;
         }
-        LOG_DEBUG<<prev;
-        prev = c;
+        LOG_DEBUG<<c;
         
-    }while(prev!='.');
+    }while(c!='.');
     
     t.join();
     
