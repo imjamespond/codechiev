@@ -89,7 +89,6 @@ TcpClient::onConnect(Channel* channel)
     LOG_TRACE<<"UseEpollET";
 #endif
     channel->setEvent(EPOLLIN);
-
     loop_.getPoll().setChannel(channel);
     if(onConnect_)
         onConnect_(channel);
