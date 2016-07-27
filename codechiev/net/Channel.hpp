@@ -21,7 +21,7 @@ namespace codechiev {
 
         
         static const int kBufferSize = 1024*32;
-        static const int kBufferEachTimeSize = 8;
+        static const int kBufferEachTimeSize = 128;
         typedef codechiev::base::FixedBuffer<kBufferSize> channel_buffer;
         
         class Channel
