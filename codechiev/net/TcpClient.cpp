@@ -80,7 +80,7 @@ TcpClient::pollEvent(const chanenl_vec &vec)
 void
 TcpClient::onConnect(Channel* channel)
 {
-    LOG_DEBUG<<"onConnect";
+    connected_ = true;
 #ifdef UseEpollET
     channel->setEvent(EPOLLIN|EPOLLOUT |EPOLLET);
     LOG_TRACE<<"UseEpollET";

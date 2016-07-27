@@ -51,7 +51,6 @@ int main(int argc, const char * argv[]) {
         {
             msg[i++]=c;
         }
-        LOG_DEBUG<<c;
         
     }while(c!='.');
     
