@@ -188,6 +188,8 @@ TcpServer::onRead(Channel* channel)
             break;
         }
     }//for
+    
+    Time::SleepMillis(2000l);//simulate combine event when using et
 }
 
 void
@@ -195,30 +197,36 @@ TcpServer::onWrite(Channel* channel)
 {
     for(;;)
     {
-        ssize_t len = ::write(channel->getFd(), channel->getWriteBuf().str(), channel->getWriteBuf().readable());
+        int readable = channel->readable();
+        int len = static_cast<int>(::write(channel->getFd(), channel->str(), readable));
         LOG_TRACE<<"write:"<<len;
-        if(len)
+        if(readable==len)
         {
-            channel->getWriteBuf().read(len);
+            channel->writeEvent();
+            channel->readall();
+            break;
+        }
+        else if(len)
+        {
+            channel->read(len);
         }
         
         if(EAGAIN==errno)
         {
-#ifndef UseEpollET
-            if(channel->getWriteBuf().readable())
-            {
-                channel->setEvent(EPOLLOUT);
-            }else
-            {
-                channel->setEvent(EPOLLIN);
-            }
-            loop_.getPoll().setChannel(channel);
-#endif
-            
             channel->writeEvent();
             break;
         }
     }
+#ifndef UseEpollET
+    if(channel->readable())
+    {
+        channel->setEvent(EPOLLOUT);
+    }else
+    {
+        channel->setEvent(EPOLLIN);
+    }
+    loop_.getPoll().setChannel(channel);
+#endif
 }
 
 void

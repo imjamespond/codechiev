@@ -41,7 +41,12 @@ namespace codechiev {
             inline int getEvent(){return event_;}
             inline int close(){return ::close(fd_);}
             
-            inline channel_buffer& getWriteBuf(){return writebuf_;}
+            inline const char* str(){return writebuf_.str();}
+            inline char* data(){return writebuf_.data();}
+            inline void read(int len){writebuf_.read(len);}
+            inline void readall(){writebuf_.readall();}
+            inline int readable(){return writebuf_.readable();}
+            //inline channel_buffer& getWriteBuf(){return writebuf_;}
             
             void write(const std::string&);
             void writeEvent();

@@ -153,18 +153,18 @@ TcpClient::onWrite(Channel* channel)
 {
     for(;;)
     {
-        int readable = channel->getWriteBuf().readable();
-        ssize_t len = ::write(channel->getFd(), channel->getWriteBuf().str(), readable);
+        int readable = channel->readable();
+        int len = static_cast<int>(::write(channel->getFd(), channel->str(), readable));
         LOG_TRACE<<"write:"<<len;
         if(readable==len)
         {
             channel->writeEvent();
-            channel->getWriteBuf().readall();
+            channel->readall();
             break;
         }
         else if(len)
         {
-            channel->getWriteBuf().read(len);
+            channel->read(len);
         }
         
         if(EAGAIN==errno)
@@ -174,7 +174,7 @@ TcpClient::onWrite(Channel* channel)
         }
     }
 #ifndef UseEpollET
-    if(channel->getWriteBuf().readable())
+    if(channel->readable())
     {
         channel->setEvent(EPOLLOUT);
     }else
