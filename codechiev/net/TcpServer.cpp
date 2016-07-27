@@ -156,7 +156,7 @@ TcpServer::onRead(Channel* channel)
         if(len)
         {
             readbuf.write(static_cast<int>(len));
-        }else
+        }else if(len==0)
         {
             onClose(channel);
             break;
