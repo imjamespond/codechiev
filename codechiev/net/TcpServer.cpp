@@ -100,9 +100,11 @@ TcpServer::pollEvent(const channel_vec &vec)
             }
             if(channel->getEvent() & (EPOLLHUP|EPOLLRDHUP) )
             {
-                onClose(channel);
+                channel->setConnected(false);
             }
         }
+        if(!channel->isConnected())
+            onClose(channel);
     }//for
 
     Time::SleepMillis(10000l);//simulate combine event when using et
@@ -153,7 +155,7 @@ TcpServer::onRead(Channel* channel)
         if(channel->getReadBuf()->writable()<=kBufferEachTimeSize)
         {
             LOG_ERROR<<"insufficient buffer:"<<channel->getReadBuf()->str();
-            onClose(channel);
+            channel->setConnected(false);
             break;
         }
         ssize_t len = static_cast<int>(::read(channel->getFd(), channel->getReadBuf()->data(), kBufferEachTimeSize));
@@ -163,7 +165,7 @@ TcpServer::onRead(Channel* channel)
             channel->getReadBuf()->write(static_cast<int>(len));
         }else if(len==0)
         {
-            onClose(channel);
+            channel->setConnected(false);
             break;
         }else if(-1 == len && EAGAIN==errno)
         {
@@ -183,7 +185,7 @@ TcpServer::onRead(Channel* channel)
         }else
         {
             LOG_ERROR<<"read error";
-            onClose(channel);
+            channel->setConnected(false);
             break;
         }
         //reading done
@@ -224,7 +226,7 @@ TcpServer::onWrite(Channel* channel)
         else
         {
             LOG_ERROR<<"write error";
-            onClose(channel);
+            channel->setConnected(false);
             break;
         }
     }

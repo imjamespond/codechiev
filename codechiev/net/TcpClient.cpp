@@ -72,9 +72,11 @@ TcpClient::pollEvent(const channel_vec &vec)
                     onConnect(channel);
             }else if(channel->getEvent() & (EPOLLHUP|EPOLLRDHUP) )
             {
-                onClose(channel);
+                channel->setConnected(false);
             }
         }
+        if(!channel->isConnected())
+            onClose(channel);
     }//for
 }
 
@@ -98,13 +100,9 @@ TcpClient::onConnect(Channel* channel)
 void
 TcpClient::onClose(Channel* channel)
 {
-    if(channel->isConnected())
-    {
-        if(onClose_)
-            onClose_(channel);
-        loop_.getPoll().delChannel(channel);
-        channel->setConnected(false);
-    }
+    if(onClose_)
+        onClose_(channel);
+    loop_.getPoll().delChannel(channel);
 }
 
 void
@@ -115,7 +113,7 @@ TcpClient::onRead(Channel* channel)
         if(channel->getReadBuf()->writable()<=kBufferEachTimeSize)
         {
             LOG_WARN<<"insufficient buffer:"<<channel->getReadBuf()->str();
-            onClose(channel);
+            channel->setConnected(false);
             break;
         }
         ssize_t len = static_cast<int>(::read(channel->getFd(), channel->getReadBuf()->data(), kBufferEachTimeSize));
@@ -125,7 +123,7 @@ TcpClient::onRead(Channel* channel)
             channel->getReadBuf()->write(static_cast<int>(len));
         }else if(len == 0)
         {
-            onClose(channel);
+            channel->setConnected(false);
             break;
         }else if(-1 == len && EAGAIN==errno)
         {
@@ -144,7 +142,7 @@ TcpClient::onRead(Channel* channel)
         }else
         {
             LOG_ERROR<<"read error";
-            onClose(channel);
+            channel->setConnected(false);
             break;
         }
         //reading done
@@ -186,7 +184,7 @@ TcpClient::onWrite(Channel* channel)
         else
         {
             LOG_ERROR<<"write error";
-            onClose(channel);
+            channel->setConnected(false);
             break;
         }
     }
