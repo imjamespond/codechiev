@@ -129,7 +129,6 @@ TcpServer::onConnect(Channel* channel)
         onConnect_(connsock.get());
 }
 
-
 void
 TcpServer::onClose(Channel* channel)
 {

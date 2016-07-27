@@ -70,23 +70,109 @@ TcpClient::pollEvent(const chanenl_vec &vec)
 void
 TcpClient::onConnect(Channel* channel)
 {
-    socklen_t socklen = addr_.socklen;
-    InetAddress addr;
-    int connfd = ::accept(channel_.getFd(),
-                          (struct sockaddr *) &addr.sockaddrin, &socklen);
-    if (connfd == -1) {
-        LOG_ERROR<<("accept");
-        return;
-    }
-    channel_ptr connsock(new Channel(connfd));
     
 #ifdef UseEpollET
-    connsock->setEvent(EPOLLIN|EPOLLOUT |EPOLLET);
+    channel->setEvent(EPOLLIN|EPOLLOUT |EPOLLET);
     LOG_TRACE<<"UseEpollET";
 #else
-    connsock->setEvent(EPOLLIN);
+    channel->setEvent(EPOLLIN);
 #endif
-    loop_.getPoll().addChannel(connsock.get());
-    if(onConnect_)
-        onConnect_(connsock.get());
+}
+
+
+void
+TcpClient::onClose(Channel* channel)
+{
+    if(onClose_)
+        onClose_(channel);
+    loop_.getPoll().delChannel(channel);
+    channel->close();
+}
+
+const int kReadBufferSize = 1024*1024;
+const int kReadBufferEachTimeSize = 16;
+FixedBuffer<kReadBufferSize> readbuf;//FIXME must be thread safe
+void
+TcpServer::onRead(Channel* channel)
+{
+    for(;;)
+    {
+        if(readbuf.writable()<=kReadBufferEachTimeSize)
+        {
+            LOG_ERROR<<"insufficient buffer:"<<readbuf.str();
+            readbuf.readall();
+        }
+        ssize_t len = static_cast<int>(::read(channel->getFd(), readbuf.data(), kReadBufferEachTimeSize));
+        LOG_TRACE<<"read:"<<len;
+        if(len)
+        {
+            readbuf.write(static_cast<int>(len));
+        }else
+        {
+            onClose(channel);
+            break;
+        }
+        //reading done
+        if(EAGAIN==errno)
+        {
+            
+#ifndef UseEpollET
+            //set channel being interesting in read event
+            channel->setEvent(EPOLLIN);//edge-trigger don't need
+            loop_.getPoll().setChannel(channel);
+#endif
+            
+            if(onMessage_&&readbuf.readable())
+            {
+                onMessage_(readbuf.str());
+            }
+            
+            readbuf.readall();
+            break;
+        }
+    }//for
+}
+
+void
+TcpClient::onWrite(Channel* channel)
+{
+    for(;;)
+    {
+        ssize_t len = ::write(channel->getFd(), channel->getWriteBuf().str(), channel->getWriteBuf().readable());
+        LOG_TRACE<<"write:"<<len;
+        if(len)
+        {
+            channel->getWriteBuf().read(len);
+        }
+        
+        if(EAGAIN==errno)
+        {
+#ifndef UseEpollET
+            if(channel->getWriteBuf().readable())
+            {
+                channel->setEvent(EPOLLOUT);
+            }else
+            {
+                channel->setEvent(EPOLLIN);
+            }
+            loop_.getPoll().setChannel(channel);
+#endif
+            
+            channel->writeEvent();
+            break;
+        }
+    }
+}
+
+void
+TcpClient::write(Channel *channel, const std::string& msg)
+{
+    channel->write(msg);
+    
+#ifndef UseEpollET
+    //set channel being interesting in write event
+    channel->setEvent(EPOLLOUT);//edge-trigger don't need
+    loop_.getPoll().setChannel(channel);
+#endif
+    
 }
