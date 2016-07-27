@@ -86,12 +86,13 @@ level_(lv)
         this->operator<<(" func:")<<func;
     if(gDetail&DetailThread)
         this->operator<<(" thread:")<<Thread::ThreadName()<<" tid:"<<Thread::Tid();
-    this->operator<<(" log:");
+    
+    this->operator<<(" ")<<Time::GetSimpleString()<<(" log:");
 }
 
 Logger::~Logger()
 {
-    this->operator<<(", ")<<Time::GetSimpleString();
+    this->operator<<("===");
 
     fwrite(buffer_.str(),1,buffer_.readable(),stdout);
     fflush(stdout);
