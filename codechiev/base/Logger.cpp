@@ -75,6 +75,11 @@ Logger::Logger(const char* file, const char* func, int line, Level lv):
 level_(lv)
 {
     this->operator<<(kLoggerLevels[lv]);
+    
+    std::string time = Time::GetSimpleString();
+    time.at(time.size()-1)='\0';
+    this->operator<<(": ")<<time;
+    
     if(gDetail&DetailFile)
     {
         std::string str(file);
@@ -87,9 +92,7 @@ level_(lv)
     if(gDetail&DetailThread)
         this->operator<<(" thread:")<<Thread::ThreadName()<<" tid:"<<Thread::Tid();
     
-    std::string time = Time::GetSimpleString();
-    time.at(time.size()-1)='\0';
-    this->operator<<(" ")<<time<<(" log:");
+    this->operator<<(" ===");
 }
 
 Logger::~Logger()
