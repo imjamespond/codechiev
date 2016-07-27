@@ -54,7 +54,7 @@ namespace codechiev {
             channel_buffer writebuf_;
         };
 
-        typedef Channel::channel_vec_t channel_vec;
+        typedef typename Channel::channel_vec_t channel_vec;
         typedef boost::shared_ptr<Channel> channel_ptr;
         
         inline int

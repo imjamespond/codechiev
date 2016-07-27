@@ -54,7 +54,7 @@ namespace codechiev {
             //as server
             void listen();
             void stop();
-            void pollEvent(const chanenl_vec&);
+            void pollEvent(const channel_vec&);
             void onConnect(Channel *);
             void onClose(Channel *);
             void onRead(Channel *);
@@ -71,7 +71,7 @@ namespace codechiev {
             //as client
             void connect();
             void close();
-            void pollEvent(const chanenl_vec&);
+            void pollEvent(const channel_vec&);
             void onConnect(Channel *);
             void onClose(Channel *);
             void onRead(Channel *);

@@ -77,10 +77,10 @@ TcpServer::listen()
 }
 
 void
-TcpServer::pollEvent(const chanenl_vec &vec)
+TcpServer::pollEvent(const channel_vec &vec)
 {
     
-    for( chanenl_vec::const_iterator it=vec.begin();
+    for( channel_vec::const_iterator it=vec.begin();
         it!=vec.end();
         it++)
     {
