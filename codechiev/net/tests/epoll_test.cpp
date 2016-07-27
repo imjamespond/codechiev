@@ -10,7 +10,7 @@
 #include <boost/bind.hpp>
 #include <errno.h>
 #include <exception>
-
+#include <net/Channel.hpp>
 #include <net/EventLoop.h>
 #include <net/EPoll.hpp>
 #include <net/Timer.hpp>

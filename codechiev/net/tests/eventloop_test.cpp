@@ -10,7 +10,6 @@
 #include <boost/bind.hpp>
 #include <errno.h>
 #include <exception>
-
 #include <net/EventLoop.h>
 #include <net/Timer.hpp>
 #include <base/Thread.hpp>
@@ -22,7 +21,7 @@ using namespace codechiev;
 class TestPoll
 {
 public:
-    void poll(net::chanenl_vec& vec)
+    void poll(net::channel_vec& vec)
     {
         LOG_DEBUG<<"TestPoll::poll";
         base::Time::SleepMillis(1500l);
@@ -30,7 +29,7 @@ public:
     
 };
 
-void pollHandle(const net::chanenl_vec& vec)
+void pollHandle(const net::channel_vec& vec)
 {
     
 }
