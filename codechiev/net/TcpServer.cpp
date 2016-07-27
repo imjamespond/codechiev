@@ -34,14 +34,14 @@ onClose_(0)
         exit(EXIT_FAILURE);
     }
 
-    LOG_DEBUG<<"create socket fd:"<<listench_.getFd();
+    LOG_DEBUG<<"TcpServer fd:"<<listench_.getFd();
 }
 
 #define QUEUE_LIMIT 4
 void
 TcpServer::start()
 {
-    if (listench_.setReuseAddr() == -1)
+    if (-1 == listench_.setReuseAddr())
     {
         perror("setsockopt error");
         LOG_ERROR<<"errno:"<<errno;
@@ -49,10 +49,20 @@ TcpServer::start()
     }
 
     //The socket is bound to a local address
-    ::bind(listench_.getFd(), (struct sockaddr *) &addr_.sockaddrin, addr_.socklen);
-
+    if (-1 == ::bind(listench_.getFd(), (struct sockaddr *) &addr_.sockaddrin, addr_.socklen))
+    {
+        perror("bind error");
+        LOG_ERROR<<"errno:"<<errno;
+        exit(EXIT_FAILURE);
+    }
+    
     //a queue limit for incoming connections
-    ::listen(listench_.getFd(), QUEUE_LIMIT);
+    if (-1 == ::listen(listench_.getFd(), QUEUE_LIMIT))
+    {
+        perror("listen error");
+        LOG_ERROR<<"errno:"<<errno;
+        exit(EXIT_FAILURE);
+    }
 
     listench_.setEvent(EPOLLIN);
     loop_.getPoll().addChannel(&listench_);
