@@ -11,6 +11,7 @@
 #include "Channel.hpp"
 #include <base/Time.hpp>
 #include <base/Logger.hpp>
+#include <base/FixedBuffer.h>
 #include <sys/types.h>
 #include <string>
 #include <errno.h>
