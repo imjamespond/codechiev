@@ -87,12 +87,14 @@ level_(lv)
     if(gDetail&DetailThread)
         this->operator<<(" thread:")<<Thread::ThreadName()<<" tid:"<<Thread::Tid();
     
-    this->operator<<(" ")<<Time::GetSimpleString()<<(" log:");
+    std::string time = Time::GetSimpleString();
+    time.at(time.size()-1)='\0';
+    this->operator<<(" ")<<time<<(" log:");
 }
 
 Logger::~Logger()
 {
-    this->operator<<("===");
+    this->operator<<("===\n");
 
     fwrite(buffer_.str(),1,buffer_.readable(),stdout);
     fflush(stdout);
