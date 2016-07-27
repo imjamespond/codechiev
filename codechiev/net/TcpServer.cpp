@@ -114,7 +114,7 @@ TcpServer::onConnect(Channel* channel)
     connsock->setEvent(EPOLLIN|EPOLLOUT |EPOLLET);
     LOG_TRACE<<"UseEpollET";
 #else
-    connsock->setEvent(EPOLLIN|EPOLLOUT);
+    connsock->setEvent(EPOLLIN);
 #endif
     channels_[connsock->getFd()]=connsock;
     loop_.getPoll().addChannel(connsock.get());
