@@ -175,11 +175,11 @@ TcpClient::onWrite(Channel* channel)
 void
 TcpClient::write(const std::string& msg)
 {
-    channel_->write(msg);
+    channel_.write(msg);
     
 #ifndef UseEpollET
-    channel_->setEvent(EPOLLOUT);
-    loop_.getPoll().setChannel(channel_);
+    channel_.setEvent(EPOLLOUT);
+    loop_.getPoll().setChannel(&channel_);
 #endif
     
 }
