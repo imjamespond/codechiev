@@ -12,6 +12,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <vector>
+#include <sys/socket.h>
 #include <boost/shared_ptr.hpp>
 #include <base/FixedBuffer.h>
 
@@ -35,14 +36,15 @@ namespace codechiev {
             inline int close(){return ::close(fd_);}
 
             void write(const std::string&);
-            void writeEvent();
+            //void writeEvent();
+            
+            static const int kWriteBufferSize = 1024*32;
+            static const int kWriteBufferEachTimeSize = 8;
             base::FixedBuffer<kWriteBufferSize>& getWriteBuf(){return writebuf_;}
         private:
             int fd_;
             int event_;
             
-            static const int kWriteBufferSize = 1024*32;
-            static const int kWriteBufferEachTimeSize = 8;
             base::FixedBuffer<kWriteBufferSize> writebuf_;
         };
 

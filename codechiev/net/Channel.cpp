@@ -16,6 +16,4 @@ void
 Channel::write(const std::string& msg)
 {
     writebuf_.append(msg.c_str());
-    
-    
 }
