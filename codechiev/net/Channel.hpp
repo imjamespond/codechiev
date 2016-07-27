@@ -41,8 +41,8 @@ namespace codechiev {
             inline void setEvent(int e){event_=e;}
             inline int getEvent(){return event_;}
             inline int close(){connected_=false; return ::close(fd_);}
-            inline isConnected(){return connected_;}
-            inline setConnected(bool val){connected_=val;}
+            inline bool isConnected(){return connected_;}
+            inline void setConnected(bool val){connected_=val;}
 
             inline channel_buffer* getReadBuf(){return &readbuf_;}
             inline channel_buffer* getWriteBuf(){return &writebuf_;}
