@@ -123,19 +123,19 @@ TcpServer::onClose(Channel* channel)
 }
 
 const int kBufferSize = 1024*1024;
-const int kBufferHalfSize = kBufferSize*.5;
+const int kBufferReadSize = 16;
 FixedBuffer<kBufferSize> buffer;//FIXME must be thread safe
 void
 TcpServer::onRead(Channel* channel)
 {
     for(;;)
     {
-        if(buffer.writable()<=kBufferHalfSize)
+        if(buffer.writable()<=kBufferReadSize)
         {
-            LOG_DEBUG<<buffer.str();
+            LOG_ERROR<<"insufficient buffer:"<<buffer.str();
             buffer.readall();
         }
-        int len = static_cast<int>(::read(channel->getFd(), buffer.data(), kBufferHalfSize));
+        int len = static_cast<int>(::read(channel->getFd(), buffer.data(), kBufferReadSize));
         if(len)
         {
             buffer.write(len);
@@ -155,6 +155,7 @@ TcpServer::onRead(Channel* channel)
             channel->setEvent(EPOLLIN);//edge-trigger don't need
             loop_.getPoll().setChannel(channel);
 #endif
+            channel->close();
             break;
         }
     }//for
