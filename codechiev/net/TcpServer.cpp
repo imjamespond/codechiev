@@ -186,7 +186,7 @@ TcpServer::onRead(Channel* channel)
         }
     }//for
     
-    Time::SleepMillis(2000l);//simulate combine event when using et
+    Time::SleepMillis(10000l);//simulate combine event when using et
 }
 
 void
