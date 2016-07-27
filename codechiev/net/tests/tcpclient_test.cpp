@@ -37,22 +37,25 @@ int main(int argc, const char * argv[]) {
     Thread t("", boost::bind(&TcpClient::connect, &client));
     t.start();
     
-    int ch,i(0);
+    int prev(0),i(0);
     char msg[128];
     do
     {
-        ch=getchar();
-        if('\r'==ch)
+        int c=getchar();
+        if(c == '\n' && prev == c)
         {
+            // double return pressed!
             i=0;
             ::memset(msg, 0, sizeof msg);
             client.write(msg);
         }else
         {
-            msg[i++]=ch;
+            msg[i++]=c;
         }
         
-    }while(ch!='.');
+        prev = c;
+        
+    }while(prev!='.');
     
     t.join();
     
