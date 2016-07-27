@@ -34,7 +34,7 @@ namespace codechiev {
             inline void setOnMessage(const on_message_func &func){onMessage_=func;}
             inline void setOnClose(const on_close_func &func){onClose_=func;}
 
-        private:
+        protected:
             InetAddressSt addr_;
             channel_map channels_;
 
