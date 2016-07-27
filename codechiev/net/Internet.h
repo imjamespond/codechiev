@@ -29,6 +29,11 @@ namespace codechiev {
                 sockaddrin.sin_port = ::htons(port);//host to network bytes order
                 ::inet_aton(ip.c_str(), &sockaddrin.sin_addr);
             }
+            InetAddress()
+            {
+                socklen = 0;
+                ::memset(&sockaddrin, 0, sizeof(struct sockaddr));
+            }
             
             std::string ipaddr;
             uint16_t port;

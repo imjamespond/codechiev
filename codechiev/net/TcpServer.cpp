@@ -22,31 +22,33 @@ using namespace codechiev::net;
 
 TcpEndpoint::TcpEndpoint(const std::string& ip, uint16_t port):
 addr_(ip, port),
+channel_(::socket(AF_INET, SOCK_STREAM| SOCK_NONBLOCK|SOCK_CLOEXEC, 0)),
 onConnect_(0),
 onMessage_(0),
 onClose_(0)
-{}
-
-TcpServer::TcpServer(const std::string& ip, uint16_t port):
-TcpEndpoint(ip, port),
-listench_(::socket(AF_INET, SOCK_STREAM| SOCK_NONBLOCK|SOCK_CLOEXEC, 0)),
-loop_(boost::bind(&TcpServer::pollEvent, this, _1))
 {
-    if (listench_.getFd() == -1)
+    if (channel_.getFd() == -1)
     {
         perror("socket error");
         LOG_ERROR<<"errno:"<<errno;
         exit(EXIT_FAILURE);
     }
     
-    LOG_DEBUG<<"TcpEndpoint fd:"<<listench_.getFd();
+    LOG_DEBUG<<"TcpEndpoint fd:"<<channel_.getFd();
+}
+
+TcpServer::TcpServer(const std::string& ip, uint16_t port):
+TcpEndpoint(ip, port),
+loop_(boost::bind(&TcpServer::pollEvent, this, _1))
+{
+
 }
 
 #define QUEUE_LIMIT 4
 void
 TcpServer::listen()
 {
-    if (-1 == listench_.setReuseAddr())
+    if (-1 == channel_.setReuseAddr())
     {
         perror("setsockopt error");
         LOG_ERROR<<"errno:"<<errno;
@@ -54,7 +56,7 @@ TcpServer::listen()
     }
     
     //The socket is bound to a local address
-    if (-1 == ::bind(listench_.getFd(), (struct sockaddr *) &addr_.sockaddrin, addr_.socklen))
+    if (-1 == ::bind(channel_.getFd(), (struct sockaddr *) &addr_.sockaddrin, addr_.socklen))
     {
         perror("bind error");
         LOG_ERROR<<"errno:"<<errno;
@@ -62,15 +64,15 @@ TcpServer::listen()
     }
     
     //a queue limit for incoming connections
-    if (-1 == ::listen(listench_.getFd(), QUEUE_LIMIT))
+    if (-1 == ::listen(channel_.getFd(), QUEUE_LIMIT))
     {
         perror("listen error");
         LOG_ERROR<<"errno:"<<errno;
         exit(EXIT_FAILURE);
     }
     
-    listench_.setEvent(EPOLLIN);
-    loop_.getPoll().addChannel(&listench_);
+    channel_.setEvent(EPOLLIN);
+    loop_.getPoll().addChannel(&channel_);
     loop_.loop();
 }
 #undef UseEpollET
@@ -83,7 +85,7 @@ TcpServer::pollEvent(const chanenl_vec &vec)
         it++)
     {
         net::Channel *channel = *it;
-        if (channel->getFd() == listench_.getFd())
+        if (channel->getFd() == channel_.getFd())
         {
             onConnect(channel);
         }else
@@ -106,8 +108,9 @@ void
 TcpServer::onConnect(Channel* channel)
 {
     socklen_t socklen = addr_.socklen;
-    int connfd = ::accept(listench_.getFd(),
-                          (struct sockaddr *) &addr_.sockaddrin, &socklen);
+    InetAddress addr;
+    int connfd = ::accept(channel_.getFd(),
+                          (struct sockaddr *) &addr.sockaddrin, &socklen);
     if (connfd == -1) {
         LOG_ERROR<<("accept");
         return;

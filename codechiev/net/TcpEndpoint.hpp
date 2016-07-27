@@ -37,6 +37,7 @@ namespace codechiev {
         protected:
             InetAddressSt addr_;
             channel_map channels_;
+            Channel channel_;
 
             on_connect_func onConnect_;
             on_message_func onMessage_;
@@ -58,14 +59,13 @@ namespace codechiev {
             void onWrite(Channel *);
             void write(Channel *, const std::string&);
         private:
-            Channel listench_;
             EventLoop<EPoll> loop_;
         };
         
         class TcpClient : public TcpEndpoint
         {
-            explicit TcpClient(const std::string& ip, uint16_t port):
-            TcpEndpoint(ip, port){}
+        public:
+            explicit TcpClient(const std::string& ip, uint16_t port);
             //as client
             void connect();
             void close();
@@ -75,6 +75,8 @@ namespace codechiev {
             void onRead(Channel *);
             void onWrite(Channel *);
             void write(Channel *, const std::string&);
+        private:
+            EventLoop<EPoll> loop_;
         };
     }
 }

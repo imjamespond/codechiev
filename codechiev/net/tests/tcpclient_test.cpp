@@ -30,11 +30,11 @@ void onClose(Channel* channel)
 }
 int main(int argc, const char * argv[]) {
     
-    TcpEndpoint client("127.0.0.1", 9999);
+    TcpClient client("127.0.0.1", 9999);
     client.setOnConnect(boost::bind(&onConnect,_1));
     client.setOnMessage(boost::bind(&onMessage,_1));
     client.setOnClose(boost::bind(&onClose,_1));
-    Thread t("", boost::bind(&TcpEndpoint::connect, &client));
+    Thread t("", boost::bind(&TcpClient::connect, &client));
     t.start();
     t.join();
     
