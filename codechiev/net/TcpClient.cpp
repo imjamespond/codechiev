@@ -188,11 +188,12 @@ TcpClient::onWrite(Channel* channel)
 void
 TcpClient::write(const std::string& msg)
 {
-    channel_.write(msg);LOG_DEBUG<<channel_.getWriteBuf().str();
-    
+    channel_.write(msg);
+    if(channel_.readable())
+    {
 #ifndef UseEpollET
-    channel_.setEvent(EPOLLOUT);
-    loop_.getPoll().setChannel(&channel_);
+        channel_.setEvent(EPOLLOUT);
+        loop_.getPoll().setChannel(&channel_);
 #endif
-    
+    }
 }

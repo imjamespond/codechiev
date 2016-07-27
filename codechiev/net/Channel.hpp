@@ -19,12 +19,18 @@
 namespace codechiev {
     namespace net {
 
+        
+        static const int kWriteBufferSize = 1024*32;
+        static const int kWriteBufferEachTimeSize = 8;
+        typedef codechiev::base::FixedBuffer<kWriteBufferSize> channel_buffer;
+        
         class Channel
         {
         public:
             typedef std::vector<Channel*> chanenl_vec;
 
             Channel(int fd):fd_(fd){}
+            
             inline void setFd(int fd){fd_=fd;};
             inline void setNonBlock(){::fcntl(fd_, F_SETFL, O_NONBLOCK);}
             inline void setCloseOnExec(){::fcntl(fd_, F_SETFD, FD_CLOEXEC);}
@@ -34,18 +40,16 @@ namespace codechiev {
             inline void setEvent(int e){event_=e;}
             inline int getEvent(){return event_;}
             inline int close(){return ::close(fd_);}
-
+            
+            inline channel_buffer& getWriteBuf(){return writebuf_;}
+            
             void write(const std::string&);
             void writeEvent();
-            
-            static const int kWriteBufferSize = 1024*32;
-            static const int kWriteBufferEachTimeSize = 8;
-            codechiev::base::FixedBuffer<kWriteBufferSize>& getWriteBuf(){return writebuf_;}
         private:
             int fd_;
             int event_;
             
-            codechiev::base::FixedBuffer<kWriteBufferSize> writebuf_;
+            channel_buffer writebuf_;
         };
 
         typedef Channel::chanenl_vec chanenl_vec;
