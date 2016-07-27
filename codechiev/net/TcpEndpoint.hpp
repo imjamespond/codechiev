@@ -20,7 +20,7 @@
 namespace codechiev {
     namespace net {
 
-        class TcpServer: public boost::noncopyable
+        class TcpEndpoint: public boost::noncopyable
         {
         public:
             typedef boost::unordered_map<int, channel_ptr> channel_map;
@@ -28,12 +28,8 @@ namespace codechiev {
             typedef boost::function<void(const char*)> on_message_func;
             typedef boost::function<void(Channel*)> on_close_func;
 
-            explicit TcpServer(const std::string&, uint16_t );
-
-            void start();
-            void stop();
-            void pollEvent(const chanenl_vec&);
-
+            explicit TcpEndpoint(const std::string&, uint16_t );
+            
             inline void setOnConnect(const on_connect_func &func){onConnect_=func;}
             inline void setOnMessage(const on_message_func &func){onMessage_=func;}
             inline void setOnClose(const on_close_func &func){onClose_=func;}
@@ -49,11 +45,32 @@ namespace codechiev {
             on_message_func onMessage_;
             on_close_func onClose_;
 
-            void onConnect(Channel *);
             void onClose(Channel *);
             void onRead(Channel *);
             void onWrite(Channel *);
             void write(Channel *, const std::string&);
+        };
+        
+        class TcpServer : public TcpEndpoint
+        {
+            explicit TcpServer(const std::string& ip, uint16_t port):
+            TcpEndpoint(ip, port){}
+            //as server
+            void listen();
+            void stop();
+            void pollEvent(const chanenl_vec&);
+            void onConnect(Channel *);
+        };
+        
+        class TcpClient : public TcpEndpoint
+        {
+            explicit TcpClient(const std::string& ip, uint16_t port):
+            TcpEndpoint(ip, port){}
+            //as client
+            void connect();
+            void close();
+            void pollEvent(const chanenl_vec&);
+            void onConnect(Channel *);
         };
     }
 }

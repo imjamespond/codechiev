@@ -29,7 +29,7 @@ namespace codechiev {
             inline void setNonBlock(){::fcntl(fd_, F_SETFL, O_NONBLOCK);}
             inline void setCloseOnExec(){::fcntl(fd_, F_SETFD, FD_CLOEXEC);}
             inline int setReuseAddr();
-            inline void setKeepAlive(){}
+            inline int setKeepAlive();
             inline int getFd(){return fd_;}
             inline void setEvent(int e){event_=e;}
             inline int getEvent(){return event_;}
@@ -56,6 +56,12 @@ namespace codechiev {
         {
             int on(1);
             return ::setsockopt(fd_, SOL_SOCKET, SO_REUSEADDR, &on, sizeof on);
+        }
+        inline int
+        Channel::setKeepAlive()
+        {
+            int on(1);
+            return ::setsockopt(fd_, SOL_SOCKET, SO_KEEPALIVE, &on, sizeof on);
         }
     }
 }

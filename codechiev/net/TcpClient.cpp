@@ -2,16 +2,23 @@
 //  TcpClient.cpp
 //  codechiev
 //
-//  Created by metasoft on 16/7/26.
+//  Created by metasoft on 16/7/27.
 //  Copyright © 2016年 metasoft. All rights reserved.
 //
 
-#include "TcpClient.hpp"
+#include "TcpEndpoint.hpp"
 
+using namespace codechiev::base;
 using namespace codechiev::net;
 
 void
-TcpClient::connect(const std::string &addr, int port)
+TcpClient::connect()
+{
+    
+}
+
+void
+TcpClient::close()
 {
     
 }
