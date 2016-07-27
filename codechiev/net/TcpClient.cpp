@@ -7,6 +7,7 @@
 //
 
 #include "TcpEndpoint.hpp"
+#include <base/Logger.hpp>
 #include <boost/bind.hpp>
 
 using namespace codechiev::base;
@@ -22,7 +23,7 @@ loop_(boost::bind(&TcpServer::pollEvent, this, _1))
 void
 TcpClient::connect()
 {
-    if (-1 == ::connect(<#int __fd#>, <#const struct sockaddr *__addr#>, <#socklen_t __len#>)(listench_.getFd(), (struct sockaddr *) &addr_.sockaddrin, addr_.socklen))
+    if (-1 == ::connect(channel_.getFd(), (struct sockaddr *) &addr_.sockaddrin, addr_.socklen))
     {
         perror("bind error");
         LOG_ERROR<<"errno:"<<errno;
