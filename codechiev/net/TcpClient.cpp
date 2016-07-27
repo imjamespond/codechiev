@@ -185,7 +185,7 @@ TcpClient::onWrite(Channel* channel)
 void
 TcpClient::write(const std::string& msg)
 {
-    channel_->write(msg);
+    channel_.write(msg);
     if(channel_.getWriteBuf()->readable())
     {
 #ifndef UseEpollET
