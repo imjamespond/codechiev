@@ -107,7 +107,7 @@ TcpServer::pollEvent(const channel_vec &vec)
             onClose(channel);
     }//for
 
-    Time::SleepMillis(10000l);//simulate combine event when using et
+    //Time::SleepMillis(10000l);//simulate combine event when using et
 }
 
 void
@@ -205,18 +205,11 @@ TcpServer::onWrite(Channel* channel)
         }
         int len = static_cast<int>(::write(channel->getFd(), channel->getWriteBuf()->str(), readable));
         LOG_TRACE<<"write:"<<len;
-        if(len && len==readable)
+        if(len)
         {
             channel->getWriteBuf()->read(len);
         }
-        else
-        {
-            LOG_ERROR<<"write error";
-            channel->setConnected(false);
-            break;
-        }
-
-        if(EAGAIN==errno)
+        else if(len == 0)
         {
             if(channel->getWriteBuf()->readable())
             {
@@ -226,13 +219,20 @@ TcpServer::onWrite(Channel* channel)
                 channel->setEvent(EPOLLIN);
             }
             loop_.getPoll().setChannel(channel);
-
-            channel->writeEvent();
+            break;
+        }else if(len == -1 && EAGAIN==errno)
+        {
+            channel->setEvent(EPOLLOUT);
+            loop_.getPoll().setChannel(channel);
             break;
         }
-
+        else
+        {
+            LOG_ERROR<<"write error";
+            channel->setConnected(false);
+            break;
+        }
     }
-
 }
 
 void
