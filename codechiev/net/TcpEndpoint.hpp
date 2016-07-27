@@ -17,7 +17,7 @@
 #include "EventLoop.h"
 #include "Internet.h"
 
-#undef UseEpollET
+//#undef UseEpollET
 
 namespace codechiev {
     namespace net {
