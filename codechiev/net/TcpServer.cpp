@@ -75,7 +75,7 @@ TcpServer::listen()
     loop_.getPoll().addChannel(&channel_);
     loop_.loop();
 }
-#undef UseEpollET
+
 void
 TcpServer::pollEvent(const chanenl_vec &vec)
 {

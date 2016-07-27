@@ -36,6 +36,7 @@ TcpClient::connect()
         }
     }
     
+    channel_.setKeepAlive();
     channel_.setEvent(EPOLLOUT);
     loop_.getPoll().addChannel(&channel_);
     loop_.loop();
@@ -47,7 +48,6 @@ TcpClient::close()
     
 }
 
-#undef UseEpollET
 void
 TcpClient::pollEvent(const chanenl_vec &vec)
 {
@@ -86,6 +86,10 @@ TcpClient::onConnect(Channel* channel)
 #else
     channel->setEvent(EPOLLIN);
 #endif
+    
+    loop_.getPoll().setChannel(&channel);
+    if(onConnect_)
+        onConnect_(&channel);
 }
 
 
