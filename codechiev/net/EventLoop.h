@@ -21,7 +21,7 @@ namespace codechiev {
         class EventLoop : public boost::noncopyable
         {
         public:
-            typedef boost::function<void(const chanenl_vec&)> loop_handle_func;
+            typedef boost::function<void(const channel_vec&)> loop_handle_func;
             
             explicit EventLoop(const loop_handle_func& handle):
             poll_(),handle_(handle)
@@ -35,7 +35,7 @@ namespace codechiev {
                 
                 while(1)
                 {
-                    chanenl_vec vec;
+                    channel_vec vec;
                     poll_.poll(vec);
                     handle_(vec);
                 }

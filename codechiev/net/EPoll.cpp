@@ -42,7 +42,7 @@ EPoll::addChannel(Channel *channel)
     if (::epoll_ctl(epollch_.getFd(), EPOLL_CTL_ADD, channel->getFd(), &ev) == -1)
     {
         perror("epoll_ctl: listen_sock");
-        LOG_DEBUG<<"errno:"<<errno;
+        LOG_ERROR<<"errno:"<<errno;
     }
 }
 
@@ -58,7 +58,7 @@ EPoll::setChannel(Channel *channel)
     if (::epoll_ctl(epollch_.getFd(), EPOLL_CTL_MOD, channel->getFd(), &ev) == -1)
     {
         perror("epoll_ctl: EPOLL_CTL_MOD");
-        LOG_DEBUG<<"errno:"<<errno;
+        LOG_ERROR<<"errno:"<<errno;
     }
 }
 
@@ -68,7 +68,7 @@ EPoll::delChannel(Channel *channel)
     if (::epoll_ctl(epollch_.getFd(), EPOLL_CTL_DEL, channel->getFd(), NULL) == -1)
     {
         perror("epoll_ctl: EPOLL_CTL_DEL");
-        LOG_DEBUG<<"errno:"<<errno;
+        LOG_ERROR<<"errno:"<<errno;
     }
 }
 
@@ -79,7 +79,7 @@ EPoll::poll(channel_vec &vec)
     if (nfds == -1)
     {
         perror("epoll_wait");
-        LOG_DEBUG<<"errno:"<<errno;
+        LOG_ERROR<<"errno:"<<errno;
     }
     LOG_TRACE<<"epoll channels available:"<<nfds;
     for(int i=0; i<nfds; i++)
