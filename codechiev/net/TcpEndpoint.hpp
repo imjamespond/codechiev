@@ -71,6 +71,10 @@ namespace codechiev {
             void close();
             void pollEvent(const chanenl_vec&);
             void onConnect(Channel *);
+            void onClose(Channel *);
+            void onRead(Channel *);
+            void onWrite(Channel *);
+            void write(Channel *, const std::string&);
         };
     }
 }
