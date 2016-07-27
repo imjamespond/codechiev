@@ -18,7 +18,6 @@ TcpClient::TcpClient(const std::string& ip, uint16_t port):
 TcpEndpoint(ip, port),
 loop_(boost::bind(&TcpClient::pollEvent, this, _1))
 {
-    
 }
 
 void
@@ -26,10 +25,20 @@ TcpClient::connect()
 {
     if (-1 == ::connect(channel_.getFd(), (struct sockaddr *) &addr_.sockaddrin, addr_.socklen))
     {
-        perror("connect error");
-        LOG_ERROR<<"errno:"<<errno;
-        exit(EXIT_FAILURE);
+        if(EINPROGRESS == errno)
+        {
+            LOG_TRACE<<"waitting the nonblocking socket for writing";
+        }else
+        {
+            perror("connect error");
+            LOG_ERROR<<"errno:"<<errno;
+            exit(EXIT_FAILURE);
+        }
     }
+    
+    channel_.setEvent(EPOLLOUT);
+    loop_.getPoll().addChannel(&channel_);
+    loop_.loop();
 }
 
 void
@@ -70,7 +79,7 @@ TcpClient::pollEvent(const chanenl_vec &vec)
 void
 TcpClient::onConnect(Channel* channel)
 {
-    
+    LOG_DEBUG<<"onConnect";
 #ifdef UseEpollET
     channel->setEvent(EPOLLIN|EPOLLOUT |EPOLLET);
     LOG_TRACE<<"UseEpollET";
