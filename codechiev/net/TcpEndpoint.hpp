@@ -74,7 +74,7 @@ namespace codechiev {
             void onClose(Channel *);
             void onRead(Channel *);
             void onWrite(Channel *);
-            void write(Channel *, const std::string&);
+            void write( const std::string&);
         private:
             EventLoop<EPoll> loop_;
         };

@@ -126,8 +126,7 @@ TcpClient::onRead(Channel* channel)
         {
             
 #ifndef UseEpollET
-            //set channel being interesting in read event
-            channel->setEvent(EPOLLIN);//edge-trigger don't need
+            channel->setEvent(EPOLLIN);
             loop_.getPoll().setChannel(channel);
 #endif
             
@@ -174,14 +173,13 @@ TcpClient::onWrite(Channel* channel)
 }
 
 void
-TcpClient::write(Channel *channel, const std::string& msg)
+TcpClient::write(const std::string& msg)
 {
-    channel->write(msg);
+    channel_->write(msg);
     
 #ifndef UseEpollET
-    //set channel being interesting in write event
-    channel->setEvent(EPOLLOUT);//edge-trigger don't need
-    loop_.getPoll().setChannel(channel);
+    channel_->setEvent(EPOLLOUT);
+    loop_.getPoll().setChannel(channel_);
 #endif
     
 }
