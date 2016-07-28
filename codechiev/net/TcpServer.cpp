@@ -168,6 +168,7 @@ TcpServer::onRead(Channel* channel)
             if(onMessage_&&channel->getReadBuf()->readable())
             {
                 onMessage_(channel->getReadBuf()->str());
+                write(channel, "abcdefghijklmnopqrstuvwxyz1234567890");
             }
             
             channel->getReadBuf()->readall();
