@@ -38,7 +38,7 @@ TcpClient::connect()
     }
 
     channel_.setKeepAlive();
-    updateChannel(channel, EPOLLOUT);
+    updateChannel(&channel_, EPOLLOUT);
     loop_.loop();
 }
 
