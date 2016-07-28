@@ -157,7 +157,8 @@ TcpServer::onRead(Channel* channel)
         if(len)
         {
             channel->getReadBuf()->write(len);
-        }else if(len==0)
+        }
+        else if(len==0)
         {
             onClose(channel);
             return true;

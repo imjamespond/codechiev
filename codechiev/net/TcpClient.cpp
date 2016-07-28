@@ -66,9 +66,10 @@ TcpClient::pollEvent(const channel_vec &vec)
             }
             if(channel->getEvent() & EPOLLOUT)
             {
-                if(channel->isConnected() && onWrite(channel))
+                if(channel->isConnected())
                 {
-                    continue;
+                    if(onWrite(channel))
+                        continue;
                 }
                 else
                     onConnect(channel);
@@ -121,7 +122,8 @@ TcpClient::onRead(Channel* channel)
         if(len)
         {
             channel->getReadBuf()->write(len);
-        }else if(len==0)
+        }
+        else if(len==0)
         {
             onClose(channel);
             return true;
