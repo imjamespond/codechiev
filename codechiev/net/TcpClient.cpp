@@ -18,8 +18,7 @@ using namespace codechiev::net;
 
 TcpClient::TcpClient(const std::string& ip, uint16_t port):
 TcpEndpoint(ip, port),
-loop_(boost::bind(&TcpClient::pollEvent, this, _1)),
-connected_(false)
+loop_(boost::bind(&TcpClient::pollEvent, this, _1))
 {}
 
 void
@@ -72,7 +71,7 @@ TcpClient::pollEvent(const channel_vec &vec)
                     continue;
                 }
                 else
-                    onConnect(channel);                
+                    onConnect(channel);
             }
             if(channel->getEvent() & (EPOLLHUP|EPOLLRDHUP) )
             {
