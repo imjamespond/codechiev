@@ -171,7 +171,7 @@ TcpServer::onRead(Channel* channel)
             if(onMessage_&&channel->getReadBuf()->readable())
             {
                 onMessage_(channel->getReadBuf()->str());
-                write(channel, "the device awake until the event has been processed, it is necessary");
+                write(channel, "the device awake until the");
             }
             
             channel->getReadBuf()->readall();
@@ -208,6 +208,7 @@ TcpServer::onWrite(Channel* channel)
         
         if(EAGAIN==errno)
         {
+            LOG_TRACE<<"EAGAIN";
             if(channel->getWriteBuf()->readable())
             {
                 channel->setEvent(EPOLLIN|EPOLLOUT);
@@ -216,6 +217,7 @@ TcpServer::onWrite(Channel* channel)
                 channel->setEvent(EPOLLIN);
             }
             loop_.getPoll().setChannel(channel);
+            
             channel->writeEvent();
             return false;
         }

@@ -171,6 +171,7 @@ TcpClient::onWrite(Channel* channel)
         
         if(EAGAIN==errno)
         {
+            LOG_TRACE<<"EAGAIN";
             if(channel->getWriteBuf()->readable())
             {
                 channel->setEvent(EPOLLIN|EPOLLOUT);
@@ -179,6 +180,7 @@ TcpClient::onWrite(Channel* channel)
                 channel->setEvent(EPOLLIN);
             }
             loop_.getPoll().setChannel(channel);
+            
             channel->writeEvent();
             return false;
         }
