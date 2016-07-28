@@ -42,10 +42,10 @@ void loopHandle(const net::channel_vec &vec)
 int main(int argc, const char * argv[]) {
     net::Timer timer;
     timer.after(3);
-    
-    epoll_loop loop(boost::bind(&loopHandle, _1));
+
+    epoll_loop loop;
     loop.getPoll().addChannel(&timer.getChannel());
-    base::Thread t("",boost::bind(&epoll_loop::loop, &loop));
+    base::Thread t("",boost::bind(&epoll_loop::loop, &loop, (boost::bind(&loopHandle, _1))));
     t.start();
     t.join();
     return 0;

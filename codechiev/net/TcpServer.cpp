@@ -39,7 +39,7 @@ onClose_(0)
 
 TcpServer::TcpServer(const std::string& ip, uint16_t port):
 TcpEndpoint(ip, port),
-loop_(boost::bind(&TcpServer::pollEvent, this, _1))
+loop_()
 {
 
 }
@@ -73,7 +73,7 @@ TcpServer::listen()
 
     channel_.setEvent(EPOLLIN);
     loop_.getPoll().addChannel(&channel_);
-    loop_.loop();
+    loop_.loop(boost::bind(&TcpServer::pollEvent, this, _1));
 }
 
 void

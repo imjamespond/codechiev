@@ -26,19 +26,19 @@ public:
         LOG_DEBUG<<"TestPoll::poll";
         base::Time::SleepMillis(1500l);
     }
-    
+
 };
 
 void pollHandle(const net::channel_vec& vec)
 {
-    
+
 }
 
 int main(int argc, const char * argv[]) {
-    
+
     typedef net::EventLoop<TestPoll> test_loop;
-    test_loop loop(boost::bind(&pollHandle, _1));
-    base::Thread t("",boost::bind(&test_loop::loop, &loop));
+    test_loop loop;
+    base::Thread t("",boost::bind(&test_loop::loop, &loop, boost::bind(&pollHandle, _1)));
     t.start();
     t.join();
     return 0;

@@ -23,21 +23,21 @@ namespace codechiev {
         public:
             typedef boost::function<void(const channel_vec&)> loop_handle_func;
 
-            explicit EventLoop(const loop_handle_func& handle):
-            poll_(),handle_(handle)
+            explicit EventLoop():
+            poll_()
             {
                 tid_=base::Thread::Tid();
             }
 
-            void loop()
+            void loop(const loop_handle_func& handle)
             {
-                assert(tid_!=base::Thread::Tid());
+                assert(tid_!=base::Thread::Tid() && handle);
 
                 while(1)
                 {
                     channel_vec vec;
                     poll_.poll(vec);
-                    handle_(vec);
+                    handle(vec);
                 }
             }
 
@@ -46,7 +46,6 @@ namespace codechiev {
         private:
             int tid_;
             TPoll poll_;
-            loop_handle_func handle_;
         };
     }
 }
