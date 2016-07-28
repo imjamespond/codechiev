@@ -38,7 +38,8 @@ int main(int argc, const char * argv[]) {
 
     typedef net::EventLoop<TestPoll> test_loop;
     test_loop loop;
-    base::Thread t("",boost::bind(&test_loop::loop, &loop, boost::bind(&pollHandle, _1)));
+    test_loop::loop_handle_func handle = boost::bind(&pollHandle, _1);
+    base::Thread t("",boost::bind(&test_loop::loop, &loop, handle));
     t.start();
     t.join();
     return 0;
