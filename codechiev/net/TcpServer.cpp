@@ -37,6 +37,23 @@ onClose_(0)
 
     LOG_DEBUG<<"TcpEndpoint fd:"<<channel_.getFd();
 }
+ void
+TcpEndpoint::updateChannel(Channel *channel, int events)
+{
+    channel->setEvent(events);
+    loop_.getPoll().setChannel(channel);
+}
+ void
+TcpEndpoint::addChannel(Channel *channel, int events)
+{
+    channel->setEvent(events);
+    loop_.getPoll().setChannel(channel);
+}
+ void
+TcpEndpoint::delChannel(Channel *channel)
+{
+    loop_.getPoll().delChannel(channel);
+}
 
 TcpServer::TcpServer(const std::string& ip, uint16_t port):
 TcpEndpoint(ip, port)

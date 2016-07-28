@@ -35,9 +35,9 @@ namespace codechiev {
             inline void setOnMessage(const on_message_func &func){onMessage_=func;}
             inline void setOnClose(const on_close_func &func){onClose_=func;}
 
-            inline void updateChannel(Channel *, int);
-            inline void addChannel(Channel *, int);
-            inline void delChannel(Channel *);
+             void updateChannel(Channel *, int);
+             void addChannel(Channel *, int);
+             void delChannel(Channel *);
 
         protected:
             EventLoop<EPoll> loop_;
@@ -84,24 +84,6 @@ namespace codechiev {
             void updateChannel(Channel *, int);
         private:
         };
-
-        inline void
-        TcpEndpoint::updateChannel(Channel *channel, int events)
-        {
-            channel->setEvent(events);
-            loop_.getPoll().setChannel(channel);
-        }
-        inline void
-        TcpEndpoint::addChannel(Channel *channel, int events)
-        {
-            channel->setEvent(events);
-            loop_.getPoll().setChannel(channel);
-        }
-        inline void
-        TcpEndpoint::delChannel(Channel *channel)
-        {
-            loop_.getPoll().delChannel(channel);
-        }
     }
 }
 
