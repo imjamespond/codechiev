@@ -118,7 +118,7 @@ TcpClient::onRead(Channel* channel)
             return true;
         }
         int len = static_cast<int>(::read(channel->getFd(), channel->getReadBuf()->data(), kBufferEachTimeSize));
-        LOG_TRACE<<"read:"<<len<<",errno"<<errno;
+        LOG_TRACE<<"read:"<<len<<",errno:"<<errno<<",buf:"<<channel->getReadBuf()->str();
         if(len)
         {
             channel->getReadBuf()->write(len);
