@@ -85,8 +85,8 @@ namespace codechiev {
         inline int
         Channel::getSendBufSize()
         {
-            int sendbuff, optlen = sizeof sendbuff;
-            ::getsockopt(fd_, SOL_SOCKET, SO_SNDBUF, &sendbuff, &optlen);
+            int sendbuff;
+            ::getsockopt(fd_, SOL_SOCKET, SO_SNDBUF, &sendbuff, sizeof sendbuff);
             return sendbuff;
         }
     }
