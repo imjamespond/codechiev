@@ -133,7 +133,7 @@ TcpServer::onClose(Channel* channel)
 {
     if(onClose_)
         onClose_(channel);
-    loop_.getPoll().delChannel(channel);
+    delChannel(channel);
     channel->close();
 }
 

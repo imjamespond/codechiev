@@ -36,9 +36,7 @@ TcpClient::connect()
         }
     }
 
-    channel_.setKeepAlive();
-    channel_.setEvent(EPOLLOUT);
-    loop_.getPoll().addChannel(&channel_);
+    addChannel(&channel_, EPOLLOUT);
     loop_.loop(boost::bind(&TcpClient::pollEvent, this, _1));
 }
 
@@ -92,6 +90,7 @@ TcpClient::onConnect(Channel* channel)
     //channel->setEvent(EPOLLIN|EPOLLOUT |EPOLLET);
     LOG_TRACE<<"UseEpollET";
 #endif
+    channel->setKeepAlive();
     channel->setConnected(true);
     updateChannel(channel, EPOLLIN);
     if(onConnect_)
@@ -104,7 +103,7 @@ TcpClient::onClose(Channel* channel)
 {
     if(onClose_)
         onClose_(channel);
-    loop_.getPoll().delChannel(channel);
+    delChannel(channel);
     channel->close();
 }
 

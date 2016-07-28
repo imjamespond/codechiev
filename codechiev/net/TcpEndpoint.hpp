@@ -100,8 +100,7 @@ namespace codechiev {
         inline void
         TcpEndpoint::delChannel(Channel *channel)
         {
-            channel->setEvent(events);
-            loop_.getPoll().setChannel(channel);
+            loop_.getPoll().delChannel(channel);
         }
     }
 }
