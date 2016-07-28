@@ -35,10 +35,12 @@ namespace codechiev {
             inline void setOnMessage(const on_message_func &func){onMessage_=func;}
             inline void setOnClose(const on_close_func &func){onClose_=func;}
 
-             void updateChannel(Channel *, int);
-             void addChannel(Channel *, int);
-             void delChannel(Channel *);
+            inline void updateChannel(Channel *, int);
+            inline void addChannel(Channel *, int);
+            inline void delChannel(Channel *);
 
+            bool onRead(Channel *);
+            bool onWrite(Channel *);
         protected:
             EventLoop<EPoll> loop_;
             InetAddressSt addr_;
@@ -60,10 +62,7 @@ namespace codechiev {
             void pollEvent(const channel_vec&);
             void onConnect(Channel *);
             void onClose(Channel *);
-            bool onRead(Channel *);
-            bool onWrite(Channel *);
             void write(Channel *, const std::string&);
-            void updateChannel(Channel *, int);
         private:
             channel_map channels_;
         };
@@ -78,12 +77,27 @@ namespace codechiev {
             void pollEvent(const channel_vec&);
             void onConnect(Channel *);
             void onClose(Channel *);
-            bool onRead(Channel *);
-            bool onWrite(Channel *);
             void write( const std::string&);
-            void updateChannel(Channel *, int);
         private:
         };
+
+        inline void
+        TcpEndpoint::updateChannel(Channel *channel, int events)
+        {
+            channel->setEvent(events);
+            loop_.getPoll().setChannel(channel);
+        }
+        inline void
+        TcpEndpoint::addChannel(Channel *channel, int events)
+        {
+            channel->setEvent(events);
+            loop_.getPoll().setChannel(channel);
+        }
+        inline void
+        TcpEndpoint::delChannel(Channel *channel)
+        {
+            loop_.getPoll().delChannel(channel);
+        }
     }
 }
 

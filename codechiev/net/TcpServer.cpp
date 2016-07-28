@@ -37,23 +37,82 @@ onClose_(0)
 
     LOG_DEBUG<<"TcpEndpoint fd:"<<channel_.getFd();
 }
- void
-TcpEndpoint::updateChannel(Channel *channel, int events)
+
+bool
+TcpEndpoint::onRead(Channel* channel)
 {
-    channel->setEvent(events);
-    loop_.getPoll().setChannel(channel);
+    char buffer[kBufferEachTimeSize];
+    for(;;)
+    {
+        ::memset(buffer, '\0', sizeof buffer);
+        int len = static_cast<int>(::read(channel->getFd(), buffer, kBufferEachTimeSize));
+        channel->getReadBuf()->append(buffer, len);
+        LOG_TRACE<<"read:"<<len<<",errno:"<<errno;
+
+        if(len==0)
+        {
+            onClose(channel);
+            return true;
+        }
+        //reading done
+        if(EAGAIN==errno)
+        {
+            updateChannel(channel, EPOLLIN);
+
+            if(onMessage_&&channel->getReadBuf()->readable())
+            {
+                onMessage_(channel);
+            }
+
+            channel->getReadBuf()->readall();
+            return false;
+        }
+    }//for
 }
- void
-TcpEndpoint::addChannel(Channel *channel, int events)
+
+bool
+TcpEndpoint::onWrite(Channel* channel)
 {
-    channel->setEvent(events);
-    loop_.getPoll().setChannel(channel);
+    for(;;)
+    {
+        int readable = channel->getWriteBuf()->readable();
+        if(readable > kBufferEachTimeSize)
+        {
+            readable = kBufferEachTimeSize;
+        }
+        int len = static_cast<int>(::write(channel->getFd(), channel->getWriteBuf()->str(), readable));
+        LOG_TRACE<<"write:"<<len;
+        if(len)
+        {
+            channel->getWriteBuf()->read(len);
+        }
+        else if(len==0)
+        {
+            channel->writeEvent();
+            channel->getWriteBuf()->readall();
+
+            updateChannel(channel, EPOLLIN);
+            return false;
+        }
+
+        if(EAGAIN==errno)
+        {
+            LOG_TRACE<<"EAGAIN";
+            if(channel->getWriteBuf()->readable())
+            {
+                updateChannel(channel, EPOLLIN|EPOLLOUT);
+            }else
+            {
+                updateChannel(channel, EPOLLIN);
+            }
+            loop_.getPoll().setChannel(channel);
+
+            channel->writeEvent();
+            return false;
+        }
+    }
 }
- void
-TcpEndpoint::delChannel(Channel *channel)
-{
-    loop_.getPoll().delChannel(channel);
-}
+
 
 TcpServer::TcpServer(const std::string& ip, uint16_t port):
 TcpEndpoint(ip, port)
@@ -152,81 +211,6 @@ TcpServer::onClose(Channel* channel)
         onClose_(channel);
     delChannel(channel);
     channel->close();
-}
-
-bool
-TcpServer::onRead(Channel* channel)
-{
-    char buffer[kBufferEachTimeSize];
-    for(;;)
-    {
-        ::memset(buffer, '\0', sizeof buffer);
-        int len = static_cast<int>(::read(channel->getFd(), buffer, kBufferEachTimeSize));
-        channel->getReadBuf()->append(buffer, len);
-        LOG_TRACE<<"read:"<<len<<",errno:"<<errno;
-
-        if(len==0)
-        {
-            onClose(channel);
-            return true;
-        }
-        //reading done
-        if(EAGAIN==errno)
-        {
-            updateChannel(channel, EPOLLIN);
-
-            if(onMessage_&&channel->getReadBuf()->readable())
-            {
-                onMessage_(channel);
-            }
-
-            channel->getReadBuf()->readall();
-            return false;
-        }
-    }//for
-}
-
-bool
-TcpServer::onWrite(Channel* channel)
-{
-    for(;;)
-    {
-        int readable = channel->getWriteBuf()->readable();
-        if(readable > kBufferEachTimeSize)
-        {
-            readable = kBufferEachTimeSize;
-        }
-        int len = static_cast<int>(::write(channel->getFd(), channel->getWriteBuf()->str(), readable));
-        LOG_TRACE<<"write:"<<len;
-        if(len)
-        {
-            channel->getWriteBuf()->read(len);
-        }
-        else if(len==0)
-        {
-            channel->writeEvent();
-            channel->getWriteBuf()->readall();
-
-            updateChannel(channel, EPOLLIN);
-            return false;
-        }
-
-        if(EAGAIN==errno)
-        {
-            LOG_TRACE<<"EAGAIN";
-            if(channel->getWriteBuf()->readable())
-            {
-                updateChannel(channel, EPOLLIN|EPOLLOUT);
-            }else
-            {
-                updateChannel(channel, EPOLLIN);
-            }
-            loop_.getPoll().setChannel(channel);
-
-            channel->writeEvent();
-            return false;
-        }
-    }
 }
 
 void
