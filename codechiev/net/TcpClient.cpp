@@ -36,7 +36,7 @@ TcpClient::connect()
             exit(EXIT_FAILURE);
         }
     }
-
+    
     channel_.setKeepAlive();
     channel_.setEvent(EPOLLOUT);
     loop_.getPoll().addChannel(&channel_);
@@ -46,13 +46,13 @@ TcpClient::connect()
 void
 TcpClient::close()
 {
-
+    
 }
 
 void
 TcpClient::pollEvent(const channel_vec &vec)
 {
-
+    
     for( channel_vec::const_iterator it=vec.begin();
         it!=vec.end();
         it++)
@@ -60,35 +60,37 @@ TcpClient::pollEvent(const channel_vec &vec)
         net::Channel *channel = *it;
         if (channel->getFd() == channel_.getFd())
         {
-
-            if(channel->getEvent() & EPOLLIN)
+            if(channel->getEvent() & EPOLLIN && onRead(channel))
             {
-                onRead(channel);
-            }else if(channel->getEvent() & EPOLLOUT)
+                continue;
+            }
+            if(channel->getEvent() & EPOLLOUT)
             {
                 if(channel->isConnected())
-                    onWrite(channel);
+                {
+                    if(onWrite(channel))
+                        continue;
+                }
                 else
                     onConnect(channel);
-            }else if(channel->getEvent() & (EPOLLHUP|EPOLLRDHUP) )
+            }
+            if(channel->getEvent() & (EPOLLHUP|EPOLLRDHUP) )
             {
-                channel->setConnected(false);
+                onClose(channel);
             }
         }
-        if(!channel->isConnected())
-            onClose(channel);
     }//for
 }
 
 void
 TcpClient::onConnect(Channel* channel)
 {
-    channel->setConnected(true);
 #ifdef UseEpollET
     //channel->setEvent(EPOLLIN|EPOLLOUT |EPOLLET);
     LOG_TRACE<<"UseEpollET";
 #endif
     channel->setEvent(EPOLLIN);
+    channel->setConnected(true);
     loop_.getPoll().setChannel(channel);
     if(onConnect_)
         onConnect_(channel);
@@ -101,57 +103,45 @@ TcpClient::onClose(Channel* channel)
     if(onClose_)
         onClose_(channel);
     loop_.getPoll().delChannel(channel);
+    channel->close();
 }
 
-void
+bool
 TcpClient::onRead(Channel* channel)
 {
+    char buffer[kBufferEachTimeSize];
     for(;;)
     {
-        if(channel->getReadBuf()->writable()<=kBufferEachTimeSize)
-        {
-            LOG_WARN<<"insufficient buffer:"<<channel->getReadBuf()->str();
-            channel->setConnected(false);
-            break;
-        }
-        ssize_t len = static_cast<int>(::read(channel->getFd(), channel->getReadBuf()->data(), kBufferEachTimeSize));
-        LOG_TRACE<<"read:"<<len;
+        ::memset(buffer, '\0', sizeof buffer);
+        int len = static_cast<int>(::read(channel->getFd(), buffer, kBufferEachTimeSize));
+        LOG_TRACE<<"read:"<<len<<",errno:"<<errno;
         if(len)
         {
-            channel->getReadBuf()->write(static_cast<int>(len));
+            channel->getReadBuf()->append(buffer);
         }
-        else if(len == 0)
+        else if(len==0)
         {
-            channel->setConnected(false);
-            break;
-        }
-        else
-        {
-            LOG_ERROR<<"read error";
-            channel->setConnected(false);
-            break;
-        }
-
-        if(EAGAIN==errno)
-        {
-            if(channel->getWriteBuf()->readable())
-            {
-                channel->setEvent(EPOLLOUT);
-            }else
-            {
-                channel->setEvent(EPOLLIN);
-            }
-            loop_.getPoll().setChannel(channel);
-
-            channel->writeEvent();
-            break;
+            onClose(channel);
+            return true;
         }
         //reading done
-
+        if(EAGAIN==errno)
+        {
+            channel->setEvent(EPOLLIN);
+            loop_.getPoll().setChannel(channel);
+            
+            if(onMessage_&&channel->getReadBuf()->readable())
+            {
+                onMessage_(channel->getReadBuf()->str());
+            }
+            
+            channel->getReadBuf()->readall();
+            return false;
+        }
     }//for
 }
 
-void
+bool
 TcpClient::onWrite(Channel* channel)
 {
     for(;;)
@@ -167,28 +157,30 @@ TcpClient::onWrite(Channel* channel)
         {
             channel->getWriteBuf()->read(len);
         }
-        else if(len == 0)
+        else if(len==0)
         {
+            channel->writeEvent();
+            channel->getWriteBuf()->readall();
+            
+            channel->setEvent(EPOLLIN);
+            loop_.getPoll().setChannel(channel);
+            return false;
+        }
+        
+        if(EAGAIN==errno)
+        {
+            LOG_TRACE<<"EAGAIN";
             if(channel->getWriteBuf()->readable())
             {
-                channel->setEvent(EPOLLOUT);
+                channel->setEvent(EPOLLIN|EPOLLOUT);
             }else
             {
                 channel->setEvent(EPOLLIN);
             }
             loop_.getPoll().setChannel(channel);
-            break;
-        }else if(len == -1 && EAGAIN==errno)
-        {
-            channel->setEvent(EPOLLOUT);
-            loop_.getPoll().setChannel(channel);
-            break;
-        }
-        else
-        {
-            LOG_ERROR<<"write error";
-            channel->setConnected(false);
-            break;
+            
+            channel->writeEvent();
+            return false;
         }
     }
 }
@@ -199,7 +191,7 @@ TcpClient::write(const std::string& msg)
     channel_.write(msg);
     if(channel_.getWriteBuf()->readable())
     {
-        channel_.setEvent(EPOLLOUT);
+        channel_.setEvent(EPOLLIN|EPOLLOUT);
         loop_.getPoll().setChannel(&channel_);
     }
 }

@@ -33,7 +33,7 @@ onClose_(0)
         LOG_ERROR<<"errno:"<<errno;
         exit(EXIT_FAILURE);
     }
-
+    
     LOG_DEBUG<<"TcpEndpoint fd:"<<channel_.getFd();
 }
 
@@ -54,7 +54,7 @@ TcpServer::listen()
         LOG_ERROR<<"errno:"<<errno;
         exit(EXIT_FAILURE);
     }
-
+    
     //The socket is bound to a local address
     if (-1 == ::bind(channel_.getFd(), (struct sockaddr *) &addr_.sockaddrin, addr_.socklen))
     {
@@ -62,7 +62,7 @@ TcpServer::listen()
         LOG_ERROR<<"errno:"<<errno;
         exit(EXIT_FAILURE);
     }
-
+    
     //a queue limit for incoming connections
     if (-1 == ::listen(channel_.getFd(), QUEUE_LIMIT))
     {
@@ -70,7 +70,7 @@ TcpServer::listen()
         LOG_ERROR<<"errno:"<<errno;
         exit(EXIT_FAILURE);
     }
-
+    
     channel_.setEvent(EPOLLIN);
     loop_.getPoll().addChannel(&channel_);
     loop_.loop();
@@ -79,7 +79,7 @@ TcpServer::listen()
 void
 TcpServer::pollEvent(const channel_vec &vec)
 {
-
+    
     for( channel_vec::const_iterator it=vec.begin();
         it!=vec.end();
         it++)
@@ -90,23 +90,21 @@ TcpServer::pollEvent(const channel_vec &vec)
             onConnect(channel);
         }else
         {
-            if(channel->getEvent() & EPOLLIN)
+            if(channel->getEvent() & EPOLLIN && onRead(channel))
             {
-                onRead(channel);
+                continue;
             }
-            if(channel->getEvent() & EPOLLOUT)
+            if(channel->getEvent() & EPOLLOUT && onWrite(channel))
             {
-                onWrite(channel);
+                continue;
             }
             if(channel->getEvent() & (EPOLLHUP|EPOLLRDHUP) )
             {
-                channel->setConnected(false);
+                onClose(channel);
             }
         }
-        if(!channel->isConnected())
-            onClose(channel);
     }//for
-
+    
     //Time::SleepMillis(10000l);//simulate combine event when using et
 }
 
@@ -115,22 +113,21 @@ TcpServer::onConnect(Channel* channel)
 {
     socklen_t socklen = addr_.socklen;
     InetAddress addr;
-    int connfd = ::accept(channel->getFd(),
+    int connfd = ::accept(channel_.getFd(),
                           (struct sockaddr *) &addr.sockaddrin, &socklen);
     if (connfd == -1) {
         LOG_ERROR<<("accept");
         return;
     }
     channel_ptr connsock(new Channel(connfd));
-    connsock->setConnected(true);
+    
 #ifdef UseEpollET
-    //connsock->setEvent(EPOLLIN|EPOLLOUT |EPOLLET|EPOLLONESHOT );
+    //connsock->setEvent(EPOLLIN|EPOLLOUT |EPOLLET);
     LOG_TRACE<<"UseEpollET";
 #endif
     connsock->setEvent(EPOLLIN);
-
-    channels_[connsock->getFd()]=connsock;
     loop_.getPoll().addChannel(connsock.get());
+    channels_[connsock->getFd()]=connsock;
     if(onConnect_)
         onConnect_(connsock.get());
 }
@@ -138,62 +135,49 @@ TcpServer::onConnect(Channel* channel)
 void
 TcpServer::onClose(Channel* channel)
 {
-    if(channel->isConnected())
-    {
-        if(onClose_)
-            onClose_(channel);
-        loop_.getPoll().delChannel(channel);
-        channels_.erase(channel->getFd());//connected false
-    }
+    if(onClose_)
+        onClose_(channel);
+    loop_.getPoll().delChannel(channel);
+    channel->close();
 }
 
-void
+bool
 TcpServer::onRead(Channel* channel)
 {
+    char buffer[kBufferEachTimeSize];    
     for(;;)
     {
-        if(channel->getReadBuf()->writable()<=kBufferEachTimeSize)
-        {
-            LOG_ERROR<<"insufficient buffer:"<<channel->getReadBuf()->str();
-            channel->setConnected(false);
-            break;
-        }
-        int len = static_cast<int>(::read(channel->getFd(), channel->getReadBuf()->data(), kBufferEachTimeSize));
-        LOG_TRACE<<"read:"<<len;
+        ::memset(buffer, '\0', sizeof buffer);
+        int len = static_cast<int>(::read(channel->getFd(), buffer, kBufferEachTimeSize));
+        LOG_TRACE<<"read:"<<len<<",errno:"<<errno;
         if(len)
         {
-            channel->getReadBuf()->write(len);
-        }else if(len==0)
-        {
-            channel->setConnected(false);
-            break;
-        }else
-        {
-            LOG_ERROR<<"read error";
-            channel->setConnected(false);
-            break;
+            channel->getReadBuf()->append(buffer);
         }
-
+        else if(len==0)
+        {
+            onClose(channel);
+            return true;
+        }
+        //reading done
         if(EAGAIN==errno)
         {
-            //prepare for next epoll wait
             channel->setEvent(EPOLLIN);
             loop_.getPoll().setChannel(channel);
-
+            
             if(onMessage_&&channel->getReadBuf()->readable())
             {
                 onMessage_(channel->getReadBuf()->str());
-                write(channel, "1234567890 qwertyuiopasdfghjklzxcvbnm QWERTYUIOPASDFGHJKLZXCVBNM");
+                write(channel, "abcdefghijklmnopqrstuvwxyz1234567890");
             }
-
+            
             channel->getReadBuf()->readall();
-            break;
+            return false;
         }
-        //reading done
     }//for
 }
 
-void
+bool
 TcpServer::onWrite(Channel* channel)
 {
     for(;;)
@@ -209,28 +193,30 @@ TcpServer::onWrite(Channel* channel)
         {
             channel->getWriteBuf()->read(len);
         }
-        else if(len == 0)
+        else if(len==0)
         {
+            channel->writeEvent();
+            channel->getWriteBuf()->readall();
+            
+            channel->setEvent(EPOLLIN);
+            loop_.getPoll().setChannel(channel);
+            return false;
+        }
+        
+        if(EAGAIN==errno)
+        {
+            LOG_TRACE<<"EAGAIN";
             if(channel->getWriteBuf()->readable())
             {
-                channel->setEvent(EPOLLOUT);
+                channel->setEvent(EPOLLIN|EPOLLOUT);
             }else
             {
                 channel->setEvent(EPOLLIN);
             }
             loop_.getPoll().setChannel(channel);
-            break;
-        }else if(len == -1 && EAGAIN==errno)
-        {
-            channel->setEvent(EPOLLOUT);
-            loop_.getPoll().setChannel(channel);
-            break;
-        }
-        else
-        {
-            LOG_ERROR<<"write error";
-            channel->setConnected(false);
-            break;
+            
+            channel->writeEvent();
+            return false;
         }
     }
 }
@@ -241,7 +227,7 @@ TcpServer::write(Channel *channel, const std::string& msg)
     channel->write(msg);
     if(channel->getWriteBuf()->readable())
     {
-        channel->setEvent(EPOLLOUT);
+        channel->setEvent(EPOLLIN|EPOLLOUT);
         loop_.getPoll().setChannel(channel);
     }
 }
