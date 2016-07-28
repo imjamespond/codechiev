@@ -113,14 +113,15 @@ TcpClient::onRead(Channel* channel)
         if(channel->getReadBuf()->writable()<=kBufferEachTimeSize)
         {
             LOG_ERROR<<"insufficient buffer:"<<channel->getReadBuf()->str();
-            channel->getReadBuf()->readall();
+            onClose(channel);
+            break;
         }
-        ssize_t len = static_cast<int>(::read(channel->getFd(), channel->getReadBuf()->data(), kBufferEachTimeSize));
+        int len = static_cast<int>(::read(channel->getFd(), channel->getReadBuf()->data(), kBufferEachTimeSize));
         LOG_TRACE<<"read:"<<len;
         if(len)
         {
-            channel->getReadBuf()->write(static_cast<int>(len));
-        }else
+            channel->getReadBuf()->write(len);
+        }else if(len==0)
         {
             onClose(channel);
             break;
@@ -128,11 +129,8 @@ TcpClient::onRead(Channel* channel)
         //reading done
         if(EAGAIN==errno)
         {
-            
-#ifndef UseEpollET
             channel->setEvent(EPOLLIN);
             loop_.getPoll().setChannel(channel);
-#endif
             
             if(onMessage_&&channel->getReadBuf()->readable())
             {
@@ -151,35 +149,41 @@ TcpClient::onWrite(Channel* channel)
     for(;;)
     {
         int readable = channel->getWriteBuf()->readable();
+        if(readable > kBufferEachTimeSize)
+        {
+            readable = kBufferEachTimeSize;
+        }
         int len = static_cast<int>(::write(channel->getFd(), channel->getWriteBuf()->str(), readable));
         LOG_TRACE<<"write:"<<len;
-        if(readable==len)
+        if(len)
+        {
+            channel->getWriteBuf()->read(len);
+        }
+        else if(len==0)
         {
             channel->writeEvent();
             channel->getWriteBuf()->readall();
+            
+            channel->setEvent(EPOLLIN);
+            loop_.getPoll().setChannel(channel);
             break;
-        }
-        else if(len)
-        {
-            channel->getWriteBuf()->read(len);
         }
         
         if(EAGAIN==errno)
         {
+            assert(len==-1);
+            if(channel->getWriteBuf()->readable())
+            {
+                channel->setEvent(EPOLLIN|EPOLLOUT);
+            }else
+            {
+                channel->setEvent(EPOLLIN);
+            }
+            loop_.getPoll().setChannel(channel);
             channel->writeEvent();
             break;
         }
     }
-#ifndef UseEpollET
-    if(channel->getWriteBuf()->readable())
-    {
-        channel->setEvent(EPOLLOUT);
-    }else
-    {
-        channel->setEvent(EPOLLIN);
-    }
-    loop_.getPoll().setChannel(channel);
-#endif
 }
 
 void

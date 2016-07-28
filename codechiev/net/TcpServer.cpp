@@ -120,13 +120,12 @@ TcpServer::onConnect(Channel* channel)
     channel_ptr connsock(new Channel(connfd));
     
 #ifdef UseEpollET
-    connsock->setEvent(EPOLLIN|EPOLLOUT |EPOLLET);
+    //connsock->setEvent(EPOLLIN|EPOLLOUT |EPOLLET);
     LOG_TRACE<<"UseEpollET";
-#else
-    connsock->setEvent(EPOLLIN);
 #endif
-    channels_[connsock->getFd()]=connsock;
+    connsock->setEvent(EPOLLIN);
     loop_.getPoll().addChannel(connsock.get());
+    channels_[connsock->getFd()]=connsock;
     if(onConnect_)
         onConnect_(connsock.get());
 }
@@ -148,13 +147,14 @@ TcpServer::onRead(Channel* channel)
         if(channel->getReadBuf()->writable()<=kBufferEachTimeSize)
         {
             LOG_ERROR<<"insufficient buffer:"<<channel->getReadBuf()->str();
-            channel->getReadBuf()->readall();
+            onClose(channel);
+            break;
         }
-        ssize_t len = static_cast<int>(::read(channel->getFd(), channel->getReadBuf()->data(), kBufferEachTimeSize));
+        int len = static_cast<int>(::read(channel->getFd(), channel->getReadBuf()->data(), kBufferEachTimeSize));
         LOG_TRACE<<"read:"<<len;
         if(len)
         {
-            channel->getReadBuf()->write(static_cast<int>(len));
+            channel->getReadBuf()->write(len);
         }else if(len==0)
         {
             onClose(channel);
@@ -163,24 +163,13 @@ TcpServer::onRead(Channel* channel)
         //reading done
         if(EAGAIN==errno)
         {
-
-#ifndef UseEpollET
-            //set channel being interesting in read event
-            channel->setEvent(EPOLLIN);//edge-trigger don't need
+            channel->setEvent(EPOLLIN);
             loop_.getPoll().setChannel(channel);
-#endif
             
             if(onMessage_&&channel->getReadBuf()->readable())
             {
                 onMessage_(channel->getReadBuf()->str());
-                write(channel, "Since even with edge-triggered epoll, multiple events can be\
-                      generated upon receipt of multiple chunks of data, the caller has the\
-                      option to specify the EPOLLONESHOT flag, to tell epoll to disable the\
-                      associated file descriptor after the receipt of an event withepoll_wait(2).When the EPOLLONESHOT flag is specified,it is thecaller\'s responsibility to rearm the file descriptor usingepoll_ctl(2) with EPOLL_CTL_MOD.Interaction with autosleep\
-                      If the system is in autosleep mode via /sys/power/autosleep and an\
-                      event happens which wakes the device from sleep, the device driver\
-                      will keep the device awake only until that event is queued.  To keep\
-                      the device awake until the event has been processed, it is necessary");
+                write(channel, "the device awake until the event has been processed, it is necessary");
             }
             
             channel->getReadBuf()->readall();
@@ -195,35 +184,41 @@ TcpServer::onWrite(Channel* channel)
     for(;;)
     {
         int readable = channel->getWriteBuf()->readable();
+        if(readable > kBufferEachTimeSize)
+        {
+            readable = kBufferEachTimeSize;
+        }
         int len = static_cast<int>(::write(channel->getFd(), channel->getWriteBuf()->str(), readable));
         LOG_TRACE<<"write:"<<len;
-        if(readable==len)
+        if(len)
+        {
+            channel->getWriteBuf()->read(len);
+        }
+        else if(len==0)
         {
             channel->writeEvent();
             channel->getWriteBuf()->readall();
+            
+            channel->setEvent(EPOLLIN);
+            loop_.getPoll().setChannel(channel);
             break;
-        }
-        else if(len)
-        {
-            channel->getWriteBuf()->read(len);
         }
         
         if(EAGAIN==errno)
         {
+            assert(len==-1);
+            if(channel->getWriteBuf()->readable())
+            {
+                channel->setEvent(EPOLLIN|EPOLLOUT);
+            }else
+            {
+                channel->setEvent(EPOLLIN);
+            }
+            loop_.getPoll().setChannel(channel);
             channel->writeEvent();
             break;
         }
     }
-#ifndef UseEpollET
-    if(channel->getWriteBuf()->readable())
-    {
-        channel->setEvent(EPOLLOUT);
-    }else
-    {
-        channel->setEvent(EPOLLIN);
-    }
-    loop_.getPoll().setChannel(channel);
-#endif
 }
 
 void

@@ -14,6 +14,7 @@
 #include <vector>
 #include <sys/socket.h>
 #include <boost/shared_ptr.hpp>
+#include <boost/unordered_map.hpp>
 #include <base/FixedBuffer.h>
 
 namespace codechiev {
@@ -21,14 +22,14 @@ namespace codechiev {
 
         
         static const int kBufferSize = 1024*32;
-        static const int kBufferEachTimeSize = 128;
+        static const int kBufferEachTimeSize = 8;
         typedef codechiev::base::FixedBuffer<kBufferSize> channel_buffer;
         
         class Channel
         {
         public:
             typedef std::vector<Channel*> channel_vec_t;
-
+            typedef boost::unordered_map<int, channel_ptr> channel_map_t;
             Channel(int fd):fd_(fd){}
             
             inline void setFd(int fd){fd_=fd;};
@@ -53,8 +54,8 @@ namespace codechiev {
             channel_buffer readbuf_;
             channel_buffer writebuf_;
         };
-
-        typedef typename Channel::channel_vec_t channel_vec;
+        typedef Channel::channel_map_t channel_map;
+        typedef Channel::channel_vec_t channel_vec;
         typedef boost::shared_ptr<Channel> channel_ptr;
         
         inline int

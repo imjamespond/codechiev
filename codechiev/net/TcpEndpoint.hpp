@@ -11,7 +11,6 @@
 
 #include <sys/socket.h>
 #include <boost/function.hpp>
-#include <boost/unordered_map.hpp>
 #include <boost/noncopyable.hpp>
 #include "EPoll.hpp"
 #include "EventLoop.h"
@@ -25,7 +24,7 @@ namespace codechiev {
         class TcpEndpoint: public boost::noncopyable
         {
         public:
-            typedef boost::unordered_map<int, channel_ptr> channel_map;
+            
             typedef boost::function<void(Channel*)> on_connect_func;
             typedef boost::function<void(const char*)> on_message_func;
             typedef boost::function<void(Channel*)> on_close_func;
