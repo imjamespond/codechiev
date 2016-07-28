@@ -41,6 +41,7 @@ namespace codechiev {
 
             bool onRead(Channel *);
             bool onWrite(Channel *);
+            virtual void onClose(Channel *)=0;
         protected:
             EventLoop<EPoll> loop_;
             InetAddressSt addr_;
