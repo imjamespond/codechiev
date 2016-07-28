@@ -45,7 +45,7 @@ int main(int argc, const char * argv[]) {
 
     epoll_loop loop;
     loop.getPoll().addChannel(&timer.getChannel());
-    base::Thread t("",boost::bind(&epoll_loop::loop, &loop, (boost::bind(&loopHandle, _1))));
+    base::Thread t("",boost::bind(&epoll_loop::loop, &loop, boost::bind(&loopHandle, _1)));
     t.start();
     t.join();
     return 0;
