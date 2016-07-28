@@ -110,9 +110,9 @@ bool
 TcpClient::onRead(Channel* channel)
 {
     char buffer[kBufferEachTimeSize];
-    ::memset(buffer, '\0', sizeof buffer);
     for(;;)
     {
+        ::memset(buffer, '\0', sizeof buffer);
         int len = static_cast<int>(::read(channel->getFd(), buffer, kBufferEachTimeSize));
         LOG_TRACE<<"read:"<<len<<",errno:"<<errno;
         if(len)
