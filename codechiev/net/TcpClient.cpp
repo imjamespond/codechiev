@@ -109,19 +109,15 @@ TcpClient::onClose(Channel* channel)
 bool
 TcpClient::onRead(Channel* channel)
 {
+    char buffer[kBufferEachTimeSize];
+    ::memset(buffer, '\0', sizeof buffer);
     for(;;)
     {
-        if(channel->getReadBuf()->writable()<=kBufferEachTimeSize)
-        {
-            LOG_ERROR<<"insufficient buffer:"<<channel->getReadBuf()->str();
-            onClose(channel);
-            return true;
-        }
-        int len = static_cast<int>(::read(channel->getFd(), channel->getReadBuf()->data(), kBufferEachTimeSize));
-        LOG_TRACE<<"read:"<<len<<",errno:"<<errno<<",buf:"<<channel->getReadBuf()->str();
+        int len = static_cast<int>(::read(channel->getFd(), buffer, kBufferEachTimeSize));
+        LOG_TRACE<<"read:"<<len<<",errno:"<<errno;
         if(len)
         {
-            channel->getReadBuf()->write(len);
+            channel->getReadBuf()->append(buffer);
         }
         else if(len==0)
         {
