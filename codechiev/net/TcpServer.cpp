@@ -90,13 +90,15 @@ TcpServer::pollEvent(const channel_vec &vec)
             onConnect(channel);
         }else
         {
-            if(channel->getEvent() & EPOLLIN)
+            if(channel->getEvent() & EPOLLIN && onRead(channel))
             {
-                onRead(channel);
-            }else if(channel->getEvent() & EPOLLOUT)
+                continue;
+            }
+            if(channel->getEvent() & EPOLLOUT && onWrite(channel))
             {
-                onWrite(channel);
-            }else if(channel->getEvent() & (EPOLLHUP|EPOLLRDHUP) )
+                continue;
+            }
+            if(channel->getEvent() & (EPOLLHUP|EPOLLRDHUP) )
             {
                 onClose(channel);
             }
@@ -139,7 +141,7 @@ TcpServer::onClose(Channel* channel)
     channel->close();
 }
 
-void
+bool
 TcpServer::onRead(Channel* channel)
 {
     for(;;)
@@ -148,7 +150,7 @@ TcpServer::onRead(Channel* channel)
         {
             LOG_ERROR<<"insufficient buffer:"<<channel->getReadBuf()->str();
             onClose(channel);
-            break;
+            return true;
         }
         int len = static_cast<int>(::read(channel->getFd(), channel->getReadBuf()->data(), kBufferEachTimeSize));
         LOG_TRACE<<"read:"<<len;
@@ -158,7 +160,7 @@ TcpServer::onRead(Channel* channel)
         }else if(len==0)
         {
             onClose(channel);
-            break;
+            return true;
         }
         //reading done
         if(EAGAIN==errno)
@@ -173,12 +175,12 @@ TcpServer::onRead(Channel* channel)
             }
             
             channel->getReadBuf()->readall();
-            break;
+            return false;
         }
     }//for
 }
 
-void
+bool
 TcpServer::onWrite(Channel* channel)
 {
     for(;;)
@@ -201,7 +203,7 @@ TcpServer::onWrite(Channel* channel)
             
             channel->setEvent(EPOLLIN);
             loop_.getPoll().setChannel(channel);
-            break;
+            return false;
         }
         
         if(EAGAIN==errno)
@@ -215,7 +217,7 @@ TcpServer::onWrite(Channel* channel)
             }
             loop_.getPoll().setChannel(channel);
             channel->writeEvent();
-            break;
+            return false;
         }
     }
 }

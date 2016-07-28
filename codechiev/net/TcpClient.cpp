@@ -61,17 +61,22 @@ TcpClient::pollEvent(const channel_vec &vec)
         net::Channel *channel = *it;
         if (channel->getFd() == channel_.getFd())
         {
-            
-            if(channel->getEvent() & EPOLLIN)
+            if(channel->getEvent() & EPOLLIN && onRead(channel))
             {
-                onRead(channel);
-            }else if(channel->getEvent() & EPOLLOUT)
+                continue;
+            }
+            if(channel->getEvent() & EPOLLOUT)
             {
-                if(connected_)
-                    onWrite(channel);
+                if(connected_&&onWrite(channel))
+                {
+                    continue;
+                }
                 else
                     onConnect(channel);
-            }else if(channel->getEvent() & (EPOLLHUP|EPOLLRDHUP) )
+                onWrite(channel);
+                
+            }
+            if(channel->getEvent() & (EPOLLHUP|EPOLLRDHUP) )
             {
                 onClose(channel);
             }
