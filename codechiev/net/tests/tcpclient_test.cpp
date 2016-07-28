@@ -18,7 +18,8 @@ using namespace codechiev::net;
 
 void onConnect(Channel* channel)
 {
-    LOG_DEBUG<<"onConnect fd:"<<channel->getFd();
+    LOG_DEBUG<<"onConnect\n fd:"<<channel->getFd()<<\
+    "\n sendbuf size:"<<channel->getSendBufSize();
 }
 void onMessage(const char* msg)
 {
