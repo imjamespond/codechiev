@@ -23,7 +23,7 @@ void onConnect(Channel* channel)
     ", setbuf size"<<channel->setSendBufSize(0)<<\
     ", sendbuf size:"<<channel->getSendBufSize();
 }
-void onMessage(const char* msg)
+void onMessage(Channel* channel)
 {
     LOG_DEBUG<<"onMessage:"<<msg;
 }

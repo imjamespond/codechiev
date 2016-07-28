@@ -15,13 +15,16 @@
 using namespace codechiev::base;
 using namespace codechiev::net;
 
+TcpServer serv("0.0.0.0", 9999);
+
 void onConnect(Channel* channel)
 {
     LOG_DEBUG<<"onConnect fd:"<<channel->getFd();
 }
-void onMessage(const char* msg)
+void onMessage(Channel* channel)
 {
-    LOG_DEBUG<<"onMessage:"<<msg;
+    LOG_DEBUG<<"onMessage:"<<channel->getReadBuf()->str();
+    serv.write(channel, channel->getReadBuf()->str());
 }
 void onClose(Channel* channel)
 {
@@ -29,10 +32,10 @@ void onClose(Channel* channel)
 }
 int main(int argc, const char * argv[]) {
 
-    TcpServer serv("0.0.0.0", 9999);
-    serv.setOnConnect(boost::bind(&onConnect,_1));
-    serv.setOnMessage(boost::bind(&onMessage,_1));
-    serv.setOnClose(boost::bind(&onClose,_1));
+
+    serv.setOnConnect(boost::bind(&onConnect, _1));
+    serv.setOnMessage(boost::bind(&onMessage, _1));
+    serv.setOnClose(boost::bind(&onClose, _1));
     Thread t("", boost::bind(&TcpServer::listen, &serv));
     t.start();
     t.join();

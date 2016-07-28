@@ -132,7 +132,7 @@ TcpClient::onRead(Channel* channel)
 
             if(onMessage_&&channel->getReadBuf()->readable())
             {
-                onMessage_(channel->getReadBuf()->str());
+                onMessage_(channel);
             }
 
             channel->getReadBuf()->readall();
