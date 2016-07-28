@@ -172,7 +172,7 @@ TcpServer::onRead(Channel* channel)
             if(onMessage_&&channel->getReadBuf()->readable())
             {
                 onMessage_(channel->getReadBuf()->str());
-                write(channel, "the device awake until the");
+                write(channel, "abcdefghijklmnopqrstuvwxyz1234567890");
             }
             
             channel->getReadBuf()->readall();
