@@ -227,10 +227,8 @@ TcpServer::write(Channel *channel, const std::string& msg)
     channel->write(msg);
     if(channel->getWriteBuf()->readable())
     {
-#ifndef UseEpollET
-        channel->setEvent(EPOLLOUT);
+        channel->setEvent(EPOLLIN|EPOLLOUT);
         loop_.getPoll().setChannel(channel);
-#endif
     }
 }
 

@@ -84,12 +84,10 @@ TcpClient::onConnect(Channel* channel)
 {
     connected_ = true;
 #ifdef UseEpollET
-    channel->setEvent(EPOLLIN|EPOLLOUT |EPOLLET);
+    //channel->setEvent(EPOLLIN|EPOLLOUT |EPOLLET);
     LOG_TRACE<<"UseEpollET";
-#else
-    channel->setEvent(EPOLLIN);
 #endif
-    
+    channel->setEvent(EPOLLIN);
     loop_.getPoll().setChannel(channel);
     if(onConnect_)
         onConnect_(channel);
@@ -192,9 +190,7 @@ TcpClient::write(const std::string& msg)
     channel_.write(msg);
     if(channel_.getWriteBuf()->readable())
     {
-#ifndef UseEpollET
-        channel_.setEvent(EPOLLOUT);
+        channel_.setEvent(EPOLLIN|EPOLLOUT);
         loop_.getPoll().setChannel(&channel_);
-#endif
     }
 }
