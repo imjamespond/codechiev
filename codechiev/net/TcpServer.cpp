@@ -71,7 +71,8 @@ TcpServer::listen()
         exit(EXIT_FAILURE);
     }
 
-    updateChannel(&channel_, EPOLLIN);
+    channel_.setEvent(EPOLLIN);
+    loop_.getPoll().addChannel(&channel_);
     loop_.loop();
 }
 
