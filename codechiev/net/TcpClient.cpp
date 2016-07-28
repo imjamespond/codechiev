@@ -169,7 +169,6 @@ TcpClient::onWrite(Channel* channel)
         
         if(EAGAIN==errno)
         {
-            assert(len==-1);
             if(channel->getWriteBuf()->readable())
             {
                 channel->setEvent(EPOLLIN|EPOLLOUT);
