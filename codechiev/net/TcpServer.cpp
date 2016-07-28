@@ -71,8 +71,7 @@ TcpServer::listen()
         exit(EXIT_FAILURE);
     }
 
-    channel_.setEvent(EPOLLIN);
-    loop_.getPoll().addChannel(&channel_);
+    updateChannel(channel, EPOLLIN);
     loop_.loop();
 }
 
@@ -149,8 +148,8 @@ TcpServer::onRead(Channel* channel)
     {
         ::memset(buffer, '\0', sizeof buffer);
         int len = static_cast<int>(::read(channel->getFd(), buffer, kBufferEachTimeSize));
-        LOG_TRACE<<"read:"<<len<<",errno:"<<errno;
         channel->getReadBuf()->append(buffer, len);
+        LOG_TRACE<<"read:"<<len<<",errno:"<<errno;
 
         if(len==0)
         {
@@ -160,8 +159,7 @@ TcpServer::onRead(Channel* channel)
         //reading done
         if(EAGAIN==errno)
         {
-            channel->setEvent(EPOLLIN);
-            loop_.getPoll().setChannel(channel);
+            updateChannel(channel, EPOLLIN);
 
             if(onMessage_&&channel->getReadBuf()->readable())
             {
@@ -196,8 +194,7 @@ TcpServer::onWrite(Channel* channel)
             channel->writeEvent();
             channel->getWriteBuf()->readall();
 
-            channel->setEvent(EPOLLIN);
-            loop_.getPoll().setChannel(channel);
+            updateChannel(channel, EPOLLIN);
             return false;
         }
 
@@ -206,10 +203,10 @@ TcpServer::onWrite(Channel* channel)
             LOG_TRACE<<"EAGAIN";
             if(channel->getWriteBuf()->readable())
             {
-                channel->setEvent(EPOLLIN|EPOLLOUT);
+                updateChannel(channel, EPOLLIN|EPOLLOUT);
             }else
             {
-                channel->setEvent(EPOLLIN);
+                updateChannel(channel, EPOLLIN);
             }
             loop_.getPoll().setChannel(channel);
 
@@ -228,5 +225,12 @@ TcpServer::write(Channel *channel, const std::string& msg)
         channel->setEvent(EPOLLIN|EPOLLOUT);
         loop_.getPoll().setChannel(channel);
     }
+}
+
+void
+TcpServer::updateChannel(Channel *channel, int events)
+{
+    channel->setEvent(events);
+    loop_.getPoll().setChannel(channel);
 }
 

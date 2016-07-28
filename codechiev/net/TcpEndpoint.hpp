@@ -24,7 +24,7 @@ namespace codechiev {
         class TcpEndpoint: public boost::noncopyable
         {
         public:
-            
+
             typedef boost::function<void(Channel*)> on_connect_func;
             typedef boost::function<void(const char*)> on_message_func;
             typedef boost::function<void(Channel*)> on_close_func;
@@ -58,6 +58,7 @@ namespace codechiev {
             bool onRead(Channel *);
             bool onWrite(Channel *);
             void write(Channel *, const std::string&);
+            void updateChannel(Channel *, int);
         private:
             EventLoop<EPoll> loop_;
             channel_map channels_;
@@ -76,6 +77,7 @@ namespace codechiev {
             bool onRead(Channel *);
             bool onWrite(Channel *);
             void write( const std::string&);
+            void updateChannel(Channel *, int);
         private:
             EventLoop<EPoll> loop_;
         };

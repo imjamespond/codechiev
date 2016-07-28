@@ -32,16 +32,17 @@ void onClose(Channel* channel)
     LOG_DEBUG<<"onClose fd:"<<channel->getFd();
 }
 int main(int argc, const char * argv[]) {
-    
+
     TcpClient client("127.0.0.1", 9999);
     client.setOnConnect(boost::bind(&onConnect,_1));
     client.setOnMessage(boost::bind(&onMessage,_1));
     client.setOnClose(boost::bind(&onClose,_1));
     Thread t("", boost::bind(&TcpClient::connect, &client));
     t.start();
-    
+
     int c(0),i(0);
     char msg[128];
+    ::memset(msg, 0, sizeof msg);
     do
     {
         c=getchar();
@@ -54,10 +55,10 @@ int main(int argc, const char * argv[]) {
         {
             msg[i++]=c;
         }
-        
+
     }while(c!='.');
-    
+
     t.join();
-    
+
     return 0;
 }

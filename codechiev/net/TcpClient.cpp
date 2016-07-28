@@ -38,8 +38,7 @@ TcpClient::connect()
     }
 
     channel_.setKeepAlive();
-    channel_.setEvent(EPOLLOUT);
-    loop_.getPoll().addChannel(&channel_);
+    updateChannel(channel, EPOLLOUT);
     loop_.loop();
 }
 
@@ -89,9 +88,8 @@ TcpClient::onConnect(Channel* channel)
     //channel->setEvent(EPOLLIN|EPOLLOUT |EPOLLET);
     LOG_TRACE<<"UseEpollET";
 #endif
-    channel->setEvent(EPOLLIN);
     channel->setConnected(true);
-    loop_.getPoll().setChannel(channel);
+    updateChannel(channel, EPOLLIN);
     if(onConnect_)
         onConnect_(channel);
 }
@@ -125,8 +123,7 @@ TcpClient::onRead(Channel* channel)
         //reading done
         if(EAGAIN==errno)
         {
-            channel->setEvent(EPOLLIN);
-            loop_.getPoll().setChannel(channel);
+            updateChannel(channel, EPOLLIN);
 
             if(onMessage_&&channel->getReadBuf()->readable())
             {
@@ -160,8 +157,7 @@ TcpClient::onWrite(Channel* channel)
             channel->writeEvent();
             channel->getWriteBuf()->readall();
 
-            channel->setEvent(EPOLLIN);
-            loop_.getPoll().setChannel(channel);
+            updateChannel(channel, EPOLLIN|EPOLLOUT);
             return false;
         }
 
@@ -170,10 +166,10 @@ TcpClient::onWrite(Channel* channel)
             LOG_TRACE<<"EAGAIN";
             if(channel->getWriteBuf()->readable())
             {
-                channel->setEvent(EPOLLIN|EPOLLOUT);
+                updateChannel(channel, EPOLLIN|EPOLLOUT);
             }else
             {
-                channel->setEvent(EPOLLIN);
+                updateChannel(channel, EPOLLIN);
             }
             loop_.getPoll().setChannel(channel);
 
@@ -189,7 +185,13 @@ TcpClient::write(const std::string& msg)
     channel_.write(msg);
     if(channel_.getWriteBuf()->readable())
     {
-        channel_.setEvent(EPOLLIN|EPOLLOUT);
-        loop_.getPoll().setChannel(&channel_);
+        updateChannel(&channel_, EPOLLIN|EPOLLOUT);
     }
+}
+
+void
+TcpClient::updateChannel(Channel *channel, int events)
+{
+    channel->setEvent(events);
+    loop_.getPoll().setChannel(channel);
 }
