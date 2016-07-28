@@ -16,23 +16,23 @@
 
 namespace codechiev {
     namespace net {
-        
+
         template<class TPoll>
         class EventLoop : public boost::noncopyable
         {
         public:
             typedef boost::function<void(const channel_vec&)> loop_handle_func;
-            
+
             explicit EventLoop(const loop_handle_func& handle):
             poll_(),handle_(handle)
             {
                 tid_=base::Thread::Tid();
             }
-            
+
             void loop()
             {
                 assert(tid_!=base::Thread::Tid());
-                
+
                 while(1)
                 {
                     channel_vec vec;
@@ -40,9 +40,9 @@ namespace codechiev {
                     handle_(vec);
                 }
             }
-            
+
             inline TPoll& getPoll(){return poll_;}
-            
+
         private:
             int tid_;
             TPoll poll_;

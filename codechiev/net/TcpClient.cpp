@@ -45,7 +45,11 @@ TcpClient::connect()
 void
 TcpClient::close()
 {
-
+    Channel *channel=&channel_;
+    if(onClose_)
+        onClose_(channel);
+    loop_.getPoll().delChannel(channel);
+    channel->close();
 }
 
 void

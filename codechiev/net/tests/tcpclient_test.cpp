@@ -58,6 +58,9 @@ int main(int argc, const char * argv[]) {
 
     }while(c!='.');
 
+    client.close();
+
+    t.cancel();
     t.join();
 
     return 0;
