@@ -25,7 +25,7 @@ void onConnect(Channel* channel)
 }
 void onMessage(Channel* channel)
 {
-    LOG_DEBUG<<"onMessage:"<<msg;
+    LOG_DEBUG<<"onMessage:"<<channel->getReadBuf()->str();
 }
 void onClose(Channel* channel)
 {
