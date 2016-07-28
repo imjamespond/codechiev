@@ -38,6 +38,7 @@ namespace codechiev {
             inline void setCloseOnExec(){::fcntl(fd_, F_SETFD, FD_CLOEXEC);}
             inline int setReuseAddr();
             inline int setKeepAlive();
+            inline int setSendBufSize(int);
             inline int getSendBufSize();
             
             inline int getFd(){return fd_;}
@@ -77,10 +78,15 @@ namespace codechiev {
             return ::setsockopt(fd_, SOL_SOCKET, SO_KEEPALIVE, &on, sizeof on);
         }
         inline int
+        Channel::setSendBufSize(int val)
+        {
+            return ::setsockopt(fd_, SOL_SOCKET, SO_SNDBUF, &val, sizeof val);
+        }
+        inline int
         Channel::getSendBufSize()
         {
             int sendbuff, optlen = sizeof sendbuff;
-            ::getsockopt(sockfd, SOL_SOCKET, SO_SNDBUF, &sendbuff, &optlen);
+            ::getsockopt(fd_, SOL_SOCKET, SO_SNDBUF, &sendbuff, &optlen);
             return sendbuff;
         }
     }
