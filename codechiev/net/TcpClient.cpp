@@ -36,7 +36,7 @@ TcpClient::connect()
             exit(EXIT_FAILURE);
         }
     }
-    
+
     channel_.setKeepAlive();
     channel_.setEvent(EPOLLOUT);
     loop_.getPoll().addChannel(&channel_);
@@ -46,13 +46,13 @@ TcpClient::connect()
 void
 TcpClient::close()
 {
-    
+
 }
 
 void
 TcpClient::pollEvent(const channel_vec &vec)
 {
-    
+
     for( channel_vec::const_iterator it=vec.begin();
         it!=vec.end();
         it++)
@@ -114,12 +114,10 @@ TcpClient::onRead(Channel* channel)
     {
         ::memset(buffer, '\0', sizeof buffer);
         int len = static_cast<int>(::read(channel->getFd(), buffer, kBufferEachTimeSize));
+        channel->getReadBuf()->append(buffer, len);
         LOG_TRACE<<"read:"<<len<<",errno:"<<errno;
-        if(len)
-        {
-            channel->getReadBuf()->append(buffer);
-        }
-        else if(len==0)
+
+        if(len==0)
         {
             onClose(channel);
             return true;
@@ -129,12 +127,12 @@ TcpClient::onRead(Channel* channel)
         {
             channel->setEvent(EPOLLIN);
             loop_.getPoll().setChannel(channel);
-            
+
             if(onMessage_&&channel->getReadBuf()->readable())
             {
                 onMessage_(channel->getReadBuf()->str());
             }
-            
+
             channel->getReadBuf()->readall();
             return false;
         }
@@ -161,12 +159,12 @@ TcpClient::onWrite(Channel* channel)
         {
             channel->writeEvent();
             channel->getWriteBuf()->readall();
-            
+
             channel->setEvent(EPOLLIN);
             loop_.getPoll().setChannel(channel);
             return false;
         }
-        
+
         if(EAGAIN==errno)
         {
             LOG_TRACE<<"EAGAIN";
@@ -178,7 +176,7 @@ TcpClient::onWrite(Channel* channel)
                 channel->setEvent(EPOLLIN);
             }
             loop_.getPoll().setChannel(channel);
-            
+
             channel->writeEvent();
             return false;
         }

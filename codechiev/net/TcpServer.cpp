@@ -33,7 +33,7 @@ onClose_(0)
         LOG_ERROR<<"errno:"<<errno;
         exit(EXIT_FAILURE);
     }
-    
+
     LOG_DEBUG<<"TcpEndpoint fd:"<<channel_.getFd();
 }
 
@@ -54,7 +54,7 @@ TcpServer::listen()
         LOG_ERROR<<"errno:"<<errno;
         exit(EXIT_FAILURE);
     }
-    
+
     //The socket is bound to a local address
     if (-1 == ::bind(channel_.getFd(), (struct sockaddr *) &addr_.sockaddrin, addr_.socklen))
     {
@@ -62,7 +62,7 @@ TcpServer::listen()
         LOG_ERROR<<"errno:"<<errno;
         exit(EXIT_FAILURE);
     }
-    
+
     //a queue limit for incoming connections
     if (-1 == ::listen(channel_.getFd(), QUEUE_LIMIT))
     {
@@ -70,7 +70,7 @@ TcpServer::listen()
         LOG_ERROR<<"errno:"<<errno;
         exit(EXIT_FAILURE);
     }
-    
+
     channel_.setEvent(EPOLLIN);
     loop_.getPoll().addChannel(&channel_);
     loop_.loop();
@@ -79,7 +79,7 @@ TcpServer::listen()
 void
 TcpServer::pollEvent(const channel_vec &vec)
 {
-    
+
     for( channel_vec::const_iterator it=vec.begin();
         it!=vec.end();
         it++)
@@ -104,7 +104,7 @@ TcpServer::pollEvent(const channel_vec &vec)
             }
         }
     }//for
-    
+
     //Time::SleepMillis(10000l);//simulate combine event when using et
 }
 
@@ -120,7 +120,7 @@ TcpServer::onConnect(Channel* channel)
         return;
     }
     channel_ptr connsock(new Channel(connfd));
-    
+
 #ifdef UseEpollET
     //connsock->setEvent(EPOLLIN|EPOLLOUT |EPOLLET);
     LOG_TRACE<<"UseEpollET";
@@ -144,17 +144,15 @@ TcpServer::onClose(Channel* channel)
 bool
 TcpServer::onRead(Channel* channel)
 {
-    char buffer[kBufferEachTimeSize];    
+    char buffer[kBufferEachTimeSize];
     for(;;)
     {
         ::memset(buffer, '\0', sizeof buffer);
         int len = static_cast<int>(::read(channel->getFd(), buffer, kBufferEachTimeSize));
         LOG_TRACE<<"read:"<<len<<",errno:"<<errno;
-        if(len)
-        {
-            channel->getReadBuf()->append(buffer);
-        }
-        else if(len==0)
+        channel->getReadBuf()->append(buffer, len);
+
+        if(len==0)
         {
             onClose(channel);
             return true;
@@ -164,13 +162,13 @@ TcpServer::onRead(Channel* channel)
         {
             channel->setEvent(EPOLLIN);
             loop_.getPoll().setChannel(channel);
-            
+
             if(onMessage_&&channel->getReadBuf()->readable())
             {
                 onMessage_(channel->getReadBuf()->str());
                 write(channel, "abcdefghijklmnopqrstuvwxyz1234567890");
             }
-            
+
             channel->getReadBuf()->readall();
             return false;
         }
@@ -197,12 +195,12 @@ TcpServer::onWrite(Channel* channel)
         {
             channel->writeEvent();
             channel->getWriteBuf()->readall();
-            
+
             channel->setEvent(EPOLLIN);
             loop_.getPoll().setChannel(channel);
             return false;
         }
-        
+
         if(EAGAIN==errno)
         {
             LOG_TRACE<<"EAGAIN";
@@ -214,7 +212,7 @@ TcpServer::onWrite(Channel* channel)
                 channel->setEvent(EPOLLIN);
             }
             loop_.getPoll().setChannel(channel);
-            
+
             channel->writeEvent();
             return false;
         }

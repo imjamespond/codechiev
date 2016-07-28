@@ -42,7 +42,12 @@ namespace codechiev {
 
             void append(const char *str)
             {
-                int len = static_cast<int>(::strlen(str));
+                append(str, static_cast<int>(::strlen(str)));
+            }
+            void append(const char *str, int len)
+            {
+                if(len<=0)
+                    return;
                 int wb = writable();
                 if(wb>len)
                 {
