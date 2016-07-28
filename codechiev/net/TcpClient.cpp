@@ -17,8 +17,7 @@ using namespace codechiev::base;
 using namespace codechiev::net;
 
 TcpClient::TcpClient(const std::string& ip, uint16_t port):
-TcpEndpoint(ip, port),
-loop_()
+TcpEndpoint(ip, port)
 {}
 
 void
@@ -194,9 +193,3 @@ TcpClient::write(const std::string& msg)
     }
 }
 
-void
-TcpClient::updateChannel(Channel *channel, int events)
-{
-    channel->setEvent(events);
-    loop_.getPoll().setChannel(channel);
-}

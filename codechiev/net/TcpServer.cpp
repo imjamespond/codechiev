@@ -21,6 +21,7 @@ using namespace codechiev::base;
 using namespace codechiev::net;
 
 TcpEndpoint::TcpEndpoint(const std::string& ip, uint16_t port):
+
 addr_(ip, port),
 channel_(::socket(AF_INET, SOCK_STREAM| SOCK_NONBLOCK|SOCK_CLOEXEC, 0)),
 onConnect_(0),
@@ -38,11 +39,8 @@ onClose_(0)
 }
 
 TcpServer::TcpServer(const std::string& ip, uint16_t port):
-TcpEndpoint(ip, port),
-loop_()
-{
-
-}
+TcpEndpoint(ip, port)
+{}
 
 #define QUEUE_LIMIT 4
 void
@@ -70,9 +68,7 @@ TcpServer::listen()
         LOG_ERROR<<"errno:"<<errno;
         exit(EXIT_FAILURE);
     }
-
-    channel_.setEvent(EPOLLIN);
-    loop_.getPoll().addChannel(&channel_);
+    addChannel(&channel_, EPOLLIN);
     loop_.loop(boost::bind(&TcpServer::pollEvent, this, _1));
 }
 
@@ -227,10 +223,4 @@ TcpServer::write(Channel *channel, const std::string& msg)
     }
 }
 
-void
-TcpServer::updateChannel(Channel *channel, int events)
-{
-    channel->setEvent(events);
-    loop_.getPoll().setChannel(channel);
-}
 

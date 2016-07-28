@@ -23,7 +23,7 @@ namespace codechiev {
         public:
             typedef boost::function<void(const channel_vec&)> loop_handle_func;
 
-            explicit EventLoop():
+            EventLoop():
             poll_()
             {
                 tid_=base::Thread::Tid();
