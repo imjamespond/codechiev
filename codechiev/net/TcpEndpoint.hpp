@@ -73,8 +73,8 @@ namespace codechiev {
             void pollEvent(const channel_vec&);
             void onConnect(Channel *);
             void onClose(Channel *);
-            void onRead(Channel *);
-            void onWrite(Channel *);
+            bool onRead(Channel *);
+            bool onWrite(Channel *);
             void write( const std::string&);
         private:
             EventLoop<EPoll> loop_;

@@ -72,9 +72,7 @@ TcpClient::pollEvent(const channel_vec &vec)
                     continue;
                 }
                 else
-                    onConnect(channel);
-                onWrite(channel);
-                
+                    onConnect(channel);                
             }
             if(channel->getEvent() & (EPOLLHUP|EPOLLRDHUP) )
             {
@@ -87,12 +85,12 @@ TcpClient::pollEvent(const channel_vec &vec)
 void
 TcpClient::onConnect(Channel* channel)
 {
-    connected_ = true;
 #ifdef UseEpollET
     //channel->setEvent(EPOLLIN|EPOLLOUT |EPOLLET);
     LOG_TRACE<<"UseEpollET";
 #endif
     channel->setEvent(EPOLLIN);
+    channel->setConnected(true);
     loop_.getPoll().setChannel(channel);
     if(onConnect_)
         onConnect_(channel);
@@ -108,7 +106,7 @@ TcpClient::onClose(Channel* channel)
     channel->close();
 }
 
-void
+bool
 TcpClient::onRead(Channel* channel)
 {
     for(;;)
@@ -117,7 +115,7 @@ TcpClient::onRead(Channel* channel)
         {
             LOG_ERROR<<"insufficient buffer:"<<channel->getReadBuf()->str();
             onClose(channel);
-            break;
+            return true;
         }
         int len = static_cast<int>(::read(channel->getFd(), channel->getReadBuf()->data(), kBufferEachTimeSize));
         LOG_TRACE<<"read:"<<len;
@@ -127,7 +125,7 @@ TcpClient::onRead(Channel* channel)
         }else if(len==0)
         {
             onClose(channel);
-            break;
+            return true;
         }
         //reading done
         if(EAGAIN==errno)
@@ -141,12 +139,12 @@ TcpClient::onRead(Channel* channel)
             }
             
             channel->getReadBuf()->readall();
-            break;
+            return false;
         }
     }//for
 }
 
-void
+bool
 TcpClient::onWrite(Channel* channel)
 {
     for(;;)
@@ -169,7 +167,7 @@ TcpClient::onWrite(Channel* channel)
             
             channel->setEvent(EPOLLIN);
             loop_.getPoll().setChannel(channel);
-            break;
+            return false;
         }
         
         if(EAGAIN==errno)
@@ -183,7 +181,7 @@ TcpClient::onWrite(Channel* channel)
             }
             loop_.getPoll().setChannel(channel);
             channel->writeEvent();
-            break;
+            return false;
         }
     }
 }
