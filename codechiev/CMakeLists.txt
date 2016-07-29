@@ -13,7 +13,7 @@ add_definitions(-DLoggerFile=1)
 add_definitions(-DLoggerFunc=1)
 
 set(CMAKE_CXX_COMPILER "g++")
-set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g")#03would be faster
+set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2 -finline-limit=1000 -DNDEBUG")
 #set(CMAKE_BUILD_TYPE Release)
 
