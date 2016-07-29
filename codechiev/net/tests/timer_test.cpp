@@ -23,7 +23,7 @@ void print(int fd)
     LOG_DEBUG<<"time's up, fd:"<<fd;
 }
 int count(5);
-void remove(const net::timer_ptr &timer)
+void remove(net::timer_ptr timer)
 {
     LOG_DEBUG<<"time's up, fd:"<<timer->getChannel()->getFd()<<", count"<<count;
     if(--count<0)
