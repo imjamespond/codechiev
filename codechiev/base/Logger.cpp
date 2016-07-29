@@ -36,7 +36,7 @@ Logger::Level initLoggerLevel()
 
     //if(::getenv("LoggerDebug"))
     #ifdef LoggerLevel
-        return LoggerLevel;
+        return Logger:: LoggerLevel;
     #endif // LoggerLevel
 
     return Logger::Info;
