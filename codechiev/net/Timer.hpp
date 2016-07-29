@@ -38,7 +38,7 @@ namespace codechiev {
         public:
             Scheduler();
             
-            void pollEvent(const channel_vec&);
+            void pollEvent( channel_vec&);
             void schedule();
             void scheduleTimer(Timer& timer);
         private:
