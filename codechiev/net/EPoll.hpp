@@ -29,7 +29,7 @@ namespace codechiev {
 
             typedef std::vector<struct epoll_event> epoll_events;
         private:
-            Channel epollch_;
+            int epollfd_;
             epoll_events events_;
         };
     }

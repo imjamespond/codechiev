@@ -41,7 +41,6 @@ namespace codechiev {
             void schedule();
             void scheduleTimer(Timer& timer);
         private:
-            Channel channel_;
             EventLoop<EPoll> loop_;
         };
         

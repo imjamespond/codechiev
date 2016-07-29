@@ -14,10 +14,10 @@
 using namespace codechiev::net;
 
 #define MAX_EVENTS 10
-EPoll::EPoll():epollch_(::epoll_create1(EPOLL_CLOEXEC)),
+EPoll::EPoll():epollfd_(::epoll_create1(EPOLL_CLOEXEC)),
 events_(MAX_EVENTS)
 {
-    if (epollch_.getFd() == -1)
+    if (epollfd_ == -1)
     {
         perror("epoll_create1");
         exit(EXIT_FAILURE);
@@ -30,7 +30,7 @@ EPoll::addChannel(Channel *channel)
     struct epoll_event ev;
 
     ev.events = channel->getEvent();
-    ev.data.fd = epollch_.getFd();
+    ev.data.fd = epollfd_;
     ev.data.ptr = channel;
 
     channel->setNonBlock();
@@ -39,7 +39,7 @@ EPoll::addChannel(Channel *channel)
     {
         events_.resize(events_.size()<<1);//double size
     }
-    if (::epoll_ctl(epollch_.getFd(), EPOLL_CTL_ADD, channel->getFd(), &ev) == -1)
+    if (::epoll_ctl(epollfd_, EPOLL_CTL_ADD, channel->getFd(), &ev) == -1)
     {
         perror("epoll_ctl: EPOLL_CTL_ADD");
         LOG_ERROR<<"errno:"<<errno;
@@ -52,10 +52,10 @@ EPoll::setChannel(Channel *channel)
     struct epoll_event ev;
     ev.events = channel->getEvent();
 
-    ev.data.fd = epollch_.getFd();
+    ev.data.fd = epollfd_;
     ev.data.ptr = channel;
 
-    if (::epoll_ctl(epollch_.getFd(), EPOLL_CTL_MOD, channel->getFd(), &ev) == -1)
+    if (::epoll_ctl(epollfd_, EPOLL_CTL_MOD, channel->getFd(), &ev) == -1)
     {
         perror("epoll_ctl: EPOLL_CTL_MOD");
         LOG_ERROR<<"errno:"<<errno;
@@ -65,7 +65,7 @@ EPoll::setChannel(Channel *channel)
 void
 EPoll::delChannel(Channel *channel)
 {
-    if (::epoll_ctl(epollch_.getFd(), EPOLL_CTL_DEL, channel->getFd(), NULL) == -1)
+    if (::epoll_ctl(epollfd_, EPOLL_CTL_DEL, channel->getFd(), NULL) == -1)
     {
         perror("epoll_ctl: EPOLL_CTL_DEL");
         LOG_ERROR<<"errno:"<<errno;
@@ -75,7 +75,7 @@ EPoll::delChannel(Channel *channel)
 void
 EPoll::poll(channel_vec &vec)
 {
-    int nfds = ::epoll_wait(epollch_.getFd(), events_.data(), static_cast<int>(events_.size()), -1);
+    int nfds = ::epoll_wait(epollfd_, events_.data(), static_cast<int>(events_.size()), -1);
     if (nfds == -1)
     {
         perror("epoll_wait");

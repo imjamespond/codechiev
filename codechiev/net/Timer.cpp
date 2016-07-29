@@ -55,15 +55,12 @@ Timer::every(int64_t millis, int64_t delay)
     ::timerfd_settime(channel_.getFd(), TFD_TIMER_ABSTIME, &new_value, &old_value);
 }
 
-Scheduler::Scheduler():
-channel_(::socket(AF_INET, SOCK_NONBLOCK|SOCK_CLOEXEC, 0))
+Scheduler::Scheduler()
 {}
 
 void
 Scheduler::schedule()
 {
-    channel_.setEvent(EPOLLIN);
-    loop_.getPoll().addChannel(&channel_);
     loop_.loop(boost::bind(&Scheduler::pollEvent, this, _1));
 }
 void

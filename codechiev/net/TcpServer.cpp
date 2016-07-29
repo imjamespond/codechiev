@@ -21,9 +21,9 @@ using namespace codechiev::base;
 using namespace codechiev::net;
 
 TcpEndpoint::TcpEndpoint(const std::string& ip, uint16_t port):
-
 addr_(ip, port),
-channel_(::socket(AF_INET, SOCK_STREAM| SOCK_NONBLOCK|SOCK_CLOEXEC, 0)),
+//SOCK_STREAM=>IPPROTO_TCP
+channel_(::socket(AF_INET, SOCK_STREAM| SOCK_NONBLOCK|SOCK_CLOEXEC, IPPROTO_TCP)),
 onConnect_(0),
 onMessage_(0),
 onClose_(0)
