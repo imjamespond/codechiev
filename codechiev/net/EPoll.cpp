@@ -13,11 +13,10 @@
 
 using namespace codechiev::net;
 
-#define INIT_EVENTS 4
-EPoll::EPoll():epollfd_(::epoll_create1(EPOLL_CLOEXEC))
+#define INIT_EVENTS 2
+EPoll::EPoll():epollfd_(::epoll_create1(EPOLL_CLOEXEC)),
+events_(INIT_EVENTS)
 {
-    events_.reserve(INIT_EVENTS);
-
     if (epollfd_ == -1)
     {
         perror("epoll_create1");
