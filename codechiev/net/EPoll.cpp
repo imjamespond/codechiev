@@ -35,7 +35,7 @@ EPoll::addChannel(Channel *channel)
 
     channel->setNonBlock();
 
-    if(events_.size()>(events_.capacity()>>))
+    if(events_.size()>(events_.capacity()>>1))
     {
         events_.resize(events_.capacity()<<1);LOG_TRACE<<"double size:"<<static_cast<int>(events_.size());
     }
