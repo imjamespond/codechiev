@@ -23,22 +23,20 @@ void print(int fd)
     LOG_DEBUG<<"time's up, fd:"<<fd;
 }
 int count(5);
-void remove(int fd)
+void cease(int fd)
 {
     LOG_DEBUG<<"time's up, fd:"<<fd<<", count"<<count;
     if(--count<0)
         sc.unscheduleTimer(fd);
 }
 int main(int argc, const char * argv[]) {
-    
-    
     base::Thread thread("Scheduler", boost::bind(&net::Scheduler::schedule, &sc));
     thread.start();
     
     {
     net::timer_ptr t1(new net::Timer),t2(new net::Timer),t3(new net::Timer);
     t1->after(8000l, boost::bind(&print, t1->getChannel()->getFd()));
-    t2->every(5000l, 1000l, boost::bind(&remove, t2->getChannel()->getFd()));
+    t2->every(5000l, 1000l, boost::bind(&cease, t2->getChannel()->getFd()));
     t3->after(2000l);
     sc.scheduleTimer(t1);
     sc.scheduleTimer(t2);
