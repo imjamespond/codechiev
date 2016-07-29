@@ -10,7 +10,9 @@
 #define Timer_hpp
 
 #include "Channel.hpp"
+#include "EventLoop.h"
 #include <boost/noncopyable.hpp>
+#include <boost/bind.hpp>
 #include <stdint.h>        /* Definition of uint64_t */
 #include <stdio.h>
 
@@ -24,27 +26,25 @@ namespace codechiev {
 
             void setTime();
             void after(int64_t);
+            void every(int64_t, int64_t);
 
-            inline Channel& getChannel(){return channel_;}
+            inline Channel* getChannel(){return &channel_;}
         private:
             Channel channel_;
         };
         
-        template <int NUM>
         class Scheduler : public boost::noncopyable
         {
         public:
-            Scheduler():channel_(::fileno(::tmpfile()))
-            {
-                
-            }
+            Scheduler();
             
-            void start();
-            void schedleFixed();
+            void pollEvent(const channel_vec&);
+            void schedule();
+            void scheduleTimer(Timer& timer);
         private:
             Channel channel_;
+            EventLoop<EPoll> loop_;
         };
-        
         
         
     }

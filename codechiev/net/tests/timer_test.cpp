@@ -11,6 +11,7 @@
 #include <errno.h>
 #include <exception>
 #include <base/Logger.hpp>
+#include <base/Thread.hpp>
 #include <net/Timer.hpp>
 #include <net/EPoll.hpp>
 
@@ -23,7 +24,13 @@ void print()
 }
 
 int main(int argc, const char * argv[]) {
-
+    
+    net::Scheduler sc;
+    sc.sc
+    base::Thread thread("Scheduler", boost::bind(&net::Scheduler::schedule, &sc));
+    thread.start();
+    
+    thread.join();
     /*test blocking fd
     uint64_t exp(0);
     while(1)
@@ -33,7 +40,7 @@ int main(int argc, const char * argv[]) {
         if(len==sizeof(uint64_t))
             LOG_DEBUG<<"time's up";
     }*/
-
+    /*
     net::Timer timer;
     net::EPoll epoll;
     epoll.addChannel(&timer.getChannel());
@@ -53,13 +60,11 @@ int main(int argc, const char * argv[]) {
             ssize_t len = ::read(channel->getFd(), &data, sizeof(data_t));//test level-trigger
             /*EINVAL fd was created via a call to timerfd_create(2) and the wrong
               size buffer was given to read(); see timerfd_create(2) for
-              further information.*/
+              further information.* /
             LOG_DEBUG<<"read:"<<len<<", fd:"<<channel->getFd()<<", errno:"<<errno;
             if(len==sizeof(data_t))
                 LOG_DEBUG<<"time's up";
         }
-    }
-
-
+    }*/
     return 0;
 }

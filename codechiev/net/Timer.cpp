@@ -14,6 +14,7 @@
 #include <sys/timerfd.h>
 
 using namespace codechiev::net;
+using namespace codechiev::base;
 
 #define handle_error(msg) \
                do { perror(msg); exit(EXIT_FAILURE); } while (0)
@@ -42,4 +43,37 @@ Timer::after(int64_t secs)
     new_value.it_interval.tv_nsec = 0;
 
     ::timerfd_settime(channel_.getFd(), TFD_TIMER_ABSTIME, &new_value, &old_value);
+}
+
+Scheduler::Scheduler():
+channel_(::fileno(::tmpfile()))
+{}
+
+void
+Scheduler::schedule()
+{
+    channel_.setEvent(EPOLLIN);
+    loop_.getPoll().addChannel(&channel_);
+    loop_.loop(boost::bind(&Scheduler::pollEvent, this, _1));
+}
+void
+Scheduler::scheduleTimer(Timer &timer)
+{
+    timer.getChannel()->setEvent(EPOLLIN);
+    loop_.getPoll().addChannel(timer.getChannel());
+}
+void
+Scheduler::pollEvent(const channel_vec& vec)
+{
+    for(channel_vec::iterator it=vec.begin();
+        it!=vec.end();
+        it++)
+    {
+        Channel *channel = *it;
+        typedef uint64_t data_t;
+        data_t data(0);
+        ssize_t len = ::read(channel->getFd(), &data, sizeof(data_t));        LOG_DEBUG<<"read:"<<len<<", fd:"<<channel->getFd()<<", errno:"<<errno;
+        if(len==sizeof(data_t))
+            LOG_DEBUG<<"time's up";
+    }
 }
