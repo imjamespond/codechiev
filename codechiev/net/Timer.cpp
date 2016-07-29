@@ -109,6 +109,7 @@ Scheduler::pollEvent(const channel_vec& vec)
         ssize_t len = ::read(channel->getFd(), &data, sizeof(data_t));
         if(len==sizeof(data_t))
         {
+            LOG_TRACE<<"pollEvent:"<<hannel->getFd(;
             timer_map::const_iterator it = timers_.find( channel->getFd());
             if(it!=timers_.end())
             {
