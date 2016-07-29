@@ -38,7 +38,8 @@ EPoll::addChannel(Channel *channel)
 
     if(events_.size()>(events_.capacity()>>1))
     {
-        events_.reserve(events_.capacity()<<1);LOG_TRACE<<"double size:"<<static_cast<int>(events_.capacity());
+        //events_.reserve(events_.capacity()<<1);
+        LOG_TRACE<<"double size:"<<static_cast<int>(events_.capacity());
     }
     if (::epoll_ctl(epollfd_, EPOLL_CTL_ADD, channel->getFd(), &ev) == -1)
     {
