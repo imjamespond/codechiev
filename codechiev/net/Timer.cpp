@@ -68,10 +68,18 @@ Scheduler::schedule()
     loop_.loop(boost::bind(&Scheduler::pollEvent, this, _1));
 }
 void
-Scheduler::scheduleTimer(Timer &timer)
+Scheduler::scheduleTimer(const timer_ptr &timer)
 {
-    timer.getChannel()->setEvent(EPOLLIN);
-    loop_.getPoll().addChannel(timer.getChannel());
+    assert(timers_);
+    timers_[timer->getChannel()->getFd()] = timer;
+    timer->getChannel()->setEvent(EPOLLIN);
+    loop_.getPoll().addChannel(timer->getChannel());
+}
+void
+Scheduler::unscheduleTimer(const timer_ptr &timer)
+{
+    loop_.getPoll().delChannel(timer->getChannel());
+    //timers_.erase(timer->getChannel()->getFd());
 }
 void
 Scheduler::pollEvent(const channel_vec& vec)
@@ -83,8 +91,14 @@ Scheduler::pollEvent(const channel_vec& vec)
         Channel *channel = *it;
         typedef uint64_t data_t;
         data_t data(0);
-        ssize_t len = ::read(channel->getFd(), &data, sizeof(data_t));        LOG_DEBUG<<"read:"<<len<<", fd:"<<channel->getFd()<<", errno:"<<errno;
+        ssize_t len = ::read(channel->getFd(), &data, sizeof(data_t));
         if(len==sizeof(data_t))
-            LOG_DEBUG<<"time's up";
+        {
+            timer_map::const_iterator it = timers_.find( channel->getFd());
+            if(it!=timers_.end())
+            {
+                it->sec.callback();
+            }
+        }
     }
 }
