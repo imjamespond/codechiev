@@ -8,7 +8,6 @@ PROJECT_PATH=`pwd`
 
 function_build()
 {
-#Debug:g++ -g /your/code.cpp
 	mkdir -p build
 	cd build/	
 	cmake . ../$PROJECT \
