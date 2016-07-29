@@ -12,7 +12,6 @@
 #include "Channel.hpp"
 #include "EventLoop.h"
 #include <boost/noncopyable.hpp>
-#include <boost/bind.hpp>
 #include <stdint.h>        /* Definition of uint64_t */
 #include <stdio.h>
 

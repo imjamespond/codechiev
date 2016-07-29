@@ -9,6 +9,7 @@
 #include "Timer.hpp"
 #include "Channel.hpp"
 #include <base/Logger.hpp>
+#include <boost/bind.hpp>
 #include <errno.h>
 #include <time.h>
 #include <stdio.h>
