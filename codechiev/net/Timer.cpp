@@ -35,7 +35,7 @@ channel_(::timerfd_create(CLOCK_REALTIME, TFD_NONBLOCK|TFD_CLOEXEC))
 void
 Timer::after(int64_t millis)
 {
-    every(millis, 0);
+    every(0, millis);
 }
 
 void
@@ -46,8 +46,8 @@ Timer::every(int64_t millis, int64_t delay)
     struct timespec now;
     if (clock_gettime(CLOCK_REALTIME, &now) == -1)
         handle_error("clock_gettime");
-    new_value.it_value.tv_sec = now.tv_sec + MILLIS_TO_SECS(millis);
-    new_value.it_value.tv_nsec = now.tv_nsec + MILLIS_TO_NANOS(millis);
+    new_value.it_value.tv_sec = now.tv_sec + MILLIS_TO_SECS(delay);
+    new_value.it_value.tv_nsec = now.tv_nsec + MILLIS_TO_NANOS(delay);
     
     new_value.it_interval.tv_sec = MILLIS_TO_SECS(millis);
     new_value.it_interval.tv_nsec = MILLIS_TO_NANOS(millis);
