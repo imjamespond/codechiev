@@ -34,6 +34,7 @@ channel_(::timerfd_create(CLOCK_REALTIME, TFD_NONBLOCK|TFD_CLOEXEC))
 Timer::~Timer()
 {
     channel_.close();
+    LOG_TRACE<<"";
 }
 
 void
