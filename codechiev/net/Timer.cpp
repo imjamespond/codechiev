@@ -79,7 +79,7 @@ void
 Scheduler::unscheduleTimer(const timer_ptr &timer)
 {
     loop_.getPoll().delChannel(timer->getChannel());
-    //timers_.erase(timer->getChannel()->getFd());
+    //timers_.erase(timer->getChannel()->getFd());//probitally destruct
 }
 void
 Scheduler::pollEvent(const channel_vec& vec)
@@ -97,7 +97,7 @@ Scheduler::pollEvent(const channel_vec& vec)
             timer_map::const_iterator it = timers_.find( channel->getFd());
             if(it!=timers_.end())
             {
-                it->second.callback();
+                it->second->callback();
             }
         }
     }
