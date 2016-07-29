@@ -34,7 +34,10 @@ namespace codechiev {
         class Scheduler : public boost::noncopyable
         {
         public:
-            Scheduler();
+            Scheduler():channel_(::fileno(::tmpfile()))
+            {
+                
+            }
             
             void start();
             void schedleFixed();
@@ -42,11 +45,6 @@ namespace codechiev {
             Channel channel_;
         };
         
-        Scheduler<NUM>::Scheduler():
-        channel_(::fileno(::tmpfile()))
-        {
-            
-        }
         
         
     }
