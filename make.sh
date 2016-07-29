@@ -12,6 +12,7 @@ function_build()
 	cd build/	
 	cmake . ../$PROJECT \
 	-DCMAKE_BUILD_TYPE=Debug \
+	-DLOGGER_LEVEL=LoggerDebug \
 	-DBOOST_ROOT=$1 \
 	-DROOT=$2
 	make && make install
