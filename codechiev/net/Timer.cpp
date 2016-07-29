@@ -99,7 +99,7 @@ Scheduler::unscheduleTimer(int fd)
 void
 Scheduler::pollEvent(const channel_vec& vec)
 {
-    LOG_TRACE<<"pollEvent";
+
     for(channel_vec::const_iterator it=vec.begin();
         it!=vec.end();
         it++)
@@ -110,7 +110,6 @@ Scheduler::pollEvent(const channel_vec& vec)
         ssize_t len = ::read(channel->getFd(), &data, sizeof(data_t));
         if(len==sizeof(data_t))
         {
-
             timer_map::const_iterator it = timers_.find( channel->getFd());
             if(it!=timers_.end())
             {
