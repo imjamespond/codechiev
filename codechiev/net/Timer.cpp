@@ -56,7 +56,7 @@ Timer::every(int64_t millis, int64_t delay)
 }
 
 Scheduler::Scheduler():
-channel_(::socket(AF_LOCAL, SOCK_NONBLOCK|SOCK_CLOEXEC, 0))
+channel_(::socket(AF_INET, SOCK_NONBLOCK|SOCK_CLOEXEC, 0))
 {}
 
 void
