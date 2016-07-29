@@ -63,10 +63,10 @@ Timer::every(int64_t millis, int64_t delay)
         handle_error("clock_gettime");
     new_value.it_value.tv_sec = now.tv_sec + MILLIS_TO_SECS(delay);
     new_value.it_value.tv_nsec = now.tv_nsec + MILLIS_TO_NANOS(delay);
-    
+
     new_value.it_interval.tv_sec = MILLIS_TO_SECS(millis);
     new_value.it_interval.tv_nsec = MILLIS_TO_NANOS(millis);
-    
+
     ::timerfd_settime(channel_.getFd(), TFD_TIMER_ABSTIME, &new_value, &old_value);
 }
 
@@ -109,11 +109,7 @@ Scheduler::pollEvent(const channel_vec& vec)
         ssize_t len = ::read(channel->getFd(), &data, sizeof(data_t));
         if(len==sizeof(data_t))
         {
-            timer_map::const_iterator it = timers_.find( channel->getFd());
-            if(it!=timers_.end())
-            {
-                it->second->callback();
-            }
+
         }
     }
 }
