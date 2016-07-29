@@ -97,7 +97,7 @@ Scheduler::pollEvent(const channel_vec& vec)
             timer_map::const_iterator it = timers_.find( channel->getFd());
             if(it!=timers_.end())
             {
-                it->sec.callback();
+                it->second.callback();
             }
         }
     }
