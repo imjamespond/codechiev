@@ -36,11 +36,6 @@ EPoll::addChannel(Channel *channel)
 
     channel->setNonBlock();
 
-    if(events_.size()>(events_.capacity()>>1))
-    {
-        //events_.reserve(events_.capacity()<<1);
-        LOG_TRACE<<"double size:"<<static_cast<int>(events_.capacity());
-    }
     if (::epoll_ctl(epollfd_, EPOLL_CTL_ADD, channel->getFd(), &ev) == -1)
     {
         perror("epoll_ctl: EPOLL_CTL_ADD");
@@ -78,19 +73,32 @@ void
 EPoll::poll(channel_vec &vec)
 {
     int nfds = ::epoll_wait(epollfd_, events_.data(), static_cast<int>(events_.size()), -1);
-    if (nfds == -1)
+    if (nfds)
+    {
+        if(events_.size()==nfds)
+        {
+            events_.reserve(nfds<<1,NULL);
+        }
+        LOG_TRACE<<"epoll channels available:"<<nfds<<", esize:"<<static_cast<int>(events_.size());
+        for(int i=0; i<nfds; i++)
+        {
+            struct epoll_event& ev = events_[i];
+            Channel* channel = static_cast<Channel*>(ev.data.ptr);
+            channel->setEvent(ev.events);
+            vec.push_back( channel );
+            LOG_TRACE<<"event:"<<static_cast<int>(ev.events);
+        }
+    }
+    else if (nfds == -1)
     {
         perror("epoll_wait");
         LOG_ERROR<<"errno:"<<errno;
     }
-    LOG_TRACE<<"epoll channels available:"<<nfds<<", esize:"<<static_cast<int>(events_.size());
-    for(int i=0; i<nfds; i++)
+    else if (nfds == -1)
     {
-        struct epoll_event& ev = events_[i];
-        Channel* channel = static_cast<Channel*>(ev.data.ptr);
-        channel->setEvent(ev.events);
-        vec.push_back( channel );
-        LOG_TRACE<<"event:"<<static_cast<int>(ev.events);
+        LOG_TRACE<<"nothing happened";
     }
+
+
 }
 
