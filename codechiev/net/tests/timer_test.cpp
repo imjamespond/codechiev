@@ -26,7 +26,6 @@ void print()
 int main(int argc, const char * argv[]) {
     
     net::Scheduler sc;
-    sc.sc
     base::Thread thread("Scheduler", boost::bind(&net::Scheduler::schedule, &sc));
     thread.start();
     
