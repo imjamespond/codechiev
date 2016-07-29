@@ -17,10 +17,9 @@
 
 using namespace codechiev;
 
-int count(0);
-void print()
+void print(int fd)
 {
-
+    LOG_DEBUG<<"time's up, fd:"<<fd;
 }
 
 int main(int argc, const char * argv[]) {
@@ -29,14 +28,15 @@ int main(int argc, const char * argv[]) {
     base::Thread thread("Scheduler", boost::bind(&net::Scheduler::schedule, &sc));
     thread.start();
     
+    {
     net::timer_ptr t1(new net::Timer),t2(new net::Timer),t3(new net::Timer);
-    t1->after(8000l);
-    t2->every(5000l, 5000l);
+    t1->after(8000l, boost::bind(&print, t2->getChannel()->getFd()));
+    t2->every(5000l, 5000l, boost::bind(&print, t2->getChannel()->getFd()));
     t3->after(2000l);
     sc.scheduleTimer(t1);
     sc.scheduleTimer(t2);
     sc.scheduleTimer(t3);
-    
+    }
     thread.join();
     /*test blocking fd
     uint64_t exp(0);

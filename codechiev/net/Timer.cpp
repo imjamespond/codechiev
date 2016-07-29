@@ -41,7 +41,18 @@ Timer::after(int64_t millis)
 {
     every(0, millis);
 }
-
+void
+Timer::after(int64_t millis, const timer_cb_t &cb)
+{
+    cb_=cb;
+    after(millis);
+}
+void
+Timer::every(int64_t millis, int64_t delay, const timer_cb_t &cb)
+{
+    cb_=cb;
+    every(millis, delay);
+}
 void
 Timer::every(int64_t millis, int64_t delay)
 {
