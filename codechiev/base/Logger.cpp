@@ -35,18 +35,9 @@ Logger::Level initLoggerLevel()
     #endif // LoggerFunc
 
     //if(::getenv("LoggerDebug"))
-    #ifdef LoggerTrace
-        return Logger::Trace;
+    #ifdef LOGGER_LEVEL
+        return LOGGER_LEVEL;
     #endif // LoggerDebug
-    #ifdef LoggerDebug
-        return Logger::Debug;
-    #endif // LoggerDebug
-    #ifdef LoggerWarn
-        return Logger::Warn;
-    #endif // LoggerWarn
-    #ifdef LoggerError
-        return Logger::Error;
-    #endif // LoggerError
 
     return Logger::Info;
 }
@@ -75,11 +66,11 @@ Logger::Logger(const char* file, const char* func, int line, Level lv):
 level_(lv)
 {
     this->operator<<(kLoggerLevels[lv]);
-    
+
     std::string time = Time::GetSimpleString();
     time.at(time.size()-1)='\0';
     this->operator<<(": ")<<time;
-    
+
     if(gDetail&DetailFile)
     {
         std::string str(file);
@@ -91,7 +82,7 @@ level_(lv)
         this->operator<<(" func:")<<func;
     if(gDetail&DetailThread)
         this->operator<<(" thread:")<<Thread::ThreadName()<<" tid:"<<Thread::Tid();
-    
+
     this->operator<<(" ===");
 }
 

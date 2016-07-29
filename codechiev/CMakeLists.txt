@@ -7,7 +7,7 @@ message("message binary directory:${CMAKE_BINARY_DIR}")
 
 add_definitions(-DUseEpoll=1)
 add_definitions(-DUseEpollET=1)
-add_definitions(-D${LOGGER_LEVEL}=1)
+add_definitions(-DLoggerLevel=${LOGGER_LEVEL})
 add_definitions(-DLoggerThread=1)
 add_definitions(-DLoggerFile=1)
 add_definitions(-DLoggerFunc=1)
