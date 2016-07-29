@@ -9,6 +9,7 @@
 #include "Timer.hpp"
 #include "Channel.hpp"
 #include <base/Logger.hpp>
+#include <base/Time.hpp>
 #include <boost/bind.hpp>
 #include <errno.h>
 #include <time.h>
@@ -31,19 +32,25 @@ Timer::Timer():
 }
 
 void
-Timer::after(int64_t secs)
+Timer::after(int64_t millis)
+{
+    every(millis, 0);
+}
+
+void
+Timer::every(int64_t millis, int64_t delay)
 {
     struct itimerspec new_value;
     struct itimerspec old_value;
     struct timespec now;
     if (clock_gettime(CLOCK_REALTIME, &now) == -1)
         handle_error("clock_gettime");
-    new_value.it_value.tv_sec = now.tv_sec + secs;
-    new_value.it_value.tv_nsec = now.tv_nsec;
-
-    new_value.it_interval.tv_sec = 0;
-    new_value.it_interval.tv_nsec = 0;
-
+    new_value.it_value.tv_sec = now.tv_sec + MILLIS_TO_SECS(millis);
+    new_value.it_value.tv_nsec = now.tv_nsec + MILLIS_TO_NANOS(millis);
+    
+    new_value.it_interval.tv_sec = MILLIS_TO_SECS(millis);
+    new_value.it_interval.tv_nsec = MILLIS_TO_NANOS(millis);
+    
     ::timerfd_settime(channel_.getFd(), TFD_TIMER_ABSTIME, &new_value, &old_value);
 }
 

@@ -20,8 +20,7 @@ Time::Time(int64_t t):timeMillis_(t){}
 Time Time::Now() {
     struct timeval tv;
     ::gettimeofday(&tv, NULL);
-    int64_t seconds = tv.tv_sec;
-    return Time(seconds * MILLIS_SEC + tv.tv_usec * .001);
+    return Time(SECS_TO_MILLIS(tv.tv_sec) + MICROS_TO_MILLIS(tv.tv_usec));
 }
 
 Time Time::NowTm() {
@@ -29,15 +28,15 @@ Time Time::NowTm() {
     struct tm * ptm;
     ::time(&rawtime);
     ptm = gmtime(&rawtime);
-    return Time(static_cast<int64_t> (rawtime) * MILLIS_SEC);//less acurate
+    return Time(SECS_TO_MILLIS(rawtime));//less acurate
 }
 
 void
 Time::SleepMillis(int64_t millis)
 {
     struct timespec tm;
-    tm.tv_sec=millis*SEC_OF_MILLI;
-    tm.tv_nsec=(millis-tm.tv_sec*MILLIS_SEC)*1000000;
+    tm.tv_sec=MILLIS_TO_SECS(millis);
+    tm.tv_nsec=MILLIS_TO_NANOS(millis);
     /*
     int nanosleep(const struct timespec *req, struct timespec *rem);
         If the call is interrupted by a signal handler, nanosleep() returns

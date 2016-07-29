@@ -14,11 +14,16 @@
 
 namespace codechiev {
     namespace base {
-        
+        /*
         static const int64_t MILLIS_SEC = 1000;
         static const int64_t MICROS_SEC = MILLIS_SEC * 1000;
         static const int64_t NANOS_SEC = MICROS_SEC * 1000;
-        static const float SEC_OF_MILLI = .001;
+        static const float SEC_OF_MILLI = ;
+        */
+#define MILLIS_TO_NANOS(millis) millis%1000*1000000
+#define MILLIS_TO_SECS(millis) millis * .001
+#define SECS_TO_MILLIS(secs) static_cast<int64_t>(secs) * 1000
+#define MICROS_TO_MILLIS(micros) micros * .001
         
         class Time{
         public:
