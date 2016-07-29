@@ -53,6 +53,7 @@ namespace codechiev {
             typedef std::set<task_t > task_set_t;
             TimerQueue();
             
+            void addTask();
         private:
             task_set_t tasks_;
         };
