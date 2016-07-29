@@ -15,7 +15,7 @@ using namespace codechiev::net;
 
 #define MAX_EVENTS 10
 EPoll::EPoll():epollfd_(::epoll_create1(EPOLL_CLOEXEC)),
-events_(MAX_EVENTS)
+events_()
 {
     if (epollfd_ == -1)
     {
@@ -35,9 +35,9 @@ EPoll::addChannel(Channel *channel)
 
     channel->setNonBlock();
 
-    if(events_.size()==MAX_EVENTS)
+    if(events_.size()>(events_.capacity()>>))
     {
-        events_.resize(events_.size()<<1);LOG_TRACE<<"double size:"<<static_cast<int>(events_.size());
+        events_.resize(events_.capacity()<<1);LOG_TRACE<<"double size:"<<static_cast<int>(events_.size());
     }
     if (::epoll_ctl(epollfd_, EPOLL_CTL_ADD, channel->getFd(), &ev) == -1)
     {
