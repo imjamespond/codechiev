@@ -45,24 +45,23 @@ namespace codechiev {
         };
         typedef Timer::timer_ptr_t timer_ptr;
         typedef Timer::timer_map_t timer_map;
-        
+
         class TimerQueue : public Timer
         {
         public:
             typedef boost::tuple<int64_t, Timer::timer_cb_t> task_t;
             typedef std::set<task_t > task_set_t;
             TimerQueue();
-            
-            void addTask();
+
         private:
             task_set_t tasks_;
         };
-        
+
         class Scheduler : public boost::noncopyable
         {
         public:
             Scheduler();
-            
+
             void pollEvent(const channel_vec&);
             void schedule();
             void scheduleTimer(const timer_ptr& timer);
@@ -71,8 +70,8 @@ namespace codechiev {
             EventLoop<EPoll> loop_;
             timer_map timers_;
         };
-        
-        
+
+
     }
 }
 
