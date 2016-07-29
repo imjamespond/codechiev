@@ -24,7 +24,7 @@ using namespace codechiev::base;
                do { perror(msg); exit(EXIT_FAILURE); } while (0)
 
 Timer::Timer():
-    channel_(timerfd_create(CLOCK_REALTIME, TFD_NONBLOCK|TFD_CLOEXEC))
+channel_(::timerfd_create(CLOCK_REALTIME, TFD_NONBLOCK|TFD_CLOEXEC))
 {
     if (channel_.getFd() == -1) {
         perror("timerfd_create");

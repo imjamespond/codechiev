@@ -29,6 +29,14 @@ int main(int argc, const char * argv[]) {
     base::Thread thread("Scheduler", boost::bind(&net::Scheduler::schedule, &sc));
     thread.start();
     
+    net::Timer t1,t2,t3;
+    t1.after(8000l);
+    t2.after(5000l);
+    t3.after(2000l);
+    sc.scheduleTimer(t1);
+    sc.scheduleTimer(t2);
+    sc.scheduleTimer(t3);
+    
     thread.join();
     /*test blocking fd
     uint64_t exp(0);
