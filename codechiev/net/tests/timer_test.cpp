@@ -40,7 +40,7 @@ int main(int argc, const char * argv[]) {
     t3->after(2000l, boost::bind(&print, t3->getChannel()->getFd()));
     //sc.scheduleTimer(t1);
     //sc.scheduleTimer(t2);
-    //sc.scheduleTimer(t3);
+    sc.scheduleTimer(t3);
     }
     thread.join();
     /*test blocking fd
