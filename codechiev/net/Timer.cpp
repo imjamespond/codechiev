@@ -70,7 +70,7 @@ Scheduler::schedule()
 void
 Scheduler::scheduleTimer(const timer_ptr &timer)
 {
-    assert(timers_);
+    assert(timer);
     timers_[timer->getChannel()->getFd()] = timer;
     timer->getChannel()->setEvent(EPOLLIN);
     loop_.getPoll().addChannel(timer->getChannel());
