@@ -81,7 +81,7 @@ EPoll::poll(channel_vec &vec)
         perror("epoll_wait");
         LOG_ERROR<<"errno:"<<errno;
     }
-    LOG_TRACE<<"epoll channels available:"<<nfds;
+    LOG_TRACE<<"epoll channels available:"<<nfds<<", esize:"<<static_cast<int>(events_.size();
     for(int i=0; i<nfds; i++)
     {
         struct epoll_event& ev = events_[i];
