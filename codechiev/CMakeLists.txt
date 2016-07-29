@@ -12,6 +12,11 @@ add_definitions(-DLoggerThread=1)
 add_definitions(-DLoggerFile=1)
 add_definitions(-DLoggerFunc=1)
 
+set(CMAKE_CXX_COMPILER "g++")
+set(CMAKE_CXX_FLAGS_DEBUG "-g")
+set(CMAKE_CXX_FLAGS_DEBUG "-O0")#03would be faster
+set(CMAKE_CXX_FLAGS_RELEASE "-O2 -finline-limit=1000 -DNDEBUG")
+
 set (BOOST ${BOOST_ROOT})
 set (HEADER ${CMAKE_CURRENT_SOURCE_DIR})
 set (HEADER ${HEADER} ${BOOST})
