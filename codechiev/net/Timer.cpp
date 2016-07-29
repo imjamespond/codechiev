@@ -65,9 +65,9 @@ Scheduler::scheduleTimer(Timer &timer)
     loop_.getPoll().addChannel(timer.getChannel());
 }
 void
-Scheduler::pollEvent( channel_vec& vec)
+Scheduler::pollEvent(const channel_vec& vec)
 {
-    for(channel_vec::iterator it=vec.begin();
+    for(channel_vec::const_iterator it=vec.begin();
         it!=vec.end();
         it++)
     {
