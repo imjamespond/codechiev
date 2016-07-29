@@ -22,6 +22,7 @@ namespace codechiev {
         {
         public:
             Timer();
+            ~Timer()
 
             void setTime();
             void after(int64_t);

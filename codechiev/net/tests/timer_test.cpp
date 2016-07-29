@@ -31,7 +31,7 @@ int main(int argc, const char * argv[]) {
     
     net::Timer t1,t2,t3;
     t1.after(8000l);
-    t2.after(5000l);
+    t2.every(5000l, 5000l);
     t3.after(2000l);
     sc.scheduleTimer(t1);
     sc.scheduleTimer(t2);
