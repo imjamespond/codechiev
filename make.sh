@@ -8,9 +8,11 @@ PROJECT_PATH=`pwd`
 
 function_build()
 {
+#Debug:g++ -g /your/code.cpp
 	mkdir -p build
-	cd build/
+	cd build/	
 	cmake . ../$PROJECT \
+	-DCMAKE_BUILD_TYPE=Debug \
 	-DBOOST_ROOT=$1 \
 	-DROOT=$2
 	make && make install
