@@ -13,9 +13,9 @@
 
 using namespace codechiev::net;
 
-#define MAX_EVENTS 10
+#define INIT_EVENTS 2
 EPoll::EPoll():epollfd_(::epoll_create1(EPOLL_CLOEXEC)),
-events_()
+events_(INIT_EVENTS)
 {
     if (epollfd_ == -1)
     {
