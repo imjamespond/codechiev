@@ -52,7 +52,7 @@ namespace codechiev {
             void pollEvent(const channel_vec&);
             void schedule();
             void scheduleTimer(const timer_ptr& timer);
-            void unscheduleTimer(const timer_ptr& timer);
+            void unscheduleTimer(int fd);
         private:
             EventLoop<EPoll> loop_;
             timer_map timers_;
