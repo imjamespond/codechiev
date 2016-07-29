@@ -26,7 +26,6 @@ public:
         LOG_DEBUG<<"TestPoll::poll";
         base::Time::SleepMillis(1500l);
     }
-
 };
 
 void pollHandle(const net::channel_vec& vec)

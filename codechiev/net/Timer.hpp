@@ -12,11 +12,12 @@
 #include "Channel.hpp"
 #include <boost/noncopyable.hpp>
 #include <stdint.h>        /* Definition of uint64_t */
+#include <stdio.h>
 
 namespace codechiev {
     namespace net {
 
-        class Timer : public boost::noncopyable
+        class Timer
         {
         public:
             Timer();
@@ -28,6 +29,26 @@ namespace codechiev {
         private:
             Channel channel_;
         };
+        
+        template <int NUM>
+        class Scheduler : public boost::noncopyable
+        {
+        public:
+            Scheduler();
+            
+            void start();
+            void schedleFixed();
+        private:
+            Channel channel_;
+        };
+        
+        Scheduler<NUM>::Scheduler():
+        channel_(::fileno(::tmpfile()))
+        {
+            
+        }
+        
+        
     }
 }
 
