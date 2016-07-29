@@ -15,6 +15,7 @@
 #include <time.h>
 #include <stdio.h>
 #include <sys/timerfd.h>
+#include <sys/socket.h>
 
 using namespace codechiev::net;
 using namespace codechiev::base;
@@ -55,7 +56,7 @@ Timer::every(int64_t millis, int64_t delay)
 }
 
 Scheduler::Scheduler():
-channel_(::fileno(::tmpfile()))
+channel_(::socket(AF_LOCAL, SOCK_NONBLOCK|SOCK_CLOEXEC, 0))
 {}
 
 void

@@ -41,7 +41,7 @@ EPoll::addChannel(Channel *channel)
     }
     if (::epoll_ctl(epollch_.getFd(), EPOLL_CTL_ADD, channel->getFd(), &ev) == -1)
     {
-        perror("epoll_ctl: listen_sock");
+        perror("epoll_ctl: EPOLL_CTL_ADD");
         LOG_ERROR<<"errno:"<<errno;
     }
 }
