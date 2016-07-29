@@ -87,10 +87,14 @@ Scheduler::scheduleTimer(const timer_ptr &timer)
     loop_.getPoll().addChannel(timer->getChannel());
 }
 void
-Scheduler::unscheduleTimer(const timer_ptr &timer)
+Scheduler::unscheduleTimer(int fd)
 {
-    loop_.getPoll().delChannel(timer->getChannel());
-    timers_.erase(timer->getChannel()->getFd());//probitally destruct
+    timer_map::const_iterator it = timers_.find( fd );
+    if(it!=timers_.end())
+    {
+        loop_.getPoll().delChannel(it->second->getChannel());
+        timers_.erase(fd);//probitally destruct
+    }
 }
 void
 Scheduler::pollEvent(const channel_vec& vec)
