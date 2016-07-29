@@ -156,7 +156,7 @@ TcpServer::pollEvent(const channel_vec &vec)
         it!=vec.end();
         it++)
     {
-        net::Channel *channel = *it;
+        Channel *channel = *it;
         if (channel->getFd() == channel_.getFd())
         {
             onConnect(channel);
