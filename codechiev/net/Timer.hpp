@@ -14,13 +14,15 @@
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/unordered_map.hpp>
+#include <boost/tuple/tuple.hpp>
+#include <set>
 #include <stdint.h>        /* Definition of uint64_t */
 #include <stdio.h>
 
 namespace codechiev {
     namespace net {
 
-        class Timer
+        class Timer : public boost::noncopyable
         {
         public:
             typedef boost::function<void()> timer_cb_t;
@@ -37,12 +39,23 @@ namespace codechiev {
 
             inline Channel* getChannel(){return &channel_;}
             inline void callback(){if(cb_)cb_();}
-        private:
+        protected:
             Channel channel_;
             timer_cb_t cb_;
         };
         typedef Timer::timer_ptr_t timer_ptr;
         typedef Timer::timer_map_t timer_map;
+        
+        class TimerQueue : public Timer
+        {
+        public:
+            typedef boost::tuple<int64_t, Timer::timer_cb_t> task_t;
+            typedef std::set<task_t > task_set_t;
+            TimerQueue();
+            
+        private:
+            task_set_t tasks_;
+        };
         
         class Scheduler : public boost::noncopyable
         {
