@@ -37,7 +37,7 @@ int main(int argc, const char * argv[]) {
     net::timer_ptr t1(new net::Timer),t2(new net::Timer),t3(new net::Timer);
     t1->after(8000l, boost::bind(&print, t1->getChannel()->getFd()));
     t2->every(1000l, 5000l, boost::bind(&cease, t2->getChannel()->getFd()));
-    t3->after(2000l, boost::bind(&print, t3->getChannel()->getFd()));
+    t3->after(2000l);
     //sc.scheduleTimer(t1);
     //sc.scheduleTimer(t2);
     sc.scheduleTimer(t3);
