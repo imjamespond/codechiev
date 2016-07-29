@@ -77,7 +77,7 @@ EPoll::poll(channel_vec &vec)
     {
         if(events_.size()==nfds)
         {
-            events_.reserve(nfds<<1,NULL);
+            events_.reserve(nfds<<1);
         }
         LOG_TRACE<<"epoll channels available:"<<nfds<<", esize:"<<static_cast<int>(events_.size());
         for(int i=0; i<nfds; i++)
