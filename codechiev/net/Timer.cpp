@@ -82,7 +82,7 @@ void
 Scheduler::scheduleTimer(const timer_ptr &timer)
 {
     assert(timer);
-    timers_[timer->getChannel()->getFd()] = timer;
+    //timers_[timer->getChannel()->getFd()] = timer;
     timer->getChannel()->setEvent(EPOLLIN);
     loop_.getPoll().addChannel(timer->getChannel());
 }
@@ -109,7 +109,11 @@ Scheduler::pollEvent(const channel_vec& vec)
         ssize_t len = ::read(channel->getFd(), &data, sizeof(data_t));
         if(len==sizeof(data_t))
         {
-
+            //timer_map::const_iterator it = timers_.find( channel->getFd());
+            //if(it!=timers_.end())
+            {
+                //it->second->callback();
+            }
         }
     }
 }
