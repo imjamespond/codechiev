@@ -33,6 +33,10 @@ int main(int argc, const char * argv[]) {
     Time now = Time::NowTm();
     for(int i(0); i<kNum; i++)
     {
+        unsigned_char_vec encrytedPasswd;
+        unsigned_char_vec decryptedPasswd;
+        unsigned_char_vec decryptedBase64;
+
         int encryptLength  = \
         rsautil.publicPemEncrypt("foobar", encrytedPasswd);
         std::string base64Passwd = Base64::Base64Encode(encrytedPasswd.data(), encryptLength);
@@ -40,8 +44,7 @@ int main(int argc, const char * argv[]) {
         Base64::Base64Decode(base64Passwd.c_str(), decryptedBase64);
         rsautil.privatePemDecrypt(decryptedBase64.data(), decryptedBase64.size(), decryptedPasswd);
         LOG_INFO<<"privatePemDecrypt:"<<reinterpret_cast<const char*>(decryptedPasswd.data());
-        encrytedPasswd.clear();
-        decryptedPasswd.clear();
+
     }
     LOG_INFO<<"cost millis:"<<Time::NowTm().getMillis()-now.getMillis();
     return 0;
