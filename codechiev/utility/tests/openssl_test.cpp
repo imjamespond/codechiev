@@ -33,8 +33,9 @@ int main(int argc, const char * argv[]) {
 
     int encryptLength  = \
     rsautil.publicPemEncrypt("foobar", encrytedPasswd);
+    LOG_INFO<<"publicPemEncrypt:"<<reinterpret_cast<const char*>(encrytedPasswd.data());
     rsautil.privatePemDecrypt(encrytedPasswd.data(), encryptLength, decryptedPasswd);
-    LOG_INFO<<(reinterpret_cast<const char*>(decryptedPasswd.data()));
+    LOG_INFO<<"privatePemDecrypt:"<<reinterpret_cast<const char*>(decryptedPasswd.data());
 
     return 0;
 }
