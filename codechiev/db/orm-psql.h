@@ -3,6 +3,19 @@
 
 #include "orm.h"
 
+#define PSQL_ASSIGN( r, data, i, TYPE_AND_NAME) \
+    val[i] = BOOST_PP_TUPLE_ELEM(3, 1, TYPE_AND_NAME).getNetValue();\
+    len[i] = BOOST_PP_TUPLE_ELEM(3, 1, TYPE_AND_NAME).getSizeof();\
+    format[i] = 1;\
+
+#define PSQL_INSERT( r, data, i, TYPE_AND_NAME) \
+    ",$" BOOST_PP_STRINGIZE(BOOST_PP_ADD(1,i))
+
+#define PSQL_UPDATE( r, data, i, TYPE_AND_NAME) \
+    ", " BOOST_PP_STRINGIZE(BOOST_PP_TUPLE_ELEM(3, 2, TYPE_AND_NAME)) "=$" BOOST_PP_STRINGIZE(BOOST_PP_ADD(1,i))
+
+
+//replace BOOST_PP_ADD(1,num) with const static
 #define DECLEAR_PSQL_TABLE( clazz, table, num, member_seq ) \
 template<class ISql>\
 class clazz\
@@ -34,27 +47,28 @@ public:\
     Field<int64_t> id;\
     BOOST_PP_SEQ_FOR_EACH( TABLE_MEMBER, , member_seq)\
     const static int param_num = 1 BOOST_PP_SEQ_FOR_EACH( TABLE_MEMBER_COUNT, , member_seq); \
+    const static int param_less = param_num-1; \
 };\
 template <> inline void clazz<PSql>::update()\
 {\
     const char* sql = "update " #table " set id=id " BOOST_PP_SEQ_FOR_EACH_I( PSQL_UPDATE, , member_seq) " where id=$" BOOST_PP_STRINGIZE(BOOST_PP_ADD(1,num));\
-    const char *val[BOOST_PP_ADD(1,num)];\
-    int len[BOOST_PP_ADD(1,num)];\
-    int format[BOOST_PP_ADD(1,num)];\
+    const char *val[param_num];\
+    int         len[param_num];\
+    int         format[param_num];\
     \
-    val[num] = id.getNetValue();\
-    len[num] = id.getSizeof();\
-    format[num] = 1;\
+    val[param_less] = id.getNetValue();\
+    len[param_less] = id.getSizeof();\
+    format[param_less] = 1;\
     BOOST_PP_SEQ_FOR_EACH_I( PSQL_ASSIGN, , member_seq)\
-    PSql::query(sql, BOOST_PP_ADD(1,num), val, len, format, 1);\
+    PSql::query(sql, param_num, val, len, format, 1);\
 }\
 template <> inline void clazz<PSql>::insert(){\
-    const char* sql = "insert into " #table " values (nextval('" #table "_id_seq')" BOOST_PP_SEQ_FOR_EACH_I( PSQL_PLACE_HOLDER, , member_seq) ");";\
-    const char *val[num];\
-    int len[num];\
-    int format[num];\
+    const char* sql = "insert into " #table " values (nextval('" #table "_id_seq')" BOOST_PP_SEQ_FOR_EACH_I( PSQL_INSERT, , member_seq) ");";\
+    const char *val[param_num];\
+    int         len[param_num];\
+    int         format[param_num];\
     BOOST_PP_SEQ_FOR_EACH_I( PSQL_ASSIGN, , member_seq)\
-    PSql::Result result = PSql::query(sql, num, val, len, format, 1);\
+    PSql::Result result = PSql::query(sql, param_less, val, len, format, 1);\
 }\
 template <> inline void clazz<PSql>::selectById(int64_t argId)\
 {\
