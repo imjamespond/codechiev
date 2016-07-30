@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <vector>
 #include <base/Logger.hpp>
+#include <base/Time.hpp>
 #include <utility/openssl/RSA.h>
 
 using namespace codechiev::base;
@@ -22,20 +23,23 @@ void print()
 }
 
 int main(int argc, const char * argv[]) {
-    /*
-    base::Base64::unsignedchar_vec encrytedPasswd;
-    int encryptLength  = base::Singleton<base::RsaUtil>::get()->publicPemEncrypt(passwd, encrytedPasswd);
-    std::string base64Passwd = base::Base64::Base64Encode(encrytedPasswd.data(), encryptLength);
-    cmd.writer.String(base64Passwd.c_str());*/
+
     unsigned_char_vec encrytedPasswd;
     unsigned_char_vec decryptedPasswd;
     RsaUtil rsautil;
 
-    int encryptLength  = \
-    rsautil.publicPemEncrypt("foobar", encrytedPasswd);
-    LOG_INFO<<"publicPemEncrypt:"<<reinterpret_cast<const char*>(encrytedPasswd.data());
-    rsautil.privatePemDecrypt(encrytedPasswd.data(), encryptLength, decryptedPasswd);
-    LOG_INFO<<"privatePemDecrypt:"<<reinterpret_cast<const char*>(decryptedPasswd.data());
-
+    Time now = Time::NowTm();
+    for(int i(0); i<99999; i++)
+    {
+        int encryptLength  = \
+        rsautil.publicPemEncrypt("foobar", encrytedPasswd);
+        std::string base64Passwd = Base64::Base64Encode(encrytedPasswd.data(), encryptLength);
+        //LOG_INFO<<"publicPemEncrypt:"<<reinterpret_cast<const char*>(encrytedPasswd.data());
+        rsautil.privatePemDecrypt(base64Passwd.c_str(), encryptLength, decryptedPasswd);
+        LOG_INFO<<"privatePemDecrypt:"<<reinterpret_cast<const char*>(decryptedPasswd.data());
+        encrytedPasswd.clear();
+        decryptedPasswd.clear();
+    }
+    LOG_INFO<<"cost millis:"<<Time::NowTm().getMillis()-now.getMillis();
     return 0;
 }
