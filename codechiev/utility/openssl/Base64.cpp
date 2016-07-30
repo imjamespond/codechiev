@@ -1,6 +1,5 @@
 #include "Base64.h"
 
-#include "base64.hpp"
 #include <openssl/bio.h>
 #include <openssl/evp.h>
 #include <string.h>
