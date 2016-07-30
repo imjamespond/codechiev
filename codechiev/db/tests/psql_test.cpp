@@ -20,7 +20,7 @@ namespace codechiev{
         {
         public:
             void selectByName(const std::string& name);
-            static void selectListByGender(int32_t , User::vec_type&);
+            static void selectListByGender(int32_t , User<PSql>::vec_type&);
         };
 
         void
@@ -39,7 +39,7 @@ namespace codechiev{
         }
 
         void
-        UserEx::selectListByGender(int32_t gender, User::vec_type& userVec)
+        UserEx::selectListByGender(int32_t gender, User<PSql>::vec_type& userVec)
         {
             const char *sql = "SELECT * FROM user2 WHERE gender = $1";
             const char *paramValues[1];
@@ -51,7 +51,7 @@ namespace codechiev{
             paramFormats[0] = 1;
 
             PSql::Result result = PSql::select(sql, 1, paramValues, paramLengths, paramFormats, 1);
-            User::assembleVector(result, userVec);
+            User<PSql>::assembleVector(result, userVec);
         }
     }
 }
