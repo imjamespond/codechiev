@@ -7,41 +7,6 @@
 
 using namespace codechiev::utility;
 
-std::string
-Base64::encode(const std::string& message)
-{
-    BIO *bio, *b64;
-
-    b64 = BIO_new(BIO_f_base64());
-    bio = BIO_new_fp(stdout, BIO_NOCLOSE);
-    BIO_push(b64, bio);
-    BIO_write(b64, message.c_str(), ::strlen(message.c_str()));
-    BIO_flush(b64);
-
-    BIO_free_all(b64);
-
-    return "";
-}
-
-std::string
-Base64::decode(const std::string& message)
-{
-    BIO *bio, *b64, *bio_out;
-    char inbuf[512];
-    int inlen;
-
-    b64 = BIO_new(BIO_f_base64());
-    bio = BIO_new_fp(stdin, BIO_NOCLOSE);
-    bio_out = BIO_new_fp(stdout, BIO_NOCLOSE);
-    BIO_push(b64, bio);
-    while((inlen = BIO_read(b64, inbuf, 512)) > 0)
-        BIO_write(bio_out, inbuf, inlen);
-
-    BIO_flush(bio_out);
-    BIO_free_all(b64);
-
-    return "";
-}
 
 //Encodes Base64
 #include <openssl/bio.h>
@@ -99,27 +64,27 @@ int calcDecodeLength(const char* b64input) { //Calculates the length of a decode
 }
 
 int
-Base64::Base64Decode(const char* b64message, unsigned_char_vec_t& vec, size_t* length)
+Base64::Base64Decode(const char* b64message, unsignedchar_vec& vec)
 {
     //Decodes a base64 encoded string
     BIO *bio, *b64;
 
     unsigned char buffer[16]={};
-    int inlen;
+    int len(0),rtLen(0);
 
     bio = BIO_new_mem_buf(b64message, -1);
     b64 = BIO_new(BIO_f_base64());
     bio = BIO_push(b64, bio);
 
     BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL); //Do not use newlines to flush buffer
-    while((inlen = BIO_read(bio, buffer, 16)))
+    while((len = BIO_read(bio, buffer, 16)))
     {
-        std::copy(buffer, buffer+inlen, std::back_inserter(vec));
+        std::copy(buffer, buffer+len, std::back_inserter(vec));
         ::memset(buffer, '\0', sizeof buffer);
-        *length+=inlen;
+        rtLen+=len;
     }
 
     BIO_free_all(bio);
 
-    return (0); //success
+    return rtLen;
 }

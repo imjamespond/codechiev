@@ -16,7 +16,7 @@ namespace codechiev
             static std::string encode(const std::string&);
             static std::string decode(const std::string&);
             static std::string Base64Encode(const unsigned char* , size_t );
-            static int Base64Decode(const char*, unsigned_char_vec_t&, size_t*);
+            static int Base64Decode(const char* , unsignedchar_vec& );
 
         protected:
         private:
