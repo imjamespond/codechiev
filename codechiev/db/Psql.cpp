@@ -204,7 +204,7 @@ PSql::selectById(const char *sql,int64_t id)
     return result;
 }
 
-PSql::Result::Result():res(nullptr){}
+PSql::Result::Result():res(NULL){}
 void
 PSql::Result::freeAll(){PQclear(res);}
 int
@@ -223,5 +223,5 @@ PSql::Result::getFieldValOfRow(const char *field, int row)
         //printf("%s(%d bytes)\n", field,  PQgetlength(res, 0, fnum));
         return val;
     }
-    return nullptr;
+    return NULL;
 }
