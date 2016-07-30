@@ -11,6 +11,7 @@
 #include <openssl/err.h>
 #include <stdio.h>
 #include <assert.h>
+#include "Base64.h"
 
 namespace codechiev{
     namespace utility{
@@ -24,8 +25,8 @@ namespace codechiev{
             RsaUtil();
             ~RsaUtil();
 
-            int publicPemEncrypt(const std::string&, Base64::unsignedchar_vec& );
-            int privatePemDecrypt(const unsigned char*, int, Base64::unsignedchar_vec& );
+            int publicPemEncrypt(const std::string&, unsigned_char_vec& );
+            int privatePemDecrypt(const unsigned char*, int, unsigned_char_vec& );
         private:
             RSA* pubRSA_;
             RSA* priRSA_;

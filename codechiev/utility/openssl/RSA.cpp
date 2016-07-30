@@ -69,7 +69,7 @@ RsaUtil::~RsaUtil()
 }
 
 int
-RsaUtil::publicPemEncrypt(const std::string& data, Base64::unsignedchar_vec& encryptedVec)
+RsaUtil::publicPemEncrypt(const std::string& data, unsigned_char_vec& encryptedVec)
 {
     unsigned char encrypted[256]={};
     int data_len = static_cast<int>(data.size());
@@ -79,7 +79,7 @@ RsaUtil::publicPemEncrypt(const std::string& data, Base64::unsignedchar_vec& enc
 }
 
 int
-RsaUtil::privatePemDecrypt(const unsigned char* data, int dataLen, Base64::unsignedchar_vec& decryptedVec)
+RsaUtil::privatePemDecrypt(const unsigned char* data, int dataLen, unsigned_char_vec& decryptedVec)
 {
     unsigned char decrypted[256]={};
     int  length = RSA_private_decrypt(dataLen, data, decrypted, priRSA_, padding);
