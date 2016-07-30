@@ -51,18 +51,6 @@ Base64::Base64Encode(const unsigned char* data, size_t length)
 #include <stdint.h>
 #include <assert.h>
 
-int calcDecodeLength(const char* b64input) { //Calculates the length of a decoded string
-    size_t len = strlen(b64input),
-    padding = 0;
-
-    if (b64input[len-1] == '=' && b64input[len-2] == '=') //last two chars are =
-        padding = 2;
-    else if (b64input[len-1] == '=') //last char is =
-        padding = 1;
-
-    return static_cast<int>((len*3)/4 - padding);
-}
-
 int
 Base64::Base64Decode(const char* b64message, unsigned_char_vec_t& vec)
 {
@@ -72,7 +60,12 @@ Base64::Base64Decode(const char* b64message, unsigned_char_vec_t& vec)
     unsigned char buffer[16]={};
     int len(0),rtLen(0);
 
-    bio = BIO_new_mem_buf(b64message, -1);
+    len = ::strlen(b64message);
+    char* b64Data = static_cast<char *>(::malloc(len+1));
+    ::memcpy(b64Data, b64message, len);
+    b64Data[len]='\0';
+
+    bio = BIO_new_mem_buf(b64Data, -1);
     b64 = BIO_new(BIO_f_base64());
     bio = BIO_push(b64, bio);
 
@@ -83,7 +76,7 @@ Base64::Base64Decode(const char* b64message, unsigned_char_vec_t& vec)
         ::memset(buffer, '\0', sizeof buffer);
         rtLen+=len;
     }
-
+    ::free(b64Data);
     BIO_free_all(bio);
 
     return rtLen;
