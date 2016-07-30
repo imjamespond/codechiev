@@ -28,6 +28,8 @@
 #define PSQL_UPDATE( r, data, i, TYPE_AND_NAME) \
     ", " BOOST_PP_STRINGIZE(BOOST_PP_TUPLE_ELEM(3, 2, TYPE_AND_NAME)) "=$" BOOST_PP_STRINGIZE(BOOST_PP_ADD(1,i))
 
+#include <net/Internet.h>
+
 namespace codechiev {
     namespace db {
         template<class T>

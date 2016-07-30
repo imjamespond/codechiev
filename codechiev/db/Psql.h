@@ -6,7 +6,6 @@
 #include <libpq-fe.h>
 #include <boost/shared_ptr.hpp>
 #include <boost/noncopyable.hpp>
-#include <net/Internet.h>
 #include "SqlManager.h"
 
 namespace codechiev {
