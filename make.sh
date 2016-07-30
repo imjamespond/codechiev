@@ -33,10 +33,10 @@ function_update()
 
 if [ "$1" = "build" ]; then
 	function_update
-	function_build ~/cpp/boost_1_61_0 /usr/pgsql-9.3/include `pwd`
+	function_build ~/cpp/boost_1_61_0 /usr/pgsql-9.3 `pwd`
 elif [ "$1" = "bui" ]; then
 	function_update
-	function_build ~/boost_1_59 /usr/pgsql-9.3/include `pwd`
+	function_build ~/boost_1_59 /usr/pgsql-9.3 `pwd`
 elif [ "$1" = "cop" ]; then
 	git commit -a -m 'cm'
 	git push local master
