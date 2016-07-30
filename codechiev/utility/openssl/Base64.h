@@ -13,8 +13,6 @@ namespace codechiev
         public:
             typedef std::vector<unsigned char> unsigned_char_vec_t;
 
-            static std::string encode(const std::string&);
-            static std::string decode(const std::string&);
             static std::string Base64Encode(const unsigned char* , size_t );
             static int Base64Decode(const char* , unsigned_char_vec_t& );
 
