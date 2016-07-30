@@ -33,6 +33,7 @@ static void deleteById(int64_t);\
 public:\
     Field<int64_t> id;\
     BOOST_PP_SEQ_FOR_EACH( TABLE_MEMBER, , member_seq)\
+    const static int param_num = 1 BOOST_PP_SEQ_FOR_EACH( TABLE_MEMBER_COUNT, , member_seq) \
 };\
 template <> inline void clazz<PSql>::update()\
 {\

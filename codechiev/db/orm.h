@@ -11,6 +11,8 @@
 //BOOST_PP_TUPLE_ELEM(num of elems, elem pos, elem tuple)
 #define TABLE_MEMBER(R, data, TYPE_AND_NAME) \
     Field<BOOST_PP_TUPLE_ELEM(3, 0, TYPE_AND_NAME) > BOOST_PP_TUPLE_ELEM(3, 1, TYPE_AND_NAME);
+#define TABLE_MEMBER_COUNT(R, data, TYPE_AND_NAME) \
+    +1
 
 #define TABLE_ASSIGN(R, row, TYPE_AND_NAME) \
     BOOST_PP_TUPLE_ELEM(3, 1, TYPE_AND_NAME).toField(result.getFieldValOfRow( BOOST_PP_STRINGIZE(BOOST_PP_TUPLE_ELEM(3, 2, TYPE_AND_NAME)), row));
