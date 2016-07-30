@@ -34,14 +34,29 @@ namespace codechiev {
                 socklen = 0;
                 ::memset(&sockaddrin, 0, sizeof(struct sockaddr));
             }
-            
+
             std::string ipaddr;
             uint16_t port;
-            
+
             sockaddr_in sockaddrin;
             socklen_t socklen;
+
+            static inline uint16_t hostToNetworkShort(unsigned short val)
+            {
+                return htons(val);
+            }
+
+            static inline int32_t hostToNetworkInt32(uint32_t val)
+            {
+                return htonl(val);
+            }
+
+            static inline int64_t hostToNetworkInt64(uint64_t val)
+            {
+                return htonll(val);
+            }
         };
-        
+
         typedef struct InetAddress InetAddressSt;
     }
 }
