@@ -51,7 +51,7 @@ public:\
 };\
 template <> inline void clazz<PSql>::update()\
 {\
-    const char* sql = "update " #table " set id=id " BOOST_PP_SEQ_FOR_EACH_I( PSQL_UPDATE, , member_seq) " where id=$" BOOST_PP_STRINGIZE(BOOST_PP_ADD(1,num));\
+    const char* sql = "update " #table " set id=id " BOOST_PP_SEQ_FOR_EACH_I( PSQL_UPDATE, , member_seq) " where id=$" BOOST_PP_STRINGIZE(param_num);\
     const char *val[param_num];\
     int         len[param_num];\
     int         format[param_num];\
