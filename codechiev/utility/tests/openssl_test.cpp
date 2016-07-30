@@ -9,29 +9,23 @@
 #include <stdio.h>
 #include <errno.h>
 #include <vector>
+#include <base/Thread.hpp>
 #include <base/Logger.hpp>
 #include <base/Time.hpp>
 #include <utility/openssl/RSA.h>
+#include <boost/bind.hpp>
 
 using namespace codechiev::base;
 using namespace codechiev::utility;
 
-int count(0);
+
+const int kNum=99999;
+const int kThread=4;
 void print()
 {
-
-}
-const int kNum=99999;
-int main(int argc, const char * argv[]) {
-
-    unsigned_char_vec encrytedPasswd;
-    unsigned_char_vec decryptedPasswd;
-    unsigned_char_vec decryptedBase64;
     RsaUtil rsautil;
-
-    LOG_INFO<<"test for:"<<kNum;
-    Time now = Time::NowTm();
-    for(int i(0); i<kNum; i++)
+    int num=kNum/kThread;
+    for(int i(0); i<num; i++)
     {
         unsigned_char_vec encrytedPasswd;
         unsigned_char_vec decryptedPasswd;
@@ -46,6 +40,25 @@ int main(int argc, const char * argv[]) {
         //LOG_INFO<<"privatePemDecrypt:"<<reinterpret_cast<const char*>(decryptedPasswd.data())<< " size:"<< (int)decryptedPasswd.size();
         assert(decryptedPasswd.size()==7);
     }
+}
+
+int main(int argc, const char * argv[]) {
+
+    Thread t1("t1",boost::bind(&print));
+    Thread t2("t2",boost::bind(&print));
+    Thread t3("t3",boost::bind(&print));
+    Thread t4("t4",boost::bind(&print));
+
+    LOG_INFO<<"test for:"<<kNum;
+    Time now = Time::NowTm();
+    t1.start();
+    t2.start();
+    t3.start();
+    t4.start();
+    t1.join();
+    t2.join();
+    t3.join();
+    t4.join();
     LOG_INFO<<"cost millis:"<<Time::NowTm().getMillis()-now.getMillis();
     return 0;
 }
