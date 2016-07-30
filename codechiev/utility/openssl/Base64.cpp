@@ -64,7 +64,7 @@ int calcDecodeLength(const char* b64input) { //Calculates the length of a decode
 }
 
 int
-Base64::Base64Decode(const char* b64message, unsignedchar_vec& vec)
+Base64::Base64Decode(const char* b64message, unsigned_char_vec_t& vec)
 {
     //Decodes a base64 encoded string
     BIO *bio, *b64;
