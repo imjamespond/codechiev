@@ -67,6 +67,7 @@ int main(int argc, const char * argv[])
                                                connect_timeout=3");
     UserEx user;
     user.selectById(10001);
+    LOG_INFO<<"user:"<<user.uname.getValue()<<", gender:"<<user.gender.getValue();
     user.uname.setValue("foobar") ;
     user.insert();
     user.gender.setValue(user.gender.getValue()+1);
