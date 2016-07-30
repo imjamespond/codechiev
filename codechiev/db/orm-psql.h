@@ -3,7 +3,6 @@
 
 #include "orm.h"
 
-class PSql;
 #define DECLEAR_PSQL_TABLE( clazz, table, num, member_seq ) \
 template<class ISql>\
 class clazz\
