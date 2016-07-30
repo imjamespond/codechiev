@@ -10,6 +10,7 @@
 #define Internet_h
 
 #include <string>
+#include <string.h>
 #include <stdint.h>
 #include <netinet/in.h>
 #include <netinet/ip.h>
