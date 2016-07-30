@@ -102,7 +102,7 @@ namespace codechiev {
         inline int64_t getValue(){return t_;};
         inline const char* getNetValue()
         {
-            netval_ = hostToNetworkInt64(t_);
+            netval_ = net::hostToNetworkInt64(t_);
             return reinterpret_cast<const char*>(&netval_);
         }
         inline void setValue(const uint64_t& t){t_=t;};
@@ -125,7 +125,7 @@ namespace codechiev {
         inline int32_t getValue(){return t_;};
         inline const char* getNetValue()
         {
-            netval_ = hostToNetworkInt32(t_);
+            netval_ = net::hostToNetworkInt32(t_);
             return reinterpret_cast<const char*>(&netval_);
         }
         inline void setValue(const uint32_t& t){t_=t;};
@@ -133,7 +133,7 @@ namespace codechiev {
         inline void toField(char * ptr)
         {
             if(ptr)
-                setValue(hostToNetworkInt32(*(uint32_t *)ptr));
+                setValue(net::hostToNetworkInt32(*(uint32_t *)ptr));
         }
     protected:
     private:
