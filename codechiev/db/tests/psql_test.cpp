@@ -66,6 +66,11 @@ int main(int argc, const char * argv[])
                                                password= \
                                                connect_timeout=3");
     UserEx user;
-    user.selectById(10093);
+    user.selectById(10001);
+    user.uname.setValue("foobar") ;
+    user.insert();
+    user.gender.setValue(user.gender.getValue()+1);
+    user.update();
+    UserEx::deleteById(10002);
     return 0;
 }
