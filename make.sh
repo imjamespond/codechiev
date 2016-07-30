@@ -14,7 +14,9 @@ function_build()
 	-DCMAKE_BUILD_TYPE=Debug \
 	-DLOGGER_LEVEL=Trace \
 	-DBOOST_ROOT=$1 \
-	-DROOT=$2
+	-DPSQL=$2 \
+	-DROOT=$3 
+	
 	make && make install
 
 	if [ "$3" != "" ]; then
@@ -31,10 +33,10 @@ function_update()
 
 if [ "$1" = "build" ]; then
 	function_update
-	function_build ~/cpp/boost_1_61_0 `pwd`
+	function_build ~/cpp/boost_1_61_0 /usr/pgsql-9.3/include `pwd`
 elif [ "$1" = "bui" ]; then
 	function_update
-	function_build ~/boost_1_59 `pwd`
+	function_build ~/boost_1_59 /usr/pgsql-9.3/include `pwd`
 elif [ "$1" = "cop" ]; then
 	git commit -a -m 'cm'
 	git push local master
