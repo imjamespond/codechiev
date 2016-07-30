@@ -10,7 +10,7 @@
 #include "SqlManager.h"
 
 namespace codechiev {
-    namespace psql {
+    namespace db {
     class PSql:boost::noncopyable
     {
     public:
@@ -110,7 +110,7 @@ namespace codechiev {
         inline void toField(char * ptr)
         {
             if(ptr)
-                setValue(hostToNetworkInt64(*(uint64_t *)ptr));
+                setValue(net::hostToNetworkInt64(*(uint64_t *)ptr));
         }
     protected:
     private:

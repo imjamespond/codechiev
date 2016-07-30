@@ -8,7 +8,7 @@
 #include <assert.h>
 
 using namespace codechiev::base;
-using namespace codechiev::psql;
+using namespace codechiev::db;
 
 PSql::PSql():inUse_(false)
 {}
