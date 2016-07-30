@@ -43,7 +43,7 @@ int main(int argc, const char * argv[]) {
         //LOG_INFO<<"publicPemEncrypt:"<<reinterpret_cast<const char*>(encrytedPasswd.data());
         Base64::Base64Decode(base64Passwd.c_str(), decryptedBase64);
         rsautil.privatePemDecrypt(decryptedBase64.data(), decryptedBase64.size(), decryptedPasswd);
-        //LOG_INFO<<"privatePemDecrypt:"<<reinterpret_cast<const char*>(decryptedPasswd.data());
+        LOG_INFO<<"privatePemDecrypt:"<<reinterpret_cast<const char*>(decryptedPasswd.data())<< " size:"<< (int)decryptedPasswd.size();
         assert(decryptedPasswd.size()==6);
     }
     LOG_INFO<<"cost millis:"<<Time::NowTm().getMillis()-now.getMillis();
