@@ -59,7 +59,7 @@ namespace codechiev{
 using namespace codechiev::db;
 int main(int argc, const char * argv[])
 {
-    db::UserEx user;
+    UserEx user;
     user.selectById(10093);
     return 0;
 }
