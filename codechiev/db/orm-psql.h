@@ -16,7 +16,7 @@
 
 
 //replace BOOST_PP_ADD(1,num) with const static
-#define DECLEAR_PSQL_TABLE( clazz, table, num, member_seq ) \
+#define DECLEAR_PSQL_TABLE( clazz, table, member_seq ) \
 template<class ISql>\
 class clazz\
 {\
