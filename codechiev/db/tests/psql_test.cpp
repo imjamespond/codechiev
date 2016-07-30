@@ -56,7 +56,7 @@ namespace codechiev{
     }
 }
 
-using namespace codechiev;
+using namespace codechiev::db;
 int main(int argc, const char * argv[])
 {
     db::UserEx user;
