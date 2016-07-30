@@ -27,7 +27,7 @@ void print()
     int num=kNum/kThread;
     for(int i(0); i<num; i++)
     {
-        /*unsigned_char_vec encrytedPasswd;
+        unsigned_char_vec encrytedPasswd;
         unsigned_char_vec decryptedPasswd;
         unsigned_char_vec decryptedBase64;
 
@@ -38,7 +38,7 @@ void print()
         Base64::Base64Decode(base64Passwd.c_str(), decryptedBase64);
         rsautil.privatePemDecrypt(decryptedBase64.data(), decryptedBase64.size(), decryptedPasswd);
         LOG_INFO<<"privatePemDecrypt:"<<reinterpret_cast<const char*>(decryptedPasswd.data())<< " size:"<< (int)decryptedPasswd.size();
-        assert(decryptedPasswd.size()==7);*/
+        assert(decryptedPasswd.size()==7);
     }
 }
 
