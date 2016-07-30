@@ -58,7 +58,7 @@ namespace codechiev {
 
             static inline int64_t hostToNetworkInt64(uint64_t val)
             {
-                return ::htonll(val);
+                return htonll(val);
             }
         };
 
