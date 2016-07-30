@@ -10,8 +10,10 @@
 #include <errno.h>
 #include <vector>
 #include <base/Logger.hpp>
+#include <utility/openssl/RSA.h>
 
 using namespace codechiev::base;
+using namespace codechiev::utility;
 
 int count(0);
 void print()
