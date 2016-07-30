@@ -178,7 +178,7 @@ PSql::selectById(const char *sql,int64_t id)
     const char *paramValues[1];
     int paramLengths[1];
     int paramFormats[1];
-    uint64_t binaryIntId = hostToNetworkInt64(id);
+    uint64_t binaryIntId = net::hostToNetworkInt64(id);
     paramValues[0] = (char *) &binaryIntId;
     paramLengths[0] = sizeof(binaryIntId);
     paramFormats[0] = 1;
