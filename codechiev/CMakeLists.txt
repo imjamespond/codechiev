@@ -19,9 +19,12 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O2 -finline-limit=1000 -DNDEBUG")
 
 set (BOOST ${BOOST_ROOT})
 set (HEADER ${CMAKE_CURRENT_SOURCE_DIR})
+set (HEADER ${HEADER} ${PSQL}/include)
 set (HEADER ${HEADER} ${BOOST})
 set (HEADER ${HEADER} ${ROOT})
 include_directories (${HEADER})
+
+link_directories (${PSQL}/lib)
 
 set (MY_LIBS pthread rt)
 

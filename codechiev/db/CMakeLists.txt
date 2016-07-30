@@ -1,7 +1,5 @@
 message(STATUS "compiling codechief::net current_source_dir: " ${CMAKE_CURRENT_SOURCE_DIR})
 
-include_directories (${PSQL}/include)
-
 file(GLOB SOURCE "*.cpp")
 set (LIB codechief_db)
 add_library (${LIB} ${SOURCE})#add source to this lib
