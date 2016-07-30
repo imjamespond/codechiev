@@ -6,6 +6,7 @@
 #include <boost/preprocessor/punctuation/comma_if.hpp>
 #include <boost/preprocessor/stringize.hpp>
 #include <boost/preprocessor/arithmetic/add.hpp>
+#include <boost/preprocessor/arithmetic/inc.hpp>
 #include <boost/preprocessor/cat.hpp>
 
 //BOOST_PP_TUPLE_ELEM(num of elems, elem pos, elem tuple)
