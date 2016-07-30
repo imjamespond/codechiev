@@ -13,7 +13,7 @@
 namespace codechiev{
     namespace db{
         //DECLEAR_TABLE( Student, student, ((int,id,id))((std::string,name,name))((std::string,sex,name)))
-        DECLEAR_PSQL_TABLE( User, users, 2, ((std::string,uname,username))((int,gender,gender))\
+        DECLEAR_PSQL_TABLE( User, users, 3, ((std::string,uname,username))((int,gender,gender))\
                            ((int64_t,createdate,createdate)))
 
         class UserEx:public User<PSql>
