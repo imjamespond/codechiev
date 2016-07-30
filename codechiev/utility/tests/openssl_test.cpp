@@ -27,10 +27,14 @@ int main(int argc, const char * argv[]) {
     int encryptLength  = base::Singleton<base::RsaUtil>::get()->publicPemEncrypt(passwd, encrytedPasswd);
     std::string base64Passwd = base::Base64::Base64Encode(encrytedPasswd.data(), encryptLength);
     cmd.writer.String(base64Passwd.c_str());*/
-    typedef std::vector<unsigned char> unsignedchar_vec;
-
+    unsigned_char_vec encrytedPasswd;
+    unsigned_char_vec decryptedPasswd;
     RsaUtil rsautil;
-    rsautil.publicPemEncrypt()
+
+    int encryptLength  = \
+    rsautil.publicPemEncrypt("foobar", encrytedPasswd);
+    rsautil.privatePemDecrypt(encrytedPasswd.data(), encryptLength, decryptedPasswd);
+    LOG_INFO<<(reinterpret_cast<const char*>(decryptedPasswd.data()));
 
     return 0;
 }
