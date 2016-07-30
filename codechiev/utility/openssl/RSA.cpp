@@ -56,8 +56,8 @@ int padding = RSA_PKCS1_PADDING;
 using namespace codechiev::base;
 RsaUtil::RsaUtil():pubRSA_(NULL),priRSA_(NULL)
 {
-    pubRSA_ = createRSAWithFilename(publicPem);
-    priRSA_ = createRSAWithFilename(privatePem);
+    pubRSA_ = createRSAWithFilename(publicPem, 1);
+    priRSA_ = createRSAWithFilename(privatePem, 0);
 }
 
 RsaUtil::~RsaUtil()
