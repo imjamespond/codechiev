@@ -6,6 +6,7 @@
 //  Copyright © 2016年 metasoft. All rights reserved.
 //
 #include <base/Singleton.h>
+#include <base/Logger.h>
 #include <db/orm-psql.h>
 #include <db/Psql.h>
 #include <vector>
