@@ -19,7 +19,7 @@ function_build()
 	
 	make && make install
 
-	if [ "$4" != "" ]; then
+	if [ "$4" == "test" ]; then
 		cd $PROJECT_PATH/build/base/tests
 		ctest --output-on-failure .
 		cd $PROJECT_PATH/build/net/tests
