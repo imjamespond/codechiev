@@ -43,17 +43,17 @@ namespace codechiev {
 
             static inline uint16_t hostToNetworkShort(unsigned short val)
             {
-                return htons(val);
+                return ::htons(val);
             }
 
             static inline int32_t hostToNetworkInt32(uint32_t val)
             {
-                return htonl(val);
+                return ::htonl(val);
             }
 
             static inline int64_t hostToNetworkInt64(uint64_t val)
             {
-                return htonll(val);
+                return ::htonll(val);
             }
         };
 
