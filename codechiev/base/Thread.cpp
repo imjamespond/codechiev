@@ -37,12 +37,12 @@ __thread Thread* gThreadData(NULL);
 Thread::Thread(const std::string& name, const thread_func& func):
 name_(name), func_(func)
 {
-    ::pthread_attr_setdetachstate(&attr_, PTHREAD_CREATE_JOINABLE);
+    //::pthread_attr_setdetachstate(&attr_, PTHREAD_CREATE_JOINABLE);
 }
 
 Thread::~Thread()
 {
-    ::pthread_attr_destroy(&attr_);
+    //::pthread_attr_destroy(&attr_);
 }
 
 void
