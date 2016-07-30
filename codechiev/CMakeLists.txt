@@ -27,3 +27,4 @@ set (MY_LIBS pthread rt)
 
 add_subdirectory(base)
 add_subdirectory(net)
+add_subdirectory(db)
