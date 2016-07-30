@@ -50,7 +50,7 @@ int main(int argc, const char * argv[]) {
     Thread t4("t4",boost::bind(&print));
 
     LOG_INFO<<"test for:"<<kNum;
-    Time now = Time::NowTm();
+    Time began = Time::NowTm();
     t1.start();
     t2.start();
     t3.start();
@@ -59,6 +59,7 @@ int main(int argc, const char * argv[]) {
     t2.join();
     t3.join();
     t4.join();
-    LOG_INFO<<"cost millis:"<<Time::NowTm().getMillis()-now.getMillis();
+    Time now = Time::NowTm();
+    LOG_INFO<<"cost millis:"<<now-began;
     return 0;
 }
