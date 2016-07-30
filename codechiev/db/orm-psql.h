@@ -1,5 +1,5 @@
-#ifndef ORM-PSQL_H_INCLUDED
-#define ORM-PSQL_H_INCLUDED
+#ifndef ORM_PSQL_H_INCLUDED
+#define ORM_PSQL_H_INCLUDED
 
 #include "orm.h"
 
@@ -70,4 +70,4 @@ template <> inline void clazz<PSql>::deleteById(int64_t argId)\
     PSql::Result result = PSql::queryById(sql, argId);\
 }\
 
-#endif // ORM-PSQL_H_INCLUDED
+#endif // ORM_PSQL_H_INCLUDED
