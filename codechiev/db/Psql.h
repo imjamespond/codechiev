@@ -7,7 +7,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/noncopyable.hpp>
 #include <net/Internet.h>
-#include "sql_manager.h"
+#include "SqlManager.h"
 
 namespace codechiev {
     namespace psql {
