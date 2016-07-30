@@ -21,7 +21,7 @@ void print()
 {
 
 }
-const int kNum=99999;
+const int kNum=2;
 int main(int argc, const char * argv[]) {
 
     unsigned_char_vec encrytedPasswd;
