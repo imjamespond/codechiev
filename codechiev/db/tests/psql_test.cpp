@@ -6,8 +6,9 @@
 //  Copyright © 2016年 metasoft. All rights reserved.
 //
 
-using namespace codechiev;
 #include <db/orm-psql.h>
+#include <db/Psql.h>
+using namespace codechiev;
 int main(int argc, const char * argv[]) {
 
     return 0;
