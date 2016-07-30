@@ -13,7 +13,7 @@
 namespace codechiev{
     namespace db{
         //DECLEAR_TABLE( Student, student, ((int,id,id))((std::string,name,name))((std::string,sex,name)))
-        DECLEAR_PSQL_TABLE( User, user2, 2, ((std::string,uname,username))((int,gender,gender))\
+        DECLEAR_PSQL_TABLE( User, users, 2, ((std::string,uname,username))((int,gender,gender))\
                            ((int64_t,createdate,createdate)))
 
         class UserEx:public User<PSql>
@@ -45,7 +45,7 @@ namespace codechiev{
             const char *paramValues[1];
             int paramLengths[1];
             int paramFormats[1];
-            uint32_t val = hostToNetworkInt32(gender);
+            uint32_t val = net::hostToNetworkInt32(gender);
             paramValues[0] = (char *) &val;
             paramLengths[0] = sizeof(val);
             paramFormats[0] = 1;
