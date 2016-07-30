@@ -59,6 +59,12 @@ namespace codechiev{
 using namespace codechiev::db;
 int main(int argc, const char * argv[])
 {
+    codechiev::base::Singleton<PSqlManager1>::get()->init("host=localhost \
+                                               port=5432 \
+                                               dbname=codechiev \
+                                               user=postgres \
+                                               password= \
+                                               connect_timeout=3");
     UserEx user;
     user.selectById(10093);
     return 0;
