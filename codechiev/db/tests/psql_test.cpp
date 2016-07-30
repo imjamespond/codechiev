@@ -5,7 +5,7 @@
 //  Created by metasoft on 16/7/15.
 //  Copyright © 2016年 metasoft. All rights reserved.
 //
-
+#include <base/Singleton.h>
 #include <db/orm-psql.h>
 #include <db/Psql.h>
 #include <vector>
@@ -55,11 +55,11 @@ namespace codechiev{
         }
     }
 }
-
+using namespace codechiev::base;
 using namespace codechiev::db;
 int main(int argc, const char * argv[])
 {
-    codechiev::base::Singleton<PSqlManager1>::get()->init("host=localhost \
+    Singleton<PSqlManager1>::get()->init("host=localhost \
                                                port=5432 \
                                                dbname=codechiev \
                                                user=postgres \
