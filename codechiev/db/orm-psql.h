@@ -46,20 +46,19 @@ static void deleteById(int64_t);\
 public:\
     Field<int64_t> id;\
     BOOST_PP_SEQ_FOR_EACH( TABLE_MEMBER, , member_seq)\
-    const static int param_num = 1 BOOST_PP_SEQ_FOR_EACH( TABLE_MEMBER_COUNT, , member_seq); \
-    const static int param_less = param_num-1; \
+    const static int param_size = BOOST_PP_SEQ_SIZE(member_seq); \
+    const static int param_num = 1 + param_size; \
 };\
 template <> inline void clazz<PSql>::update()\
 {\
-LOG_INFO<< BOOST_PP_SEQ_SIZE(member_seq);\
-    const char* sql = "update " #table " set id=id " BOOST_PP_SEQ_FOR_EACH_I( PSQL_UPDATE, , member_seq) " where id=$" BOOST_PP_STRINGIZE(BOOST_PP_ADD(1,2));\
+    const char* sql = "update " #table " set id=id " BOOST_PP_SEQ_FOR_EACH_I( PSQL_UPDATE, , member_seq) " where id=$" BOOST_PP_STRINGIZE(BOOST_PP_ADD(1,BOOST_PP_SEQ_SIZE(member_seq)));\
     const char *val[param_num];\
     int         len[param_num];\
     int         format[param_num];\
     \
-    val[param_less] = id.getNetValue();\
-    len[param_less] = id.getSizeof();\
-    format[param_less] = 1;\
+    val[param_size] = id.getNetValue();\
+    len[param_size] = id.getSizeof();\
+    format[param_size] = 1;\
     BOOST_PP_SEQ_FOR_EACH_I( PSQL_ASSIGN, , member_seq)\
     PSql::query(sql, param_num, val, len, format, 1);\
 }\
@@ -69,7 +68,7 @@ template <> inline void clazz<PSql>::insert(){\
     int         len[param_num];\
     int         format[param_num];\
     BOOST_PP_SEQ_FOR_EACH_I( PSQL_ASSIGN, , member_seq)\
-    PSql::Result result = PSql::query(sql, param_less, val, len, format, 1);\
+    PSql::Result result = PSql::query(sql, param_size, val, len, format, 1);\
 }\
 template <> inline void clazz<PSql>::selectById(int64_t argId)\
 {\
