@@ -21,7 +21,7 @@ void print()
 {
 
 }
-
+const int kNum=99999;
 int main(int argc, const char * argv[]) {
 
     unsigned_char_vec encrytedPasswd;
@@ -29,8 +29,9 @@ int main(int argc, const char * argv[]) {
     unsigned_char_vec decryptedBase64;
     RsaUtil rsautil;
 
+    LOG_INFO<<"test for:"<<kNum;
     Time now = Time::NowTm();
-    for(int i(0); i<1; i++)
+    for(int i(0); i<kNum; i++)
     {
         int encryptLength  = \
         rsautil.publicPemEncrypt("foobar", encrytedPasswd);
