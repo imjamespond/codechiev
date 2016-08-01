@@ -71,7 +71,7 @@ int main(int argc, const char * argv[]) {
     client.setOnConnect(boost::bind(&onConnect,_1));
     client.setOnMessage(boost::bind(&onMessage,_1));
     client.setOnClose(boost::bind(&onClose,_1));
-    Thread t("", boost::bind(&TcpClient::start, &client));
+    Thread t("", boost::bind(&MultiClient::start, &client));
     t.start();
 
     int c(0),i(0);
