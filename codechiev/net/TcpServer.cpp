@@ -129,7 +129,7 @@ TcpEndpoint::write(const channel_ptr& channel, const std::string& msg)
     channel->write(msg);
     if(channel->getWriteBuf()->readable())
     {
-        updateChannel(channel->get(), EPOLLIN|EPOLLOUT);
+        updateChannel(channel.get(), EPOLLIN|EPOLLOUT);
     }
 }
 void
