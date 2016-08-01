@@ -45,6 +45,8 @@ public:
             channel_ptr chn = connect();
             channels[chn->getFd()]=chn;
         }
+
+        this->start();
     }
 
     void closeall()
@@ -82,10 +84,8 @@ int main(int argc, const char * argv[]) {
     client.setOnConnect(boost::bind(&onConnect,_1));
     client.setOnMessage(boost::bind(&onMessage,_1));
     client.setOnClose(boost::bind(&onClose,_1));
-    Thread t("", boost::bind(&MultiClient::start, &client));
+    Thread t("", boost::bind(&MultiClient::connectall, &client));
     t.start();
-
-    client.connectall();
 
     int c(0),i(0);
     char msg[128];
