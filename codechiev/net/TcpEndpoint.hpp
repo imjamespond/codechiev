@@ -35,25 +35,28 @@ namespace codechiev {
             inline void setOnMessage(const on_message_func &func){onMessage_=func;}
             inline void setOnClose(const on_close_func &func){onClose_=func;}
 
+
+
+            void write(const channel_ptr&, const std::string&);
+            void close((const channel_ptr&);
+
+        protected:
             inline void updateChannel(Channel *, int);
             inline void addChannel(Channel *, int);
             inline void delChannel(Channel *);
 
             bool onRead(Channel *);
             bool onWrite(Channel *);
-            void close(Channel *);
-            void write(Channel *, const std::string&);
+            void onClose(Channel *)=0;
 
-            virtual void onClose(Channel *)=0;
-        protected:
             EventLoop<EPoll> loop_;
             InetAddressSt addr_;
             Channel channel_;
+            channel_map channels_;
 
             on_connect_func onConnect_;
             on_message_func onMessage_;
             on_close_func onClose_;
-
         };
 
         class TcpServer : public TcpEndpoint
@@ -66,7 +69,6 @@ namespace codechiev {
             void pollEvent(const channel_vec&);
             void onConnect(Channel *);
         private:
-            channel_map channels_;
         };
 
         class TcpClient : public TcpEndpoint

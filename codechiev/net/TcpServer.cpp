@@ -51,7 +51,7 @@ TcpEndpoint::onRead(Channel* channel)
 
         if(len==0)
         {
-            close(channel);
+            onClose(channel);
             return true;
         }
         //reading done
@@ -114,22 +114,22 @@ TcpEndpoint::onWrite(Channel* channel)
 }
 
 void
-TcpEndpoint::close(Channel* channel)
+TcpEndpoint::onClose(Channel* channel)
 {
     if(onClose_)
         onClose_(channel);
     delChannel(channel);
     channel->close();
+    channels_.erase(channel->getFd());
 }
 
 void
-TcpEndpoint::write(Channel *channel, const std::string& msg)
+TcpEndpoint::write(const channel_ptr& channel, const std::string& msg)
 {
     channel->write(msg);
     if(channel->getWriteBuf()->readable())
     {
-        channel->setEvent(EPOLLIN|EPOLLOUT);
-        loop_.getPoll().setChannel(channel);
+        updateChannel(EPOLLIN|EPOLLOUT);
     }
 }
 
@@ -205,7 +205,7 @@ TcpServer::onConnect(Channel* channel)
 {
     socklen_t socklen = addr_.socklen;
     InetAddress addr;
-    int connfd = ::accept(channel_.getFd(),
+    int connfd = ::accept(channel.getFd(),
                           (struct sockaddr *) &addr.sockaddrin, &socklen);
     if (connfd == -1) {
         LOG_ERROR<<("accept");
