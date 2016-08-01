@@ -43,7 +43,8 @@ public:
         for(int i=0; i<1; i++)
         {
             channel_ptr chn = connect();
-            channels[chn->getFd()]=chn;
+            if(chn)
+                channels[chn->getFd()]=chn;
         }
 
         this->start();

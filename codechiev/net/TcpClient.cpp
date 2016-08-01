@@ -52,6 +52,7 @@ TcpClient::connect()
     }
 
     addChannel(chnptr.get(), EPOLLOUT);
+    return chnptr;
 }
 
 void
