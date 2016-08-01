@@ -37,7 +37,7 @@ TcpClient::connect()
         return channel_ptr();
     }
     channel_ptr chnptr(new Channel(connfd));
-    LOG_TRACE<<"isConnected"<<chnptr->isConnected();
+    LOG_TRACE<<"isConnected"<<chnptr->getFd();
     if (-1 == ::connect(connfd, (struct sockaddr *) &addr_.sockaddrin, addr_.socklen))
     {
         if(EINPROGRESS == errno)
@@ -68,7 +68,7 @@ TcpClient::pollEvent(const channel_vec &vec)
         }
         if(channel->getEvent() & EPOLLOUT)
         {
-            LOG_TRACE<<"isConnected"<<channel->isConnected();
+            LOG_TRACE<<"isConnected"<<chnptr->getFd();
             if(channel->isConnected())
             {
                 if(onWrite(channel))
