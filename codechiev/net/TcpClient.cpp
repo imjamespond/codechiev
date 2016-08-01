@@ -37,7 +37,7 @@ TcpClient::connect()
         return channel_ptr();
     }
     channel_ptr chnptr(new Channel(connfd));
-
+    LOG_TRACE<<"isConnected"<<chnptr->isConnected();
     if (-1 == ::connect(connfd, (struct sockaddr *) &addr_.sockaddrin, addr_.socklen))
     {
         if(EINPROGRESS == errno)
