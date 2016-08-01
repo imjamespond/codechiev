@@ -34,7 +34,7 @@ TcpClient::connect()
     {
         perror("socket error");
         LOG_ERROR<<"errno:"<<errno;
-        return NULL;
+        return channel_ptr();
     }
     channel_ptr chnptr(new Channel(connfd));
 
