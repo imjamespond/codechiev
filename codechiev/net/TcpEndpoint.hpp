@@ -35,8 +35,8 @@ namespace codechiev {
             void setOnMessage(const on_message_func &func){onMessage_=func;}
             void setOnClose(const on_close_func &func){onClose_=func;}
 
-            void write(const channel_ptr&, const std::string&);
             void close(const channel_ptr&);
+            void send(const channel_ptr&, const std::string&);
 
         protected:
             inline void updateChannel(Channel *, int);
@@ -46,6 +46,7 @@ namespace codechiev {
             bool onRead(Channel *);
             bool onWrite(Channel *);
             virtual void onClose(Channel *);
+            void write(Channel *, const std::string&);
 
             EventLoop<EPoll> loop_;
             InetAddressSt addr_;

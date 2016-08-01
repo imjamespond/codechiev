@@ -31,8 +31,6 @@ void onClose(Channel* channel)
     LOG_DEBUG<<"onClose fd:"<<channel->getFd();
 }
 int main(int argc, const char * argv[]) {
-
-
     serv.setOnConnect(boost::bind(&onConnect, _1));
     serv.setOnMessage(boost::bind(&onMessage, _1));
     serv.setOnClose(boost::bind(&onClose, _1));
