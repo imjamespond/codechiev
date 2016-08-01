@@ -22,21 +22,10 @@ using namespace codechiev::net;
 
 TcpEndpoint::TcpEndpoint(const std::string& ip, uint16_t port):
 addr_(ip, port),
-//SOCK_STREAM=>IPPROTO_TCP
-channel_(::socket(AF_INET, SOCK_STREAM| SOCK_NONBLOCK|SOCK_CLOEXEC, IPPROTO_TCP)),
 onConnect_(0),
 onMessage_(0),
 onClose_(0)
-{
-    if (channel_.getFd() == -1)
-    {
-        perror("socket error");
-        LOG_ERROR<<"errno:"<<errno;
-        exit(EXIT_FAILURE);
-    }
-
-    LOG_DEBUG<<"TcpEndpoint fd:"<<channel_.getFd();
-}
+{}
 
 bool
 TcpEndpoint::onRead(Channel* channel)
@@ -116,11 +105,10 @@ TcpEndpoint::onWrite(Channel* channel)
 void
 TcpEndpoint::onClose(Channel* channel)
 {
-    if(onClose_)
-        onClose_(channel);
     delChannel(channel);
     channel->close();
-    channels_.erase(channel->getFd());
+    if(onClose_)
+        onClose_(channel);
 }
 
 void
@@ -139,8 +127,19 @@ TcpEndpoint::close(const channel_ptr& channel)
 }
 
 TcpServer::TcpServer(const std::string& ip, uint16_t port):
+//SOCK_STREAM=>IPPROTO_TCP
+channel_(::socket(AF_INET, SOCK_STREAM| SOCK_NONBLOCK|SOCK_CLOEXEC, IPPROTO_TCP)),
 TcpEndpoint(ip, port)
-{}
+{
+    if (channel_.getFd() == -1)
+    {
+        perror("socket error");
+        LOG_ERROR<<"errno:"<<errno;
+        exit(EXIT_FAILURE);
+    }
+
+    LOG_DEBUG<<"TcpEndpoint fd:"<<channel_.getFd();
+}
 
 #define QUEUE_LIMIT 4
 void
@@ -228,4 +227,9 @@ TcpServer::onConnect(Channel* channel)
         onConnect_(connsock.get());
 }
 
-
+void
+TcpServer::onClose(Channel* channel)
+{
+    TcpEndpoint::onClose(channel);
+    channels_.erase(channel->getFd());
+}

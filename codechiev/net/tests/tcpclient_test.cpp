@@ -16,8 +16,12 @@
 using namespace codechiev::base;
 using namespace codechiev::net;
 
+channel_map connections;
+
 void onConnect(Channel* channel)
 {
+    channel_ptr chnptr(channel);
+    connections[] =
     LOG_DEBUG<<"onConnect\n fd:"<<channel->getFd()<<\
     /*", sendbuf size:"<<channel->getSendBufSize()<<\
    ", setbuf size"<<channel->setSendBufSize(0)<<\ */

@@ -47,12 +47,10 @@ namespace codechiev {
 
             bool onRead(Channel *);
             bool onWrite(Channel *);
-            void onClose(Channel *);
+            virtual void onClose(Channel *);
 
             EventLoop<EPoll> loop_;
             InetAddressSt addr_;
-            Channel channel_;
-            channel_map channels_;
 
             on_connect_func onConnect_;
             on_message_func onMessage_;
@@ -68,7 +66,10 @@ namespace codechiev {
             void stop();
             void pollEvent(const channel_vec&);
             void onConnect(Channel *);
+            void onClose(Channel *);
         private:
+            Channel channel_;
+            channel_map channels_;
         };
 
         class TcpClient : public TcpEndpoint
@@ -79,7 +80,9 @@ namespace codechiev {
             void connect();
             void pollEvent(const channel_vec&);
             void onConnect(Channel *);
+            void onClose(Channel *);
         private:
+            channel_map channels_;
         };
 
         inline void

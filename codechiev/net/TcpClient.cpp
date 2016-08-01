@@ -23,7 +23,16 @@ TcpEndpoint(ip, port)
 void
 TcpClient::connect()
 {
-    if (-1 == ::connect(channel_.getFd(), (struct sockaddr *) &addr_.sockaddrin, addr_.socklen))
+    int connfd = ::socket(AF_INET, SOCK_STREAM| SOCK_NONBLOCK|SOCK_CLOEXEC, IPPROTO_TCP);
+    if (connfd == -1)
+    {
+        perror("socket error");
+        LOG_ERROR<<"errno:"<<errno;
+        return channel_ptr(0);
+    }
+    channel_ptr chnptr(new Channel(connfd));
+    channels_[connfd]=chnptr;
+    if (-1 == ::connect(connfd, (struct sockaddr *) &addr_.sockaddrin, addr_.socklen))
     {
         if(EINPROGRESS == errno)
         {
@@ -36,7 +45,7 @@ TcpClient::connect()
         }
     }
 
-    addChannel(&channel_, EPOLLOUT);
+    addChannel(chnptr.get(), EPOLLOUT);
     loop_.loop(boost::bind(&TcpClient::pollEvent, this, _1));
 }
 
@@ -83,3 +92,9 @@ TcpClient::onConnect(Channel* channel)
         onConnect_(channel);
 }
 
+void
+TcpClient::onClose(Channel* channel)
+{
+    TcpEndpoint::onClose(channel);
+    channels_.erase(channel->getFd());
+}
