@@ -16,12 +16,41 @@
 using namespace codechiev::base;
 using namespace codechiev::net;
 
-channel_map connections;
+class MultiClient : public TcpClient
+{
+public:
+    MultiClient():TcpClient("127.0.0.1", 9999){}
+
+    void onClose(Channel* channel)
+    {
+        TcpEndpoint::onClose(channel);
+        channels_.erase(channel->getFd());
+    }
+
+    void writetoall(const char* msg)
+    {
+        for(channel_map::const_iterator it=channels.begin();
+        it!=channels.end();
+        it++)
+        {
+            const Channel& chn = it->second;
+            write(&chn, msg);
+        }
+    }
+
+    void connectall()
+    {
+        for(int i=0; i<10; i++)
+        {
+            channels_[connfd]=connect();
+        }
+    }
+
+    channel_map channels;
+};
 
 void onConnect(Channel* channel)
 {
-    channel_ptr chnptr(channel);
-    connections[] =
     LOG_DEBUG<<"onConnect\n fd:"<<channel->getFd()<<\
     /*", sendbuf size:"<<channel->getSendBufSize()<<\
    ", setbuf size"<<channel->setSendBufSize(0)<<\ */
@@ -37,11 +66,11 @@ void onClose(Channel* channel)
 }
 int main(int argc, const char * argv[]) {
 
-    TcpClient client("127.0.0.1", 9999);
+    MultiClient client();
     client.setOnConnect(boost::bind(&onConnect,_1));
     client.setOnMessage(boost::bind(&onMessage,_1));
     client.setOnClose(boost::bind(&onClose,_1));
-    Thread t("", boost::bind(&TcpClient::connect, &client));
+    Thread t("", boost::bind(&TcpClient::start, &client));
     t.start();
 
     int c(0),i(0);
@@ -52,7 +81,7 @@ int main(int argc, const char * argv[]) {
         c=getchar();
         if(c == 10)
         {
-            client.write(msg);
+            client.writetoall(msg);
             i=0;
             ::memset(msg, 0, sizeof msg);
         }else
