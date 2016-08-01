@@ -33,8 +33,8 @@ public:
         it!=channels.end();
         it++)
         {
-            Channel& chn = it->second;
-            write(&chn, msg);
+            channel_ptr chn = it->second;
+            write(chn.get(), msg);
         }
     }
 
