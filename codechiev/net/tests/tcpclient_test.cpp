@@ -29,12 +29,12 @@ public:
 
     void writetoall(const char* msg)
     {
-        for(channel_map::iterator it=channels.begin();
+        for(channel_map::const_iterator it=channels.begin();
         it!=channels.end();
         it++)
         {
             channel_ptr chn = it->second;
-            write(chn.get(), msg);
+            write(chn, msg);
         }
     }
 
