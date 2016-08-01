@@ -31,11 +31,9 @@ namespace codechiev {
 
             explicit TcpEndpoint(const std::string&, uint16_t );
 
-            inline void setOnConnect(const on_connect_func &func){onConnect_=func;}
-            inline void setOnMessage(const on_message_func &func){onMessage_=func;}
-            inline void setOnClose(const on_close_func &func){onClose_=func;}
-
-
+            void setOnConnect(const on_connect_func &func){onConnect_=func;}
+            void setOnMessage(const on_message_func &func){onMessage_=func;}
+            void setOnClose(const on_close_func &func){onClose_=func;}
 
             void write(const channel_ptr&, const std::string&);
             void close(const channel_ptr&);
