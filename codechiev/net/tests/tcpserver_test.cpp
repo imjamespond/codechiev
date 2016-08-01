@@ -24,7 +24,7 @@ void onConnect(Channel* channel)
 void onMessage(Channel* channel)
 {
     LOG_DEBUG<<"onMessage:"<<channel->getReadBuf()->str();
-    write(channel, channel->getReadBuf()->str());
+    this->write(channel, channel->getReadBuf()->str());
 }
 void onClose(Channel* channel)
 {
