@@ -35,13 +35,19 @@ TcpEndpoint::onRead(Channel* channel)
     {
         ::memset(buffer, '\0', sizeof buffer);
         int len = static_cast<int>(::read(channel->getFd(), buffer, kBufferEachTimeSize));
-        channel->getReadBuf()->append(buffer, len);
         LOG_TRACE<<"read:"<<len<<",errno:"<<errno;
-
+        if(len)
+        {
+            channel->getReadBuf()->append(buffer, len);
+        }
         if(len==0)
         {
             onClose(channel);
             return true;
+        }else
+        {
+             LOG_ERROR<<"read:"<<len<<",errno:"<<errno;
+             return true;
         }
         //reading done
         if(EAGAIN==errno)
