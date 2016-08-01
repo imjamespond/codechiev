@@ -39,7 +39,7 @@ TcpEndpoint::onRead(Channel* channel)
         if(len)
         {
             channel->getReadBuf()->append(buffer, len);
-        }if(len==0)
+        }else if(len==0)
         {
             onClose(channel);
             return true;
