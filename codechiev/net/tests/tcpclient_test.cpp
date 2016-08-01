@@ -67,7 +67,7 @@ void onClose(Channel* channel)
 }
 int main(int argc, const char * argv[]) {
 
-    MultiClient client();
+    MultiClient client;
     client.setOnConnect(boost::bind(&onConnect,_1));
     client.setOnMessage(boost::bind(&onMessage,_1));
     client.setOnClose(boost::bind(&onClose,_1));
