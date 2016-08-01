@@ -209,7 +209,7 @@ TcpServer::onConnect(Channel* channel)
 {
     socklen_t socklen = addr_.socklen;
     InetAddress addr;
-    int connfd = ::accept(channel.getFd(),
+    int connfd = ::accept(channel->getFd(),
                           (struct sockaddr *) &addr.sockaddrin, &socklen);
     if (connfd == -1) {
         LOG_ERROR<<("accept");
