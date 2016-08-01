@@ -24,7 +24,7 @@ public:
     void onClose(Channel* channel)
     {
         TcpEndpoint::onClose(channel);
-        channels_.erase(channel->getFd());
+        channels.erase(channel->getFd());
     }
 
     void writetoall(const char* msg)
@@ -42,7 +42,7 @@ public:
     {
         for(int i=0; i<10; i++)
         {
-            channels_[connfd]=connect();
+            channels[connfd]=connect();
         }
     }
 
