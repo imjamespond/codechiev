@@ -47,6 +47,17 @@ public:
         }
     }
 
+    void closeall()
+    {
+        for(channel_map::const_iterator it=channels.begin();
+        it!=channels.end();
+        it++)
+        {
+            channel_ptr chn = it->second;
+            close(chn);
+        }
+    }
+
     channel_map channels;
 };
 
@@ -92,7 +103,6 @@ int main(int argc, const char * argv[]) {
 
     }while(c!='.');
 
-    client.close();
 
     t.cancel();
     t.join();
