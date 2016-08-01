@@ -39,15 +39,14 @@ TcpEndpoint::onRead(Channel* channel)
         if(len)
         {
             channel->getReadBuf()->append(buffer, len);
-        }
-        if(len==0)
+        }if(len==0)
         {
             onClose(channel);
             return true;
         }else
         {
              LOG_ERROR<<"read:"<<len<<",errno:"<<errno;
-             return true;
+             return false;
         }
         //reading done
         if(EAGAIN==errno)
@@ -88,6 +87,10 @@ TcpEndpoint::onWrite(Channel* channel)
 
             updateChannel(channel, EPOLLIN);
             return false;
+        }else
+        {
+             LOG_ERROR<<"write:"<<len<<",errno:"<<errno;
+             return false;
         }
 
         if(EAGAIN==errno)
