@@ -68,7 +68,7 @@ TcpClient::pollEvent(const channel_vec &vec)
         }
         if(channel->getEvent() & EPOLLOUT)
         {
-            LOG_TRACE<<"isConnected"<<chnptr->getFd();
+            LOG_TRACE<<"isConnected"<<channel->getFd();
             if(channel->isConnected())
             {
                 if(onWrite(channel))
