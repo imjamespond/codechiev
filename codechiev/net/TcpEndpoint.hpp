@@ -75,7 +75,6 @@ namespace codechiev {
             explicit TcpClient(const std::string& ip, uint16_t port);
             //as client
             void connect();
-            void close();
             void pollEvent(const channel_vec&);
             void onConnect(Channel *);
         private:
