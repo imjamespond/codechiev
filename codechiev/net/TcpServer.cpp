@@ -51,7 +51,7 @@ TcpEndpoint::onRead(Channel* channel)
 
         if(len==0)
         {
-            onClose(channel);
+            close(channel);
             return true;
         }
         //reading done
@@ -110,6 +110,26 @@ TcpEndpoint::onWrite(Channel* channel)
             channel->writeEvent();
             return false;
         }
+    }
+}
+
+void
+TcpEndpoint::close(Channel* channel)
+{
+    if(onClose_)
+        onClose_(channel);
+    delChannel(channel);
+    channel->close();
+}
+
+void
+TcpEndpoint::write(Channel *channel, const std::string& msg)
+{
+    channel->write(msg);
+    if(channel->getWriteBuf()->readable())
+    {
+        channel->setEvent(EPOLLIN|EPOLLOUT);
+        loop_.getPoll().setChannel(channel);
     }
 }
 
@@ -172,7 +192,7 @@ TcpServer::pollEvent(const channel_vec &vec)
             }
             if(channel->getEvent() & (EPOLLHUP|EPOLLRDHUP) )
             {
-                onClose(channel);
+                close(channel);
             }
         }
     }//for
@@ -202,26 +222,6 @@ TcpServer::onConnect(Channel* channel)
     channels_[connsock->getFd()]=connsock;
     if(onConnect_)
         onConnect_(connsock.get());
-}
-
-void
-TcpServer::onClose(Channel* channel)
-{
-    if(onClose_)
-        onClose_(channel);
-    delChannel(channel);
-    channel->close();
-}
-
-void
-TcpServer::write(Channel *channel, const std::string& msg)
-{
-    channel->write(msg);
-    if(channel->getWriteBuf()->readable())
-    {
-        channel->setEvent(EPOLLIN|EPOLLOUT);
-        loop_.getPoll().setChannel(channel);
-    }
 }
 
 

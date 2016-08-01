@@ -41,16 +41,6 @@ TcpClient::connect()
 }
 
 void
-TcpClient::close()
-{
-    Channel *channel=&channel_;
-    if(onClose_)
-        onClose_(channel);
-    loop_.getPoll().delChannel(channel);
-    channel->close();
-}
-
-void
 TcpClient::pollEvent(const channel_vec &vec)
 {
 
@@ -59,26 +49,23 @@ TcpClient::pollEvent(const channel_vec &vec)
         it++)
     {
         Channel *channel = *it;
-        if (channel->getFd() == channel_.getFd())
+        if(channel->getEvent() & EPOLLIN && onRead(channel))
         {
-            if(channel->getEvent() & EPOLLIN && onRead(channel))
+            continue;
+        }
+        if(channel->getEvent() & EPOLLOUT)
+        {
+            if(channel->isConnected())
             {
-                continue;
+                if(onWrite(channel))
+                    continue;
             }
-            if(channel->getEvent() & EPOLLOUT)
-            {
-                if(channel->isConnected())
-                {
-                    if(onWrite(channel))
-                        continue;
-                }
-                else
-                    onConnect(channel);
-            }
-            if(channel->getEvent() & (EPOLLHUP|EPOLLRDHUP) )
-            {
-                onClose(channel);
-            }
+            else
+                onConnect(channel);
+        }
+        if(channel->getEvent() & (EPOLLHUP|EPOLLRDHUP) )
+        {
+            close(channel);
         }
     }//for
 }
@@ -95,24 +82,5 @@ TcpClient::onConnect(Channel* channel)
     updateChannel(channel, EPOLLIN);
     if(onConnect_)
         onConnect_(channel);
-}
-
-void
-TcpClient::onClose(Channel* channel)
-{
-    if(onClose_)
-        onClose_(channel);
-    delChannel(channel);
-    channel->close();
-}
-
-void
-TcpClient::write(const std::string& msg)
-{
-    channel_.write(msg);
-    if(channel_.getWriteBuf()->readable())
-    {
-        updateChannel(&channel_, EPOLLIN|EPOLLOUT);
-    }
 }
 

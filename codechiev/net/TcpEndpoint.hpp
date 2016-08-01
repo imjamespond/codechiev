@@ -41,6 +41,7 @@ namespace codechiev {
 
             bool onRead(Channel *);
             bool onWrite(Channel *);
+            void close(Channel *);
             virtual void onClose(Channel *)=0;
         protected:
             EventLoop<EPoll> loop_;
@@ -62,7 +63,6 @@ namespace codechiev {
             void stop();
             void pollEvent(const channel_vec&);
             void onConnect(Channel *);
-            void onClose(Channel *);
             void write(Channel *, const std::string&);
         private:
             channel_map channels_;
@@ -77,7 +77,6 @@ namespace codechiev {
             void close();
             void pollEvent(const channel_vec&);
             void onConnect(Channel *);
-            void onClose(Channel *);
             void write( const std::string&);
         private:
         };
