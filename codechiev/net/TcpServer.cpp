@@ -117,7 +117,7 @@ TcpEndpoint::write(Channel* channel, const std::string& msg)
     channel->write(msg);
     if(channel->getWriteBuf()->readable())
     {
-        updateChannel(channel.get(), EPOLLIN|EPOLLOUT);
+        updateChannel(channel, EPOLLIN|EPOLLOUT);
     }
 }
 void
