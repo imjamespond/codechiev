@@ -38,7 +38,7 @@ namespace codechiev {
 
 
             void write(const channel_ptr&, const std::string&);
-            void close((const channel_ptr&);
+            void close(const channel_ptr&);
 
         protected:
             inline void updateChannel(Channel *, int);
@@ -47,7 +47,7 @@ namespace codechiev {
 
             bool onRead(Channel *);
             bool onWrite(Channel *);
-            void onClose(Channel *)=0;
+            void onClose(Channel *);
 
             EventLoop<EPoll> loop_;
             InetAddressSt addr_;
