@@ -112,13 +112,18 @@ TcpEndpoint::onClose(Channel* channel)
 }
 
 void
-TcpEndpoint::write(const channel_ptr& channel, const std::string& msg)
+TcpEndpoint::write(Channel* channel, const std::string& msg)
 {
     channel->write(msg);
     if(channel->getWriteBuf()->readable())
     {
         updateChannel(channel.get(), EPOLLIN|EPOLLOUT);
     }
+}
+void
+TcpEndpoint::send(const channel_ptr& channel, const std::string& msg)
+{
+    write(channel.get(), msg);
 }
 void
 TcpEndpoint::close(const channel_ptr& channel)
