@@ -43,7 +43,6 @@ TcpClient::connect()
 void
 TcpClient::pollEvent(const channel_vec &vec)
 {
-
     for( channel_vec::const_iterator it=vec.begin();
         it!=vec.end();
         it++)
@@ -65,7 +64,7 @@ TcpClient::pollEvent(const channel_vec &vec)
         }
         if(channel->getEvent() & (EPOLLHUP|EPOLLRDHUP) )
         {
-            close(channel);
+            onClose(channel);
         }
     }//for
 }
