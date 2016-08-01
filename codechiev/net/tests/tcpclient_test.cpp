@@ -40,7 +40,7 @@ public:
 
     void connectall()
     {
-        for(int i=0; i<1; i++)
+        for(int i=0; i<100; i++)
         {
             channel_ptr chn = connect();
             if(chn)
