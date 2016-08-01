@@ -85,6 +85,8 @@ int main(int argc, const char * argv[]) {
     Thread t("", boost::bind(&MultiClient::start, &client));
     t.start();
 
+    client.connectall();
+
     int c(0),i(0);
     char msg[128];
     ::memset(msg, 0, sizeof msg);
