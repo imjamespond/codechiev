@@ -34,7 +34,7 @@ public:
         it++)
         {
             channel_ptr chn = it->second;
-            write(chn, msg);
+            send(chn, msg);
         }
     }
 
