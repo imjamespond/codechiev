@@ -129,10 +129,14 @@ TcpEndpoint::write(const channel_ptr& channel, const std::string& msg)
     channel->write(msg);
     if(channel->getWriteBuf()->readable())
     {
-        updateChannel(EPOLLIN|EPOLLOUT);
+        updateChannel(channel->get(), EPOLLIN|EPOLLOUT);
     }
 }
-
+void
+TcpEndpoint::close(const channel_ptr& channel)
+{
+    channel->close();
+}
 
 TcpServer::TcpServer(const std::string& ip, uint16_t port):
 TcpEndpoint(ip, port)
@@ -192,7 +196,7 @@ TcpServer::pollEvent(const channel_vec &vec)
             }
             if(channel->getEvent() & (EPOLLHUP|EPOLLRDHUP) )
             {
-                close(channel);
+                onClose(channel);
             }
         }
     }//for
