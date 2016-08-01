@@ -20,19 +20,19 @@
 namespace codechiev {
     namespace net {
 
-        
+
         static const int kBufferSize = 1024*32;
         static const int kBufferEachTimeSize = 8;
         typedef codechiev::base::FixedBuffer<kBufferSize> channel_buffer;
-        
+
         class Channel
         {
         public:
             typedef boost::shared_ptr<Channel> channel_ptr_t;
             typedef std::vector<Channel*> channel_vec_t;
             typedef boost::unordered_map<int, channel_ptr_t> channel_map_t;
-            Channel(int fd):fd_(fd),event_(0),connected_(0){}
-            
+            Channel(int fd):fd_(fd),event_(0),connected_(false){}
+
             inline void setFd(int fd){fd_=fd;};
             inline void setNonBlock(){::fcntl(fd_, F_SETFL, O_NONBLOCK);}
             inline void setCloseOnExec(){::fcntl(fd_, F_SETFD, FD_CLOEXEC);}
@@ -40,31 +40,31 @@ namespace codechiev {
             inline int setKeepAlive();
             inline int setSendBufSize(int);
             inline int getSendBufSize();
-            
+
             inline int getFd(){return fd_;}
             inline void setEvent(int e){event_=e;}
             inline int getEvent(){return event_;}
             inline int close(){connected_=false; return ::close(fd_);}
             inline void setConnected(bool val){connected_=val;}
             inline bool isConnected(){return connected_;}
-            
+
             inline channel_buffer* getReadBuf(){return &readbuf_;}
             inline channel_buffer* getWriteBuf(){return &writebuf_;}
-            
+
             void write(const std::string&);
             void writeEvent();
         private:
             int fd_;
             int event_;
             bool connected_;
-            
+
             channel_buffer readbuf_;
             channel_buffer writebuf_;
         };
         typedef Channel::channel_map_t channel_map;
         typedef Channel::channel_vec_t channel_vec;
         typedef Channel::channel_ptr_t channel_ptr;
-        
+
         inline int
         Channel::setReuseAddr()
         {
