@@ -86,6 +86,7 @@ TcpClient::pollEvent(const channel_vec &vec)
 void
 TcpClient::onConnect(Channel* channel)
 {
+    LOG_TRACE<<"onConnect";
 #ifdef UseEpollET
     //channel->setEvent(EPOLLIN|EPOLLOUT |EPOLLET);
     LOG_TRACE<<"UseEpollET";
