@@ -24,7 +24,7 @@ void onConnect(Channel* channel)
 }
 void onMessage(Channel* channel)
 {
-    //LOG_DEBUG<<"onMessage:"<<channel->getReadBuf()->str();
+    LOG_TRACE<<"onMessage:"<<channel->getReadBuf()->str();
     //serv.write(channel, channel->getReadBuf()->str());//echo
 
     while(1)
