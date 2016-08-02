@@ -30,14 +30,14 @@ void onMessage(Channel* channel)
     while(1)
     {
         std::string httpMsg;
-        const char* breaker = strstr(channel->getReadBuf()->str(), "\r\n\r\n");
-        if(breaker)
+        const char* end = strstr(channel->getReadBuf()->str(), "\r\n\r\n");
+        if(end)
         {
-            int len = breaker-channel->getReadBuf()->str();
+            int len = end-channel->getReadBuf()->str();
             httpMsg.append(channel->getReadBuf()->str(), len);
+            LOG_DEBUG<<httpMsg<<",len:"<<len<<",rb:"<<channel->getReadBuf();
             channel->getReadBuf()->read(len+4);
             channel->getReadBuf()->move();
-            LOG_INFO<<httpMsg;
         }else
         {
             break;
