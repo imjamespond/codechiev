@@ -16,6 +16,7 @@
 using namespace codechiev::base;
 using namespace codechiev::net;
 
+int connNumber(1);
 class MultiClient : public TcpClient
 {
 public:
@@ -40,7 +41,7 @@ public:
 
     void connectall()
     {
-        for(int i=0; i<999; i++)
+        for(int i=0; i<connNumber; i++)
         {
             channel_ptr chn = connect();
             if(chn)
@@ -81,6 +82,11 @@ void onClose(Channel* channel)
 }
 int main(int argc, const char * argv[]) {
 
+    if((sizeof argv)>1)
+    {
+        connNumber=::atoi(argv[1]);
+    }
+
     MultiClient client;
     client.setOnConnect(boost::bind(&onConnect,_1));
     client.setOnMessage(boost::bind(&onMessage,_1));
@@ -99,7 +105,48 @@ int main(int argc, const char * argv[]) {
             client.writetoall(msg);
             i=0;
             ::memset(msg, 0, sizeof msg);
-        }else
+        }else if(c == '1')
+        {
+            const char *http = "GET / HTTP/1.1\
+Accept: text/html, application/xhtml+xml, image/jxr, */*\
+Accept-Language: zh-Hans-CN,zh-Hans;q=0.5\
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko\
+Accept-Encoding: gzip, deflate\
+Host: 127.0.0.1:9999\
+Connection: Keep-Alive\r\n\r\n";
+            client.writetoall(msg);
+        }else if(c == '2')
+        {
+            const char *http = "GET / HTTP/1.1\
+Accept: text/html, application/xhtml+xml, image/jxr, */*\
+Accept-Language: zh-Hans-CN,zh-Hans;q=0.5\
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko\
+Accept-Encoding: gzip, deflate\
+Host: 127.0.0.1:9999\
+Connection: Keep-Alive\r";
+            client.writetoall(msg);
+        }else if(c == '3')
+        {
+            const char *http = "\n\r\n";
+            client.writetoall(msg);
+        }else if(c == '4')
+        {
+            const char *http = "GET / HTTP/1.1\
+Accept: text/html, application/xhtml+xml, image/jxr, */*\
+Accept-Language: zh-Hans-CN,zh-Hans;q=0.5\
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko\
+Accept-Encoding: gzip, deflate\
+Host: 127.0.0.1:9999\
+Connection: Keep-Alive\r\n\r\nGET / HTTP/1.1\
+Accept: text/html, application/xhtml+xml, image/jxr, */*\
+Accept-Language: zh-Hans-CN,zh-Hans;q=0.5\
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko\
+Accept-Encoding: gzip, deflate\
+Host: 127.0.0.1:9999\
+Connection: Keep-Alive\r";
+            client.writetoall(msg);
+        }
+        else
         {
             msg[i++]=c;
         }
