@@ -107,22 +107,22 @@ int main(int argc, const char * argv[]) {
             ::memset(msg, 0, sizeof msg);
         }else if(c == '1')
         {
-            const char *http = "GET / HTTP/1.1\
-Accept: text/html, application/xhtml+xml, image/jxr, */*\
-Accept-Language: zh-Hans-CN,zh-Hans;q=0.5\
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko\
-Accept-Encoding: gzip, deflate\
-Host: 127.0.0.1:9999\
+            const char *http = "GET / HTTP/1.1\r\n\
+Accept: text/html, application/xhtml+xml, image/jxr, */*\r\n\
+Accept-Language: zh-Hans-CN,zh-Hans;q=0.5\r\n\
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko\r\n\
+Accept-Encoding: gzip, deflate\r\n\
+Host: 127.0.0.1:9999\r\n\
 Connection: Keep-Alive\r\n\r\n";
             client.writetoall(http);
         }else if(c == '2')
         {
-            const char *http = "GET / HTTP/1.1\
-Accept: text/html, application/xhtml+xml, image/jxr, */*\
-Accept-Language: zh-Hans-CN,zh-Hans;q=0.5\
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko\
-Accept-Encoding: gzip, deflate\
-Host: 127.0.0.1:9999\
+            const char *http = "GET / HTTP/1.1\r\n\
+Accept: text/html, application/xhtml+xml, image/jxr, */*\r\n\
+Accept-Language: zh-Hans-CN,zh-Hans;q=0.5\r\n\
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko\r\n\
+Accept-Encoding: gzip, deflate\r\n\
+Host: 127.0.0.1:9999\r\n\
 Connection: Keep-Alive\r";
             client.writetoall(http);
         }else if(c == '3')
@@ -131,18 +131,18 @@ Connection: Keep-Alive\r";
             client.writetoall(http);
         }else if(c == '4')
         {
-            const char *http = "GET / HTTP/1.1\
-Accept: text/html, application/xhtml+xml, image/jxr, */*\
-Accept-Language: zh-Hans-CN,zh-Hans;q=0.5\
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko\
-Accept-Encoding: gzip, deflate\
-Host: 127.0.0.1:9999\
-Connection: Keep-Alive\r\n\r\nGET / HTTP/1.1\
-Accept: text/html, application/xhtml+xml, image/jxr, */*\
-Accept-Language: zh-Hans-CN,zh-Hans;q=0.5\
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko\
-Accept-Encoding: gzip, deflate\
-Host: 127.0.0.1:9999\
+            const char *http = "GET / HTTP/1.1\r\n\
+Accept: text/html, application/xhtml+xml, image/jxr, */*\r\n\
+Accept-Language: zh-Hans-CN,zh-Hans;q=0.5\r\n\
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko\r\n\
+Accept-Encoding: gzip, deflate\r\n\
+Host: 127.0.0.1:9999\r\n\
+Connection: Keep-Alive\r\n\r\nGET / HTTP/1.1\r\n\
+Accept: text/html, application/xhtml+xml, image/jxr, */*\r\n\
+Accept-Language: zh-Hans-CN,zh-Hans;q=0.5\r\n\
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko\r\n\
+Accept-Encoding: gzip, deflate\r\n\
+Host: 127.0.0.1:9999\r\n\
 Connection: Keep-Alive\r";
             client.writetoall(http);
         }
