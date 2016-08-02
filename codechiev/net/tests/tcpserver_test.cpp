@@ -5,10 +5,11 @@
 //  Created by metasoft on 16/7/26.
 //  Copyright © 2016年 metasoft. All rights reserved.
 //
-
+#include <base/Thread.hpp>
+#include <base/AtomicNumber.hpp>
 #include <base/Logger.hpp>
 #include <net/TcpEndpoint.hpp>
-#include <base/Thread.hpp>
+
 #include <boost/bind.hpp>
 #include <errno.h>
 
@@ -16,7 +17,7 @@ using namespace codechiev::base;
 using namespace codechiev::net;
 
 TcpServer serv("0.0.0.0", 9999);
-
+AtomicNumber<int64_t> an(0);
 void onConnect(Channel* channel)
 {
     LOG_DEBUG<<"onConnect fd:"<<channel->getFd();
@@ -25,6 +26,7 @@ void onMessage(Channel* channel)
 {
     LOG_DEBUG<<"onMessage:"<<channel->getReadBuf()->str();
     serv.write(channel, channel->getReadBuf()->str());
+    an.addAndFetch(1);
 }
 void onClose(Channel* channel)
 {
@@ -36,6 +38,25 @@ int main(int argc, const char * argv[]) {
     serv.setOnClose(boost::bind(&onClose, _1));
     Thread t("", boost::bind(&TcpServer::listen, &serv));
     t.start();
+
+    int c(0),i(0);
+    do
+    {
+        c=getchar();
+        if(c == 10)
+        {
+        }else if('q')
+        {
+            t.cancel();
+        }else if('p')
+        {
+            LOG_INFO<<serv.getChannelNum()<<",send"<<an.addAndFetch(0);
+            an.set(0);
+        }
+
+    }while(c!='.');
+
+
     t.join();
 
     return 0;

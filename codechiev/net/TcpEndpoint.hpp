@@ -66,6 +66,8 @@ namespace codechiev {
             void pollEvent(const channel_vec&);
             void onConnect(Channel *);
             void onClose(Channel *);
+
+            inline int getChannelNum(){return channels_.size();}
         private:
             Channel channel_;
             channel_map channels_;
