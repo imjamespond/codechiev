@@ -46,11 +46,12 @@ int main(int argc, const char * argv[]) {
         if(c == 10)
         {
         }
-        if('q')
+        else if(c == 'q')
         {
             t.cancel();
             break;
-        }else if('p')
+        }
+        else if(c == 'p')
         {
             LOG_INFO<<serv.getChannelNum()<<",send"<<an.addAndFetch(0);
             an.set(0);
