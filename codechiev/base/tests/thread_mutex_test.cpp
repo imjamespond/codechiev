@@ -20,11 +20,13 @@ AtomicNumber<int> atomicNum(0);
 Mutex mutex;
 void print()
 {
+    int count=0;
     while(atomicNum.addFetch(0)<9999999)
     {
         atomicNum.addFetch(1);
+        count++;
     }
-    LOG_INFO<<atomicNum.addFetch(0);
+    LOG_INFO<<atomicNum.addFetch(0)<<","<<count;
 }
 
 int main(int argc, const char * argv[]) {
