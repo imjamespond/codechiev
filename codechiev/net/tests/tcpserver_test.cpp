@@ -45,15 +45,17 @@ int main(int argc, const char * argv[]) {
         c=getchar();
         if(c == 10)
         {
-        }else if('q')
+        }
+        if('q')
         {
             t.cancel();
+            break;
         }else if('p')
         {
             LOG_INFO<<serv.getChannelNum()<<",send"<<an.addAndFetch(0);
             an.set(0);
         }
-
+''
     }while(c!='.');
 
     t.join();
