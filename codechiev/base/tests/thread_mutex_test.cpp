@@ -20,7 +20,7 @@ AtomicNumber<int> atomicNum(0);
 Mutex mutex;
 void print()
 {
-    int count=0;
+    int64_t count=0;
     while(atomicNum.addFetch(0)<9999999)
     {
         atomicNum.addFetch(1);
