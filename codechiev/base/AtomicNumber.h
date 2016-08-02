@@ -27,7 +27,6 @@ int64_t / uint64_t
                 return __sync_add_and_fetch(&num_, num);
             }
 
-            T getNum(){return num_;}
 
         private:
             T num_;

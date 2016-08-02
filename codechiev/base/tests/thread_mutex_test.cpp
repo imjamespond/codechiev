@@ -23,7 +23,7 @@ void print()
     {
 
     }
-    LOG_INFO<<atomicNum.getNum();
+    LOG_INFO<<atomicNum.addFetch(0);
 }
 
 int main(int argc, const char * argv[]) {
