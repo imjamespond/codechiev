@@ -12,7 +12,7 @@ function_build()
 	cd build/	
 	cmake . ../$PROJECT \
 	-DCMAKE_BUILD_TYPE=Debug \
-	-DLOGGER_LEVEL=Debug \
+	-DLOGGER_LEVEL=Trace \
 	-DBOOST_ROOT=$1 \
 	-DPSQL=$2 \
 	-DROOT=$3 
