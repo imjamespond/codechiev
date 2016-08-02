@@ -85,7 +85,7 @@ namespace codechiev {
                 int rb = readable();
                 ::memcpy(buffer_, buffer_+reader_, rb);
                 reader_=0;
-                writer_=rb;
+                write(rb);
             }
 
             char* data()
