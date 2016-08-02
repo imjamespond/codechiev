@@ -6,7 +6,7 @@
 //  Copyright © 2016年 metasoft. All rights reserved.
 //
 #include <base/Thread.hpp>
-#include <base/AtomicNumber.hpp>
+#include <base/AtomicNumber.h>
 #include <base/Logger.hpp>
 #include <net/TcpEndpoint.hpp>
 
@@ -55,7 +55,6 @@ int main(int argc, const char * argv[]) {
         }
 
     }while(c!='.');
-
 
     t.join();
 
