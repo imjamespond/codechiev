@@ -25,7 +25,7 @@ void print()
     {
         count++;
     }
-    LOG_INFO<<atomicNum.addAndFetch(0)<<","<<count;
+    LOG_INFO<<count;
 }
 
 int main(int argc, const char * argv[]) {
@@ -43,6 +43,6 @@ int main(int argc, const char * argv[]) {
     {
         threads[i]->join();
     }
-
+    LOG_INFO<<atomicNum.addAndFetch(0);
     return 0;
 }
