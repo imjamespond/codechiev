@@ -21,7 +21,7 @@ Mutex mutex;
 void print()
 {
     int64_t count=0;
-    while(atomicNum.fetchAndAdd(1)!=9999999)
+    while(atomicNum.fetchAndAdd(1)<9999999)
     {
         count++;
     }
