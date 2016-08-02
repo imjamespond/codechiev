@@ -39,7 +39,7 @@ int main(int argc, const char * argv[]) {
     Thread t("", boost::bind(&TcpServer::listen, &serv));
     t.start();
 
-    int c(0),i(0);
+    int c(0);
     do
     {
         c=getchar();
@@ -56,7 +56,6 @@ int main(int argc, const char * argv[]) {
             LOG_INFO<<serv.getChannelNum()<<",send"<<an.addAndFetch(0);
             an.set(0);
         }
-''
     }while(c!='.');
 
     t.join();
