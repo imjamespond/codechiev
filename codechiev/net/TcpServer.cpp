@@ -57,8 +57,6 @@ TcpEndpoint::onRead(Channel* channel)
             {
                 onMessage_(channel);
             }
-
-            channel->getReadBuf()->readall();
             return false;
         }
     }//for
