@@ -35,7 +35,7 @@ void onMessage(Channel* channel)
         {
             int len = end-channel->getReadBuf()->str();
             httpMsg.append(channel->getReadBuf()->str(), len);
-            LOG_DEBUG<<httpMsg<<",len:"<<len<<",rb:"<<channel->getReadBuf();
+            LOG_DEBUG<<httpMsg<<",len:"<<len<<",rb:"<<channel->getReadBuf()->readable();
             channel->getReadBuf()->read(len+4);
             channel->getReadBuf()->move();
         }else
