@@ -100,6 +100,8 @@ namespace codechiev {
                 return buffer_+reader_;
             }
 
+            inline int writer(){return writer_;}
+            inline int reader(){return reader_;}
         private:
             int writer_;
             int reader_;

@@ -24,7 +24,7 @@ void onConnect(Channel* channel)
 }
 void onMessage(Channel* channel)
 {
-    LOG_TRACE<<"onMessage:"<<channel->getReadBuf()->str();
+    LOG_TRACE<<"onMessage:"<<channel->getReadBuf()->str()<<",r:"<<channel->getReadBuf()->reader()<<",w:"<<channel->getReadBuf()->writer();
     //serv.write(channel, channel->getReadBuf()->str());//echo
 
     while(1)
@@ -35,7 +35,7 @@ void onMessage(Channel* channel)
         {
             int len = end-channel->getReadBuf()->str();
             httpMsg.append(channel->getReadBuf()->str(), len);
-            LOG_DEBUG<<httpMsg<<",len:"<<len<<",rb:"<<channel->getReadBuf()->readable();
+            LOG_DEBUG<<httpMsg<<",len:"<<len;
             channel->getReadBuf()->read(len+4);
             channel->getReadBuf()->move();
         }else
