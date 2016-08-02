@@ -24,8 +24,24 @@ void onConnect(Channel* channel)
 }
 void onMessage(Channel* channel)
 {
-    LOG_DEBUG<<"onMessage:"<<channel->getReadBuf()->str();
-    serv.write(channel, channel->getReadBuf()->str());
+    //LOG_DEBUG<<"onMessage:"<<channel->getReadBuf()->str();
+    //serv.write(channel, channel->getReadBuf()->str());//echo
+
+    while(1)
+    {
+        std::string httpMsg;
+        const char* breaker = strstr(channel->getReadBuf()->str(), "\r\n");
+        if(breaker)
+        {
+            int len = breaker-channel->getReadBuf()->str();
+            httpMsg.append(channel->getReadBuf()->str(), len);
+            channel->getReadBuf()->move();
+            LOG_INFO<<httpMsg;
+        }else
+        {
+            break;
+        }
+    }
     an.addAndFetch(1);
 }
 void onClose(Channel* channel)
