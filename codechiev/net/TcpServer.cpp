@@ -135,9 +135,9 @@ TcpEndpoint::send(const channel_ptr& channel, const std::string& msg)
     write(channel.get(), msg);
 }
 void
-TcpEndpoint::close(const channel_ptr& channel)
+TcpEndpoint::shut(const channel_ptr& channel)
 {
-    channel->close();
+    ::shutdown(channel->getFd(), SHUT_WR);
 }
 
 TcpServer::TcpServer(const std::string& ip, uint16_t port):
