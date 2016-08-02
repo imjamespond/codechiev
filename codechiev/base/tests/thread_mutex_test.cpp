@@ -9,41 +9,26 @@
 #include <stdio.h>
 #include <boost/bind.hpp>
 
-#include "base/Thread.hpp"
-#include "base/Mutex.hpp"
+#include <base/Thread.hpp>
+#include <base/Mutex.hpp>
+#include <base/AtomicNumber.h>
 
 using namespace codechiev::base;
 
-int count(0);
+AtomicNumber<int> atomicNum(0);
 Mutex mutex;
 void print()
 {
-    int i(99999);
-    while(--i)
+    while(atomicNum.addFetch(1)<99999)
     {
-        {
-            //MutexGuard lock(&mutex);
-            
-            if(count)
-            {
-                count=0;
-                if(count)
-                {
-                    printf("count:%d\n",count);
-                }
-            }
-            else
-            {
-                count++;
-            }
-        }
+
     }
 }
 
 int main(int argc, const char * argv[]) {
-    
+
     Thread::thread_func func = boost::bind(&print);
-    
+
     Thread *threads[10];
     for(int i=0; i<(sizeof threads)/sizeof(Thread*); i++)
     {
@@ -55,6 +40,6 @@ int main(int argc, const char * argv[]) {
     {
         threads[i]->join();
     }
-    
+
     return 0;
 }
