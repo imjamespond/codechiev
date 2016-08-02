@@ -27,6 +27,15 @@ int64_t / uint64_t
                 return __sync_add_and_fetch(&num_, num);
             }
 
+            T fetchSub(T num)
+            {
+                return __sync_fetch_and_sub(&num_, num);
+            }
+
+            T subFetch(T num)
+            {
+                return __sync_sub_and_fetch(&num_, num);
+            }
 
         private:
             T num_;

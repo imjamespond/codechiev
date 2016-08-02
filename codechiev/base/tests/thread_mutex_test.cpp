@@ -16,14 +16,13 @@
 
 using namespace codechiev::base;
 
-AtomicNumber<int> atomicNum(0);
+AtomicNumber<int> atomicNum();
 Mutex mutex;
 void print()
 {
     int64_t count=0;
-    while(atomicNum.addFetch(0)<9999999)
+    while(atomicNum.addFetch(1)<9999999)
     {
-        atomicNum.addFetch(1);
         count++;
     }
     LOG_INFO<<atomicNum.addFetch(0)<<","<<count;
