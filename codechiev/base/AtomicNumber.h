@@ -17,22 +17,22 @@ int64_t / uint64_t
         public:
             explicit AtomicNumber(T num):num_(num){}
 
-            T fetchAdd(T num)
+            T fetchAndAdd(T num)
             {
                 return __sync_fetch_and_add(&num_, num);
             }
 
-            T addFetch(T num)
+            T addAndFetch(T num)
             {
                 return __sync_add_and_fetch(&num_, num);
             }
 
-            T fetchSub(T num)
+            T fetchAndSub(T num)
             {
                 return __sync_fetch_and_sub(&num_, num);
             }
 
-            T subFetch(T num)
+            T subAndFetch(T num)
             {
                 return __sync_sub_and_fetch(&num_, num);
             }

@@ -21,11 +21,11 @@ Mutex mutex;
 void print()
 {
     int64_t count=0;
-    while(atomicNum.addFetch(1)<9999999)
+    while(atomicNum.addAndFetch(1)<9999999)
     {
         count++;
     }
-    LOG_INFO<<atomicNum.addFetch(0)<<","<<count;
+    LOG_INFO<<atomicNum.addAndFetch(0)<<","<<count;
 }
 
 int main(int argc, const char * argv[]) {
