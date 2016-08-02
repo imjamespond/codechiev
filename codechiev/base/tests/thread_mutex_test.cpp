@@ -20,9 +20,9 @@ AtomicNumber<int> atomicNum(0);
 Mutex mutex;
 void print()
 {
-    while(atomicNum.addFetch(1)<999999)
+    while(atomicNum.addFetch(0)<9999999)
     {
-        Time::SleepMillis(1);
+        atomicNum.addFetch(1);
     }
     LOG_INFO<<atomicNum.addFetch(0);
 }
