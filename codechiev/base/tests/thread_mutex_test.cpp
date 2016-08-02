@@ -10,6 +10,7 @@
 #include <boost/bind.hpp>
 #include <base/Logger.hpp>
 #include <base/Thread.hpp>
+#include <base/Time.hpp>
 #include <base/Mutex.hpp>
 #include <base/AtomicNumber.h>
 
@@ -21,7 +22,7 @@ void print()
 {
     while(atomicNum.addFetch(1)<999999)
     {
-
+        Time::SleepMillis(1);
     }
     LOG_INFO<<atomicNum.addFetch(0);
 }
