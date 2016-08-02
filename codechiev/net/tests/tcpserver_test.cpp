@@ -44,8 +44,10 @@ void onMessage(Channel* channel)
         }
     }
     an.addAndFetch(1);
-
-    serv.shut(channel);
+    if(channel->getReadBuf()->writable()==0)
+    {
+        serv.shut(channel);
+    }
 }
 void onClose(Channel* channel)
 {
