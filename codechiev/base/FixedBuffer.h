@@ -58,7 +58,6 @@ namespace codechiev {
                     wb-=1;
                     ::memcpy(buffer_+writer_, str, wb);
                     write(wb);
-                    buffer_[writer_]='\0';
                 }
             }
 
@@ -86,8 +85,7 @@ namespace codechiev {
                 ::memcpy(buffer_, buffer_+reader_, rb);
                 reader_=0;
                 writer_=rb;
-                write(rb);
-                buffer_[writer_]='\0';
+                ::memset(buffer_+writer_, 0, BUFFER_SIZE-writer_);
             }
 
             char* data()
