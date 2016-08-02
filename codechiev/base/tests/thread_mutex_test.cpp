@@ -8,7 +8,7 @@
 
 #include <stdio.h>
 #include <boost/bind.hpp>
-
+#include <base/Logger.hpp>
 #include <base/Thread.hpp>
 #include <base/Mutex.hpp>
 #include <base/AtomicNumber.h>
@@ -19,10 +19,11 @@ AtomicNumber<int> atomicNum(0);
 Mutex mutex;
 void print()
 {
-    while(atomicNum.addFetch(1)<99999)
+    while(atomicNum.addFetch(1)<999999)
     {
 
     }
+    LOG_INFO<<atomicNum.getNum();
 }
 
 int main(int argc, const char * argv[]) {
