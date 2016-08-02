@@ -16,7 +16,7 @@
 
 using namespace codechiev::base;
 
-AtomicNumber<int64_t> atomicNum();
+AtomicNumber<int64_t> atomicNum(0);
 Mutex mutex;
 void print()
 {
