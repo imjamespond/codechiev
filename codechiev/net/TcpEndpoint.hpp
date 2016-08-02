@@ -35,6 +35,7 @@ namespace codechiev {
             void setOnMessage(const on_message_func &func){onMessage_=func;}
             void setOnClose(const on_close_func &func){onClose_=func;}
 
+            void shut(Channel *);
             void shut(const channel_ptr&);
             void send(const channel_ptr&, const std::string&);
             void write(Channel *, const std::string&);

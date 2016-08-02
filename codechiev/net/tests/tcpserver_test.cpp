@@ -44,6 +44,8 @@ void onMessage(Channel* channel)
         }
     }
     an.addAndFetch(1);
+
+    serv.shut(channel);
 }
 void onClose(Channel* channel)
 {

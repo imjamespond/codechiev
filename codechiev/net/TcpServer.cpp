@@ -140,6 +140,12 @@ TcpEndpoint::shut(const channel_ptr& channel)
     ::shutdown(channel->getFd(), SHUT_WR);
 }
 
+void
+TcpEndpoint::shut(Channel* channel)
+{
+    ::shutdown(channel->getFd(), SHUT_WR);
+}
+
 TcpServer::TcpServer(const std::string& ip, uint16_t port):
 //SOCK_STREAM=>IPPROTO_TCP
 channel_(::socket(AF_INET, SOCK_STREAM| SOCK_NONBLOCK|SOCK_CLOEXEC, IPPROTO_TCP)),
