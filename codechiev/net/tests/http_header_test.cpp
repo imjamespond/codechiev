@@ -38,7 +38,7 @@ int main(int argc, const char * argv[]) {
     
     const char *pcreErrorStr;
     int pcreErrorOffset;
-    pcre *pcreComipled = pcre_compile(kHttpRegex, 0, &pcreErrorStr, &pcreErrorOffset, NULL);
+    pcre *pcreCompiled = pcre_compile(kHttpRegex, 0, &pcreErrorStr, &pcreErrorOffset, NULL);
     if( NULL== pcre)
     {
         LOG_ERROR<<"ERROR: Could not compile "<<kHttpRegex <<" error:"<< pcreErrorStr;;
