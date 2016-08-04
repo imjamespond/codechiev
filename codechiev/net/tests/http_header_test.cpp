@@ -73,7 +73,7 @@ int main(int argc, const char * argv[]) {
     }
     
     const char *psubStrMatchStr;
-    for(j=0; j<pcreExecRet; j++)
+    for(int j=0; j<pcreExecRet; j++)
     {
         pcre_get_substring(kHttpURL, subStrVec, pcreExecRet, j, &(psubStrMatchStr));
         printf("Match(%2d/%2d): (%2d,%2d): '%s'\n", j, pcreExecRet-1, subStrVec[j*2], subStrVec[j*2+1], psubStrMatchStr);
@@ -83,12 +83,14 @@ int main(int argc, const char * argv[]) {
     // Free up the regular expression.
     pcre_free(pcreCompiled);
     // Free up the EXTRA PCRE value (may be NULL at this point)
-    if(pcreExtra != NULL) {
+    if(pcreExtra != NULL)
+    {
 #ifdef PCRE_CONFIG_JIT
         pcre_free_study(pcreExtra);
 #else
         pcre_free(pcreExtra);
 #endif
+    }
     
     return 0;
 }
