@@ -20,7 +20,8 @@ using namespace codechiev::base;
 
 void handlePcreExecError(int pcreExecRet)
 {
-    switch(pcreExecRet) {
+    switch(pcreExecRet)
+    {
         case PCRE_ERROR_NOMATCH      : printf("String did not match the pattern\n");        break;
         case PCRE_ERROR_NULL         : printf("Something was null\n");                      break;
         case PCRE_ERROR_BADOPTION    : printf("A bad option was passed\n");                 break;
@@ -32,8 +33,9 @@ void handlePcreExecError(int pcreExecRet)
 }
 
 
-int main(int argc, const char * argv[]) {
-    const char *kHttpRegex = "^((http[s]?|ftp):)(.*)?(#[\\w\\-]+)?$$";
+int main(int argc, const char * argv[])
+{
+    const char *kHttpRegex = "^((http[s]?|ftp):\\/)?\\/?([^:\\/\\s]+)((\\/\\w+)*\\/)([\\w\\-\\.]+[^#?\\s]+)(.*)?(#[\\w\\-]+)?$";
     const char *kHttpURL = "https://www.google.com/dir/1/2/search.html?arg=0-a&arg1=1-b&arg3-c#hash";
     
     const char *pcreErrorStr;
