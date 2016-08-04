@@ -80,7 +80,7 @@ int main(int argc, const char * argv[]) {
     // Free up the substring
     pcre_free_substring(psubStrMatchStr);
     // Free up the regular expression.
-    pcre_free(reCompiled);
+    pcre_free(pcreCompiled);
     // Free up the EXTRA PCRE value (may be NULL at this point)
     if(pcreExtra != NULL) {
 #ifdef PCRE_CONFIG_JIT
