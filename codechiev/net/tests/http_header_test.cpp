@@ -33,7 +33,7 @@ void handlePcreExecError(int pcreExecRet)
 
 
 int main(int argc, const char * argv[]) {
-    const char *kHttpRegex = "^((http[s]?|ftp):)$";
+    const char *kHttpRegex = "^((http[s]?|ftp):)(.*)?(#[\\w\\-]+)?$$";
     const char *kHttpURL = "https://www.google.com/dir/1/2/search.html?arg=0-a&arg1=1-b&arg3-c#hash";
     
     const char *pcreErrorStr;
