@@ -45,7 +45,7 @@ int main(int argc, const char * argv[]) {
         exit(1);
     }
     
-    pcre_extra *pcreExtra = pcre_study(pcreComipled, 0, &pcreErrorStr);
+    pcre_extra *pcreExtra = pcre_study(pcreCompiled, 0, &pcreErrorStr);
     if(pcreErrorStr != NULL) {
         LOG_ERROR<<"ERROR: Could not study " << kHttpRegex <<" error:"<< pcreErrorStr;
         exit(1);
