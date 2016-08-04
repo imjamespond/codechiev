@@ -3,7 +3,7 @@ message(STATUS "compiling codechief::utility current_source_dir: " ${CMAKE_CURRE
 file(GLOB OPENSSL_SOURCE "openssl/*.cpp")
 set (LIB codechief_utility)
 add_library (${LIB} ${OPENSSL_SOURCE})#add source to this lib
-target_link_libraries (${LIB} codechief_base pthread rt ssl)#link for this lib, rt is for get_clock
+target_link_libraries (${LIB} codechief_base pthread rt ssl crypto)#link for this lib, rt is for get_clock
 
 message(STATUS "message please run \"make install\" : " ${CMAKE_INSTALL_PREFIX})
 install(TARGETS ${LIB} DESTINATION ${ROOT}/libs)
