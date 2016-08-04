@@ -53,7 +53,7 @@ int main(int argc, const char * argv[]) {
     
 #define MAX_MATCH 30
     int subStrVec[MAX_MATCH];
-    int pcreExecRet = pcre_exec(reCompiled,
+    int pcreExecRet = pcre_exec(pcreCompiled,
                             pcreExtra,
                             kHttpURL,
                             strlen(kHttpURL),  // length of string
@@ -73,8 +73,9 @@ int main(int argc, const char * argv[]) {
     }
     
     const char *psubStrMatchStr;
-    for(j=0; j<pcreExecRet; j++) {
-        pcre_get_substring(*aLineToMatch, subStrVec, pcreExecRet, j, &(psubStrMatchStr));
+    for(j=0; j<pcreExecRet; j++)
+    {
+        pcre_get_substring(kHttpURL, subStrVec, pcreExecRet, j, &(psubStrMatchStr));
         printf("Match(%2d/%2d): (%2d,%2d): '%s'\n", j, pcreExecRet-1, subStrVec[j*2], subStrVec[j*2+1], psubStrMatchStr);
     }
     // Free up the substring
