@@ -93,7 +93,7 @@ EPoll::poll(channel_vec &vec)
         perror("epoll_wait");
         LOG_ERROR<<"errno:"<<errno;
     }
-    else if (nfds == -1)
+    else if (nfds == 0)
     {
         LOG_TRACE<<"nothing happened";
     }
