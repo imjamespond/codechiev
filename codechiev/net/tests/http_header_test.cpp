@@ -37,6 +37,8 @@ int main(int argc, const char * argv[])
 {
     const char *kHttpRegex = "^((http[s]?|ftp):\\/)?\\/?([^:\\/\\s]+)((\\/\\w+)*\\/)([\\w\\-\\.]+[^#?\\s]+)(.*)?(#[\\w\\-]+)?$";
     const char *kHttpURL = "https://www.google.com/dir/1/2/search.html?arg=0-a&arg1=1-b&arg3-c#hash";
+    if(argc>1)
+        kHttpURL = argv[1];
     
     const char *pcreErrorStr;
     int pcreErrorOffset;
