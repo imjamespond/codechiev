@@ -81,9 +81,11 @@ int main(int argc, const char * argv[])
     {
         pcre_get_substring(kHttpURL, subStrVec, pcreExecRet, j, &(psubStrMatchStr));
         printf("Match(%2d/%2d): (%2d,%2d): '%s'\n", j, pcreExecRet-1, subStrVec[j*2], subStrVec[j*2+1], psubStrMatchStr);
+        
+        // Free up the substring
+        pcre_free_substring(psubStrMatchStr);
     }
-    // Free up the substring
-    pcre_free_substring(psubStrMatchStr);
+
     // Free up the regular expression.
     pcre_free(pcreCompiled);
     // Free up the EXTRA PCRE value (may be NULL at this point)
