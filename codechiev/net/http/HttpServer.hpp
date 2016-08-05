@@ -9,7 +9,7 @@
 #ifndef EPoll_hpp
 #define EPoll_hpp
 
-#include <net/TcpServer.hpp>
+#include <net/TcpEndpoint.hpp>
 #include <boost/noncopyable.hpp>
 
 namespace codechiev {
