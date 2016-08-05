@@ -33,7 +33,7 @@ namespace codechiev {
             explicit TcpEndpoint(const std::string&, uint16_t );
 
             void setOnConnect(const on_connect_func &func){onConnect_=func;}
-            void setOnMessage(const on_message_func &func){onMessage_=func;}
+            void setOnData(const on_data_func &func){onData_=func;}
             void setOnClose(const on_close_func &func){onClose_=func;}
 
             void shut(Channel *);
@@ -54,7 +54,7 @@ namespace codechiev {
             InetAddressSt addr_;
 
             on_connect_func onConnect_;
-            on_message_func onMessage_;
+            on_data_func onData_;
             on_close_func onClose_;
         };
 

@@ -20,9 +20,12 @@ namespace codechiev {
         {
         public:
             ProtoServer(const std::string& ip, uint16_t port);
-            void onMessage(Channel* channel);
+            void onMessage(const std::string&, int);
+            void onData(Channel* channel);
+            
+            typedef base::BlockingQueue<4> blocking_queue;
         private:
-            base::BlockingQueue<10> queue_;
+            blocking_queue queue_;
         };
     }
 }

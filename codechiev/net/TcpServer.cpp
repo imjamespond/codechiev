@@ -53,9 +53,9 @@ TcpEndpoint::onRead(Channel* channel)
         {
             updateChannel(channel, EPOLLIN);
 
-            if(onMessage_&&channel->getReadBuf()->readable())
+            if(onData_&&channel->getReadBuf()->readable())
             {
-                onMessage_(channel);
+                onData_(channel);
             }
             return false;
         }

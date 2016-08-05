@@ -8,9 +8,8 @@
 
 #include "ProtoServer.hpp"
 #include <base/Logger.hpp>
+#include <net/TcpLengthCoder.h>
 #include <boost/bind.hpp>
-#include <stdint.h>
-#include <string.h>
 #include <errno.h>
 
 using namespace codechiev::net;
@@ -33,34 +32,17 @@ TcpServer(ip, port)
 }
 
 void
-ProtoServer::onMessage(Channel* channel)
+ProtoServer::onData(Channel* channel)
 {
     LOG_TRACE<<"onMessage:"<<channel->getReadBuf()->str()<<",r:"<<channel->getReadBuf()->reader()<<",w:"<<channel->getReadBuf()->writer();
     //serv.write(channel, channel->getReadBuf()->str());//echo
     
-    while(1)
-    {
-        int readable = channel->getReadBuf()->readable();
-        
-        if(readable>=4)
-        {
-            int32_t length,whole;
-            ::memcpy(&length, channel->getReadBuf()->str(), sizeof(int32_t));
-            whole = length + 4;
-            if(readable>=whole)
-            {
-                std::string msg;
-                msg.append(channel->getReadBuf()->str()+4, length);
-                channel->getReadBuf()->read(whole);
-            }
-            else
-            {
-                return;
-            }
-        }
-        else
-        {
-            return;
-        }
-    }
+
 }
+
+void
+ProtoServer::onMessage(const std::string&, int fd)
+{
+    channel_ptr channel = this->getChannel(fd);
+}
+
