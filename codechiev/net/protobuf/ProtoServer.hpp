@@ -9,6 +9,7 @@
 #ifndef ProtoServer_hpp
 #define ProtoServer_hpp
 
+#include <base/BlockingQueue.hpp>
 #include <net/TcpEndpoint.hpp>
 #include <boost/noncopyable.hpp>
 
@@ -21,6 +22,7 @@ namespace codechiev {
             ProtoServer(const std::string& ip, uint16_t port);
             void onMessage(Channel* channel);
         private:
+            base::BlockingQueue<10> queue_;
         };
     }
 }
