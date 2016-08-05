@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <base/Logger.hpp>
 #include <net/TcpEndpoint.hpp>
+#include <net/TcpLengthCoder.h>
 #include <base/Thread.hpp>
 #include <boost/bind.hpp>
 #include <errno.h>
@@ -17,6 +18,7 @@ using namespace codechiev::base;
 using namespace codechiev::net;
 
 int connNumber(1);
+BlockingQueue<2> queue;
 class MultiClient : public TcpClient
 {
 public:
@@ -65,18 +67,34 @@ public:
     channel_map channels;
 };
 
-void onConnect(Channel* channel)
+void
+onConnect(Channel* channel)
 {
     LOG_DEBUG<<"onConnect\n fd:"<<channel->getFd()<<\
     /*", sendbuf size:"<<channel->getSendBufSize()<<\
    ", setbuf size"<<channel->setSendBufSize(0)<<\ */
     ", sendbuf size:"<<channel->getSendBufSize();
 }
-void onMessage(Channel* channel)
+void
+onMessage(const std::string&, int fd)
 {
-    LOG_DEBUG<<"onMessage:"<<channel->getReadBuf()->str();
+    channel_ptr channel = this->getChannel(fd);
 }
-void onClose(Channel* channel)
+void
+onData(Channel* channel)
+{
+    LOG_DEBUG<<"onData:"<<channel->getReadBuf()->str();
+    
+    for(;;)
+    {
+        std::string msg;
+        if(!TcpLengthCoder<4>::decode(channel, msg))
+            break;
+        queue.addJob(boost::bind(&onData, this, msg, channel->getFd()));
+    }
+}
+void
+onClose(Channel* channel)
 {
     LOG_DEBUG<<"onClose fd:"<<channel->getFd();
 }
@@ -89,10 +107,12 @@ int main(int argc, const char * argv[]) {
 
     MultiClient client;
     client.setOnConnect(boost::bind(&onConnect,_1));
-    client.setOnData(boost::bind(&onMessage,_1));
+    client.setOnData(boost::bind(&onData,_1));
     client.setOnClose(boost::bind(&onClose,_1));
     Thread t("", boost::bind(&MultiClient::connectall, &client));
     t.start();
+    
+    queue.commence();
 
     int c(0),i(0);
     char msg[128];
