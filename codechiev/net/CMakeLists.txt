@@ -1,6 +1,6 @@
 message(STATUS "compiling codechief::net current_source_dir: " ${CMAKE_CURRENT_SOURCE_DIR})
 
-file(GLOB SOURCE "*.cpp")
+file(GLOB SOURCE "*.cpp" "http/*.cpp")
 set (LIB codechief_net)
 add_library (${LIB} ${SOURCE})#add source to this lib
 target_link_libraries (${LIB} codechief_base pthread rt)#link for this lib, rt is for get_clock
