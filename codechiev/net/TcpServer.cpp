@@ -259,6 +259,7 @@ TcpServer::onClose(Channel* channel)
 channel_ptr
 TcpServer::getChannel(int fd)
 {
+    base::MutexGuard lock(&mutex_);
     channel_map::iterator it = channels_.find(fd);
     if(it==channels_.end())
         return channel_ptr();
