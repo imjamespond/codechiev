@@ -52,7 +52,7 @@ namespace codechiev {
             static void encode(Channel *channel, int len)
             {
                 char lenStr[LENGTH];
-                ::memcpy(lenStr, &len, LENGTH)
+                ::memcpy(lenStr, &len, LENGTH);
                 channel->getWriteBuf()->append(lenStr);
             }
         };
