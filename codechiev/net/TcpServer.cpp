@@ -240,7 +240,12 @@ TcpServer::onConnect(Channel* channel)
 #endif
     connsock->setEvent(EPOLLIN);
     loop_.getPoll().addChannel(connsock.get());
-    channels_[connsock->getFd()]=connsock;
+    
+    {
+        base::MutexGuard lock(mutex_);
+        channels_[connsock->getFd()]=connsock;
+    }
+    
     if(onConnect_)
         onConnect_(connsock.get());
 }

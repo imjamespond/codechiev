@@ -12,6 +12,7 @@
 #include <sys/socket.h>
 #include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
+#include <base/Mutex.hpp>
 #include "EPoll.hpp"
 #include "EventLoop.h"
 #include "Internet.h"
@@ -69,9 +70,11 @@ namespace codechiev {
             void onClose(Channel *);
 
             inline int getChannelNum(){return channels_.size();}
+            channel_ptr getChannel(int);
         private:
             Channel channel_;
             channel_map channels_;
+            base::Mutex mutex_;
         };
 
         class TcpClient : public TcpEndpoint
