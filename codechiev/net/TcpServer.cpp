@@ -23,7 +23,7 @@ using namespace codechiev::net;
 TcpEndpoint::TcpEndpoint(const std::string& ip, uint16_t port):
 addr_(ip, port),
 onConnect_(0),
-onMessage_(0),
+onData_(0),
 onClose_(0)
 {}
 
