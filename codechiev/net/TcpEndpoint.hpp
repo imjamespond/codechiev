@@ -27,7 +27,7 @@ namespace codechiev {
         public:
 
             typedef boost::function<void(Channel*)> on_connect_func;
-            typedef boost::function<void(Channel*)> on_message_func;
+            typedef boost::function<void(Channel*)> on_data_func;
             typedef boost::function<void(Channel*)> on_close_func;
 
             explicit TcpEndpoint(const std::string&, uint16_t );
