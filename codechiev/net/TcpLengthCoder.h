@@ -12,6 +12,7 @@
 #include <boost/noncopyable.hpp>
 #include <stdint.h>
 #include <string.h>
+#include <base/Logger.hpp>
 #include "Channel.hpp"
 
 namespace codechiev {
@@ -30,6 +31,7 @@ namespace codechiev {
                     int32_t length,whole;
                     ::memcpy(&length, channel->getReadBuf()->str(), sizeof(int32_t));
                     whole = length + LENGTH;
+                    LOG_TRACE<<"length: "<<whole;
                     if(readable>=whole)
                     {
                         std::string msg;
