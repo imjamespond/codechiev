@@ -89,7 +89,7 @@ int main(int argc, const char * argv[]) {
 
     MultiClient client;
     client.setOnConnect(boost::bind(&onConnect,_1));
-    client.setOnMessage(boost::bind(&onMessage,_1));
+    client.setOnDate(boost::bind(&onMessage,_1));
     client.setOnClose(boost::bind(&onClose,_1));
     Thread t("", boost::bind(&MultiClient::connectall, &client));
     t.start();
