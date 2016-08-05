@@ -256,7 +256,8 @@ TcpServer::onClose(Channel* channel)
     channels_.erase(channel->getFd());
 }
 
-channel_ptr getChannel(int fd)
+channel_ptr
+TcpServer::getChannel(int fd)
 {
     channel_map::iterator it = channels_.find(fd);
     if(it==channels_.end())
