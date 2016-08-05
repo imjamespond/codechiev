@@ -6,10 +6,9 @@
 //  Copyright © 2016年 metasoft. All rights reserved.
 //
 
-#ifndef EPoll_hpp
-#define EPoll_hpp
+#ifndef HttpServer_hpp
+#define HttpServer_hpp
 
-#include <net/Channel.hpp>
 #include <net/TcpEndpoint.hpp>
 #include <boost/noncopyable.hpp>
 
@@ -26,4 +25,4 @@ namespace codechiev {
     }
 }
 
-#endif /* EPoll_hpp */
+#endif /* HttpServer_hpp */
