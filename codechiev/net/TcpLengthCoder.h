@@ -53,7 +53,7 @@ namespace codechiev {
             {
                 char lenStr[LENGTH];
                 ::memcpy(lenStr, &len, LENGTH);
-                channel->getWriteBuf()->append(lenStr);
+                channel->getWriteBuf()->append(lenStr, LENGTH);
             }
         };
         
