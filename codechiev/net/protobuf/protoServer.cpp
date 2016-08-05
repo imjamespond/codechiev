@@ -40,7 +40,7 @@ ProtoServer::onData(Channel* channel)
         std::string msg;
         if(!tcplengthcoder::decode(channel, msg))
             break;
-        queue_.addJob(boost::bind(&ProtoServer::onMessage, msg, channel->getFd()));
+        queue_.addJob(boost::bind(&ProtoServer::onMessage, this, msg, channel->getFd()));
     }
 
 }
