@@ -25,15 +25,15 @@ namespace codechiev {
             {
                 int readable = channel->getReadBuf()->readable();
                 
-                if(readable>=4)
+                if(readable>=LENGTH)
                 {
                     int32_t length,whole;
                     ::memcpy(&length, channel->getReadBuf()->str(), sizeof(int32_t));
-                    whole = length + 4;
+                    whole = length + LENGTH;
                     if(readable>=whole)
                     {
                         std::string msg;
-                        msg.append(channel->getReadBuf()->str()+4, length);
+                        msg.append(channel->getReadBuf()->str()+LENGTH, length);
                         channel->getReadBuf()->read(whole);
                         
                         return true;
@@ -48,7 +48,7 @@ namespace codechiev {
                     return false;
                 }
             }
-        }
+        };
         
     }
 }
