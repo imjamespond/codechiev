@@ -28,6 +28,8 @@ TcpServer(ip, port)
     setOnConnect(boost::bind(&::onConnect, _1));
     setOnData(boost::bind(&ProtoServer::onData, this, _1));
     setOnClose(boost::bind(&::onClose, _1));
+    
+    queue_.commence();
 }
 
 void
