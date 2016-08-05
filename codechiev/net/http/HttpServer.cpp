@@ -61,7 +61,7 @@ HttpServer::onMessage(Channel* channel)
             break;
         }
     }
-    an.addAndFetch(1);
+    
     if(channel->getReadBuf()->writable()==0)
     {
         this->shut(channel);
