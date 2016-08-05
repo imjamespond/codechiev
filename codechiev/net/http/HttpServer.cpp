@@ -14,8 +14,14 @@
 
 using namespace codechiev::net;
 
-void onConnect(Channel* channel);
-void onClose(Channel* channel);
+void onClose(Channel* channel)
+{
+    LOG_DEBUG<<"onClose fd:"<<channel->getFd();
+}
+void onConnect(Channel* channel)
+{
+    LOG_DEBUG<<"onConnect fd:"<<channel->getFd();
+}
 
 HttpServer::HttpServer(const std::string& ip, uint16_t port):
 TcpServer(ip, port)
@@ -60,12 +66,4 @@ HttpServer::onMessage(Channel* channel)
     {
         this->shut(channel);
     }
-}
-void onClose(Channel* channel)
-{
-    LOG_DEBUG<<"onClose fd:"<<channel->getFd();
-}
-void onConnect(Channel* channel)
-{
-    LOG_DEBUG<<"onConnect fd:"<<channel->getFd();
 }
