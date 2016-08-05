@@ -9,6 +9,7 @@
 #ifndef EPoll_hpp
 #define EPoll_hpp
 
+#include <net/Channel.hpp>
 #include <net/TcpEndpoint.hpp>
 #include <boost/noncopyable.hpp>
 
