@@ -33,13 +33,13 @@ TcpServer(ip, port)
 void
 ProtoServer::onData(Channel* channel)
 {
-    LOG_TRACE<<"onData:"<<channel->getReadBuf()->str()<<",r:"<<channel->getReadBuf()->reader()<<",w:"<<channel->getReadBuf()->writer();
-    //serv.write(channel, channel->getReadBuf()->str());//echo
+    
     for(;;)
     {
         std::string msg;
         if(!tcplengthcoder::decode(channel, msg))
             break;
+        LOG_TRACE<<"onData:"<<msg<<",r:"<<channel->getReadBuf()->reader()<<",w:"<<channel->getReadBuf()->writer();
         queue_.addJob(boost::bind(&ProtoServer::onMessage, this, msg, channel->getFd()));
     }
 
