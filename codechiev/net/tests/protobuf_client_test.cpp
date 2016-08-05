@@ -77,9 +77,9 @@ onConnect(Channel* channel)
     ", sendbuf size:"<<channel->getSendBufSize();
 }
 void
-onMessage(const std::string&, int fd)
+onMessage(const std::string& msg, int fd)
 {
-    channel_ptr channel = this->getChannel(fd);
+    LOG_DEBUG<<"onMessage:"<<msg;
 }
 void
 onData(Channel* channel)
