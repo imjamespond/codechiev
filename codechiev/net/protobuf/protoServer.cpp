@@ -28,7 +28,7 @@ ProtoServer::ProtoServer(const std::string& ip, uint16_t port):
 TcpServer(ip, port)
 {
     setOnConnect(boost::bind(&::onConnect, _1));
-    setOnMessage(boost::bind(&HttpServer::onMessage, this, _1));
+    setOnMessage(boost::bind(&ProtoServer::onMessage, this, _1));
     setOnClose(boost::bind(&::onClose, _1));
 }
 
