@@ -38,7 +38,7 @@ public:
         it++)
         {
             channel_ptr chn = it->second;
-            TcpLengthCoder<4>::encode(chn.get(), msg.size());
+            TcpLengthCoder<4>::encode(chn.get(), ::strlen(msg));
             send(chn, msg);
         }
     }
