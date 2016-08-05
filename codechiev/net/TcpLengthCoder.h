@@ -31,10 +31,9 @@ namespace codechiev {
                     int32_t length,whole;
                     ::memcpy(&length, channel->getReadBuf()->str(), sizeof(int32_t));
                     whole = length + HEADER;
-                    LOG_TRACE<<"length: "<<whole;
+                    
                     if(readable>=whole)
                     {
-                        std::string msg;
                         msg.append(channel->getReadBuf()->str()+HEADER, length);
                         channel->getReadBuf()->read(whole);
                         channel->getReadBuf()->move();
