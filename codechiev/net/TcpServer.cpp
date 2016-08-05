@@ -235,14 +235,13 @@ TcpServer::onConnect(Channel* channel)
     channel_ptr connsock(new Channel(connfd));
 
 #ifdef UseEpollET
-    //connsock->setEvent(EPOLLIN|EPOLLOUT |EPOLLET);
     LOG_TRACE<<"UseEpollET";
 #endif
     connsock->setEvent(EPOLLIN);
     loop_.getPoll().addChannel(connsock.get());
     
     {
-        base::MutexGuard lock(mutex_);
+        base::MutexGuard lock(&mutex_);
         channels_[connsock->getFd()]=connsock;
     }
     
@@ -255,4 +254,13 @@ TcpServer::onClose(Channel* channel)
 {
     TcpEndpoint::onClose(channel);
     channels_.erase(channel->getFd());
+}
+
+channel_ptr getChannel(int fd)
+{
+    channel_map::iterator it = channels_.find(fd);
+    if(it==channels_.end())
+        return channel_ptr(0);
+    else
+        return it->second;
 }
