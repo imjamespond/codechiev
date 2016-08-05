@@ -8,7 +8,6 @@
 
 #include "ProtoServer.hpp"
 #include <base/Logger.hpp>
-#include <net/TcpLengthCoder.h>
 #include <boost/bind.hpp>
 #include <errno.h>
 
@@ -27,7 +26,7 @@ ProtoServer::ProtoServer(const std::string& ip, uint16_t port):
 TcpServer(ip, port)
 {
     setOnConnect(boost::bind(&::onConnect, _1));
-    setOnMessage(boost::bind(&ProtoServer::onMessage, this, _1));
+    setOnMessage(boost::bind(&ProtoServer::onData, this, _1));
     setOnClose(boost::bind(&::onClose, _1));
 }
 
@@ -36,7 +35,13 @@ ProtoServer::onData(Channel* channel)
 {
     LOG_TRACE<<"onMessage:"<<channel->getReadBuf()->str()<<",r:"<<channel->getReadBuf()->reader()<<",w:"<<channel->getReadBuf()->writer();
     //serv.write(channel, channel->getReadBuf()->str());//echo
-    
+    for(;;)
+    {
+        std::string msg;
+        if(!tcplengthcoder::decode(channel))
+            break;
+        queue_.addJob(boost::bind(&ProtoServer::onMessage, msg, channel->getFd()));
+    }
 
 }
 

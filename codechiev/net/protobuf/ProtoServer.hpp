@@ -11,6 +11,7 @@
 
 #include <base/BlockingQueue.hpp>
 #include <net/TcpEndpoint.hpp>
+#include <net/TcpLengthCoder.h>
 #include <boost/noncopyable.hpp>
 
 namespace codechiev {
@@ -24,6 +25,7 @@ namespace codechiev {
             void onData(Channel* channel);
             
             typedef base::BlockingQueue<4> blocking_queue;
+            typedef TcpLengthCoder<4> tcplengthcoder;
         private:
             blocking_queue queue_;
         };
