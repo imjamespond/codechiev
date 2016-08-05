@@ -10,6 +10,7 @@
 #include <base/Logger.hpp>
 #include <net/TcpEndpoint.hpp>
 #include <net/TcpLengthCoder.h>
+#include <base/BlockingQueue.hpp>
 #include <base/Thread.hpp>
 #include <boost/bind.hpp>
 #include <errno.h>
