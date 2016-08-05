@@ -8,6 +8,7 @@
 
 #include "HttpServer.hpp"
 #include <base/Logger.hpp>
+#include <boost/bind.hpp>
 #include <cstdlib>
 #include <errno.h>
 
