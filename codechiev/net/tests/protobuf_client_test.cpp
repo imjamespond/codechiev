@@ -91,7 +91,7 @@ onData(Channel* channel)
         std::string msg;
         if(!TcpLengthCoder<4>::decode(channel, msg))
             break;
-        queue.addJob(boost::bind(&onData, this, msg, channel->getFd()));
+        queue.addJob(boost::bind(&onData, msg, channel->getFd()));
     }
 }
 void
