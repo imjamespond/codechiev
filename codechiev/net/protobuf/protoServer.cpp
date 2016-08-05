@@ -33,7 +33,7 @@ TcpServer(ip, port)
 void
 ProtoServer::onData(Channel* channel)
 {
-    LOG_TRACE<<"onMessage:"<<channel->getReadBuf()->str()<<",r:"<<channel->getReadBuf()->reader()<<",w:"<<channel->getReadBuf()->writer();
+    LOG_TRACE<<"onData:"<<channel->getReadBuf()->str()<<",r:"<<channel->getReadBuf()->reader()<<",w:"<<channel->getReadBuf()->writer();
     //serv.write(channel, channel->getReadBuf()->str());//echo
     for(;;)
     {
@@ -46,8 +46,9 @@ ProtoServer::onData(Channel* channel)
 }
 
 void
-ProtoServer::onMessage(const std::string&, int fd)
+ProtoServer::onMessage(const std::string& msg, int fd)
 {
+    LOG_TRACE<<"onMessage:"<<msg;
     channel_ptr channel = this->getChannel(fd);
 }
 

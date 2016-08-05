@@ -18,7 +18,7 @@
 namespace codechiev {
     namespace net {
      
-        template <int LENGTH>
+        template <int HEADER>
         class TcpLengthCoder : public boost::noncopyable
         {
         public:
@@ -26,18 +26,18 @@ namespace codechiev {
             {
                 int readable = channel->getReadBuf()->readable();
                 
-                if(readable>=LENGTH)
+                if(readable>=HEADER)
                 {
                     int32_t length,whole;
                     ::memcpy(&length, channel->getReadBuf()->str(), sizeof(int32_t));
-                    whole = length + LENGTH;
+                    whole = length + HEADER;
                     LOG_TRACE<<"length: "<<whole;
                     if(readable>=whole)
                     {
                         std::string msg;
-                        msg.append(channel->getReadBuf()->str()+LENGTH, length);
+                        msg.append(channel->getReadBuf()->str()+HEADER, length);
                         channel->getReadBuf()->read(whole);
-                        
+                        channel->getReadBuf()->move();
                         return true;
                     }
                     else
@@ -53,9 +53,9 @@ namespace codechiev {
             
             static void encode(Channel *channel, int len)
             {
-                char lenStr[LENGTH];
-                ::memcpy(lenStr, &len, LENGTH);
-                channel->getWriteBuf()->append(lenStr, LENGTH);
+                char header[HEADER];
+                ::memcpy(header, &len, HEADER);
+                channel->getWriteBuf()->append(header, HEADER);
             }
         };
         
