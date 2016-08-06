@@ -22,6 +22,8 @@ message IdentReq {
 }
 
 message GenericReq {
+	required string method = 1;
+	required bytes request = 2;
 }
 
 service NodeService {
