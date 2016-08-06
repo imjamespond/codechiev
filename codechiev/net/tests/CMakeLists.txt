@@ -1,6 +1,6 @@
 message("message compile and link test...")
 
-add_custom_command(OUTPUT test.pb.cc test.pb.h
+add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/test.pb.cc ${CMAKE_CURRENT_SOURCE_DIR}/test.pb.h
   COMMAND protoc
   ARGS --cpp_out . ${CMAKE_CURRENT_SOURCE_DIR}/test.proto -I${CMAKE_CURRENT_SOURCE_DIR}
   DEPENDS test.proto)
