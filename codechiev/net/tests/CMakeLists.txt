@@ -6,7 +6,7 @@ add_custom_command(OUTPUT test.pb.cc test.pb.h
   DEPENDS test.proto)
 
 set(CPP_SUFFIX ".cpp")
-file(GLOB CPP *${CPP_SUFFIX})
+file(GLOB CPP *${CPP_SUFFIX} test.pb.cc)
 foreach(file ${CPP})
 get_filename_component(filename ${file} NAME_WE)
 message(STATUS ${filename}${CPP_SUFFIX})
