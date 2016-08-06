@@ -126,14 +126,19 @@ int main(int argc, const char * argv[]) {
         c=getchar();
         if(c == 10)
         {
-            com::codechiev::test::TestRequest req;
-            req.set_name(msg);
-            req.set_type(1212);
-            req.set_id("123");
+            com::codechiev::test::GenericReq req;
+            req.set_method("testRpc");
+            com::codechiev::test::TestRequest testReq;
+            testReq.set_name(msg);
+            testReq.set_type(1212);
+            testReq.set_id("123");
+            std::string serializedTest;
+            testReq.SerializeToString(&serializedTest);
+            req.set_request(serializedTest);
+            std::string serializedGeneric;
+            req.SerializeToString(&serializedGeneric);
             
-            std::string serializedStr;
-            req.SerializeToString(&serializedStr);
-            client.writetoall(serializedStr.c_str());
+            client.writetoall(serializedGeneric.c_str());
             i=0;
             ::memset(msg, 0, sizeof msg);
         }

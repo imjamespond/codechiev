@@ -20,13 +20,31 @@ using namespace codechiev::net;
 ProtoServer serv("0.0.0.0", 9999);
 AtomicNumber<int64_t> an(0);
 
+class TestService : public com::codechiev::test::NodeService
+{
+public:
+};
+
 void onMessage(const std::string& msg)
 {
     const com::codechiev::test::GenericReq &reqRef = com::codechiev::test::GenericReq::default_instance();
-    typedef boost::shared_ptr<google::protobuf::Message> message_ptr;
-    message_ptr reqPtr(reqRef.New());
-    reqPtr->ParseFromString(msg);
-    LOG_INFO<<reqPtr->DebugString();
+    typedef boost::shared_ptr<com::codechiev::test::GenericReq> genericreq_ptr;
+    genericreq_ptr genericReqPtr(reqRef.New());
+    genericReqPtr->ParseFromString(msg);
+    LOG_INFO<<genericReqPtr->DebugString();
+    
+    typedef boost::shared_ptr<::google::protobuf::Message> message_ptr;
+    TestService service;
+    const ::google::protobuf::ServiceDescriptor *serviceDesc = service.GetDescriptor();
+    const ::google::protobuf::MethodDescriptor *methodDesc = serviceDesc->FindMethodByName( genericReqPtr->method());
+    LOG_INFO<<serviceDesc->name();
+    if(methodDesc)
+    {
+        message_ptr msgPtr(service.GetRequestPrototype(methodDesc).New());
+        msgPtr->ParseFromString(genericReqPtr->request());
+        LOG_INFO<<msgPtr->DebugString();
+    }
+    
 }
 
 int main(int argc, const char * argv[]) {
