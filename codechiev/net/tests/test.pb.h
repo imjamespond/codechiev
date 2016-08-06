@@ -408,14 +408,44 @@ class GenericReq : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
+  // required string method = 1;
+  inline bool has_method() const;
+  inline void clear_method();
+  static const int kMethodFieldNumber = 1;
+  inline const ::std::string& method() const;
+  inline void set_method(const ::std::string& value);
+  inline void set_method(const char* value);
+  inline void set_method(const char* value, size_t size);
+  inline ::std::string* mutable_method();
+  inline ::std::string* release_method();
+  inline void set_allocated_method(::std::string* method);
+
+  // required bytes request = 2;
+  inline bool has_request() const;
+  inline void clear_request();
+  static const int kRequestFieldNumber = 2;
+  inline const ::std::string& request() const;
+  inline void set_request(const ::std::string& value);
+  inline void set_request(const char* value);
+  inline void set_request(const void* value, size_t size);
+  inline ::std::string* mutable_request();
+  inline ::std::string* release_request();
+  inline void set_allocated_request(::std::string* request);
+
   // @@protoc_insertion_point(class_scope:com.codechiev.test.GenericReq)
  private:
+  inline void set_has_method();
+  inline void clear_has_method();
+  inline void set_has_request();
+  inline void clear_has_request();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
+  ::std::string* method_;
+  ::std::string* request_;
 
   mutable int _cached_size_;
-  ::google::protobuf::uint32 _has_bits_[1];
+  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
 
   friend void  protobuf_AddDesc_test_2eproto();
   friend void protobuf_AssignDesc_test_2eproto();
@@ -903,6 +933,146 @@ inline void IdentReq::set_allocated_loginkey(::std::string* loginkey) {
 // -------------------------------------------------------------------
 
 // GenericReq
+
+// required string method = 1;
+inline bool GenericReq::has_method() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void GenericReq::set_has_method() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void GenericReq::clear_has_method() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void GenericReq::clear_method() {
+  if (method_ != &::google::protobuf::internal::kEmptyString) {
+    method_->clear();
+  }
+  clear_has_method();
+}
+inline const ::std::string& GenericReq::method() const {
+  return *method_;
+}
+inline void GenericReq::set_method(const ::std::string& value) {
+  set_has_method();
+  if (method_ == &::google::protobuf::internal::kEmptyString) {
+    method_ = new ::std::string;
+  }
+  method_->assign(value);
+}
+inline void GenericReq::set_method(const char* value) {
+  set_has_method();
+  if (method_ == &::google::protobuf::internal::kEmptyString) {
+    method_ = new ::std::string;
+  }
+  method_->assign(value);
+}
+inline void GenericReq::set_method(const char* value, size_t size) {
+  set_has_method();
+  if (method_ == &::google::protobuf::internal::kEmptyString) {
+    method_ = new ::std::string;
+  }
+  method_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* GenericReq::mutable_method() {
+  set_has_method();
+  if (method_ == &::google::protobuf::internal::kEmptyString) {
+    method_ = new ::std::string;
+  }
+  return method_;
+}
+inline ::std::string* GenericReq::release_method() {
+  clear_has_method();
+  if (method_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = method_;
+    method_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void GenericReq::set_allocated_method(::std::string* method) {
+  if (method_ != &::google::protobuf::internal::kEmptyString) {
+    delete method_;
+  }
+  if (method) {
+    set_has_method();
+    method_ = method;
+  } else {
+    clear_has_method();
+    method_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
+}
+
+// required bytes request = 2;
+inline bool GenericReq::has_request() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void GenericReq::set_has_request() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void GenericReq::clear_has_request() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void GenericReq::clear_request() {
+  if (request_ != &::google::protobuf::internal::kEmptyString) {
+    request_->clear();
+  }
+  clear_has_request();
+}
+inline const ::std::string& GenericReq::request() const {
+  return *request_;
+}
+inline void GenericReq::set_request(const ::std::string& value) {
+  set_has_request();
+  if (request_ == &::google::protobuf::internal::kEmptyString) {
+    request_ = new ::std::string;
+  }
+  request_->assign(value);
+}
+inline void GenericReq::set_request(const char* value) {
+  set_has_request();
+  if (request_ == &::google::protobuf::internal::kEmptyString) {
+    request_ = new ::std::string;
+  }
+  request_->assign(value);
+}
+inline void GenericReq::set_request(const void* value, size_t size) {
+  set_has_request();
+  if (request_ == &::google::protobuf::internal::kEmptyString) {
+    request_ = new ::std::string;
+  }
+  request_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* GenericReq::mutable_request() {
+  set_has_request();
+  if (request_ == &::google::protobuf::internal::kEmptyString) {
+    request_ = new ::std::string;
+  }
+  return request_;
+}
+inline ::std::string* GenericReq::release_request() {
+  clear_has_request();
+  if (request_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = request_;
+    request_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void GenericReq::set_allocated_request(::std::string* request) {
+  if (request_ != &::google::protobuf::internal::kEmptyString) {
+    delete request_;
+  }
+  if (request) {
+    set_has_request();
+    request_ = request;
+  } else {
+    clear_has_request();
+    request_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
+}
 
 
 // @@protoc_insertion_point(namespace_scope)
