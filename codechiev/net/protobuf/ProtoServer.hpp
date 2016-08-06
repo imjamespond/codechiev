@@ -20,13 +20,17 @@ namespace codechiev {
         class ProtoServer : public TcpServer
         {
         public:
+            typedef boost::function<void(const std::string& msg)> on_message_func;
+            typedef base::BlockingQueue<4> blocking_queue;
+            typedef TcpLengthCoder<4> tcplengthcoder;
+            
             ProtoServer(const std::string& ip, uint16_t port);
             void onMessage(const std::string&, int);
             void onData(Channel* channel);
             
-            typedef base::BlockingQueue<4> blocking_queue;
-            typedef TcpLengthCoder<4> tcplengthcoder;
+            inline void setOnMessage(const on_message_func& func){onMessage_=func;}
         private:
+            on_message_func onMessage_;
             blocking_queue queue_;
         };
     }

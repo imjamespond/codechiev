@@ -20,7 +20,16 @@ using namespace codechiev::net;
 ProtoServer serv("0.0.0.0", 9999);
 AtomicNumber<int64_t> an(0);
 
+void onMessage(const std::string& msg)
+{
+    com::codechiev::test::TestRequest req;
+    req.ParseFromString(msg);
+    LOG_INFO<<req.DebugString();
+}
+
 int main(int argc, const char * argv[]) {
+    
+    serv.setOnMessage(boost::bind(&onMessage, _1));
     
     Thread t("", boost::bind(&ProtoServer::listen, &serv));
     t.start();

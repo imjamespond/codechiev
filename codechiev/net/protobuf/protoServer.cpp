@@ -23,7 +23,7 @@ void onConnect(Channel* channel)
 }
 
 ProtoServer::ProtoServer(const std::string& ip, uint16_t port):
-TcpServer(ip, port)
+TcpServer(ip, port),onMessage_(0)
 {
     setOnConnect(boost::bind(&::onConnect, _1));
     setOnData(boost::bind(&ProtoServer::onData, this, _1));
@@ -51,6 +51,11 @@ void
 ProtoServer::onMessage(const std::string& msg, int fd)
 {
     LOG_TRACE<<"onMessage:"<<msg;
-    channel_ptr channel = this->getChannel(fd);
+    //channel_ptr channel = this->getChannel(fd);
+    if(onMessage_)
+    {
+        onMessage_(msg);
+    }
+    
 }
 
