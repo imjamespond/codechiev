@@ -33,7 +33,7 @@ void onMessage(const std::string& msg)
     genericReqPtr->ParseFromString(msg);
     LOG_INFO<<genericReqPtr->DebugString();
     
-    typedef boost::shared_ptr<::google::protobuf::Message > message_ptr;
+    typedef boost::shared_ptr< ::google::protobuf::Message > message_ptr;
     TestService service;
     const ::google::protobuf::ServiceDescriptor *serviceDesc = service.GetDescriptor();
     const ::google::protobuf::MethodDescriptor *methodDesc = serviceDesc->FindMethodByName( genericReqPtr->method());
