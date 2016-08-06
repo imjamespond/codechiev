@@ -1,0 +1,30 @@
+package com.codechiev.test;
+option py_generic_services = true;
+option cc_generic_services = true;
+option java_generic_services = true;
+option java_package = "com.codechiev.test";
+option java_outer_classname = "TestProto";
+
+message TestRequest {
+  required string id = 1;
+  required uint32 type = 2;
+  optional string name = 3;
+}
+
+message GenericRsp {
+  required bool ok = 1;
+  optional string msg = 2;
+}
+
+message IdentReq {
+  required string uid = 1;
+  required string loginKey = 2;
+}
+
+message GenericReq {
+}
+
+service NodeService {
+  rpc testRpc (TestRequest) returns (GenericRsp);
+  rpc identify (IdentReq) returns (GenericRsp);
+}
