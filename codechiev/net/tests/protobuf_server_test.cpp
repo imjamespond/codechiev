@@ -24,6 +24,7 @@ class TestService : public com::codechiev::test::NodeService
 {
 public:
 };
+TestService service;
 
 void onMessage(const std::string& msg)
 {
@@ -34,7 +35,8 @@ void onMessage(const std::string& msg)
     LOG_INFO<<genericReqPtr->DebugString();
     
     typedef boost::shared_ptr< ::google::protobuf::Message > message_ptr;
-    TestService service;
+    typedef ::google::protobuf::Message message;
+    
     const ::google::protobuf::ServiceDescriptor *serviceDesc = service.GetDescriptor();
     const ::google::protobuf::MethodDescriptor *methodDesc = serviceDesc->FindMethodByName( genericReqPtr->method());
     LOG_INFO<<serviceDesc->name();
@@ -43,6 +45,9 @@ void onMessage(const std::string& msg)
         message_ptr msgPtr(service.GetRequestPrototype(methodDesc).New());
         msgPtr->ParseFromString(genericReqPtr->request());
         LOG_INFO<<msgPtr->DebugString();
+        message *rsp = service.GetResponsePrototype(methodDesc).New();
+        
+        //service.CallMethod(methodDesc, NULL, msgPtr.get(), rsp, );
     }
     
 }
