@@ -14,7 +14,7 @@ message(STATUS ${filename}${CPP_SUFFIX})
 
 include_directories (${BASE_HEADERS})
 add_executable (${filename} ${filename}${CPP_SUFFIX})
-target_link_libraries (${filename} ${MY_LIBS} pcre)
+target_link_libraries (${filename} ${MY_LIBS} pcre protobuf)
 add_dependencies(${filename} proto_out)
 add_test(${filename} ${CMAKE_CURRENT_BINARY_DIR}/${filename})
 
