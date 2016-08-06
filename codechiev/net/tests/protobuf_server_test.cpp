@@ -22,9 +22,11 @@ AtomicNumber<int64_t> an(0);
 
 void onMessage(const std::string& msg)
 {
-    com::codechiev::test::TestRequest req;
-    req.ParseFromString(msg);
-    LOG_INFO<<req.DebugString();
+    const com::codechiev::test::TestRequest &reqRef = com::codechiev::test::TestRequest::default_instance();
+    typedef boost::shared_ptr<google::protobuf::Message> message_ptr;
+    message_ptr reqPtr(reqRef.New());
+    reqPtr->ParseFromString(msg);
+    LOG_INFO<<reqPtr->DebugString();
 }
 
 int main(int argc, const char * argv[]) {
