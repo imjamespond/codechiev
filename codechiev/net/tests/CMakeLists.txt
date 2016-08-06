@@ -4,9 +4,10 @@ add_custom_command(OUTPUT test.pb.cc test.pb.h
   COMMAND protoc
   ARGS --cpp_out . ${CMAKE_CURRENT_SOURCE_DIR}/test.proto -I${CMAKE_CURRENT_SOURCE_DIR}
   DEPENDS test.proto)
+add_custom_target(proto_out DEPENDS test.pb.cc test.pb.h)
 
 set(CPP_SUFFIX ".cpp")
-file(GLOB CPP *${CPP_SUFFIX} test.pb.cc)
+file(GLOB CPP *${CPP_SUFFIX} test.pb.cc test.pb.h)
 foreach(file ${CPP})
 get_filename_component(filename ${file} NAME_WE)
 message(STATUS ${filename}${CPP_SUFFIX})
