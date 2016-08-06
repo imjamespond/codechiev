@@ -9,9 +9,10 @@
 #include <base/AtomicNumber.h>
 #include <base/Logger.hpp>
 #include <net/protobuf/ProtoServer.hpp>
-
 #include <boost/bind.hpp>
 #include <errno.h>
+
+#include "test.pb.h"
 
 using namespace codechiev::base;
 using namespace codechiev::net;

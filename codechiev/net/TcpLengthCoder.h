@@ -50,7 +50,7 @@ namespace codechiev {
                 }
             }
             
-            static void encode(Channel *channel, int len)
+            static void encode(Channel *channel, size_t len)
             {
                 char header[HEADER];
                 ::memcpy(header, &len, HEADER);

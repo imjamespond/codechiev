@@ -6,14 +6,16 @@
 //  Copyright © 2016年 metasoft. All rights reserved.
 //
 
-#include <stdio.h>
 #include <base/Logger.hpp>
-#include <net/TcpEndpoint.hpp>
-#include <net/TcpLengthCoder.h>
 #include <base/BlockingQueue.hpp>
 #include <base/Thread.hpp>
+#include <net/TcpEndpoint.hpp>
+#include <net/TcpLengthCoder.h>
 #include <boost/bind.hpp>
 #include <errno.h>
+#include <stdio.h>
+
+#include "test.pb.h"
 
 using namespace codechiev::base;
 using namespace codechiev::net;
@@ -62,7 +64,7 @@ public:
         it++)
         {
             channel_ptr chn = it->second;
-            this->shut(chn);
+            this->shut(chn.get());
         }
     }
 
@@ -102,7 +104,7 @@ onClose(Channel* channel)
 }
 int main(int argc, const char * argv[]) {
 
-    if((sizeof argv)>1)
+    if((sizeof argc)>1)
     {
         connNumber=::atoi(argv[1]);
     }
@@ -124,7 +126,14 @@ int main(int argc, const char * argv[]) {
         c=getchar();
         if(c == 10)
         {
-            client.writetoall(msg);
+            TestRequest req;
+            req.set_name(msg);
+            req.set_type(1212);
+            req.set_id("123");
+            
+            std::string serializedStr;
+            req.SerializeToString(&serializedStr);
+            client.writetoall(serializedStr.c_str());
             i=0;
             ::memset(msg, 0, sizeof msg);
         }
@@ -138,6 +147,10 @@ int main(int argc, const char * argv[]) {
 
     t.cancel();
     t.join();
+    
+    // Optional:  Delete all global objects allocated by libprotobuf.
+    google::protobuf::ShutdownProtobufLibrary();
+
 
     return 0;
 }

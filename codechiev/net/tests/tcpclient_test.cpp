@@ -58,7 +58,7 @@ public:
         it++)
         {
             channel_ptr chn = it->second;
-            this->shut(chn);
+            this->shut(chn.get());
         }
     }
 
