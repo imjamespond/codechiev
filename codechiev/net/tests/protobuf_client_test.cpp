@@ -126,7 +126,7 @@ int main(int argc, const char * argv[]) {
         c=getchar();
         if(c == 10)
         {
-            TestRequest req;
+            com::codechiev::test::TestRequest req;
             req.set_name(msg);
             req.set_type(1212);
             req.set_id("123");
