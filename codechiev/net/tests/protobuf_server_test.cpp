@@ -22,7 +22,6 @@ ProtoServer serv("0.0.0.0", 9999);
 AtomicNumber<int64_t> an(0);
 
 
-
 TestService service;
 
 void testDone(Message *rsp)

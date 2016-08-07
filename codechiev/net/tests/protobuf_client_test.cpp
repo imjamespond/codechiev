@@ -14,7 +14,7 @@
 #include <boost/bind.hpp>
 #include <errno.h>
 #include <stdio.h>
-
+#include <net/Rpc.h>
 #include "test.service.h"
 
 using namespace codechiev::base;
@@ -22,7 +22,8 @@ using namespace codechiev::net;
 using namespace com::codechiev::test;
 int connNumber(1);
 BlockingQueue<2> queue;
-
+RpcChannel rpc;
+NodeService service = com::codechiev::test::NodeService::Stub(&rpc);
 
 class MultiClient : public TcpClient
 {
