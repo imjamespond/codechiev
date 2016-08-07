@@ -12,7 +12,7 @@ void PbRpcChannel::CallMethod(
         const Message * request,
         Message * response,
         Closure * done)
-{
+{/*
         com::codechiev::test::GenericReq req;
         req.set_method("testRpc");
         std::string serializedTest;
@@ -20,7 +20,7 @@ void PbRpcChannel::CallMethod(
         req.set_request(serializedTest);
         std::string serializedGeneric;
         req.SerializeToString(&serializedGeneric);
-
+*/
         channel_ptr c = channel_.get();
         if(c)
         {
