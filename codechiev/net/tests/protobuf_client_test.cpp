@@ -22,7 +22,7 @@ using namespace codechiev::net;
 using namespace com::codechiev::test;
 int connNumber(1);
 BlockingQueue<2> queue;
-RpcChannel rpc;
+PbRpcChannel rpc;
 NodeService service = com::codechiev::test::NodeService::Stub(&rpc);
 
 class MultiClient : public TcpClient

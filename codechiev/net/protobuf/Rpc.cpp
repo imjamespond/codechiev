@@ -1,12 +1,12 @@
 #include "Rpc.h"
 using namespace codechiev::net;
 using namespace google::protobuf;
-RpcChannel::RpcChannel()
+PbRpcChannel::PbRpcChannel()
 {
     //ctor
 }
 
-void RpcChannel::CallMethod(
+void PbRpcChannel::CallMethod(
         const MethodDescriptor * method,
         RpcController * controller,
         const Message * request,

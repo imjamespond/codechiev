@@ -6,10 +6,10 @@ namespace codechiev
 {
     namespace net
     {
-        class RpcChannel : public google::protobuf::RpcChannel
+        class PbRpcChannel : public google::protobuf::RpcChannel
         {
             public:
-                RpcChannel();
+                PbRpcChannel();
                 void CallMethod(const google::protobuf::MethodDescriptor * ,
                                 google::protobuf::RpcController * ,const
                                 google::protobuf::Message * ,
