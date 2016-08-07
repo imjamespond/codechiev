@@ -129,7 +129,14 @@ int main(int argc, const char * argv[]) {
         c=getchar();
         if(c == 10)
         {
+            com::codechiev::test::TestRequest testReq;
+            testReq.set_name(msg);
+            testReq.set_type(1212);
+            testReq.set_id("123");
 
+            service.testRpc(NULL, testReq, NULL, NULL);
+
+            client.writetoall(serializedGeneric.c_str());
             i=0;
             ::memset(msg, 0, sizeof msg);
         }

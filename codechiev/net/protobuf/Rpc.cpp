@@ -13,9 +13,7 @@ void PbRpcChannel::CallMethod(
         Message * response,
         Closure * done)
 {
-        request->set_name(msg);
-        request->set_type(1212);
-        request->set_id("123");
+
         std::string serializedTest;
         request->SerializeToString(&serializedTest);
         req.set_request(serializedTest);
