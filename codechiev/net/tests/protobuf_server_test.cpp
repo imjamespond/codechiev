@@ -26,17 +26,17 @@ AtomicNumber<int64_t> an(0);
 class TestService : public com::codechiev::test::NodeService
 {
 public:
-    void testRpc(::google::protobuf::RpcController* controller,
+    void testRpc(RpcController* controller,
                        const ::com::codechiev::test::TestRequest* request,
                        ::com::codechiev::test::GenericRsp* response,
-                       ::google::protobuf::Closure* done)
+                       Closure* done)
     {
         LOG_INFO<<"";
     }
 };
 TestService service;
 
-void testDone()
+void testDone(Message *rsp)
 {
     LOG_INFO<<"";
 }
