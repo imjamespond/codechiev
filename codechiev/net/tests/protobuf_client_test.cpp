@@ -14,7 +14,7 @@
 #include <boost/bind.hpp>
 #include <errno.h>
 #include <stdio.h>
-#include <net/Rpc.h>
+#include <net/protobuf/Rpc.h>
 #include "test.service.h"
 
 using namespace codechiev::base;
