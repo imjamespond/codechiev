@@ -12,7 +12,7 @@
 #include <boost/bind.hpp>
 #include <errno.h>
 
-#include "test.pb.h"
+#include "test.service.h"
 
 using namespace codechiev::base;
 using namespace codechiev::net;
@@ -23,17 +23,6 @@ AtomicNumber<int64_t> an(0);
 
 
 
-class TestService : public com::codechiev::test::NodeService
-{
-public:
-    void testRpc(RpcController* controller,
-                       const ::com::codechiev::test::TestRequest* request,
-                       ::com::codechiev::test::GenericRsp* response,
-                       Closure* done)
-    {
-        LOG_INFO<<"";
-    }
-};
 TestService service;
 
 void testDone(Message *rsp)

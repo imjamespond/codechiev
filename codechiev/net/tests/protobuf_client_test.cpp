@@ -15,13 +15,15 @@
 #include <errno.h>
 #include <stdio.h>
 
-#include "test.pb.h"
+#include "test.service.h"
 
 using namespace codechiev::base;
 using namespace codechiev::net;
-
+using namespace com::codechiev::test;
 int connNumber(1);
 BlockingQueue<2> queue;
+
+
 class MultiClient : public TcpClient
 {
 public:
@@ -88,7 +90,7 @@ void
 onData(Channel* channel)
 {
     LOG_DEBUG<<"onData:"<<channel->getReadBuf()->str();
-    
+
     for(;;)
     {
         std::string msg;
@@ -115,7 +117,7 @@ int main(int argc, const char * argv[]) {
     client.setOnClose(boost::bind(&onClose,_1));
     Thread t("", boost::bind(&MultiClient::connectall, &client));
     t.start();
-    
+
     queue.commence();
 
     int c(0),i(0);
@@ -137,7 +139,9 @@ int main(int argc, const char * argv[]) {
             req.set_request(serializedTest);
             std::string serializedGeneric;
             req.SerializeToString(&serializedGeneric);
-            
+
+            stub.
+
             client.writetoall(serializedGeneric.c_str());
             i=0;
             ::memset(msg, 0, sizeof msg);
@@ -152,7 +156,7 @@ int main(int argc, const char * argv[]) {
 
     t.cancel();
     t.join();
-    
+
     // Optional:  Delete all global objects allocated by libprotobuf.
     google::protobuf::ShutdownProtobufLibrary();
 
