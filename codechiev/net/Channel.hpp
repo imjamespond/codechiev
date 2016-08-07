@@ -14,6 +14,7 @@
 #include <vector>
 #include <sys/socket.h>
 #include <boost/shared_ptr.hpp>
+#include <boost/weak_ptr.hpp>
 #include <boost/unordered_map.hpp>
 #include <base/FixedBuffer.h>
 
@@ -28,6 +29,7 @@ namespace codechiev {
         {
         public:
             typedef boost::shared_ptr<Channel> channel_ptr_t;
+            typedef boost::weak_ptr<Channel> wchannel_ptr_t;
             typedef std::vector<Channel*> channel_vec_t;
             typedef boost::unordered_map<int, channel_ptr_t> channel_map_t;
             Channel(int fd):fd_(fd),event_(0),connected_(false){}
@@ -63,6 +65,7 @@ namespace codechiev {
         typedef Channel::channel_map_t channel_map;
         typedef Channel::channel_vec_t channel_vec;
         typedef Channel::channel_ptr_t channel_ptr;
+        typedef Channel::wchannel_ptr_t wchannel_ptr;
 
         inline int
         Channel::setReuseAddr()
