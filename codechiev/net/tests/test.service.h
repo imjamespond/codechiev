@@ -6,10 +6,10 @@
 class TestService : public com::codechiev::test::NodeService
 {
 public:
-    void testRpc(RpcController* controller,
+    void testRpc(::google::protobuf::RpcController* controller,
                        const ::com::codechiev::test::TestRequest* request,
                        ::com::codechiev::test::GenericRsp* response,
-                       Closure* done)
+                       ::google::protobuf::Closure* done)
     {
         LOG_INFO<<"";
     }
