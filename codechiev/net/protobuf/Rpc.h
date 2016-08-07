@@ -1,7 +1,7 @@
 #ifndef RPC_H
 #define RPC_H
 #include <google/protobuf/service.h>
-
+#include <google/protobuf/stubs/common.h>
 namespace codechiev
 {
     namespace net
