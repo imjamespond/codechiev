@@ -13,8 +13,11 @@ void PbRpcChannel::CallMethod(
         Message * response,
         Closure * done)
 {
-        com::codechiev::test::GenericReq req;
-        req.set_method("testRpc");
+        request->set_name(msg);
+        request->set_type(1212);
+        request->set_id("123");
+        std::string serializedTest;
+        request->SerializeToString(&serializedTest);
         req.set_request(serializedTest);
         std::string serializedGeneric;
         req.SerializeToString(&serializedGeneric);

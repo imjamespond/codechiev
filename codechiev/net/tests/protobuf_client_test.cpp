@@ -130,15 +130,6 @@ int main(int argc, const char * argv[]) {
         if(c == 10)
         {
 
-            com::codechiev::test::TestRequest testReq;
-            testReq.set_name(msg);
-            testReq.set_type(1212);
-            testReq.set_id("123");
-            std::string serializedTest;
-            testReq.SerializeToString(&serializedTest);
-            service.testRpc(NULL, testReq,)
-
-            client.writetoall(serializedGeneric.c_str());
             i=0;
             ::memset(msg, 0, sizeof msg);
         }
