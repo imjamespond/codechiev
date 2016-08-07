@@ -21,8 +21,7 @@ void PbRpcChannel::CallMethod(
         std::string serializedGeneric;
         req.SerializeToString(&serializedGeneric);
 */
-        channel_ptr c = channel_.get();
-        if(c)
+        if(channel_ptr c = channel_.lock())
         {
 
         }
