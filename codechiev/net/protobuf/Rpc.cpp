@@ -1,5 +1,6 @@
 #include "Rpc.h"
 using namespace codechiev::net;
+using namespace google::protobuf;
 RpcChannel::RpcChannel()
 {
     //ctor
