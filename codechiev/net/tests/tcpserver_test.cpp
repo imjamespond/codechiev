@@ -19,7 +19,7 @@ using namespace codechiev::net;
 HttpServer serv("0.0.0.0", 9999);
 AtomicNumber<int64_t> an(0);
 
-onMessage(Channel* channel)
+void onMessage(Channel* channel)
 {
     an.addAndFetch(channel->getReadBuf()->readable());
     channel->getReadBuf()->readall();
