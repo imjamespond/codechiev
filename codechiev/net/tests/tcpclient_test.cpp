@@ -82,7 +82,7 @@ void onClose(Channel* channel)
     LOG_DEBUG<<"onClose fd:"<<channel->getFd();
 }
 
-net::Scheduler sc;
+Scheduler sc;
 char msg[128];
 int main(int argc, const char * argv[]) {
 
@@ -98,7 +98,7 @@ int main(int argc, const char * argv[]) {
     Thread t("Client", boost::bind(&MultiClient::connectall, &client));
     t.start();
     
-    Thread tt("Timer", boost::bind(&net::Scheduler::schedule, &sc));
+    Thread tt("Timer", boost::bind(&Scheduler::schedule, &sc));
     tt.start();
     net::timer_ptr t2(new net::Timer);
     //t2->every(10l, 5000l, boost::bind(&MultiClient::writetoall, msg));
