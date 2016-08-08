@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <net/TcpEndpoint.hpp>
 #include <net/Timer.hpp>
+#include <base/AtomicNumber.h>
 #include <base/Logger.hpp>
 #include <base/Thread.hpp>
 #include <boost/bind.hpp>
@@ -17,7 +18,7 @@
 using namespace codechiev::base;
 using namespace codechiev::net;
 
-//AtomicNumber<int64_t> ct(0);
+AtomicNumber<int64_t> ct(0);
 int connNumber(1);
 
 class MultiClient : public TcpClient
