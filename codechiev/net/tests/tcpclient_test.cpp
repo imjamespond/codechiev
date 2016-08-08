@@ -17,7 +17,9 @@
 using namespace codechiev::base;
 using namespace codechiev::net;
 
+AtomicNumber<int64_t> count(0);
 int connNumber(1);
+
 class MultiClient : public TcpClient
 {
 public:
@@ -111,7 +113,6 @@ int main(int argc, const char * argv[]) {
         c=getchar();
         if(c == 10)
         {
-            for(int i=0; i<1000; i++)
             client.writetoall(msg);
             i=0;
             ::memset(msg, 0, sizeof msg);
@@ -122,7 +123,6 @@ int main(int argc, const char * argv[]) {
         }
 
     }while(c!='.');
-
 
     t.cancel();
     t.join();

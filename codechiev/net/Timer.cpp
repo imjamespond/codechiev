@@ -71,6 +71,15 @@ Timer::every(int64_t millis, int64_t delay)
     ::timerfd_settime(channel_.getFd(), TFD_TIMER_ABSTIME, &new_value, &old_value);
 }
 
+
+TimerQueue::TimerQueue(){}
+void
+TimerQueue::commence()
+{
+    
+}
+
+
 Scheduler::Scheduler()
 {}
 
