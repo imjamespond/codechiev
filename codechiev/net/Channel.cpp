@@ -15,11 +15,12 @@ using namespace codechiev::net;
 void
 Channel::write(const std::string& msg)
 {
-    writebuf_.append(msg.c_str());
+    if(writebuf_.append(msg.c_str()==0)
+       LOG_WARN<<"append nothing";
 }
 
 void
 Channel::writeEvent()
 {
-    LOG_DEBUG<<"writeEvent fd:"<< fd_ <<" readable:"<<writebuf_.readable();
+    //LOG_DEBUG<<"writeEvent fd:"<< fd_ <<" readable:"<<writebuf_.readable();
 }

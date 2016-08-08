@@ -40,11 +40,11 @@ namespace codechiev {
                 return wb;
             }
 
-            void append(const char *str)
+            int append(const char *str)
             {
-                append(str, static_cast<int>(::strlen(str)));
+                return append(str, static_cast<int>(::strlen(str)));
             }
-            void append(const char *str, int len)
+            int append(const char *str, int len)
             {
                 if(len<=0)
                     return;
@@ -53,11 +53,13 @@ namespace codechiev {
                 {
                     ::memcpy(buffer_+writer_, str, len);
                     write(len);
+                    return len;
                 }else if(wb>0)
                 {
                     wb-=1;
                     ::memcpy(buffer_+writer_, str, wb);
                     write(wb);
+                    return wb;
                 }
             }
 
