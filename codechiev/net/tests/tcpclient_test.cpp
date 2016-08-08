@@ -100,7 +100,7 @@ int main(int argc, const char * argv[]) {
     
     Thread tt("Timer", boost::bind(&Scheduler::schedule, &sc));
     tt.start();
-    net::timer_ptr t2(new net::Timer);
+    timer_ptr t2(new Timer);
     //t2->every(10l, 5000l, boost::bind(&MultiClient::writetoall, msg));
     sc.scheduleTimer(t2);
 
