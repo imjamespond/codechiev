@@ -15,8 +15,8 @@ using namespace codechiev::net;
 void
 Channel::write(const std::string& msg)
 {
-    if(writebuf_.append(msg.c_str()==0)
-       LOG_DEBUG<<"append nothing";
+    if(writebuf_.append(msg.c_str()==0))
+       LOG_WARN<<"append nothing";
 }
 
 void

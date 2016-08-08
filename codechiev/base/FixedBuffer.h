@@ -42,9 +42,9 @@ namespace codechiev {
 
             int append(const char *str)
             {
-                return appendWithLen(str, static_cast<int>(::strlen(str)));
+                return append(str, static_cast<int>(::strlen(str)));
             }
-            int appendWithLen(const char *str, int len)
+            int append(const char *str, int len)
             {
                 if(len<=0)
                     return 0;
