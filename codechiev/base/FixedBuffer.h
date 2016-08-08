@@ -47,7 +47,7 @@ namespace codechiev {
             int append(const char *str, int len)
             {
                 if(len<=0)
-                    return;
+                    return 0;
                 int wb = writable();
                 if(wb>len)
                 {
