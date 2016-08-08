@@ -78,14 +78,14 @@ EPoll::poll(channel_vec &vec)
         {
             events_.resize(nfds<<1);
         }
-        LOG_TRACE<<"epoll channels available:"<<nfds<<", esize:"<<static_cast<int>(events_.size());
+        //LOG_TRACE<<"epoll channels available:"<<nfds<<", esize:"<<static_cast<int>(events_.size());
         for(int i=0; i<nfds; i++)
         {
             struct epoll_event& ev = events_[i];
             Channel* channel = static_cast<Channel*>(ev.data.ptr);
             channel->setEvent(ev.events);
             vec.push_back( channel );
-            LOG_TRACE<<"event:"<<static_cast<int>(ev.events);
+            //LOG_TRACE<<"event:"<<static_cast<int>(ev.events);
         }
     }
     else if (nfds == -1)

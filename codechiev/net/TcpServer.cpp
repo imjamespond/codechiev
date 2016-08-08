@@ -35,7 +35,7 @@ TcpEndpoint::onRead(Channel* channel)
     {
         ::memset(buffer, '\0', sizeof buffer);
         int len = static_cast<int>(::read(channel->getFd(), buffer, kBufferEachTimeSize));
-        LOG_TRACE<<"read:"<<len<<",errno:"<<errno;
+        //LOG_TRACE<<"read:"<<len<<",errno:"<<errno;
         if(len)
         {
             channel->getReadBuf()->append(buffer, len);
@@ -73,7 +73,7 @@ TcpEndpoint::onWrite(Channel* channel)
             readable = kBufferEachTimeSize;
         }
         int len = static_cast<int>(::write(channel->getFd(), channel->getWriteBuf()->str(), readable));
-        LOG_TRACE<<"write:"<<len;
+        //LOG_TRACE<<"write:"<<len;
         if(len)
         {
             channel->getWriteBuf()->read(len);
