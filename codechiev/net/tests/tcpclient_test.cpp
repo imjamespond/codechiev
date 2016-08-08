@@ -17,7 +17,7 @@
 using namespace codechiev::base;
 using namespace codechiev::net;
 
-AtomicNumber<int64_t> count(0);
+AtomicNumber<int64_t> ct(0);
 int connNumber(1);
 
 class MultiClient : public TcpClient
