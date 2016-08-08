@@ -99,7 +99,7 @@ int main(int argc, const char * argv[]) {
     client.setOnClose(boost::bind(&onClose,_1));
     Thread t("Client", boost::bind(&MultiClient::connectall, &client));
     t.start();
-    
+
     Thread tt("Timer", boost::bind(&Scheduler::schedule, &sc));
     tt.start();
     timer_ptr t2(new Timer);
