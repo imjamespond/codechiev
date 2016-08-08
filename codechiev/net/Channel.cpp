@@ -16,7 +16,7 @@ void
 Channel::write(const std::string& msg)
 {
     if(writebuf_.append(msg.c_str()==0)
-       LOG_WARN<<"append nothing";
+       LOG_DEBUG<<"append nothing";
 }
 
 void
