@@ -16,7 +16,7 @@
 using namespace codechiev::base;
 using namespace codechiev::net;
 
-HttpServer serv("0.0.0.0", 9999);
+TcpServer serv("0.0.0.0", 9999);
 AtomicNumber<int64_t> an(0);
 
 void onMessage(Channel* channel)
@@ -27,6 +27,8 @@ void onMessage(Channel* channel)
 
 int main(int argc, const char * argv[]) {
 
+    serv.setOnData(boost::bind(&onMessage, _1));
+    
     Thread t("", boost::bind(&HttpServer::listen, &serv));
     t.start();
 
