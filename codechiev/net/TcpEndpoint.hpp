@@ -52,6 +52,7 @@ namespace codechiev {
 
             EventLoop<EPoll> loop_;
             InetAddressSt addr_;
+            base::Mutex mutex_;
 
             on_connect_func onConnect_;
             on_data_func onData_;
@@ -74,7 +75,7 @@ namespace codechiev {
         private:
             Channel channel_;
             channel_map channels_;
-            base::Mutex mutex_;
+            
         };
 
         class TcpClient : public TcpEndpoint

@@ -67,6 +67,8 @@ TcpEndpoint::onWrite(Channel* channel)
 {
     for(;;)
     {
+        MutexGuard lock(&mutex_);
+        
         int readable = channel->getWriteBuf()->readable();
         if(readable > kBufferEachTimeSize)
         {
@@ -121,6 +123,8 @@ TcpEndpoint::onClose(Channel* channel)
 void
 TcpEndpoint::write(Channel* channel, const std::string& msg)
 {
+    MutexGuard lock(&mutex_);
+    
     channel->write(msg);
     if(channel->getWriteBuf()->readable())
     {
