@@ -125,8 +125,8 @@ TimerQueue::expire()
         it!=tasks_.end();
         it++)
     {
-        const timer_cb& task = it.second;
-        if(it.first - Time::Now().getMillis()<100)
+        const timer_cb& task = it->second;
+        if(it->first - Time::Now().getMillis()<100)
         {
             task();
         }else
