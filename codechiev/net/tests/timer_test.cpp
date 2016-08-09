@@ -27,7 +27,7 @@ void cease(int fd)
 {
     LOG_DEBUG<<"time's up, fd:"<<fd<<", count"<<count;
     if(--count<0)
-        sc.unscheduleTimer(fd);
+        sc.removeTimer(fd);
 }
 int main(int argc, const char * argv[]) {
     base::Thread thread("Scheduler", boost::bind(&net::Scheduler::schedule, &sc));
@@ -38,9 +38,9 @@ int main(int argc, const char * argv[]) {
     t1->after(8000l, boost::bind(&print, t1->getChannel()->getFd()));
     t2->every(1000l, 5000l, boost::bind(&cease, t2->getChannel()->getFd()));
     t3->after(2000l, boost::bind(&print, t3->getChannel()->getFd()));
-    sc.scheduleTimer(t1);
-    sc.scheduleTimer(t2);
-    sc.scheduleTimer(t3);
+    sc.addTimer(t1);
+    sc.addTimer(t2);
+    sc.addTimer(t3);
     }
     thread.join();
     /*test blocking fd

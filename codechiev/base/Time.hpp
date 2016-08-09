@@ -24,6 +24,7 @@ namespace codechiev {
 #define MILLIS_TO_SECS(millis) millis * .001
 #define SECS_TO_MILLIS(secs) static_cast<int64_t>(secs) * 1000
 #define MICROS_TO_MILLIS(micros) micros * .001
+#define NANOS_TO_MILLIS(nanos) nanos * .000001
         
         class Time{
         public:

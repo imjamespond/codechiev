@@ -36,43 +36,51 @@ namespace codechiev {
             void after(int64_t, const timer_cb_t&);
             void every(int64_t, int64_t);
             void every(int64_t, int64_t, const timer_cb_t&);
+            void expireAt(int64_t);
 
             inline Channel* getChannel(){return &channel_;}
+            inline void setCallback(const timer_cb_t& cb){cb_=cb;}
             inline void callback(){if(cb_)cb_();}
+            
+            int64_t next;
         protected:
             Channel channel_;
             timer_cb_t cb_;
         };
         typedef Timer::timer_ptr_t timer_ptr;
         typedef Timer::timer_map_t timer_map;
-
-
-        class TimerQueue : public Timer
-        {
-        public:
-            typedef std::multimap<int64_t, Timer::timer_cb_t> task_map;
-            typedef std::pair<int64_t, Timer::timer_cb_t> task_pair;
-            TimerQueue();
-            void commence();
-            void addTask(int64_t, const Timer::timer_cb_t&);
-        private:
-            task_map tasks_;
-        };
-
+        typedef Timer::timer_cb_t timer_cb;
+        
         class Scheduler : public boost::noncopyable
         {
         public:
             Scheduler();
-
+            
             void pollEvent(const channel_vec&);
             void schedule();
-            void scheduleTimer(const timer_ptr& timer);
+            void addTimer(const timer_ptr& timer);
+            void setTimer(const timer_ptr& timer);
             void unscheduleTimer(int fd);
         private:
             EventLoop<EPoll> loop_;
             timer_map timers_;
         };
+        
 
+        class TimerQueue : public Timer
+        {
+        public:
+            typedef std::multimap<int64_t, timer_cb> task_map;
+            typedef std::pair<int64_t, > task_pair;
+            TimerQueue();
+            void commence();
+            void addTask(int64_t, const timer_cb&);
+            void expire();
+        private:
+            Timer timer_;
+            Scheduler schedule_;
+            task_map tasks_;
+        };
 
     }
 }
