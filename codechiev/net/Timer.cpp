@@ -24,7 +24,7 @@ using namespace codechiev::base;
 #define handle_error(msg) \
                do { perror(msg); exit(EXIT_FAILURE); } while (0)
 
-Timer::Timer():next(0)
+Timer::Timer():next(0),
 channel_(::timerfd_create(CLOCK_REALTIME, TFD_NONBLOCK|TFD_CLOEXEC))
 {
     if (channel_.getFd() == -1)
@@ -64,8 +64,6 @@ Timer::every(int64_t millis, int64_t delay)
     struct timespec now;
     if (::clock_gettime(CLOCK_REALTIME, &now) == -1)
         handle_error("clock_gettime");
-    
-    next = SECS_TO_MILLIS(now.tv_sec) + NANOS_TO_MILLIS(now.tv_nsec) + delay;
     
     new_value.it_value.tv_sec = now.tv_sec + MILLIS_TO_SECS(delay);
     new_value.it_value.tv_nsec = now.tv_nsec + MILLIS_TO_NANOS(delay);
