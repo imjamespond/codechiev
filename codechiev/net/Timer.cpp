@@ -115,7 +115,7 @@ TimerQueue::addTask(int64_t expired, const timer_cb & task)
     }else
     {
         tasks_.insert(task_pair(expired, task));
-        timer_.expireAt(expired);
+        timer_->expireAt(expired);
     }
 }
 void
@@ -131,7 +131,7 @@ TimerQueue::expire()
             task();
         }else
         {
-            timer_.expired(it.first);
+            timer_->expired(it.first);
             break;
         }
     }
