@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <net/TcpEndpoint.hpp>
 #include <net/Timer.hpp>
-#include <base/AtomicNumber.hpp>
+#include <base/AtomicNumber.h>
 #include <base/Logger.hpp>
 #include <base/Thread.hpp>
 #include <boost/bind.hpp>
