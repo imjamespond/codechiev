@@ -98,7 +98,7 @@ TimerQueue::commence()
     schedule_.schedule();
 }
 void
-TimerQueue::addTask(int64_t expired, const Timer::timer_cb_t & task)
+TimerQueue::addTask(int64_t expired, const timer_cb & task)
 {
     assert(task);
     /*if(timer_.next-expired>100)

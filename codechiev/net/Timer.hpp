@@ -60,7 +60,7 @@ namespace codechiev {
             void schedule();
             void addTimer(const timer_ptr& timer);
             void setTimer(const timer_ptr& timer);
-            void unscheduleTimer(int fd);
+            void removeTimer(int fd);
         private:
             EventLoop<EPoll> loop_;
             timer_map timers_;
@@ -71,7 +71,7 @@ namespace codechiev {
         {
         public:
             typedef std::multimap<int64_t, timer_cb> task_map;
-            typedef std::pair<int64_t, > task_pair;
+            typedef std::pair<int64_t, timer_cb> task_pair;
             TimerQueue();
             void commence();
             void addTask(int64_t, const timer_cb&);
