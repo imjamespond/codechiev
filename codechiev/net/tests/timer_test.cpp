@@ -49,7 +49,7 @@ int main(int argc, const char * argv[]) {
     
     LOG_DEBUG<<"timer test";
     base::Time now=base::Time::Now();
-    timerq.addTask(now.getMillis()+9000l, boost::bind(&quit));
+    timerq.addTask(now.getMillis()+9000l, boost::bind(&quit, &thread));
     timerq.addTask(now.getMillis()+3000l, boost::bind(&print, 3));
     timerq.addTask(now.getMillis()+6000l, boost::bind(&print, 6));
     
