@@ -125,14 +125,12 @@ TimerQueue::expire()
         if(it->first - Time::Now().getMillis()<100)
         {
             task();
-            tasks_.erase(it);
+            tasks_.erase(it++);
         }else
         {
             timer_->expireAt(it->first);
             break;
         }
-        
-        it++;
     }
 }
 
