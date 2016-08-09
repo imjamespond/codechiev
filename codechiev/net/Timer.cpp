@@ -131,7 +131,7 @@ TimerQueue::expire()
             task();
         }else
         {
-            timer_->expired(it.first);
+            timer_->expired(it->first);
             break;
         }
     }
