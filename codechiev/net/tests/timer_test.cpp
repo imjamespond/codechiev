@@ -33,7 +33,7 @@ int main(int argc, const char * argv[]) {
     base::Thread thread("Scheduler", boost::bind(&net::Scheduler::schedule, &sc));
     thread.start();
 
-    {
+    /*{
     net::timer_ptr t1(new net::Timer),t2(new net::Timer),t3(new net::Timer);
     t1->after(8000l, boost::bind(&print, t1->getChannel()->getFd()));
     t2->every(1000l, 5000l, boost::bind(&cease, t2->getChannel()->getFd()));
@@ -41,7 +41,11 @@ int main(int argc, const char * argv[]) {
     sc.addTimer(t1);
     sc.addTimer(t2);
     sc.addTimer(t3);
-    }
+    }*/
+    
+    TimerQueue timerq;
+    
+    
     thread.join();
     /*test blocking fd
     uint64_t exp(0);

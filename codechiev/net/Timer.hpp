@@ -67,7 +67,7 @@ namespace codechiev {
         };
         
 
-        class TimerQueue : public Timer
+        class TimerQueue
         {
         public:
             typedef std::multimap<int64_t, timer_cb> task_map;
