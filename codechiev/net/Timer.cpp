@@ -88,12 +88,12 @@ Timer::expireAt(int64_t millis)
     
 }
 
-TimerQueue::TimerQueue()
+TimerQueue::TimerQueue():timer_(new Timer)
 {}
 void
 TimerQueue::commence()
 {
-    timer_.setCallback(boost::bind(&TimerQueue::expire, this));
+    timer_->setCallback(boost::bind(&TimerQueue::expire, this));
     schedule_.addTimer(timer_);
     schedule_.schedule();
 }

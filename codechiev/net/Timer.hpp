@@ -77,7 +77,7 @@ namespace codechiev {
             void addTask(int64_t, const timer_cb&);
             void expire();
         private:
-            Timer timer_;
+            timer_ptr timer_;
             Scheduler schedule_;
             task_map tasks_;
         };
