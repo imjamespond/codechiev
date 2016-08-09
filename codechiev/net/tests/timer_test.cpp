@@ -24,6 +24,10 @@ void print(int s)
 {
     LOG_DEBUG<<"time's up, sec:"<<s;
 }
+void quit(base::Thread* t)
+{
+    ::pthread_exit(NULL);
+}
 int count(5);
 int main(int argc, const char * argv[]) {
     /*base::Thread thread("Scheduler", boost::bind(&net::Scheduler::schedule, &sc));
