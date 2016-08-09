@@ -15,7 +15,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/unordered_map.hpp>
 #include <boost/tuple/tuple.hpp>
-#include <set>
+#include <map>
 #include <stdint.h>        /* Definition of uint64_t */
 #include <stdio.h>
 
@@ -51,9 +51,10 @@ namespace codechiev {
         {
         public:
             typedef std::multimap<int64_t, Timer::timer_cb_t> task_map;
+            typedef std::pair<int64_t, Timer::timer_cb_t> task_pair;
             TimerQueue();
             void commence();
-            void addTask(const Timer::timer_cb_t&);
+            void addTask(int64_t, const Timer::timer_cb_t&);
         private:
             task_map tasks_;
         };

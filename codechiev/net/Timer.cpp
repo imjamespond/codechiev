@@ -78,6 +78,11 @@ TimerQueue::commence()
 {
     
 }
+void
+TimerQueue::addTask(int64_t expire, const Timer::timer_cb_t & task)
+{
+    tasks_.insert(task_pair(expire, task));
+}
 
 
 Scheduler::Scheduler()
