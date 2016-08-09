@@ -52,6 +52,7 @@ int main(int argc, const char * argv[]) {
     timerq.addTask(now.getMillis()+9000l, boost::bind(&quit, &thread));
     timerq.addTask(now.getMillis()+3000l, boost::bind(&print, 3));
     timerq.addTask(now.getMillis()+6000l, boost::bind(&print, 6));
+    timerq.addTask(now.getMillis()+30l, boost::bind(&print, 0));
     
     thread.join();
     /*test blocking fd
