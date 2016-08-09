@@ -105,7 +105,7 @@ int main(int argc, const char * argv[]) {
     tt.start();
     timer_ptr t2(new Timer);
     //t2->every(10l, 5000l, boost::bind(&MultiClient::writetoall, msg));
-    sc.scheduleTimer(t2);
+    sc.addTimer(t2);
 
     int c(0),i(0);
     ::memset(msg, 0, sizeof msg);

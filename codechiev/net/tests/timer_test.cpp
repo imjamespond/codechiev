@@ -10,6 +10,7 @@
 #include <boost/bind.hpp>
 #include <errno.h>
 #include <exception>
+#include <base/Time.hpp>
 #include <base/Logger.hpp>
 #include <base/Thread.hpp>
 #include <net/Timer.hpp>
@@ -17,20 +18,20 @@
 
 using namespace codechiev;
 
-net::Scheduler sc;
-void print(int fd)
+net::TimerQueue timerq;
+//net::Scheduler sc;
+void print(int s)
 {
-    LOG_DEBUG<<"time's up, fd:"<<fd;
+    LOG_DEBUG<<"time's up, sec:"<<s;
+}
+void quit(base::Thread* t)
+{
+    LOG_DEBUG<<"";
+    ::pthread_exit(NULL);
 }
 int count(5);
-void cease(int fd)
-{
-    LOG_DEBUG<<"time's up, fd:"<<fd<<", count"<<count;
-    if(--count<0)
-        sc.unscheduleTimer(fd);
-}
 int main(int argc, const char * argv[]) {
-    base::Thread thread("Scheduler", boost::bind(&net::Scheduler::schedule, &sc));
+    /*base::Thread thread("Scheduler", boost::bind(&net::Scheduler::schedule, &sc));
     thread.start();
 
     {
@@ -38,10 +39,21 @@ int main(int argc, const char * argv[]) {
     t1->after(8000l, boost::bind(&print, t1->getChannel()->getFd()));
     t2->every(1000l, 5000l, boost::bind(&cease, t2->getChannel()->getFd()));
     t3->after(2000l, boost::bind(&print, t3->getChannel()->getFd()));
-    sc.scheduleTimer(t1);
-    sc.scheduleTimer(t2);
-    sc.scheduleTimer(t3);
-    }
+    sc.addTimer(t1);
+    sc.addTimer(t2);
+    sc.addTimer(t3);
+    }*/
+    
+    base::Thread thread("TimerQueue", boost::bind(&net::TimerQueue::commence, &timerq));
+    thread.start();
+    
+    LOG_DEBUG<<"timer test";
+    base::Time now=base::Time::Now();
+    timerq.addTask(now.getMillis()+9000l, boost::bind(&quit, &thread));
+    timerq.addTask(now.getMillis()+3000l, boost::bind(&print, 3));
+    timerq.addTask(now.getMillis()+6000l, boost::bind(&print, 6));
+    timerq.addTask(now.getMillis()+30l, boost::bind(&print, 0));
+    
     thread.join();
     /*test blocking fd
     uint64_t exp(0);
