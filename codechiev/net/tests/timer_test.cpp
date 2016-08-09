@@ -42,6 +42,7 @@ int main(int argc, const char * argv[]) {
     base::Thread thread("TimerQueue", boost::bind(&net::TimerQueue::commence, &timerq));
     thread.start();
     
+    LOG_DEBUG<<"timer test";
     base::Time now=base::Time::Now();
     timerq.addTask(now.getMillis()+9000l, boost::bind(&print, 9));
     timerq.addTask(now.getMillis()+3000l, boost::bind(&print, 3));

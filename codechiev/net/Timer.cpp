@@ -101,6 +101,7 @@ void
 TimerQueue::addTask(int64_t expired, const timer_cb & task)
 {
     assert(task);
+    //task_map::iterator it=tasks_.begin();
     /*if(timer_.next-expired>100)
     {
         timer_.next = expired;
@@ -122,8 +123,7 @@ void
 TimerQueue::expire()
 {
     for(task_map::iterator it=tasks_.begin();
-        it!=tasks_.end();
-        it++)
+        it!=tasks_.end(); )
     {
         timer_cb& task = it->second;
         if(it->first - Time::Now().getMillis()<100)
