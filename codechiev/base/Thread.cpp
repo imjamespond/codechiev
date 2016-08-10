@@ -96,12 +96,12 @@ Thread::cancel()
 #ifdef __linux__
     if(::pthread_self() == thread_)
     {
-        ::pthread_exit(NULL);
         LOG_TRACE<<"thread exit";
+        ::pthread_exit(NULL);
     }else
     {
-        ::pthread_cancel(thread_);
         LOG_TRACE<<"thread cancel";
+        ::pthread_cancel(thread_);
     }
 #endif // __linux___
 }
