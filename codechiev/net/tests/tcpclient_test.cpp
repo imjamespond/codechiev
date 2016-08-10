@@ -18,8 +18,8 @@
 using namespace codechiev::base;
 using namespace codechiev::net;
 
+TimerQueue timerq;
 AtomicNumber<int64_t> count(0);
-int connNumber(1);
 
 class MultiClient : public TcpClient
 {
@@ -43,9 +43,9 @@ public:
         }
     }
 
-    void connectall()
+    void connect(int num)
     {
-        for(int i=0; i<connNumber; i++)
+        for(int i=0; i<num; i++)
         {
             channel_ptr chn = connect();
             if(chn)
@@ -85,27 +85,29 @@ void onClose(Channel* channel)
     LOG_DEBUG<<"onClose fd:"<<channel->getFd();
 }
 
-Scheduler sc;
-char msg[128];
-int main(int argc, const char * argv[]) {
+void timerSend(const char* msg)
+{
+    timerq.addTask(100, boost::bind(&timerSend, msg));
+}
 
+char msg[128];
+
+int main(int argc, const char * argv[]) {
+    int num(0)
     if((sizeof argv)>1)
     {
-        connNumber=::atoi(argv[1]);
+        num=::atoi(argv[1]);
     }
 
     MultiClient client;
     client.setOnConnect(boost::bind(&onConnect,_1));
     client.setOnData(boost::bind(&onMessage,_1));
     client.setOnClose(boost::bind(&onClose,_1));
-    Thread t("Client", boost::bind(&MultiClient::connectall, &client));
+    Thread t("Client", boost::bind(&MultiClient::connect, &client, num));
     t.start();
     
-    Thread tt("Timer", boost::bind(&Scheduler::schedule, &sc));
+    Thread tt("Timer", boost::bind(&TimerQueue::commence, &timerq));
     tt.start();
-    timer_ptr t2(new Timer);
-    //t2->every(10l, 5000l, boost::bind(&MultiClient::writetoall, msg));
-    sc.addTimer(t2);
 
     int c(0),i(0);
     ::memset(msg, 0, sizeof msg);
@@ -114,7 +116,7 @@ int main(int argc, const char * argv[]) {
         c=getchar();
         if(c == 10)
         {
-            client.writetoall(msg);
+            timerq.addTask(1000, boost::bind(&timerSend, msg));
             i=0;
             ::memset(msg, 0, sizeof msg);
         }
