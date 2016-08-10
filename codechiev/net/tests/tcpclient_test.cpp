@@ -86,17 +86,18 @@ void onClose(Channel* channel)
     LOG_DEBUG<<"onClose fd:"<<channel->getFd();
 }
 
-void timerSend(const char* msg)
+MultiClient client;
+void timerSend(const std::string& msg)
 {
     if(count.subAndFetch(1))
     {
         Time now=Time::Now();
         timerq.addTask(now.getMillis() + 100, boost::bind(&timerSend, msg));
+        client.writetoall(msg.c_str());
     }
 }
 
 char msg[128];
-
 int main(int argc, const char * argv[]) {
     int num(0);
     if((sizeof argv)>1)
@@ -104,7 +105,6 @@ int main(int argc, const char * argv[]) {
         num=::atoi(argv[1]);
     }
 
-    MultiClient client;
     client.setOnConnect(boost::bind(&onConnect,_1));
     client.setOnData(boost::bind(&onMessage,_1));
     client.setOnClose(boost::bind(&onClose,_1));
@@ -135,6 +135,7 @@ int main(int argc, const char * argv[]) {
     }while(c!='.');
 
     t.cancel();
+    tt.cancel();
     t.join();
     tt.join();
     return 0;
