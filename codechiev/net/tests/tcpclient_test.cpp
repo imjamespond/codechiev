@@ -12,6 +12,7 @@
 #include <base/AtomicNumber.h>
 #include <base/Logger.hpp>
 #include <base/Thread.hpp>
+#include <base/Time.hpp>
 #include <boost/bind.hpp>
 #include <errno.h>
 
