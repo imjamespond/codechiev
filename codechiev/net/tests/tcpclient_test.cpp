@@ -87,7 +87,7 @@ void onClose(Channel* channel)
 }
 
 MultiClient client;
-void timerSend(std::string msg)
+void timerSend(const std::string &msg)
 {
     if(count.subAndFetch(1))
     {
@@ -123,7 +123,8 @@ int main(int argc, const char * argv[]) {
         {
             count.addAndFetch(1000);
             Time now=Time::Now();
-            timerq.addTask(now.getMillis() + 1000, boost::bind(&timerSend, msg));
+            std::string m(msg);
+            timerq.addTask(now.getMillis() + 1000, boost::bind(&timerSend, m));
             i=0;
             ::memset(msg, 0, sizeof msg);
         }
