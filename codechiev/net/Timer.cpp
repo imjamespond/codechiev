@@ -10,7 +10,7 @@
 #include "Channel.hpp"
 #include <base/Logger.hpp>
 #include <base/Time.hpp>
-
+#include <base/Mutex.hpp>
 #include <boost/bind.hpp>
 #include <errno.h>
 #include <time.h>
@@ -88,6 +88,7 @@ Timer::expireAt(int64_t millis)
     
 }
 
+#define TIMER_ACCURACY 30
 TimerQueue::TimerQueue():timer_(new Timer)
 {}
 void
@@ -102,15 +103,17 @@ TimerQueue::addTask(int64_t expired, const timer_cb & task)
 {
     assert(task);
     task_map::iterator it=tasks_.begin();
-    if(it != tasks_.end() && it->first-expired<100)
+    if(it != tasks_.end() && it->first-expired<TIMER_ACCURACY)
     {
+        MutexGuard lock(&mutex_);
         tasks_.insert(task_pair(expired, task));
     }
-    else if( expired-Time::Now().getMillis()<100 )
+    else if( expired-Time::Now().getMillis()<TIMER_ACCURACY )
     {
         task();
     }else
     {
+        MutexGuard lock(&mutex_);
         tasks_.insert(task_pair(expired, task));
         timer_->expireAt(expired);
     }
@@ -118,11 +121,13 @@ TimerQueue::addTask(int64_t expired, const timer_cb & task)
 void
 TimerQueue::expire()
 {
+    MutexGuard lock(&mutex_);
+    
     for(task_map::iterator it=tasks_.begin();
         it!=tasks_.end(); )
     {
         timer_cb& task = it->second;
-        if(it->first - Time::Now().getMillis()<100)
+        if(it->first - Time::Now().getMillis()<TIMER_ACCURACY)
         {
             task();
             tasks_.erase(it++);

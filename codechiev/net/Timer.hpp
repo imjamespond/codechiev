@@ -81,6 +81,7 @@ namespace codechiev {
             timer_ptr timer_;
             Scheduler schedule_;
             task_map tasks_;
+            base::Mutex mutex_;
         };
 
     }
