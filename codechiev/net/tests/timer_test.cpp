@@ -28,7 +28,6 @@ void quit(base::Thread* t)
 {
     t->cancel();
 }
-int count(99);
 void countdown(int c)
 {
     if(--c)
@@ -58,7 +57,7 @@ int main(int argc, const char * argv[]) {
     base::Time now=base::Time::Now();
     timerq.addTask(now.getMillis()+9000l, boost::bind(&quit, &thread));
     timerq.addTask(now.getMillis()+3000l, boost::bind(&print, 3));
-    timerq.addTask(now.getMillis()+6000l, boost::bind(&print, 6));
+    timerq.addTask(now.getMillis()+6000l, boost::bind(&countdown, 9));
     timerq.addTask(now.getMillis()+30l, boost::bind(&print, 0));
     
     thread.join();
