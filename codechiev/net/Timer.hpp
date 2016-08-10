@@ -71,6 +71,7 @@ namespace codechiev {
         class TimerQueue
         {
         public:
+            typedef std::vector<timer_cb> task_vec;
             typedef std::multimap<int64_t, timer_cb> task_map;
             typedef std::pair<int64_t, timer_cb> task_pair;
             TimerQueue();

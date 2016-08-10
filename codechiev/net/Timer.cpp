@@ -123,19 +123,26 @@ TimerQueue::expire()
 {
     MutexGuard lock(&mutex_);
     
+    task_vec tasks;
     for(task_map::iterator it=tasks_.begin();
         it!=tasks_.end(); )
     {
-        timer_cb& task = it->second;
         if(it->first - Time::Now().getMillis()<TIMER_ACCURACY)
         {
-            task();
+            tasks.push_back(it->second);//might lock recursively in callback
             tasks_.erase(it++);
         }else
         {
             timer_->expireAt(it->first);
             break;
         }
+    }
+    
+    for(task_vec::const_iterator it=tasks.begin();
+        it!=tasks.end();
+        it++)
+    {
+        it->second();
     }
 }
 
