@@ -7,6 +7,7 @@
 //
 
 #include "Thread.hpp"
+#include "Logger.hpp"
 #include <stdio.h>
 #include <errno.h>
 #ifdef __linux__
@@ -92,8 +93,17 @@ Thread::join()
 void
 Thread::cancel()
 {
-    if(::pthread_self() != thread_)
+#ifdef __linux__
+    if(::pthread_self() == thread_)
+    {
+        ::pthread_exit(NULL);
+        LOG_TRACE<<"thread exit";
+    }else
+    {
         ::pthread_cancel(thread_);
+        LOG_TRACE<<"thread cancel";
+    }
+#endif // __linux___
 }
 
 std::string
