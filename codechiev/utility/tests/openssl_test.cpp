@@ -24,7 +24,7 @@ using namespace codechiev::utility;
  */
 
 
-const int kNum=9999;
+const int kNum=99;
 const int kThread=4;
 void print()
 {
