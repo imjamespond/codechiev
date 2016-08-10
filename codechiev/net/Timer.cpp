@@ -121,23 +121,24 @@ TimerQueue::addTask(int64_t expired, const timer_cb & task)
 void
 TimerQueue::expire()
 {
-    MutexGuard lock(&mutex_);
-    
     task_vec tasks;
-    for(task_map::iterator it=tasks_.begin();
-        it!=tasks_.end(); )
+    
     {
-        if(it->first - Time::Now().getMillis()<TIMER_ACCURACY)
+        MutexGuard lock(&mutex_);
+        for(task_map::iterator it=tasks_.begin();
+            it!=tasks_.end(); )
         {
-            tasks.push_back(it->second);//might lock recursively in callback
-            tasks_.erase(it++);
-        }else
-        {
-            timer_->expireAt(it->first);
-            break;
+            if(it->first - Time::Now().getMillis()<TIMER_ACCURACY)
+            {
+                tasks.push_back(it->second);//might lock recursively in callback
+                tasks_.erase(it++);
+            }else
+            {
+                timer_->expireAt(it->first);
+                break;
+            }
         }
     }
-    
     for(task_vec::const_iterator it=tasks.begin();
         it!=tasks.end();
         it++)
