@@ -142,7 +142,7 @@ TimerQueue::expire()
         it!=tasks.end();
         it++)
     {
-        it->second();
+        (it->second)();
     }
 }
 
