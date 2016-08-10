@@ -43,7 +43,7 @@ public:
         }
     }
 
-    void connect(int num)
+    void multiConnect(int num)
     {
         for(int i=0; i<num; i++)
         {
@@ -93,7 +93,7 @@ void timerSend(const char* msg)
 char msg[128];
 
 int main(int argc, const char * argv[]) {
-    int num(0)
+    int num(0);
     if((sizeof argv)>1)
     {
         num=::atoi(argv[1]);
@@ -103,7 +103,7 @@ int main(int argc, const char * argv[]) {
     client.setOnConnect(boost::bind(&onConnect,_1));
     client.setOnData(boost::bind(&onMessage,_1));
     client.setOnClose(boost::bind(&onClose,_1));
-    Thread t("Client", boost::bind(&MultiClient::connect, &client, num));
+    Thread t("Client", boost::bind(&MultiClient::multiConnect, &client, num));
     t.start();
     
     Thread tt("Timer", boost::bind(&TimerQueue::commence, &timerq));
