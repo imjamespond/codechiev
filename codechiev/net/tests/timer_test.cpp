@@ -30,6 +30,7 @@ void quit(base::Thread* t)
 }
 void countdown(int c)
 {
+    LOG_DEBUG<<"countdown left:"<<c;
     if(--c)
     {
         base::Time now=base::Time::Now();
