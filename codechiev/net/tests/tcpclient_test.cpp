@@ -92,7 +92,7 @@ void timerSend(const std::string &msg)
     if(count.subAndFetch(1))
     {
         Time now=Time::Now();
-        timerq.addTask(now.getMillis() + 100, boost::bind(&timerSend, msg));
+        timerq.addTask(now.getMillis() + 50, boost::bind(&timerSend, msg));
         client.writetoall(msg.c_str());
     }
 }
@@ -121,10 +121,9 @@ int main(int argc, const char * argv[]) {
         c=getchar();
         if(c == 10)
         {
-            count.addAndFetch(1000);
             Time now=Time::Now();
             std::string m(msg);
-            timerq.addTask(now.getMillis() + 1000, boost::bind(&timerSend, m));
+            timerq.addTask(now.getMillis() + 50, boost::bind(&timerSend, m, 999));
             i=0;
             ::memset(msg, 0, sizeof msg);
         }
