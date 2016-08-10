@@ -26,6 +26,7 @@ void print(int s)
 }
 void quit(base::Thread* t)
 {
+    LOG_DEBUG<<"timer quit";
     t->cancel();
 }
 void countdown(int c)
