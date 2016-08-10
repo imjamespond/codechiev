@@ -87,7 +87,7 @@ void onClose(Channel* channel)
 }
 
 MultiClient client;
-void timerSend(const std::string& msg)
+void timerSend(std::string msg)
 {
     if(count.subAndFetch(1))
     {
