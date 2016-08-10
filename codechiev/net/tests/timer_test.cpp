@@ -26,8 +26,7 @@ void print(int s)
 }
 void quit(base::Thread* t)
 {
-    LOG_DEBUG<<"";
-    ::pthread_exit(NULL);
+    t->cancel();
 }
 int count(5);
 int main(int argc, const char * argv[]) {

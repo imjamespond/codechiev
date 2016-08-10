@@ -47,7 +47,6 @@ int main(int argc, const char * argv[]) {
         else if(c == 'p')
         {
             LOG_INFO<<serv.getChannelNum()<<", total reciev:"<<an.addAndFetch(0);
-            an.set(0);
         }
     }while(c!='.');
 
