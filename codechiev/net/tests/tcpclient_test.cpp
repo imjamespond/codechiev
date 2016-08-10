@@ -87,7 +87,8 @@ void onClose(Channel* channel)
 
 void timerSend(const char* msg)
 {
-    timerq.addTask(100, boost::bind(&timerSend, msg));
+    if(count.subAndFetch(1))
+        timerq.addTask(100, boost::bind(&timerSend, msg));
 }
 
 char msg[128];
@@ -116,6 +117,7 @@ int main(int argc, const char * argv[]) {
         c=getchar();
         if(c == 10)
         {
+            count.addAndFetch(1000);
             timerq.addTask(1000, boost::bind(&timerSend, msg));
             i=0;
             ::memset(msg, 0, sizeof msg);
