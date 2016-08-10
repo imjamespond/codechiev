@@ -13,6 +13,23 @@
 #include <boost/shared_ptr.hpp>
 namespace codechiev{
     namespace db{
+        /*
+         create database codechiev;
+         CREATE TABLE users
+         (
+         id bigint NOT NULL, -- primary key
+         username character varying,
+         gender integer,
+         createdate bigint,
+         CONSTRAINT pk_users PRIMARY KEY (id )
+         );
+         CREATE SEQUENCE users_id_seq
+         INCREMENT 1
+         MINVALUE 1
+         MAXVALUE 9223372036854775807
+         START 1
+         CACHE 1;
+         */
         //DECLEAR_TABLE( Student, student, ((int,id,id))((std::string,name,name))((std::string,sex,name)))
         DECLEAR_PSQL_TABLE( User, users, ((std::string,uname,username))((int,gender,gender))\
                            ((int64_t,createdate,createdate)))
