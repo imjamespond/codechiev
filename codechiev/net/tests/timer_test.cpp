@@ -28,7 +28,15 @@ void quit(base::Thread* t)
 {
     t->cancel();
 }
-int count(5);
+int count(99);
+void countdown(int c)
+{
+    if(--c)
+    {
+        base::Time now=base::Time::Now();
+        timerq.addTask(now.getMillis()+100l, boost::bind(&countdown, c));
+    }
+}
 int main(int argc, const char * argv[]) {
     /*base::Thread thread("Scheduler", boost::bind(&net::Scheduler::schedule, &sc));
     thread.start();
