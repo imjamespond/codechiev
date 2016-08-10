@@ -92,7 +92,7 @@ void timerSend(const std::string &msg, int count)
     if(--count)
     {
         Time now=Time::Now();
-        timerq.addTask(now.getMillis() + 50, boost::bind(&timerSend, msg));
+        timerq.addTask(now.getMillis() + 50, boost::bind(&timerSend, msg, count));
         client.writetoall(msg.c_str());
     }
 }
