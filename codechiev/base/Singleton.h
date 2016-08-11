@@ -109,7 +109,7 @@ namespace codechiev
             
             static void make_key()
             {
-                ::pthread_key_create(&key_, NULL);
+                ::pthread_key_create(&key_, destructor);
             }
             
             static void destructor(void * )
@@ -127,7 +127,7 @@ namespace codechiev
         template <class T>
         pthread_key_t ThreadSingleton<T>::key_;
         template <class T>
-        pthread_once_t ThreadSingleton<T>::key_once_ = ::pthread_key_create(&ThreadSingleton<T>::key_, &ThreadSingleton<T>::destructor);
+        pthread_once_t ThreadSingleton<T>::key_once_;
 #endif
 
     }
