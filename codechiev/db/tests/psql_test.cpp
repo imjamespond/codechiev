@@ -31,7 +31,8 @@ namespace codechiev{
          CACHE 1;
          */
         //DECLEAR_TABLE( Student, student, ((int,id,id))((std::string,name,name))((std::string,sex,name)))
-        DECLEAR_PSQL_TABLE( User, users, ((std::string,uname,username)))
+        DECLEAR_PSQL_TABLE( User, users, ((std::string,uname,username))((int,gender,gender))\
+                           ((int64_t,createdate,createdate)))
 
         class UserEx:public User<PSql>
         {
@@ -86,7 +87,7 @@ int main(int argc, const char * argv[])
     //when using localhost it will get this error by valgrind:
     //Invalid free() / delete / delete[] / realloc()
 
-    User<PSql> user;
+    //User<PSql> user;
     //user.selectById(10001);
     //LOG_INFO<<"user:"<<user.uname.getValue()<<", gender:"<<user.gender.getValue();
     //user.uname.setValue("foobar") ;
