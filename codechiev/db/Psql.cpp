@@ -27,7 +27,8 @@ PSql::connect(const char *conninfo)
     {
         std::string error = PQerrorMessage(conn);                      // SAVE ERROR OF conn_ BEFORE RELEASING IT
         PQfinish(conn);                                           // FREE conn_ RESOURCES
-        throw PostgresException("Could not connect to: " + error); // SEND BACK THE REAL FAIL REASON
+        LOG_ERROR<<( "Could not connect to: " + error); // SEND BACK THE REAL FAIL REASON
+        return false;
     }
     return true;
 }
