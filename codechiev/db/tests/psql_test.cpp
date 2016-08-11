@@ -88,10 +88,10 @@ int main(int argc, const char * argv[])
     //Invalid free() / delete / delete[] / realloc()
     
     UserEx user;
-    user.selectById(10001);
+    //user.selectById(10001);
     //LOG_INFO<<"user:"<<user.uname.getValue()<<", gender:"<<user.gender.getValue();
-    //user.uname.setValue("foobar") ;
-    //user.insert();
+    user.uname.setValue("foobar") ;
+    user.insert();
     //user.gender.setValue(user.gender.getValue()+1);
     //user.update();
     //UserEx::deleteById(10002);
