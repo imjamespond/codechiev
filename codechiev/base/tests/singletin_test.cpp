@@ -35,7 +35,7 @@ public:
 };
 
 const int kNumber = 99999;
-CountLatch latch(kNumber*2);
+CountLatch latch(kNumber);
 void SingletonTest()
 {
     Singleton<TestSingleton>::get();
@@ -61,7 +61,7 @@ int main(int argc, const char * argv[]) {
     for(int i=0; i<kNumber; i++)
     {
         queue.addJob(boost::bind(&SingletonTest));
-        queue.addJob(boost::bind(&ThreadSingletonTest));
+        //queue.addJob(boost::bind(&ThreadSingletonTest));
     }
     
     latch.latch();
