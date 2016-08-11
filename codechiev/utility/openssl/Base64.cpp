@@ -55,6 +55,7 @@ Base64::Base64Encode(const unsigned char* data, size_t length)
     
     std::string encoded;
     encoded.append(bufferPtr->data, static_cast<int>(bufferPtr->length));
+    BUF_MEM_free(bufferPtr);
     
     BIO_free_all(b64);
 
