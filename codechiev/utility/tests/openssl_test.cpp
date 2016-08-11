@@ -67,6 +67,11 @@ int main(int argc, const char * argv[]) {
     Time now = Time::NowTm();
     LOG_INFO<<"cost millis:"<<now-began;
     
+    CRYPTO_cleanup_all_ex_data();
+    ERR_free_strings();
+    ERR_remove_state(0);
+    EVP_cleanup();
+    
     queue.stop();
     //ENGINE_cleanup();
     //CONF_modules_unload();
