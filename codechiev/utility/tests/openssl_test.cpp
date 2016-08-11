@@ -24,15 +24,19 @@ using namespace codechiev::utility;
  openssl rsa -in private.pem -outform PEM -pubout -out public.pem
  */
 
-const int kThread=4;
 const int kNum=9;
 AtomicNumber<int> count(kNum);
+const int kThread=4;
+typedef BlockingQueue<kThread> blocking_queue;
+blocking_queue queue;
 
 void print()
 {
     if(count.subAndFetch(1)<0)
+    {
+        queue.stop();
         return ;
-    
+    }
     RsaUtil rsautil;
 
     unsigned_char_vec encrytedPasswd;
@@ -55,9 +59,7 @@ int main(int argc, const char * argv[]) {
     LOG_INFO<<"test for:"<<kNum;
     Time began = Time::NowTm();
     
-    BlockingQueue<kThread> queue;
     queue.commence();
-    
     for(int i=0; i<9999; i++)
     {
         queue.addJob(boost::bind(&print));
