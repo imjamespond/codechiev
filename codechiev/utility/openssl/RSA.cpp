@@ -13,15 +13,16 @@ RSA * createRSAWithFilename(const char * filename,int pub)
         LOG_ERROR<< "Unable to open file:"<<filename;
         return NULL;
     }
-    RSA *rsa= RSA_new() ;
+    //RSA *rsa= RSA_new() ;
 
     if(pub)
     {
-        rsa = PEM_read_RSA_PUBKEY(fp, &rsa, NULL, NULL);
+        //rsa = PEM_read_RSA_PUBKEY(fp, &rsa, NULL, NULL);
+        rsa = PEM_read_RSA_PUBKEY(fp, NULL, NULL, NULL);
     }
     else
     {
-        rsa = PEM_read_RSAPrivateKey(fp, &rsa, NULL, NULL);
+        rsa = PEM_read_RSAPrivateKey(fp, NULL, NULL, NULL);
     }
     
     ::fclose(fp);
