@@ -14,7 +14,7 @@ PSql::PSql():inUse_(false)
 {}
 PSql::~PSql()
 {   /* close the connection to the database and cleanup */
-    PQfinish(conn);
+    //PQfinish(conn);
 }
 
 bool
