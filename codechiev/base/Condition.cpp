@@ -41,3 +41,28 @@ Condition::notifyall()
     //  routine should be used instead of pthread_cond_signal() if more than one thread is in a blocking wait state.
     ::pthread_cond_broadcast(&cond_);
 }
+
+CountLatch::CountLatch(int c):count_(c)
+{}
+CountLatch::~CountLatch()
+{}
+
+void
+CountLatch::latch()
+{
+    MutexGuard lock(&mutex_);
+    
+    while(count_>0)
+    {
+        cond_.wait(mutex_);//release mutex and block here
+    }
+}
+
+void
+CountLatch::reduce(int val)
+{
+    MutexGuard lock(&mutex_);
+    
+    count_-=val;
+    cond_.notify();
+}

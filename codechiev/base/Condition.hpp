@@ -31,6 +31,20 @@ namespace codechiev {
             
         };
         
+        
+        class CountLatch : public boost::noncopyable
+        {
+        public:
+            explicit CountLatch(int );
+            ~CountLatch();
+            
+            void latch();
+            void reduce(int num);
+        private:
+            int count_;
+            Condition cond_;
+            Mutex mutex_;
+        }
     }
 }
 
