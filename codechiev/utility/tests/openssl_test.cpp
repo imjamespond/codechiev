@@ -24,9 +24,10 @@ using namespace codechiev::utility;
  openssl rsa -in private.pem -outform PEM -pubout -out public.pem
  */
 
-
-AtomicNumber<int> count(9);
 const int kThread=4;
+const int kNum=9;
+AtomicNumber<int> count(kNum);
+
 void print()
 {
     if(count.addAndFetch(1)<0)
