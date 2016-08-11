@@ -77,8 +77,8 @@ using namespace codechiev::base;
 using namespace codechiev::db;
 int main(int argc, const char * argv[])
 {
-    PSqlManager1* manager = Singleton<PSqlManager1>::get();
-    manager->init("host=localhost \
+    //PSqlManager1* manager = Singleton<PSqlManager1>::get();
+    //manager->init("host=localhost \
                   port=5432 \
                   dbname=codechiev \
                   user=postgres \
@@ -92,6 +92,6 @@ int main(int argc, const char * argv[])
     //user.gender.setValue(user.gender.getValue()+1);
     //user.update();
     //UserEx::deleteById(10002);
-    manager->close();
+    //manager->close();
     return 0;
 }
