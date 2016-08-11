@@ -46,7 +46,7 @@ void print()
     int encryptLength  = \
     rsautil.publicPemEncrypt("foobar", encrytedPasswd);
     std::string base64Passwd = Base64::Base64Encode(encrytedPasswd.data(), encryptLength);
-    LOG_INFO<<"publicPemEncrypt>>>>>>>>>>>>>>>>>>>:"<<reinterpret_cast<const char*>(encrytedPasswd.data());
+    //LOG_INFO<<"publicPemEncrypt>>>>>>>>>>>>>>>>>>>:"<<reinterpret_cast<const char*>(encrytedPasswd.data());
     LOG_INFO<<"Base64Encode>>>>>>>>>>>>>>>>>>>>>>>:"<<base64Passwd;
     /*Base64::Base64Decode(base64Passwd.c_str(), decryptedBase64);
     rsautil.privatePemDecrypt(decryptedBase64.data(), decryptedBase64.size(), decryptedPasswd);
