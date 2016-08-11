@@ -24,7 +24,7 @@ using namespace codechiev::utility;
  openssl rsa -in private.pem -outform PEM -pubout -out public.pem
  */
 
-const int kNum=9;
+const int kNum=1;
 AtomicNumber<int> count(kNum);
 const int kThread=4;
 typedef BlockingQueue<kThread> blocking_queue;
