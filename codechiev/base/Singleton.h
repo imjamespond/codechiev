@@ -62,7 +62,7 @@ namespace codechiev
         public:
             static T* get()
             {
-                pthread_once(&once_, &Singleton::initRoutine);
+                ::pthread_once(&once_, &Singleton::initRoutine);
                 return t_;
             }
 
@@ -87,6 +87,44 @@ namespace codechiev
         pthread_once_t Singleton<T>::once_ = PTHREAD_ONCE_INIT;
         template <class T>
         T* Singleton<T>::t_ = NULL;
+        
+        
+        
+        template <class T>
+        class ThreadSingleton
+        {
+        public:
+            static void get()
+            {
+                ::pthread_once(&key_once_, &make_key);
+                if ((t_ = ::pthread_getspecific(key_)) == NULL) {
+                    t_ = new T;
+                    ::pthread_setspecific(key_, t_);
+                    ::atexit(&destructor);
+                }
+            }
+            
+            static void make_key()
+            {
+                ::pthread_key_create(&key_, NULL);
+            }
+            
+            static void destructor()
+            {
+                delete t_;
+                t_ = NULL;
+            }
+        private:
+            static T* t_;
+            static pthread_key_t key_;
+            static pthread_once_t key_once_;
+        };
+        template <class T>
+        pthread_key_t ThreadSingleton<T>::key_;
+        template <class T>
+        pthread_once_t ThreadSingleton<T>::key_once_ = PTHREAD_ONCE_INIT;
+        template <class T>
+        T* ThreadSingleton<T>::t_ = NULL;
 #endif
 
     }
