@@ -23,7 +23,9 @@ RSA * createRSAWithFilename(const char * filename,int pub)
     {
         rsa = PEM_read_RSAPrivateKey(fp, &rsa, NULL, NULL);
     }
-
+    
+    ::fclose(fp);
+    
     return rsa;
 }
 RSA * createRSA(unsigned char * key,int pub)
