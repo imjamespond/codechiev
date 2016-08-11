@@ -13,9 +13,7 @@ using namespace codechiev::db;
 PSql::PSql():inUse_(false)
 {}
 PSql::~PSql()
-{   /* close the connection to the database and cleanup */
-    //PQfinish(conn);
-}
+{}
 
 bool
 PSql::connect(const char *conninfo)
@@ -30,6 +28,13 @@ PSql::connect(const char *conninfo)
         return false;
     }
     return true;
+}
+
+void
+PSql::close()
+{
+    /* close the connection to the database and cleanup */
+    PQfinish(conn);
 }
 
 void

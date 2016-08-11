@@ -23,6 +23,15 @@ public:
             dbs_[i]->connect(connInfo_);
         }
     }
+    
+    void
+    close()
+    {
+        for(int i=0; i<Number; i++)
+        {
+            dbs_[i]->close();
+        }
+    }
 
     db_ptr
     getDB()

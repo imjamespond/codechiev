@@ -35,6 +35,7 @@ namespace codechiev {
         static Result selectById(const char *sql,int64_t id);
 
         bool connect(const char *);
+        void close();
         void transactionBegin();
         void transactionEnd();
         bool isInUse(){return inUse_;}

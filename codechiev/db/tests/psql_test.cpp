@@ -77,12 +77,13 @@ using namespace codechiev::base;
 using namespace codechiev::db;
 int main(int argc, const char * argv[])
 {
-    Singleton<PSqlManager1>::get()->init("host=localhost \
-                                               port=5432 \
-                                               dbname=codechiev \
-                                               user=postgres \
-                                               password= \
-                                               connect_timeout=3");
+    PSqlManager1* manager = Singleton<PSqlManager1>::get();
+    manager->init("host=localhost \
+                  port=5432 \
+                  dbname=codechiev \
+                  user=postgres \
+                  password= \
+                  connect_timeout=3");
     //UserEx user;
     //user.selectById(10001);
     //LOG_INFO<<"user:"<<user.uname.getValue()<<", gender:"<<user.gender.getValue();
@@ -91,5 +92,6 @@ int main(int argc, const char * argv[])
     //user.gender.setValue(user.gender.getValue()+1);
     //user.update();
     //UserEx::deleteById(10002);
+    manager->close();
     return 0;
 }
