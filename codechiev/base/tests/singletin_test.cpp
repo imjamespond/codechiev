@@ -35,7 +35,7 @@ public:
 };
 
 const int kNumber = 99999;
-CountLatch latch(kNumber);
+CountLatch latch(kNumber*2);
 void SingletonTest()
 {
     Singleton<TestSingleton>::get();
@@ -44,6 +44,7 @@ void SingletonTest()
 void ThreadSingletonTest()
 {
     ThreadSingleton<TestThreadSingleton>::get();
+    latch.reduce(1);
 }
 
 AtomicNumber<int> TestSingleton::count(0);
