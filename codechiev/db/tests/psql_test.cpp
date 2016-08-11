@@ -93,7 +93,7 @@ int main(int argc, const char * argv[])
     user.uname.setValue("foobar") ;
     user.gender.setValue(123456);
     user.createdate.setValue(9876543210);
-    //user.insert();
+    user.insert();
     //user.gender.setValue(user.gender.getValue()+1);
     //user.update();
     //UserEx::deleteById(10002);
