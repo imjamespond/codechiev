@@ -24,7 +24,7 @@ PSql::connect(const char *conninfo)
     /* Check to see that the backend connection was successfully made */
     if (PQstatus(conn) != CONNECTION_OK)
     {
-        std::string error = PQerrorMessage(conn_);                      // SAVE ERROR OF conn_ BEFORE RELEASING IT
+        std::string error = PQerrorMessage(conn);                      // SAVE ERROR OF conn_ BEFORE RELEASING IT
         PQfinish(conn);                                           // FREE conn_ RESOURCES
         throw PostgresException("Could not connect to: " + error); // SEND BACK THE REAL FAIL REASON
     }
