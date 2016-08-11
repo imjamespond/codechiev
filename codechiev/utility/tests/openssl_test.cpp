@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <vector>
 #include <base/BlockingQueue.hpp>
+#include <base/AtomicNumber.h>
 #include <base/Logger.hpp>
 #include <base/Time.hpp>
 #include <utility/openssl/RSA.h>
@@ -24,10 +25,13 @@ using namespace codechiev::utility;
  */
 
 
-const int kNum=99;
+AtomicNumber<int> count(9);
 const int kThread=4;
 void print()
 {
+    if(count.addAndFetch(1)<0)
+        return ;
+    
     RsaUtil rsautil;
 
     unsigned_char_vec encrytedPasswd;
@@ -53,7 +57,7 @@ int main(int argc, const char * argv[]) {
     BlockingQueue<kThread> queue;
     queue.commence();
     
-    for(int i=0; i<9; i++)
+    for(int i=0; i<9999; i++)
     {
         queue.addJob(boost::bind(&print));
     }
