@@ -97,7 +97,9 @@ namespace codechiev
             static T* get()
             {
                 ::pthread_once(&key_once_, &make_key);
-                if ((t_ = ::pthread_getspecific(key_)) == NULL) {
+                t_ = reinterpret_cast<T*>(::pthread_getspecific(key_)) ;
+                if (t_ == NULL)
+                {
                     t_ = new T;
                     ::pthread_setspecific(key_, t_);
                     ::atexit(&destructor);
