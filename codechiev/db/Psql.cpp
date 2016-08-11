@@ -2,6 +2,7 @@
 #include "orm-psql.h"
 #include <net/Internet.h>
 #include <base/Singleton.h>
+#include <base/Logger.hpp>
 
 #include <sys/types.h>
 #include <stdlib.h>
@@ -34,7 +35,7 @@ PSql::connect(const char *conninfo)
 void
 PSql::close()
 {
-    /* close the connection to the database and cleanup */
+    LOG_DEBUG<<"close the connection to the database and cleanup";
     PQfinish(conn);
 }
 
