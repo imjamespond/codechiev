@@ -93,7 +93,6 @@ Base64::Base64Decode(const char* b64message, unsigned_char_vec_t& vec)
         rtLen+=len;
     }
     ::free(b64Data);
-    BIO_free_all(bio);
     BIO_free_all(b64);
 
     return rtLen;

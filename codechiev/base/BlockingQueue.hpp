@@ -119,7 +119,7 @@ namespace codechiev {
 
                 for(int i=0; i<ThreadNum; i++)
                 {
-                    std::string name="blocking-thread:";
+                    std::string name="blocking-thread-";
                     name+=boost::lexical_cast<std::string>(i);
                     thread_ptr thread(new Thread(name, boost::bind(&BlockingQueue::runInThread,this)));
                     threads_.push_back(thread);
