@@ -94,7 +94,7 @@ namespace codechiev
         class ThreadSingleton
         {
         public:
-            static void get()
+            static T* get()
             {
                 ::pthread_once(&key_once_, &make_key);
                 if ((t_ = ::pthread_getspecific(key_)) == NULL) {
@@ -102,6 +102,8 @@ namespace codechiev
                     ::pthread_setspecific(key_, t_);
                     ::atexit(&destructor);
                 }
+                
+                return t_;
             }
             
             static void make_key()

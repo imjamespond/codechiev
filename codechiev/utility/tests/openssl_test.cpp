@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <vector>
 #include <openssl/engine.h>
+#include <base/Singleton.h>
 #include <base/BlockingQueue.hpp>
 #include <base/Condition.hpp>
 #include <base/Logger.hpp>
@@ -31,21 +32,21 @@ const int kThread=4;
 typedef BlockingQueue<kThread> blocking_queue;
 blocking_queue queue;
 
-RsaUtil rsa1;
-
 void print()
 {
     unsigned_char_vec encrytedPasswd;
     unsigned_char_vec decryptedPasswd;
     unsigned_char_vec decryptedBase64;
     
+    RsaUtil* rsa = ThreadSingleton<RsaUtil>::get();
+    
     int encryptLength  = \
-    rsa1.publicPemEncrypt("foobar", encrytedPasswd);
+    rsa->publicPemEncrypt("foobar", encrytedPasswd);
     std::string base64Passwd = Base64::Base64Encode(encrytedPasswd.data(), encryptLength);
     //LOG_INFO<<"publicPemEncrypt>>>>>>>>>>>>>>>>>>>:"<<reinterpret_cast<const char*>(encrytedPasswd.data());
     //LOG_INFO<<"Base64Encode>>>>>>>>>>>>>>>>>>>>>>>:"<<base64Passwd;
     Base64::Base64Decode(base64Passwd.c_str(), decryptedBase64);
-    rsa1.privatePemDecrypt(decryptedBase64.data(), decryptedBase64.size(), decryptedPasswd);
+    rsa->privatePemDecrypt(decryptedBase64.data(), decryptedBase64.size(), decryptedPasswd);
     //LOG_INFO<<"privatePemDecrypt<<<<<<<<<<<<<<<<<<<<<:"<<reinterpret_cast<const char*>(decryptedPasswd.data())<< " size:"<< (int)decryptedPasswd.size()<<"\n\n\n\n\n\n";
     assert(decryptedPasswd.size()==7);
     
