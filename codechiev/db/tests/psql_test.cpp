@@ -29,7 +29,7 @@ namespace codechiev{
          MAXVALUE 9223372036854775807
          START 1
          CACHE 1;
-         */
+
         //DECLEAR_TABLE( Student, student, ((int,id,id))((std::string,name,name))((std::string,sex,name)))
         DECLEAR_PSQL_TABLE( User, users, ((std::string,uname,username))((int,gender,gender))\
                            ((int64_t,createdate,createdate)))
@@ -70,7 +70,7 @@ namespace codechiev{
 
             PSql::Result result = PSql::select(sql, 1, paramValues, paramLengths, paramFormats, 1);
             User<PSql>::assembleVector(result, userVec);
-        }
+        }*/
     }
 }
 using namespace codechiev::base;
