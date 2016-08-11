@@ -60,7 +60,8 @@ template <> inline void clazz<PSql>::update()\
     len[param_size] = id.getSizeof();\
     format[param_size] = 1;\
     BOOST_PP_SEQ_FOR_EACH_I( PSQL_ASSIGN, , member_seq)\
-    PSql::query(sql, param_num, val, len, format, 1);\
+    PSql::Result result = PSql::query(sql, param_num, val, len, format, 1);\
+    result.freeAll();\
 }\
 template <> inline void clazz<PSql>::insert(){\
     const char* sql = "insert into " #table " values (nextval('" #table "_id_seq')" BOOST_PP_SEQ_FOR_EACH_I( PSQL_INSERT, , member_seq) ");";\
@@ -69,6 +70,7 @@ template <> inline void clazz<PSql>::insert(){\
     int         format[param_num];\
     BOOST_PP_SEQ_FOR_EACH_I( PSQL_ASSIGN, , member_seq)\
     PSql::Result result = PSql::query(sql, param_size, val, len, format, 1);\
+    result.freeAll();\
 }\
 template <> inline void clazz<PSql>::selectById(int64_t argId)\
 {\
@@ -82,6 +84,7 @@ template <> inline void clazz<PSql>::deleteById(int64_t argId)\
 {\
     const char* sql = "delete from " #table " where id=$1";\
     PSql::Result result = PSql::queryById(sql, argId);\
+    result.freeAll();\
 }\
 
 #endif // ORM_PSQL_H_INCLUDED
