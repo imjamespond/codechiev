@@ -40,6 +40,7 @@ Base64::Base64Encode(const unsigned char* data, size_t length)
     std::string encoded(encodedData);
     ::free(encodedData);
     BIO_free_all(bio);
+    BIO_free_all(b64);
 
     return encoded; //success
 }
@@ -60,7 +61,7 @@ Base64::Base64Decode(const char* b64message, unsigned_char_vec_t& vec)
     unsigned char buffer[16]={};
     int len(0),rtLen(0);
 
-    len = ::strlen(b64message);
+    len = static_cast<int>(::strlen(b64message));
     char* b64Data = static_cast<char *>(::malloc(len+1));
     ::memcpy(b64Data, b64message, len);
     b64Data[len]='\0';
@@ -78,6 +79,7 @@ Base64::Base64Decode(const char* b64message, unsigned_char_vec_t& vec)
     }
     ::free(b64Data);
     BIO_free_all(bio);
+    BIO_free_all(b64);
 
     return rtLen;
 }
