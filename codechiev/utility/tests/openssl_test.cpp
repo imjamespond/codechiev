@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <vector>
 #include <openssl/engine.h>
+#include <openssl/conf.h>
 #include <base/Singleton.h>
 #include <base/BlockingQueue.hpp>
 #include <base/Condition.hpp>
@@ -71,9 +72,10 @@ int main(int argc, const char * argv[]) {
     ERR_free_strings();
     ERR_remove_state(0);
     EVP_cleanup();
+    ENGINE_cleanup();
+    //CONF_modules_unload();
     
     queue.stop();
-    //ENGINE_cleanup();
-    //CONF_modules_unload();
+
     return 0;
 }
