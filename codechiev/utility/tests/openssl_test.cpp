@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <vector>
-#include <base/Thread.hpp>
+#include <base/BlockingQueue.hpp>
 #include <base/Logger.hpp>
 #include <base/Time.hpp>
 #include <utility/openssl/RSA.h>
@@ -39,31 +39,26 @@ void print()
         int encryptLength  = \
         rsautil.publicPemEncrypt("foobar", encrytedPasswd);
         std::string base64Passwd = Base64::Base64Encode(encrytedPasswd.data(), encryptLength);
-        //LOG_INFO<<"publicPemEncrypt:"<<reinterpret_cast<const char*>(encrytedPasswd.data());
+        LOG_INFO<<"publicPemEncrypt:"<<reinterpret_cast<const char*>(encrytedPasswd.data());
         Base64::Base64Decode(base64Passwd.c_str(), decryptedBase64);
         rsautil.privatePemDecrypt(decryptedBase64.data(), decryptedBase64.size(), decryptedPasswd);
-        //LOG_INFO<<"privatePemDecrypt:"<<reinterpret_cast<const char*>(decryptedPasswd.data())<< " size:"<< (int)decryptedPasswd.size();
+        LOG_INFO<<"privatePemDecrypt:"<<reinterpret_cast<const char*>(decryptedPasswd.data())<< " size:"<< (int)decryptedPasswd.size();
         assert(decryptedPasswd.size()==7);
     }
 }
 
 int main(int argc, const char * argv[]) {
-
-    Thread t1("t1",boost::bind(&print));
-    Thread t2("t2",boost::bind(&print));
-    Thread t3("t3",boost::bind(&print));
-    Thread t4("t4",boost::bind(&print));
-
     LOG_INFO<<"test for:"<<kNum;
     Time began = Time::NowTm();
-    t1.start();
-    t2.start();
-    t3.start();
-    t4.start();
-    t1.join();
-    t2.join();
-    t3.join();
-    t4.join();
+    
+    BlockingQueue<kThread> queue;
+    queue.commence();
+    
+    for(int i=0; i<9; i++)
+    {
+        queue.addJob(boost::bind(&print));
+    }
+
     Time now = Time::NowTm();
     LOG_INFO<<"cost millis:"<<now-began;
     return 0;
