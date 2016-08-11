@@ -84,8 +84,11 @@ int main(int argc, const char * argv[])
                   user=postgres \
                   password= \
                   connect_timeout=3");
-    //UserEx user;
-    //user.selectById(10001);
+    //when using localhost it will get this error by valgrind:
+    //Invalid free() / delete / delete[] / realloc()
+    
+    UserEx user;
+    user.selectById(10001);
     //LOG_INFO<<"user:"<<user.uname.getValue()<<", gender:"<<user.gender.getValue();
     //user.uname.setValue("foobar") ;
     //user.insert();
