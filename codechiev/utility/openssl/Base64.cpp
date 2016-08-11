@@ -20,12 +20,12 @@ Base64::Base64Encode(const unsigned char* data, size_t length)
     //since binary string must of contained a NULL,so we need the excact length
 
     //Encodes a binary safe base 64 string
-    BIO *bio, *b64;
+    BIO *bio, *bmem, *b64;
     BUF_MEM *bufferPtr;
 
     b64 = BIO_new(BIO_f_base64());
-    bio = BIO_new(BIO_s_mem());
-    bio = BIO_push(b64, bio);
+    bmem = BIO_new(BIO_s_mem());
+    bio = BIO_push(b64, bmem);
 
     BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL); //Ignore newlines - write everything in one line
     BIO_write(bio, data, static_cast<int>(length));
@@ -40,6 +40,7 @@ Base64::Base64Encode(const unsigned char* data, size_t length)
     std::string encoded(encodedData);
     ::free(encodedData);
     BIO_free_all(bio);
+    BIO_free_all(bmem);
     BIO_free_all(b64);
 
     return encoded; //success
