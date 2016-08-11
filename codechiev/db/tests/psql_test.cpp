@@ -29,7 +29,7 @@ namespace codechiev{
          MAXVALUE 9223372036854775807
          START 1
          CACHE 1;
-
+         */
         //DECLEAR_TABLE( Student, student, ((int,id,id))((std::string,name,name))((std::string,sex,name)))
         DECLEAR_PSQL_TABLE( User, users, ((std::string,uname,username))((int,gender,gender))\
                            ((int64_t,createdate,createdate)))
@@ -70,15 +70,15 @@ namespace codechiev{
 
             PSql::Result result = PSql::select(sql, 1, paramValues, paramLengths, paramFormats, 1);
             User<PSql>::assembleVector(result, userVec);
-        }*/
+        }
     }
 }
 using namespace codechiev::base;
 using namespace codechiev::db;
 int main(int argc, const char * argv[])
 {
-    //PSqlManager1* manager = Singleton<PSqlManager1>::get();
-    //manager->init("host=127.0.0.1 \
+    PSqlManager1* manager = Singleton<PSqlManager1>::get();
+    manager->init("host=127.0.0.1 \
                   port=5432 \
                   dbname=codechiev \
                   user=postgres \
@@ -87,16 +87,16 @@ int main(int argc, const char * argv[])
     //when using localhost it will get this error by valgrind:
     //Invalid free() / delete / delete[] / realloc()
 
-    //User<PSql> user;
+    UserEx user;
     //user.selectById(10001);
     //LOG_INFO<<"user:"<<user.uname.getValue()<<", gender:"<<user.gender.getValue();
-    //user.uname.setValue("foobar") ;
-    //user.gender.setValue(123456);
-    //user.createdate.setValue(9876543210);
+    user.uname.setValue("foobar") ;
+    user.gender.setValue(123456);
+    user.createdate.setValue(9876543210);
     //user.insert();
     //user.gender.setValue(user.gender.getValue()+1);
     //user.update();
     //UserEx::deleteById(10002);
-    //manager->close();
+    manager->close();
     return 0;
 }
