@@ -97,15 +97,14 @@ namespace codechiev
             static T* get()
             {
                 ::pthread_once(&key_once_, &make_key);
-                T* t = reinterpret_cast<T*>(::pthread_getspecific(key_)) ;
-                if (t == NULL)
+                t_ = reinterpret_cast<T*>(::pthread_getspecific(key_)) ;
+                if (t_ == NULL)
                 {
-                    t = new T;
-                    ::pthread_setspecific(key_, t);
-                    ::atexit(&destructor);
+                    t_ = new T;
+                    ::pthread_setspecific(key_, t_);
                 }
                 
-                return t;
+                return t_;
             }
             
             static void make_key()
@@ -113,19 +112,22 @@ namespace codechiev
                 ::pthread_key_create(&key_, NULL);
             }
             
-            static void destructor()
+            static void destructor(void * )
             {
-                T* t = get() ;
-                delete t;
+                if(t_)
+                    delete t_;
             }
         private:
+            static __thread T* t_;
             static pthread_key_t key_;
             static pthread_once_t key_once_;
         };
         template <class T>
+        __thread T* ThreadSingleton<T>::t_ = NULL;
+        template <class T>
         pthread_key_t ThreadSingleton<T>::key_;
         template <class T>
-        pthread_once_t ThreadSingleton<T>::key_once_ = PTHREAD_ONCE_INIT;
+        pthread_once_t ThreadSingleton<T>::key_once_ = ::pthread_key_create(&ThreadSingleton<T>::key_, &ThreadSingleton<T>::destructor);
 #endif
 
     }
