@@ -2,6 +2,7 @@
 #define SQLMANAGER_H_INCLUDED
 
 #include <boost/shared_ptr.hpp>
+#include <base/Mutex.hpp>
 
 template <class DB_T, int Number>
 class DBManager
@@ -19,6 +20,7 @@ public:
 
         for(int i=0; i<Number; i++)
         {
+            codechiev::base::MutexGuard lock(&mutex_);
             dbs_[i].reset(new DB_T());
             dbs_[i]->connect(connInfo_);
         }
@@ -29,6 +31,7 @@ public:
     {
         for(int i=0; i<Number; i++)
         {
+            codechiev::base::MutexGuard lock(&mutex_);
             dbs_[i]->close();
         }
     }
@@ -40,7 +43,7 @@ public:
 
         for(int i=index_; i<Number; i++)
         {
-            //codechiev::base::MutexGuard lock(mutex_);
+            codechiev::base::MutexGuard lock(&mutex_);
             index_=(++index_)%Number;
             db = dbs_[index_];
             if(db&&!db->isInUse())
@@ -60,7 +63,7 @@ public:
     void
     returnDB(db_ptr& pg)
     {
-        //codechiev::base::MutexGuard lock(mutex_);
+        codechiev::base::MutexGuard lock(&mutex_);
         if(pg)
         {
             pg->setUsed(false);
@@ -71,7 +74,7 @@ protected:
 private:
     const char *connInfo_;
     unsigned int index_;
-    //codechiev::base::Mutex mutex_;
+    codechiev::base::Mutex mutex_;
     db_ptr dbs_[Number];
 };
 

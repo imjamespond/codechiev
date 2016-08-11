@@ -38,20 +38,14 @@ namespace codechiev {
         void close();
         void transactionBegin();
         void transactionEnd();
-        bool isInUse(){return inUse_;}
-        void setUsed(bool used){inUse_=used;}
+        inline bool isInUse(){return inUse_;}
+        inline void setUsed(bool used){inUse_=used;}
 
         PGconn *conn;
     private:
         bool inUse_;
 
     public:
-
-        class Param
-        {
-        public:
-
-        };
 
         class Result
         {

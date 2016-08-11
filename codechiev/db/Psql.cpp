@@ -68,7 +68,8 @@ PSql::query(const char *sql,
             const int *paramFormats,
             int resultFormat)
 {
-    psql_ptr psql = Singleton<PSqlManager1 >::get()->getDB();
+    PSqlManager1* manager = Singleton<PSqlManager1 >::get();
+    psql_ptr psql = manager->getDB();
 
     psql->transactionBegin();
 
@@ -92,7 +93,7 @@ PSql::query(const char *sql,
 
     psql->transactionEnd();
 
-    Singleton<PSqlManager1 >::get()->returnDB(psql);
+    manager->returnDB(psql);
 
     return result;
 }
