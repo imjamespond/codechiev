@@ -87,7 +87,7 @@ int main(int argc, const char * argv[])
     //when using localhost it will get this error by valgrind:
     //Invalid free() / delete / delete[] / realloc()
 
-    UserEx user;
+    User<PSql> user;
     //user.selectById(10001);
     //LOG_INFO<<"user:"<<user.uname.getValue()<<", gender:"<<user.gender.getValue();
     //user.uname.setValue("foobar") ;
