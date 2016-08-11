@@ -90,7 +90,7 @@ PSql::query(const char *sql,
     if (PQresultStatus(result.res) != PGRES_COMMAND_OK)
     {
         printf("PQexecParams failed: %s\n", PQerrorMessage(psql->conn));
-        PQclear(result.res);
+        result.freeAll();
         return result;
     }
 
@@ -128,7 +128,7 @@ PSql::select(const char *sql,
     if (PQresultStatus(result.res) != PGRES_TUPLES_OK)
     {
         printf("PQexecParams failed: %s\n", PQerrorMessage(psql->conn));
-        PQclear(result.res);
+        result.freeAll();
         return result;
     }
 
