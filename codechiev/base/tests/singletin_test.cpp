@@ -65,5 +65,7 @@ int main(int argc, const char * argv[]) {
     
     latch.latch();
     queue.stop();
+    LOG_INFO<<"TestSingleton:"<<TestSingleton::count.addAndFetch(0)\
+    <<", TestThreadSingleton:"<<TestThreadSingleton::count.addAndFetch(0);
     return 0;
 }
