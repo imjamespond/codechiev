@@ -24,8 +24,9 @@ PSql::connect(const char *conninfo)
     /* Check to see that the backend connection was successfully made */
     if (PQstatus(conn) != CONNECTION_OK)
     {
-        printf( "psql connection failed: \n");
-        return false;
+        std::string error = PQerrorMessage(conn_);                      // SAVE ERROR OF conn_ BEFORE RELEASING IT
+        PQfinish(conn);                                           // FREE conn_ RESOURCES
+        throw PostgresException("Could not connect to: " + error); // SEND BACK THE REAL FAIL REASON
     }
     return true;
 }
@@ -164,7 +165,7 @@ PSql::queryById(const char *sql,int64_t id)
     if (PQresultStatus(result.res) != PGRES_COMMAND_OK)//PGRES_TUPLES_OK
     {
         fprintf(stderr, "PQexecParams failed: %s", PQerrorMessage(psql->conn));
-        PQclear(result.res);
+        result.freeAll();
         return result;
     }
 
@@ -201,7 +202,7 @@ PSql::selectById(const char *sql,int64_t id)
     if (PQresultStatus(result.res) != PGRES_TUPLES_OK)
     {
         fprintf(stderr, "PQexecParams failed: %s", PQerrorMessage(psql->conn));
-        PQclear(result.res);
+        result.freeAll();
         return result;
     }
 
