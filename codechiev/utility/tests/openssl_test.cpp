@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <vector>
+#include <openssl/engine.h>
 #include <base/BlockingQueue.hpp>
 #include <base/AtomicNumber.h>
 #include <base/Logger.hpp>
@@ -65,7 +66,11 @@ int main(int argc, const char * argv[]) {
         queue.addJob(boost::bind(&print));
     }
 
+    Time::SleepMillis(3000l);
     Time now = Time::NowTm();
     LOG_INFO<<"cost millis:"<<now-began;
+    
+    ENGINE_cleanup();
+    CONF_modules_unload();
     return 0;
 }
