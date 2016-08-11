@@ -66,6 +66,7 @@ int main(int argc, const char * argv[]) {
     Time now = Time::NowTm();
     LOG_INFO<<"cost millis:"<<now-began;
     
+    queue.stop();
     //ENGINE_cleanup();
     //CONF_modules_unload();
     return 0;
