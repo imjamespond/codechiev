@@ -97,6 +97,6 @@ int main(int argc, const char * argv[])
     //user.gender.setValue(user.gender.getValue()+1);
     //user.update();
     //UserEx::deleteById(10002);
-    manager->close();
+    //manager->close();
     return 0;
 }
