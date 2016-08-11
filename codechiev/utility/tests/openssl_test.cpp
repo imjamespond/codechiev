@@ -30,7 +30,7 @@ AtomicNumber<int> count(kNum);
 
 void print()
 {
-    if(count.addAndFetch(1)<0)
+    if(count.subAndFetch(1)<0)
         return ;
     
     RsaUtil rsautil;
