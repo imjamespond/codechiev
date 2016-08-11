@@ -90,9 +90,9 @@ int main(int argc, const char * argv[])
     UserEx user;
     //user.selectById(10001);
     //LOG_INFO<<"user:"<<user.uname.getValue()<<", gender:"<<user.gender.getValue();
-    user.uname.setValue("foobar") ;
-    user.gender.setValue(123456);
-    user.createdate.setValue(9876543210);
+    //user.uname.setValue("foobar") ;
+    //user.gender.setValue(123456);
+    //user.createdate.setValue(9876543210);
     //user.insert();
     //user.gender.setValue(user.gender.getValue()+1);
     //user.update();
