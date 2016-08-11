@@ -44,7 +44,7 @@ namespace codechiev {
             int count_;
             Condition cond_;
             Mutex mutex_;
-        }
+        };
     }
 }
 
