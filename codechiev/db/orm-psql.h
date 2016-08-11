@@ -77,7 +77,7 @@ template <> inline void clazz<PSql>::selectById(int64_t argId)\
     const char* sql = "select * from " #table " where id=$1";\
     PSql::Result result = PSql::selectById(sql, argId);\
     id.toField(result.getFieldValOfRow("id", 0));\
-    /*BOOST_PP_SEQ_FOR_EACH( TABLE_ASSIGN, 0, member_seq)*/\
+    BOOST_PP_SEQ_FOR_EACH( TABLE_ASSIGN, 0, member_seq)\
     result.freeAll();\
 }\
 template <> inline void clazz<PSql>::deleteById(int64_t argId)\
