@@ -115,11 +115,8 @@ namespace codechiev
             
             static void destructor()
             {
-                T* t = reinterpret_cast<T*>(::pthread_getspecific(key_)) ;
-                if (t != NULL)
-                {
-                    delete t;
-                }
+                T* t = get() ;
+                delete t;
             }
         private:
             static pthread_key_t key_;
