@@ -71,6 +71,6 @@ int main(int argc, const char * argv[]) {
     LOG_INFO<<"cost millis:"<<now-began;
     
     ENGINE_cleanup();
-    CONF_modules_unload();
+    //CONF_modules_unload();
     return 0;
 }
