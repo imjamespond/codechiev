@@ -31,8 +31,7 @@ namespace codechiev{
          CACHE 1;
          */
         //DECLEAR_TABLE( Student, student, ((int,id,id))((std::string,name,name))((std::string,sex,name)))
-        DECLEAR_PSQL_TABLE( User, users, ((std::string,uname,username))((int,gender,gender))\
-                           ((int64_t,createdate,createdate)))
+        DECLEAR_PSQL_TABLE( User, users, ((std::string,uname,username)))
 
         class UserEx:public User<PSql>
         {
