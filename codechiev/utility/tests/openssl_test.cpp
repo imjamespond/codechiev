@@ -55,7 +55,7 @@ void print()
 
 int main(int argc, const char * argv[]) {
     LOG_INFO<<"test for:"<<kNum;
-    Time began = Time::NowTm();
+    Time began = Time::Now();
     
     queue.commence();
     for(int i=0; i<kNum; i++)
@@ -64,7 +64,7 @@ int main(int argc, const char * argv[]) {
     }
 
     latch.latch();
-    Time now = Time::NowTm();
+    Time now = Time::Now();
     LOG_INFO<<"cost millis:"<<now-began;
     
     CRYPTO_cleanup_all_ex_data();
