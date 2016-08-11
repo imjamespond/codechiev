@@ -78,7 +78,7 @@ using namespace codechiev::db;
 int main(int argc, const char * argv[])
 {
     PSqlManager1* manager = Singleton<PSqlManager1>::get();
-    manager->init("host=localhost \
+    manager->init("host=127.0.0.1 \
                   port=5432 \
                   dbname=codechiev \
                   user=postgres \
