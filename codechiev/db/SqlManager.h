@@ -3,6 +3,7 @@
 
 #include <boost/shared_ptr.hpp>
 #include <base/Mutex.hpp>
+#include <base/Logger.hpp>
 
 template <class DB_T, int Number>
 class DBManager
