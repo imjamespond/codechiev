@@ -8,7 +8,7 @@ message(STATUS ${filename}${CPP_SUFFIX})
 
 include_directories (${BASE_HEADERS})
 add_executable (${filename} ${filename}${CPP_SUFFIX})
-target_link_libraries (${filename} ${MY_LIBS} mysqlclient)
+target_link_libraries (${filename} ${MY_LIBS} mysql/mysqlclient)
 add_test(${filename} ${CMAKE_CURRENT_BINARY_DIR}/${filename})
 
 endforeach(file)
