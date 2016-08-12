@@ -102,7 +102,7 @@ int main(int argc, const char * argv[])
     
     user.gender.setValue(1);
     user.update();
-    //User<PSql>::deleteById(10002);
+    User<PSql>::DeleteById(user.id.getValue()-1);
 
     /*Test<PSql> test;
     test.id.setValue(1);

@@ -27,6 +27,7 @@ typedef std::vector<ptr_type > vec_type;\
 void selectById();\
 void insert();\
 void update();\
+static void DeleteById(int64_t);\
 \
 public:\
     Field<int64_t> id;\
@@ -70,7 +71,7 @@ template <> inline void clazz<PSql>::update()\
     PSql::query(result, sql, param_num, val, len, format, 1);\
     result.freeAll();\
 }\
-template <> inline void clazz<PSql>::deleteById(int64_t argId)\
+template <> inline void clazz<PSql>::DeleteById(int64_t argId)\
 {\
     const char* sql = "delete from " #table " where id=$1::bigint";\
     PSql::Result result;\
