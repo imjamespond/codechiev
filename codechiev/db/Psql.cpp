@@ -21,7 +21,7 @@ PSql::connect(const char *conninfo)
 {
     /* Make a connection to the database */
     conn = PQconnectdb(conninfo);
-    
+
     /* Check to see that the backend connection was successfully made */
     if (PQstatus(conn) != CONNECTION_OK)
     {
@@ -111,7 +111,6 @@ PSql::select(Result& result, const char *sql,
 
     psql->transactionBegin();
 
-    //const char *conninfo;
     result.res = PQexecParams(psql->conn,
                               sql,
                               nParams,       /* The number of parameters supplied; */
@@ -176,18 +175,18 @@ PSql::selectById(Result& rt, const char *sql,int64_t id)
     int         paramLengths[1];
     int         paramFormats[1];
     uint64_t    binaryIntVal;
-    
+
     PSqlManager* manager = Singleton<PSqlManager >::get();
     psql_ptr psql = manager->getDB();
 
     /* Convert integer value "2" to network byte order */
     binaryIntVal = net::hostToNetworkInt64(id);
-    
+
     /* Set up parameter arrays for PQexecParams */
     paramValues[0] = (char *) &binaryIntVal;
     paramLengths[0] = sizeof(binaryIntVal);
     paramFormats[0] = 1;        /* binary */
-    
+
     rt.res = PQexecParams(psql->conn,
                        sql,
                        1,       /* one param */
@@ -196,7 +195,7 @@ PSql::selectById(Result& rt, const char *sql,int64_t id)
                        paramLengths,
                        paramFormats,
                        1);      /* ask for binary results */
-    
+
     if (PQresultStatus(rt.res) != PGRES_TUPLES_OK)
     {
         fprintf(stderr, "SELECT failed: %s", PQerrorMessage(psql->conn));
@@ -204,7 +203,7 @@ PSql::selectById(Result& rt, const char *sql,int64_t id)
         psql->close();
         return;
     }
-    
+
     manager->returnDB(psql);
 }
 

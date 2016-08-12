@@ -37,22 +37,20 @@ namespace codechiev{
         class UserEx : public User<PSql>
         {
         public:
-            static void SelectByName(UserEx& user, const std::string &name );
+            void UserEx::SelectByName(UserEx& user, const std::string &name)
+            {
+                const char *sql = "SELECT * FROM users WHERE username = $1";
+                const char *paramValues[1];
+                paramValues[0] = name.c_str();
+
+                PSql::Result result;
+                PSql::select(result, sql, 1, paramValues, NULL, NULL, 1);
+                //user.assemble(result);
+                result.freeAll();
+            }
+
             static void SelectListByGender(vec_type&, int32_t );
         };
-
-        void
-        UserEx::SelectByName(UserEx& user, const std::string &name)
-        {
-            const char *sql = "SELECT * FROM users WHERE username = $1";
-            const char *paramValues[1];
-            paramValues[0] = name.c_str();
-
-            PSql::Result result;
-            PSql::select(result, sql, 1, paramValues, NULL, NULL, 1);
-            //user.assemble(result);
-            result.freeAll();
-        }
 
         void
         UserEx::SelectListByGender(vec_type& userVec, int32_t gender )
@@ -87,7 +85,7 @@ int main(int argc, const char * argv[])
     //when using localhost it will get this error by valgrind:
     //Invalid free() / delete / delete[] / realloc()
 
-    UserEx user;
+    /*UserEx user;
     user.id.setValue(1);
     user.selectById();
     LOG_INFO<<"user:"<<user.uname.getValue()<<", gender:"<<user.gender.getValue();
@@ -101,7 +99,7 @@ int main(int argc, const char * argv[])
     user.uname.setValue("codechiev");
     user.gender.setValue(1);
     user.update();
-    UserEx::DeleteById(user.id.getValue()-1);
+    UserEx::DeleteById(user.id.getValue()-1);*/
 
     LOG_INFO<<"\n\n\nUserEx::SelectByName";
     UserEx userFooBar;
