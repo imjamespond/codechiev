@@ -50,7 +50,7 @@ template <> inline void clazz<PSql>::insert(){\
     int         format[param_size];\
     BOOST_PP_SEQ_FOR_EACH_I( PSQL_ASSIGN, , member_seq)\
     PSql::Result result;\
-    PSql::query(sql, param_size, val, len, format, 1);\
+    PSql::query(result, sql, param_size, val, len, format, 1);\
     result.freeAll();\
 }\
 

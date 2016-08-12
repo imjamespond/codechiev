@@ -60,9 +60,9 @@ PSql::transactionEnd()
     PQclear(res);
 }
 
-
-PSql::Result
-PSql::query(const char *sql,
+void
+PSql::query(Result& result ,
+            const char *sql,
             int nParams,
             //const Oid *paramTypes,
             const char * const *paramValues,
@@ -72,11 +72,10 @@ PSql::query(const char *sql,
 {
     PSqlManager* manager = Singleton<PSqlManager >::get();
     psql_ptr psql = manager->getDB();
-
+    if(!psql)
+        return;
     psql->transactionBegin();
 
-    //const char *conninfo;
-    Result result;
     result.res = PQexecParams(psql->conn,
                sql,
                nParams,       /* The number of parameters supplied; */
@@ -90,14 +89,12 @@ PSql::query(const char *sql,
     {
         printf("PQexecParams failed: %s\n", PQerrorMessage(psql->conn));
         result.freeAll();
-        return result;
+        return ;
     }
 
     psql->transactionEnd();
 
     manager->returnDB(psql);
-
-    return result;
 }
 
 void

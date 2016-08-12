@@ -17,13 +17,14 @@ namespace codechiev {
         ~PSql();
 
         class Result;
-        static Result query(const char *sql,
-                            int nParams,
+        static void query(Result& ,
+                            const char *,
+                            int ,
                             //const Oid *paramTypes,
-                            const char * const *paramValues,
-                            const int *paramLengths,
-                            const int *paramFormats,
-                            int resultFormat);
+                            const char * const *,
+                            const int *,
+                            const int *,
+                            int );
         static void select(Result& result,
                             const char *sql,
                             int nParams,
