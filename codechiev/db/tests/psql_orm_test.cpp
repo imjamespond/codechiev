@@ -85,7 +85,7 @@ int main(int argc, const char * argv[])
     //when using localhost it will get this error by valgrind:
     //Invalid free() / delete / delete[] / realloc()
 
-    /*UserEx user;
+    UserEx user;
     user.id.setValue(1);
     user.selectById();
     LOG_INFO<<"user:"<<user.uname.getValue()<<", gender:"<<user.gender.getValue();
@@ -99,7 +99,7 @@ int main(int argc, const char * argv[])
     user.uname.setValue("codechiev");
     user.gender.setValue(1);
     user.update();
-    UserEx::DeleteById(user.id.getValue()-1);*/
+    /*UserEx::DeleteById(user.id.getValue()-1);*/
 
     LOG_INFO<<"\n\n\nUserEx::SelectByName";
     UserEx userFooBar;
