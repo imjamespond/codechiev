@@ -129,14 +129,11 @@ PSql::select(Result& result, const char *sql,
     {
         printf("PQexecParams failed: %s\n", PQerrorMessage(psql->conn));
         result.freeAll();
-        return result;
     }
 
     psql->transactionEnd();
 
     manager->returnDB(psql);
-
-    return result;
 }
 
 PSql::Result
