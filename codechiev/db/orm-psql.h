@@ -45,13 +45,14 @@ template <> void clazz<PSql>::selectById()\
     result.freeAll();\
 }\
 template <> inline void clazz<PSql>::insert(){\
-    const char* sql = "insert into " #table " values (nextval('" #table "_id_seq')" BOOST_PP_SEQ_FOR_EACH_I( PSQL_INSERT, , member_seq) ")";\
+    const char* sql = "insert into " #table " values (nextval('" #table "_id_seq')" BOOST_PP_SEQ_FOR_EACH_I( PSQL_INSERT, , member_seq) ") returning id";\
     const char *val[param_size];\
     int         len[param_size];\
     int         format[param_size];\
     BOOST_PP_SEQ_FOR_EACH_I( PSQL_ASSIGN, , member_seq)\
     PSql::Result result;\
     PSql::query(result, sql, param_size, val, len, format, 1);\
+    id.toField(result.getFieldValOfRow("id", 0));\
     result.freeAll();\
 }\
 template <> inline void clazz<PSql>::update()\
