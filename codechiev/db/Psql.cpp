@@ -183,7 +183,8 @@ PSql::selectById(Result& rt, const char *sql,int64_t id)
     int         paramFormats[1];
     uint64_t    binaryIntVal;
     
-    PSql* psql = Singleton<PSql >::get();
+    PSqlManager* manager = Singleton<PSqlManager >::get();
+    psql_ptr psql = manager->getDB();
 
     /* Convert integer value "2" to network byte order */
     binaryIntVal = net::hostToNetworkInt64(id);
@@ -210,7 +211,7 @@ PSql::selectById(Result& rt, const char *sql,int64_t id)
         return;
     }
     
-    //show_binary_results(res);
+    manager->returnDB(psql);
 }
 
 PSql::Result::Result():res(NULL){}
