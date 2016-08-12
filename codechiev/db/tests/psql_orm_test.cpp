@@ -93,12 +93,12 @@ int main(int argc, const char * argv[])
     user.id.setValue(1);
     user.selectById();
     LOG_INFO<<"user:"<<user.uname.getValue()<<", gender:"<<user.gender.getValue();
-/*
+
     user.uname.setValue("foobar") ;
     user.gender.setValue(123456);
     user.createdate.setValue(9876543210);
     user.insert();
-    //user.gender.setValue(user.gender.getValue()+1);
+/*    //user.gender.setValue(user.gender.getValue()+1);
     //user.update();
     //UserEx::deleteById(10002);*/
     
