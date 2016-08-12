@@ -19,8 +19,6 @@ public:
     void
     init(const std::string& conninfo)
     {
-        connInfo_ = conninfo;
-
         for(int i=0; i<Number; i++)
         {
             codechiev::base::MutexGuard lock(&mutex_);
@@ -38,7 +36,7 @@ public:
             it != dbs_.end();
             it++)
         {
-            *it->close();
+            *it.close();
         }
     }
 
@@ -72,7 +70,7 @@ public:
 
 protected:
 private:
-    std::string *connInfo_;
+    //std::string *connInfo_;
     unsigned int index_;
     codechiev::base::Mutex mutex_;
     db_vec dbs_;
