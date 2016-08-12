@@ -21,15 +21,16 @@ template<class ISql>\
 class clazz\
 {\
 public:\
-typedef typename ISql::Result result_type;\
-typedef boost::shared_ptr<clazz > ptr_type;\
-typedef std::vector<ptr_type > vec_type;\
-void selectById();\
-void insert();\
-void update();\
-void assemble(result_type result);\
-static void DeleteById(int64_t);\
-static void assembleVector(result_type result, vec_type& vec);\
+    typedef typename ISql::Result result_type;\
+    typedef boost::shared_ptr<clazz > ptr_type;\
+    typedef std::vector<ptr_type > vec_type;\
+    void selectById();\
+    void insert();\
+    void update();\
+    void assemble(result_type result);\
+protected:\
+    static void DeleteById(int64_t);\
+    static void assembleVector(result_type result, vec_type& vec);\
 \
 public:\
     Field<int64_t> id;\

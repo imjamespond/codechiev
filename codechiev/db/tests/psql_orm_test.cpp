@@ -29,12 +29,16 @@ namespace codechiev{
          MAXVALUE 9223372036854775807
          START 1
          CACHE 1;
-
-        class UserEx:public User<PSql>
+         */
+        DECLEAR_PSQL_TABLE( User, users, ((std::string,uname,username))((int,gender,gender))\
+                           ((int64_t,createdate,createdate)))
+        DECLEAR_PSQL_TABLE( Test, test1, ((std::string,t,t))((std::string,b,b)) )
+        
+        class UserEx : public User<PSql>
         {
         public:
             void selectByName(const std::string& name);
-            static void selectListByGender(int32_t , User<PSql>::vec_type&);
+            static void SelectListByGender(int32_t , vec_type&);
         };
 
         void
@@ -47,13 +51,14 @@ namespace codechiev{
             paramValues[0] = name.c_str();
             paramLengths[0] = static_cast<int>(name.length());
             paramFormats[0] = 1;
-
-            PSql::Result result = PSql::select(sql, 1, paramValues, paramLengths, paramFormats, 1);
+            
+            PSql::Result result;
+            PSql::select(result, sql, 1, paramValues, paramLengths, paramFormats, 1);
             this->assemble(result);
         }
 
         void
-        UserEx::selectListByGender(int32_t gender, User<PSql>::vec_type& userVec)
+        UserEx::SelectListByGender(int32_t gender, vec_type& userVec)
         {
             const char *sql = "SELECT * FROM user2 WHERE gender = $1";
             const char *paramValues[1];
@@ -64,14 +69,10 @@ namespace codechiev{
             paramLengths[0] = sizeof(val);
             paramFormats[0] = 1;
 
-            PSql::Result result = PSql::select(sql, 1, paramValues, paramLengths, paramFormats, 1);
-            User<PSql>::assembleVector(result, userVec);
-        }*/
-        
-        //DECLEAR_TABLE( Student, student, ((int,id,id))((std::string,name,name))((std::string,sex,name)))
-        DECLEAR_PSQL_TABLE( User, users, ((std::string,uname,username))((int,gender,gender))\
-                           ((int64_t,createdate,createdate)))
-        DECLEAR_PSQL_TABLE( Test, test1, ((std::string,t,t))((std::string,b,b)) )
+            PSql::Result result;
+            PSql::select(result, sql, 1, paramValues, paramLengths, paramFormats, 1);
+            UserEx::assembleVector(result, userVec);
+        }
     }
 }
 using namespace codechiev::base;
@@ -103,6 +104,17 @@ int main(int argc, const char * argv[])
     user.gender.setValue(1);
     user.update();
     //User<PSql>::DeleteById(user.id.getValue()-1);
+    
+    LOG_INFO<<"UserEx::SelectListByGender";
+    UserEx::vec_type users;
+    UserEx::SelectListByGender(1, users);
+    for(UserEx::vec_type::const_iterator it=users.begin();
+        it!=users.end();
+        it++)
+    {
+        const UserEx::ptr_type& u = (*it);
+        LOG_INFO<<"id:" << u->id.getValue()<< ",user:"<<u->uname.getValue()<<", gender:"<<u->gender.getValue();
+    }
 
     /*Test<PSql> test;
     test.id.setValue(1);
