@@ -105,6 +105,7 @@ int main(int argc, const char * argv[])
     //UserEx::deleteById(10002);*/
     
     Test<PSql> test;
+    test.id.setValue(1);
     test.selectById();
     LOG_INFO<<"id:"<<test.id.getValue();
     LOG_INFO<<"text:"<<test.t.getValue();
