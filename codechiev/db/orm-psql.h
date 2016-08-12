@@ -85,7 +85,6 @@ template <> void clazz<PSql>::assemble(result_type result)\
 {\
     id.toField(result.getFieldValOfRow("id",0));\
     BOOST_PP_SEQ_FOR_EACH( TABLE_ASSIGN, 0, member_seq)\
-    result.freeAll();\
 }\
 template <> void clazz<PSql>::assembleVector(result_type result, vec_type& vec)\
 {\
@@ -97,7 +96,6 @@ template <> void clazz<PSql>::assembleVector(result_type result, vec_type& vec)\
         BOOST_PP_SEQ_FOR_EACH( TABLE_ROW_ASSIGN, row, member_seq)\
         vec.push_back(clz);\
     }\
-    result.freeAll();\
 }\
 
 #endif // ORM_PSQL_H_INCLUDED
