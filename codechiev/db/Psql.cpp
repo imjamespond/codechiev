@@ -21,13 +21,12 @@ PSql::connect(const char *conninfo)
 {
     /* Make a connection to the database */
     conn = PQconnectdb(conninfo);
-
+    
     /* Check to see that the backend connection was successfully made */
     if (PQstatus(conn) != CONNECTION_OK)
     {
-        std::string error = PQerrorMessage(conn);                      // SAVE ERROR OF conn_ BEFORE RELEASING IT
-        PQfinish(conn);                                           // FREE conn_ RESOURCES
-        LOG_ERROR<<( "Could not connect to: " + error); // SEND BACK THE REAL FAIL REASON
+        LOG_ERROR<<"Connection to database failed: "<<PQerrorMessage(conn);
+        PQfinish(conn);
         return false;
     }
     return true;
@@ -177,29 +176,14 @@ PSql::queryById(const char *sql,int64_t id)
 void
 PSql::selectById(Result& rt, const char *sql,int64_t id)
 {
-    const char *conninfo;
-    PGconn     *conn;
+    //PGconn     *conn;
     //PGresult   *res;
     const char *paramValues[1];
     int         paramLengths[1];
     int         paramFormats[1];
     uint32_t    binaryIntVal;
     
-    conninfo = "host=127.0.0.1 \
-    user=postgres \
-    dbname = codechiev";
-    
-    
-    /* Make a connection to the database */
-    conn = PQconnectdb(conninfo);
-    
-    /* Check to see that the backend connection was successfully made */
-    if (PQstatus(conn) != CONNECTION_OK)
-    {
-        fprintf(stderr, "Connection to database failed: %s",
-                PQerrorMessage(conn));
-        //exit_nicely(conn);
-    }
+    PSql* psql = Singleton<PSql >::get();
 
     /* Convert integer value "2" to network byte order */
     binaryIntVal = htonl((uint32_t) 2);
@@ -209,7 +193,7 @@ PSql::selectById(Result& rt, const char *sql,int64_t id)
     paramLengths[0] = sizeof(binaryIntVal);
     paramFormats[0] = 1;        /* binary */
     
-    rt.res = PQexecParams(conn,
+    rt.res = PQexecParams(psql->conn,
                        sql,
                        1,       /* one param */
                        NULL,    /* let the backend deduce param type */
@@ -220,7 +204,7 @@ PSql::selectById(Result& rt, const char *sql,int64_t id)
     
     if (PQresultStatus(rt.res) != PGRES_TUPLES_OK)
     {
-        fprintf(stderr, "SELECT failed: %s", PQerrorMessage(conn));
+        fprintf(stderr, "SELECT failed: %s", PQerrorMessage(psql->conn));
         PQclear(rt.res);
         //exit_nicely(conn);
     }
@@ -230,7 +214,7 @@ PSql::selectById(Result& rt, const char *sql,int64_t id)
     rt.freeAll();
     
     /* close the connection to the database and cleanup */
-    PQfinish(conn);
+    PQfinish(psql->conn);
 }
 
 PSql::Result::Result():res(NULL){}

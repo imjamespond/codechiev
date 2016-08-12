@@ -79,13 +79,16 @@ using namespace codechiev::base;
 using namespace codechiev::db;
 int main(int argc, const char * argv[])
 {
+    const char* conninfo = "host=127.0.0.1 \
+    port=5432 \
+    dbname=codechiev \
+    user=postgres \
+    password= \
+    connect_timeout=3";
+    PSql* psql = Singleton<PSql >::get();
+    psql->connect(conninfo);
     //PSqlManager1* manager = Singleton<PSqlManager1>::get();
-    //manager->init("host=127.0.0.1 \
-                  port=5432 \
-                  dbname=codechiev \
-                  user=postgres \
-                  password= \
-                  connect_timeout=3");
+    //manager->init();
     //when using localhost it will get this error by valgrind:
     //Invalid free() / delete / delete[] / realloc()
 
