@@ -36,7 +36,7 @@ public:\
 \
 template <> void clazz<PSql>::selectById()\
 {\
-const char* sql = "SELECT * FROM " #table " WHERE id = $1::int8";\
+const char* sql = "SELECT * FROM " #table " WHERE id = $1::int4";\
 PSql::Result result;\
 PSql::selectById(result, sql, id.getValue());\
 BOOST_PP_SEQ_FOR_EACH( TABLE_ASSIGN, 0, member_seq) \
