@@ -49,25 +49,24 @@ namespace codechiev{
                 result.freeAll();
             }
 
-            static void SelectListByGender(vec_type&, int32_t );
+            static void SelectListByGender(vec_type& userVec, int32_t gender )
+            {
+                const char *sql = "SELECT * FROM users WHERE gender = $1";
+                const char *paramValues[1];
+                int paramLengths[1];
+                int paramFormats[1];
+                uint32_t val = net::hostToNetworkInt32(gender);
+                paramValues[0] = (char *) &val;
+                paramLengths[0] = sizeof(val);
+                paramFormats[0] = 1;
+
+                PSql::Result result;
+                PSql::select(result, sql, 1, paramValues, paramLengths, paramFormats, 1);
+                UserEx::assembleVector(result, userVec);
+                result.freeAll();
+            }
         };
 
-        void
-        UserEx::SelectListByGender(vec_type& userVec, int32_t gender )
-        {
-            const char *sql = "SELECT * FROM users WHERE gender = $1";
-            const char *paramValues[1];
-            int paramLengths[1];
-            int paramFormats[1];
-            uint32_t val = net::hostToNetworkInt32(gender);
-            paramValues[0] = (char *) &val;
-            paramLengths[0] = sizeof(val);
-            paramFormats[0] = 1;
-
-            PSql::Result result;
-            PSql::select(result, sql, 1, paramValues, paramLengths, paramFormats, 1);
-            UserEx::assembleVector(result, userVec);
-        }
     }
 }
 using namespace codechiev::base;
