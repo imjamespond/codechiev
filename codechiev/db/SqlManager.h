@@ -19,8 +19,6 @@ public:
     void
     init(const std::string& conninfo)
     {
-        connInfo_ = conninfo;
-
         for(int i=0; i<Number; i++)
         {
             codechiev::base::MutexGuard lock(&mutex_);
