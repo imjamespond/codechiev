@@ -112,13 +112,13 @@ int main(int argc, const char * argv[])
     //LOG_INFO<<"id:" << userFooBar.id.getValue()<< ",user:"<<userFooBar.uname.getValue()<<", gender:"<<userFooBar.gender.getValue();
     
     LOG_INFO<<"\n\n\nUserEx::SelectListByGender";
-    UserEx::vec_type users;
+    User<PSql>::vec_type users;
     UserEx::SelectListByGender( users, 1);
     for(UserEx::vec_type::const_iterator it=users.begin();
         it!=users.end();
         it++)
     {
-        const UserEx::ptr_type& u = (*it);
+        const User<PSql>::ptr_type& u = (*it);
         LOG_INFO<<"id:" << u->id.getValue()<< ",user:"<<u->uname.getValue()<<", gender:"<<u->gender.getValue();
     }
 
