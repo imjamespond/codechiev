@@ -36,7 +36,7 @@ public:
             it != dbs_.end();
             it++)
         {
-            *it.close();
+            (*it)->close();
         }
     }
 
