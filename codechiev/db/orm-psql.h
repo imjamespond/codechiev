@@ -66,7 +66,7 @@ template <> inline void clazz<PSql>::update()\
     format[param_size] = 1;\
     BOOST_PP_SEQ_FOR_EACH_I( PSQL_ASSIGN, , member_seq)\
     PSql::Result result;\
-    PSql::query(result, sql, param_size, val, len, format, 1);\
+    PSql::query(result, sql, param_num, val, len, format, 1);\
     result.freeAll();\
 }\
 
