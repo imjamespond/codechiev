@@ -56,6 +56,7 @@ namespace codechiev {
         class Field<int64_t>
         {
         public:
+            Field():t_(0){}
             inline int64_t getValue(){return t_;};
             inline const char* getNetValue()
             {
@@ -79,6 +80,7 @@ namespace codechiev {
         class Field<int32_t>
         {
         public:
+            Field():t_(0){}
             inline int32_t getValue(){return t_;};
             inline const char* getNetValue()
             {
