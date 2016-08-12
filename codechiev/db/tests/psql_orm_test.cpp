@@ -101,6 +101,7 @@ int main(int argc, const char * argv[])
     //user.update();
     //UserEx::deleteById(10002);*/
     
+    Test::se
     
     manager->close();
     return 0;
