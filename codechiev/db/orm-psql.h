@@ -51,7 +51,8 @@ template <> inline void clazz<PSql>::insert(){\
     int         format[param_size];\
     BOOST_PP_SEQ_FOR_EACH_I( PSQL_ASSIGN, , member_seq)\
     PSql::Result result;\
-    PSql::query(result, sql, param_size, val, len, format, 1);\
+    PSql::select(result, sql, param_size, val, len, format, 1);\
+    id.toField(result.getFieldValOfRow("id", 0));\
     result.freeAll();\
 }\
 template <> inline void clazz<PSql>::update()\
