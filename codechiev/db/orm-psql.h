@@ -27,9 +27,9 @@ public:\
     void selectById();\
     void insert();\
     void update();\
-    void assemble(result_type result);\
-protected:\
     static void DeleteById(int64_t);\
+protected:\
+    void assemble(result_type result);\
     static void assembleVector(result_type result, vec_type& vec);\
 \
 public:\
