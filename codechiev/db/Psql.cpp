@@ -181,12 +181,12 @@ PSql::selectById(Result& rt, const char *sql,int64_t id)
     const char *paramValues[1];
     int         paramLengths[1];
     int         paramFormats[1];
-    uint32_t    binaryIntVal;
+    uint64_t    binaryIntVal;
     
     PSql* psql = Singleton<PSql >::get();
 
     /* Convert integer value "2" to network byte order */
-    binaryIntVal = htonl((uint32_t) 2);
+    binaryIntVal = net::hostToNetworkInt64(id);
     
     /* Set up parameter arrays for PQexecParams */
     paramValues[0] = (char *) &binaryIntVal;
