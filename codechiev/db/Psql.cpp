@@ -189,6 +189,7 @@ PSql::selectById(const char *sql,int64_t id)
     user=postgres \
     dbname = codechiev";
     
+    
     /* Make a connection to the database */
     conn = PQconnectdb(conninfo);
     
@@ -197,9 +198,21 @@ PSql::selectById(const char *sql,int64_t id)
     {
         fprintf(stderr, "Connection to database failed: %s",
                 PQerrorMessage(conn));
-        PQfinish(conn);
-        return;
+        //exit_nicely(conn);
     }
+    
+    /*
+     * The point of this program is to illustrate use of PQexecParams() with
+     * out-of-line parameters, as well as binary transmission of data.
+     *
+     * This first example transmits the parameters as text, but receives the
+     * results in binary format.  By using out-of-line parameters we can
+     * avoid a lot of tedious mucking about with quoting and escaping, even
+     * though the data is text.  Notice how we don't have to do anything
+     * special with the quote mark in the parameter value.
+     */
+    
+    /* Here is our out-of-line parameter value */
     paramValues[0] = "joe's place";
     
     res = PQexecParams(conn,
@@ -215,8 +228,7 @@ PSql::selectById(const char *sql,int64_t id)
     {
         fprintf(stderr, "SELECT failed: %s", PQerrorMessage(conn));
         PQclear(res);
-        PQfinish(conn);
-        return;
+        //exit_nicely(conn);
     }
     
     //show_binary_results(res);
@@ -254,7 +266,7 @@ PSql::selectById(const char *sql,int64_t id)
     {
         fprintf(stderr, "SELECT failed: %s", PQerrorMessage(conn));
         PQclear(res);
-        PQfinish(conn);
+        //exit_nicely(conn);
     }
     
     //show_binary_results(res);
