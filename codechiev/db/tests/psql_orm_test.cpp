@@ -105,7 +105,7 @@ int main(int argc, const char * argv[])
     //UserEx::deleteById(10002);*/
     
     Test<PSql> test;
-    test.find();
+    test.selectById();
     
     psql->close();
     return 0;
