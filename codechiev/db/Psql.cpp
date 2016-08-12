@@ -203,7 +203,7 @@ PSql::selectById(const char *sql,int64_t id)
     paramValues[0] = "joe's place";
     
     res = PQexecParams(conn,
-                       "SELECT * FROM test1 WHERE t = $1",
+                       sql,
                        1,       /* one param */
                        NULL,    /* let the backend deduce param type */
                        paramValues,
@@ -242,7 +242,7 @@ PSql::selectById(const char *sql,int64_t id)
     paramFormats[0] = 1;        /* binary */
     
     res = PQexecParams(conn,
-                       "SELECT * FROM test1 WHERE i = $1::int4",
+                       sql,
                        1,       /* one param */
                        NULL,    /* let the backend deduce param type */
                        paramValues,
