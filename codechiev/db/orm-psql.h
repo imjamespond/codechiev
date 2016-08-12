@@ -45,7 +45,7 @@ template <> void clazz<PSql>::selectById()\
     result.freeAll();\
 }\
 template <> inline void clazz<PSql>::insert(){\
-    const char* sql = "insert into " #table " values (nextval('" #table "_id_seq')" BOOST_PP_SEQ_FOR_EACH_I( PSQL_INSERT, , member_seq) ") RETURNING id;";\
+    const char* sql = "insert into " #table " values (nextval('" #table "_id_seq')" BOOST_PP_SEQ_FOR_EACH_I( PSQL_INSERT, , member_seq) ")";\
     const char *val[param_size];\
     int         len[param_size];\
     int         format[param_size];\
