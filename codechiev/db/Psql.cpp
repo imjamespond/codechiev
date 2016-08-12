@@ -160,10 +160,13 @@ PSql::queryById(Result& result, const char *sql,int64_t id)
     {
         fprintf(stderr, "PQexecParams failed: %s", PQerrorMessage(psql->conn));
         result.freeAll();
+        psql->close();
         return ;
     }
 
     psql->transactionEnd();
+
+    manager->returnDB(psql);
 }
 
 void
@@ -199,7 +202,7 @@ PSql::selectById(Result& rt, const char *sql,int64_t id)
     if (PQresultStatus(rt.res) != PGRES_TUPLES_OK)
     {
         fprintf(stderr, "SELECT failed: %s", PQerrorMessage(psql->conn));
-        PQclear(rt.res);
+        rt.freeAll();
         psql->close();
         return;
     }
