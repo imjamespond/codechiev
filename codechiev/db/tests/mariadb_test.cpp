@@ -19,8 +19,8 @@ int main(int argc, char *argv[])
     MYSQL_RES *result;
     
     mysql= mysql_init(NULL);
-    if (!mysql_real_connect(mysql, "localhost", "example", "example_pw",
-                            "example_db", 0, "/tmp/mysql.sock", 0))
+    if (!mysql_real_connect(mysql, "localhost", "root", "",
+                            "test", 0, "/var/lib/mysql/mysql.sock", 0))
         show_error(mysql);
     
     query= "DROP TABLE IF EXISTS affected_rows";
