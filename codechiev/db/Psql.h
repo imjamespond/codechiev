@@ -59,8 +59,7 @@ namespace codechiev {
             PGresult* res;
         };
     };
-    typedef boost::shared_ptr<PSql> psql_ptr;
-    typedef DBManager<PSql, 1> PSqlManager1;
+    typedef DBManager<PSql, 1> PSqlManager;
     }
 }
 

@@ -4,26 +4,29 @@
 #include <boost/shared_ptr.hpp>
 #include <base/Mutex.hpp>
 #include <base/Logger.hpp>
+#include <vector>
 
 template <class DB_T, int Number>
 class DBManager
 {
 public:
     typedef typename boost::shared_ptr<DB_T > db_ptr;
+    typedef std::vector<db_ptr > db_vec;
 
     DBManager():index_(0)
     {}
 
     void
-    init(const char* conninfo)
+    init(const std::string& conninfo)
     {
         connInfo_ = conninfo;
 
         for(int i=0; i<Number; i++)
         {
             codechiev::base::MutexGuard lock(&mutex_);
-            dbs_[i].reset(new DB_T());
-            dbs_[i]->connect(connInfo_);
+            db_ptr db(new DB_T);
+            db->connect(conninfo);
+            dbs_.push_back(db);
         }
     }
 
@@ -41,25 +44,19 @@ public:
     db_ptr
     getDB()
     {
-        db_ptr db;
-
-        for(int i=index_; i<Number; i++)
+        codechiev::base::MutexGuard lock(&mutex_);
+        for(db_vec::const_iterator it = dbs_.begin();
+            it != dbs_.end();
+            it++)
         {
-            codechiev::base::MutexGuard lock(&mutex_);
-            index_=(++index_)%Number;
-            db = dbs_[index_];
+            const db_ptr& db = *it;
             if(db&&!db->isInUse())
             {
                 db->setUsed(true);
-                break;
+                return db;
             }
         }
-
-        if(db)
-        {
-            db->connect(connInfo_);
-        }
-        return db;
+        return db_ptr();
     }
 
     void
@@ -74,10 +71,10 @@ public:
 
 protected:
 private:
-    const char *connInfo_;
+    std::string *connInfo_;
     unsigned int index_;
     codechiev::base::Mutex mutex_;
-    db_ptr dbs_[Number];
+    db_vec dbs_;
 };
 
 #endif // SQLMANAGER_H_INCLUDED
