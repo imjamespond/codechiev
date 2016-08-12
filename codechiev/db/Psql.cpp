@@ -218,6 +218,51 @@ PSql::selectById(const char *sql,int64_t id)
         PQfinish(conn);
         return;
     }
+    
+    //show_binary_results(res);
+    
+    PQclear(res);
+    
+    /*
+     * In this second example we transmit an integer parameter in binary
+     * form, and again retrieve the results in binary form.
+     *
+     * Although we tell PQexecParams we are letting the backend deduce
+     * parameter type, we really force the decision by casting the parameter
+     * symbol in the query text.  This is a good safety measure when sending
+     * binary parameters.
+     */
+    
+    /* Convert integer value "2" to network byte order */
+    binaryIntVal = htonl((uint32_t) 2);
+    
+    /* Set up parameter arrays for PQexecParams */
+    paramValues[0] = (char *) &binaryIntVal;
+    paramLengths[0] = sizeof(binaryIntVal);
+    paramFormats[0] = 1;        /* binary */
+    
+    res = PQexecParams(conn,
+                       "SELECT * FROM test1 WHERE i = $1::int4",
+                       1,       /* one param */
+                       NULL,    /* let the backend deduce param type */
+                       paramValues,
+                       paramLengths,
+                       paramFormats,
+                       1);      /* ask for binary results */
+    
+    if (PQresultStatus(res) != PGRES_TUPLES_OK)
+    {
+        fprintf(stderr, "SELECT failed: %s", PQerrorMessage(conn));
+        PQclear(res);
+        PQfinish(conn);
+    }
+    
+    //show_binary_results(res);
+    
+    PQclear(res);
+    
+    /* close the connection to the database and cleanup */
+    PQfinish(conn);
 }
 
 PSql::Result::Result():res(NULL){}
