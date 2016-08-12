@@ -200,28 +200,7 @@ PSql::selectById(const char *sql,int64_t id)
         PQfinish(conn);
         return;
     }
-    paramValues[0] = "joe's place";
     
-    res = PQexecParams(conn,
-                       "SELECT * FROM test1 WHERE t = $1",
-                       1,       /* one param */
-                       NULL,    /* let the backend deduce param type */
-                       paramValues,
-                       NULL,    /* don't need param lengths since text */
-                       NULL,    /* default to all text params */
-                       1);      /* ask for binary results */
-    
-    if (PQresultStatus(res) != PGRES_TUPLES_OK)
-    {
-        fprintf(stderr, "SELECT failed: %s", PQerrorMessage(conn));
-        PQclear(res);
-        PQfinish(conn);
-        return;
-    }
-    
-    //show_binary_results(res);
-    
-    PQclear(res);
     
     /*
      * In this second example we transmit an integer parameter in binary
