@@ -98,10 +98,12 @@ int main(int argc, const char * argv[])
     user.gender.setValue(123456);
     user.createdate.setValue(9876543210);
     user.insert();
-/*    //user.gender.setValue(user.gender.getValue()+1);
-    //user.update();
-    //UserEx::deleteById(10002);*/
+    LOG_INFO<<"id:" << user.id.getValue()<< ",user:"<<user.uname.getValue()<<", gender:"<<user.gender.getValue();
     
+    user.gender.setValue(1);
+    user.update();
+    //User<PSql>::deleteById(10002);
+
     /*Test<PSql> test;
     test.id.setValue(1);
     test.selectById();
