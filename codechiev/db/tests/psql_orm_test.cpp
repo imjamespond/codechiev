@@ -60,7 +60,7 @@ namespace codechiev{
         void
         UserEx::SelectListByGender(int32_t gender, vec_type& userVec)
         {
-            const char *sql = "SELECT * FROM user2 WHERE gender = $1";
+            const char *sql = "SELECT * FROM users WHERE gender = $1";
             const char *paramValues[1];
             int paramLengths[1];
             int paramFormats[1];
