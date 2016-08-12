@@ -109,7 +109,7 @@ int main(int argc, const char * argv[])
     
     LOG_INFO<<"\n\n\nUserEx::SelectByName";
     UserEx userFooBar;
-    UserEx::SelectByName(userFooBar, "foobar");
+    //UserEx::SelectByName(userFooBar, "foobar");
     LOG_INFO<<"id:" << userFooBar.id.getValue()<< ",user:"<<userFooBar.uname.getValue()<<", gender:"<<userFooBar.gender.getValue();
     
     /*LOG_INFO<<"\n\n\nUserEx::SelectListByGender";
