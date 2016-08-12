@@ -37,14 +37,14 @@ namespace codechiev{
         class UserEx : public User<PSql>
         {
         public:
-            void selectByName(const std::string& name);
-            static void SelectListByGender(int32_t , vec_type&);
+            static void SelectByName(UserEx& user, const std::string &name );
+            static void SelectListByGender(vec_type&, int32_t );
         };
 
         void
-        UserEx::selectByName(const std::string &name)
+        UserEx::SelectByName(UserEx& user, const std::string &name)
         {
-            const char *sql = "SELECT * FROM user2 WHERE username = $1";
+            const char *sql = "SELECT * FROM users WHERE username = $1";
             const char *paramValues[1];
             int paramLengths[1];
             int paramFormats[1];
@@ -54,11 +54,11 @@ namespace codechiev{
             
             PSql::Result result;
             PSql::select(result, sql, 1, paramValues, paramLengths, paramFormats, 1);
-            this->assemble(result);
+            user.assemble(result);
         }
 
         void
-        UserEx::SelectListByGender(int32_t gender, vec_type& userVec)
+        UserEx::SelectListByGender(vec_type& userVec, int32_t gender )
         {
             const char *sql = "SELECT * FROM users WHERE gender = $1";
             const char *paramValues[1];
@@ -90,7 +90,7 @@ int main(int argc, const char * argv[])
     //when using localhost it will get this error by valgrind:
     //Invalid free() / delete / delete[] / realloc()
 
-    User<PSql> user;
+    UserEx user;
     user.id.setValue(1);
     user.selectById();
     LOG_INFO<<"user:"<<user.uname.getValue()<<", gender:"<<user.gender.getValue();
@@ -101,13 +101,19 @@ int main(int argc, const char * argv[])
     user.insert();
     LOG_INFO<<"id:" << user.id.getValue()<< ",user:"<<user.uname.getValue()<<", gender:"<<user.gender.getValue();
     
+    user.uname.setValue("codechiev");
     user.gender.setValue(1);
     user.update();
-    User<PSql>::DeleteById(user.id.getValue()-1);
+    UserEx::DeleteById(user.id.getValue()-1);
     
-    LOG_INFO<<"UserEx::SelectListByGender";
+    LOG_INFO<<"\n\n\nUserEx::SelectByName";
+    UserEx userFooBar;
+    UserEx::SelectByName(userFooBar, "foobar");
+    LOG_INFO<<"id:" << userFooBar.id.getValue()<< ",user:"<<userFooBar.uname.getValue()<<", gender:"<<userFooBar.gender.getValue();
+    
+    /*LOG_INFO<<"\n\n\nUserEx::SelectListByGender";
     UserEx::vec_type users;
-    UserEx::SelectListByGender(1, users);
+    UserEx::SelectListByGender( users, 1);
     for(UserEx::vec_type::const_iterator it=users.begin();
         it!=users.end();
         it++)
@@ -116,7 +122,7 @@ int main(int argc, const char * argv[])
         LOG_INFO<<"id:" << u->id.getValue()<< ",user:"<<u->uname.getValue()<<", gender:"<<u->gender.getValue();
     }
 
-    /*Test<PSql> test;
+    Test<PSql> test;
     test.id.setValue(1);
     test.selectById();
     LOG_INFO<<"id:"<<test.id.getValue();
