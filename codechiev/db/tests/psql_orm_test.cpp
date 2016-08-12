@@ -33,7 +33,7 @@ namespace codechiev{
         DECLEAR_PSQL_TABLE( User, users, ((std::string,uname,username))((int,gender,gender))\
                            ((int64_t,createdate,createdate)))
         DECLEAR_PSQL_TABLE( Test, test1, ((std::string,t,t))((std::string,b,b)) )
-        
+
         class UserEx : public User<PSql>
         {
         public:
@@ -51,7 +51,7 @@ namespace codechiev{
             paramValues[0] = name.c_str();
             paramLengths[0] = static_cast<int>(name.length());
             paramFormats[0] = 1;
-            
+
             PSql::Result result;
             PSql::select(result, sql, 1, paramValues, paramLengths, paramFormats, 1);
             //user.assemble(result);
@@ -101,17 +101,17 @@ int main(int argc, const char * argv[])
     user.createdate.setValue(9876543210);
     user.insert();
     LOG_INFO<<"id:" << user.id.getValue()<< ",user:"<<user.uname.getValue()<<", gender:"<<user.gender.getValue();
-    
+
     user.uname.setValue("codechiev");
     user.gender.setValue(1);
     user.update();
     UserEx::DeleteById(user.id.getValue()-1);
-    
+
     LOG_INFO<<"\n\n\nUserEx::SelectByName";
     UserEx userFooBar;
-    //UserEx::SelectByName(userFooBar, "foobar");
+    UserEx::SelectByName(userFooBar, "foobar");
     LOG_INFO<<"id:" << userFooBar.id.getValue()<< ",user:"<<userFooBar.uname.getValue()<<", gender:"<<userFooBar.gender.getValue();
-    
+
     /*LOG_INFO<<"\n\n\nUserEx::SelectListByGender";
     UserEx::vec_type users;
     UserEx::SelectListByGender( users, 1);
@@ -129,7 +129,7 @@ int main(int argc, const char * argv[])
     LOG_INFO<<"id:"<<test.id.getValue();
     LOG_INFO<<"text:"<<test.t.getValue();
     LOG_INFO<<"bytes:"<<test.b.getValue();*/
-    
+
     manager->close();
     return 0;
 }
