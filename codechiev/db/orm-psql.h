@@ -37,6 +37,7 @@ template <> void clazz<PSql>::find()\
 const char* sql = "SELECT * FROM " #table " WHERE id = $1::int4";\
 PSql::Result rt;\
 PSql::selectById(rt, sql, id.getValue());\
+rt.freeAll();
 }
 
 #endif // ORM_PSQL_H_INCLUDED

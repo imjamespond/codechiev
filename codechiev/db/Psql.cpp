@@ -206,15 +206,11 @@ PSql::selectById(Result& rt, const char *sql,int64_t id)
     {
         fprintf(stderr, "SELECT failed: %s", PQerrorMessage(psql->conn));
         PQclear(rt.res);
-        //exit_nicely(conn);
+        psql->close();
+        return;
     }
     
     //show_binary_results(res);
-    
-    rt.freeAll();
-    
-    /* close the connection to the database and cleanup */
-    PQfinish(psql->conn);
 }
 
 PSql::Result::Result():res(NULL){}

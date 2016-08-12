@@ -107,7 +107,7 @@ int main(int argc, const char * argv[])
     Test<PSql> test;
     test.find();
     
-    //manager->close();
+    psql->close();
     return 0;
 }
 
