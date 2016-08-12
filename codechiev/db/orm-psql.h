@@ -70,5 +70,12 @@ template <> inline void clazz<PSql>::update()\
     PSql::query(result, sql, param_num, val, len, format, 1);\
     result.freeAll();\
 }\
+template <> inline void clazz<PSql>::deleteById(int64_t argId)\
+{\
+    const char* sql = "delete from " #table " where id=$1::bigint";\
+    PSql::Result result;\
+    PSql::queryById(result, sql, argId);\
+    result.freeAll();\
+}\
 
 #endif // ORM_PSQL_H_INCLUDED

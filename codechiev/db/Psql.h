@@ -33,7 +33,7 @@ namespace codechiev {
                             const int *paramLengths,
                             const int *paramFormats,
                             int resultFormat);
-        static Result queryById(const char *sql,int64_t id);
+        static void queryById( Result& ,const char *, int64_t );
         static void selectById(Result& ,const char *, int64_t );
 
         bool connect(const char *);

@@ -132,15 +132,14 @@ PSql::select(Result& result, const char *sql,
     manager->returnDB(psql);
 }
 
-PSql::Result
-PSql::queryById(const char *sql,int64_t id)
+void
+PSql::queryById(Result& result, const char *sql,int64_t id)
 {
     PSqlManager* manager = Singleton<PSqlManager >::get();
     psql_ptr psql = manager->getDB();
 
     psql->transactionBegin();
 
-    Result result;
     const char *paramValues[1];
     int paramLengths[1];
     int paramFormats[1];
@@ -162,12 +161,10 @@ PSql::queryById(const char *sql,int64_t id)
     {
         fprintf(stderr, "PQexecParams failed: %s", PQerrorMessage(psql->conn));
         result.freeAll();
-        return result;
+        return ;
     }
 
     psql->transactionEnd();
-
-    return result;
 }
 
 void
