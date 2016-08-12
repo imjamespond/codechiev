@@ -71,6 +71,8 @@ namespace codechiev{
             PSql::Result result = PSql::select(sql, 1, paramValues, paramLengths, paramFormats, 1);
             User<PSql>::assembleVector(result, userVec);
         }*/
+        
+        DECLEAR_PSQL_TABLE( Test, test1, ((std::string,t,t))((std::string,b,b)) )
     }
 }
 using namespace codechiev::base;

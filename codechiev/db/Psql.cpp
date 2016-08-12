@@ -102,7 +102,7 @@ PSql::query(const char *sql,
 }
 
 PSql::Result
-PSql::select(const char *sql,
+PSql::select(Result& result, const char *sql,
             int nParams,
             //const Oid *paramTypes,
             const char * const *paramValues,
@@ -110,12 +110,12 @@ PSql::select(const char *sql,
             const int *paramFormats,
             int resultFormat)
 {
-    psql_ptr psql = Singleton<PSqlManager1 >::get()->getDB();
+    PSqlManager1* manager = Singleton<PSqlManager1 >::get();
+    psql_ptr psql = manager->getDB();
 
     psql->transactionBegin();
 
     //const char *conninfo;
-    Result result;
     result.res = PQexecParams(psql->conn,
                               sql,
                               nParams,       /* The number of parameters supplied; */
@@ -134,7 +134,7 @@ PSql::select(const char *sql,
 
     psql->transactionEnd();
 
-    Singleton<PSqlManager1 >::get()->returnDB(psql);
+    manager->returnDB(psql);
 
     return result;
 }
@@ -142,7 +142,8 @@ PSql::select(const char *sql,
 PSql::Result
 PSql::queryById(const char *sql,int64_t id)
 {
-    psql_ptr psql = Singleton<PSqlManager1 >::get()->getDB();
+    PSqlManager1* manager = Singleton<PSqlManager1 >::get();
+    psql_ptr psql = manager->getDB();
 
     psql->transactionBegin();
 
@@ -179,7 +180,8 @@ PSql::queryById(const char *sql,int64_t id)
 PSql::Result
 PSql::selectById(const char *sql,int64_t id)
 {
-    psql_ptr psql = Singleton<PSqlManager1 >::get()->getDB();
+    PSqlManager1* manager = Singleton<PSqlManager1 >::get();
+    psql_ptr psql = manager->getDB();
 
     psql->transactionBegin();
 
