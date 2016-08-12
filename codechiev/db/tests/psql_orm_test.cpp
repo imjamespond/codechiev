@@ -46,14 +46,10 @@ namespace codechiev{
         {
             const char *sql = "SELECT * FROM users WHERE username = $1";
             const char *paramValues[1];
-            int paramLengths[1];
-            int paramFormats[1];
             paramValues[0] = name.c_str();
-            paramLengths[0] = static_cast<int>(name.length());
-            paramFormats[0] = 1;
 
             PSql::Result result;
-            PSql::select(result, sql, 1, paramValues, paramLengths, paramFormats, 1);
+            PSql::select(result, sql, 1, paramValues, NULL, NULL, 1);
             //user.assemble(result);
             result.freeAll();
         }
