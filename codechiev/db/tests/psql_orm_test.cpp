@@ -37,7 +37,7 @@ namespace codechiev{
         class UserEx : public User<PSql>
         {
         public:
-            void UserEx::SelectByName(UserEx& user, const std::string &name)
+            static void SelectByName(UserEx& user, const std::string &name)
             {
                 const char *sql = "SELECT * FROM users WHERE username = $1";
                 const char *paramValues[1];
