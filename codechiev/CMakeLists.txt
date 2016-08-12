@@ -23,7 +23,7 @@ set (HEADER ${HEADER} ${PSQL}/include)
 set (HEADER ${HEADER} ${BOOST})
 set (HEADER ${HEADER} ${ROOT})
 include_directories (${HEADER})
-link_directories (${PSQL}/lib)
+link_directories (${PSQL}/lib /usr/lib64/mysql)
 
 set (MY_LIBS pthread rt)
 
