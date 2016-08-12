@@ -24,7 +24,7 @@ public:\
 typedef typename ISql::Result result_type;\
 typedef boost::shared_ptr<clazz > ptr_type;\
 typedef std::vector<ptr_type > vec_type;\
-void find();\
+void selectById();\
 \
 public:\
     Field<int64_t> id;\
@@ -32,6 +32,8 @@ public:\
     const static int param_size = BOOST_PP_SEQ_SIZE(member_seq); \
     const static int param_num = 1 + param_size; \
 };\
+\
+\
 template <> void clazz<PSql>::selectById()\
 {\
 const char* sql = "SELECT * FROM " #table " WHERE id = $1::int4";\
