@@ -70,7 +70,7 @@ PSql::query(const char *sql,
             const int *paramFormats,
             int resultFormat)
 {
-    PSqlManager1* manager = Singleton<PSqlManager1 >::get();
+    PSqlManager* manager = Singleton<PSqlManager >::get();
     psql_ptr psql = manager->getDB();
 
     psql->transactionBegin();
@@ -109,7 +109,7 @@ PSql::select(Result& result, const char *sql,
             const int *paramFormats,
             int resultFormat)
 {
-    PSqlManager1* manager = Singleton<PSqlManager1 >::get();
+    PSqlManager* manager = Singleton<PSqlManager >::get();
     psql_ptr psql = manager->getDB();
 
     psql->transactionBegin();
@@ -138,7 +138,7 @@ PSql::select(Result& result, const char *sql,
 PSql::Result
 PSql::queryById(const char *sql,int64_t id)
 {
-    PSqlManager1* manager = Singleton<PSqlManager1 >::get();
+    PSqlManager* manager = Singleton<PSqlManager >::get();
     psql_ptr psql = manager->getDB();
 
     psql->transactionBegin();
