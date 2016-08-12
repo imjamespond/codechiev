@@ -19,11 +19,13 @@ public:
     void
     init(const std::string& conninfo)
     {
+        connInfo_ = conninfo;
+
         for(int i=0; i<Number; i++)
         {
             codechiev::base::MutexGuard lock(&mutex_);
             db_ptr db(new DB_T);
-            db->connect(conninfo);
+            db->connect(conninfo.conninfo.c_str());
             dbs_.push_back(db);
         }
     }
