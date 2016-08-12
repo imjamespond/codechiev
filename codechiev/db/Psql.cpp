@@ -177,28 +177,32 @@ PSql::queryById(const char *sql,int64_t id)
 void
 PSql::selectById(const char *sql,int64_t id)
 {
-    PSqlManager1* manager = Singleton<PSqlManager1 >::get();
-    psql_ptr psql = manager->getDB();
-
+    const char *conninfo;
+    PGconn     *conn;
     PGresult   *res;
     const char *paramValues[1];
     int         paramLengths[1];
     int         paramFormats[1];
     uint32_t    binaryIntVal;
     
-
+    conninfo = "host=127.0.0.1 \
+    user=postgres \
+    dbname = codechiev";
+    
+    /* Make a connection to the database */
+    conn = PQconnectdb(conninfo);
     
     /* Check to see that the backend connection was successfully made */
-    if (PQstatus(psql->conn) != CONNECTION_OK)
+    if (PQstatus(conn) != CONNECTION_OK)
     {
         fprintf(stderr, "Connection to database failed: %s",
-                PQerrorMessage(psql->conn));
-        PQfinish(psql->conn);
+                PQerrorMessage(conn));
+        PQfinish(conn);
         return;
     }
     paramValues[0] = "joe's place";
     
-    res = PQexecParams(psql->conn,
+    res = PQexecParams(conn,
                        "SELECT * FROM test1 WHERE t = $1",
                        1,       /* one param */
                        NULL,    /* let the backend deduce param type */
@@ -209,9 +213,9 @@ PSql::selectById(const char *sql,int64_t id)
     
     if (PQresultStatus(res) != PGRES_TUPLES_OK)
     {
-        fprintf(stderr, "SELECT failed: %s", PQerrorMessage(psql->conn));
+        fprintf(stderr, "SELECT failed: %s", PQerrorMessage(conn));
         PQclear(res);
-        PQfinish(psql->conn);
+        PQfinish(conn);
         return;
     }
     
@@ -237,7 +241,7 @@ PSql::selectById(const char *sql,int64_t id)
     paramLengths[0] = sizeof(binaryIntVal);
     paramFormats[0] = 1;        /* binary */
     
-    res = PQexecParams(psql->conn,
+    res = PQexecParams(conn,
                        "SELECT * FROM test1 WHERE i = $1::int4",
                        1,       /* one param */
                        NULL,    /* let the backend deduce param type */
@@ -248,14 +252,17 @@ PSql::selectById(const char *sql,int64_t id)
     
     if (PQresultStatus(res) != PGRES_TUPLES_OK)
     {
-        fprintf(stderr, "SELECT failed: %s", PQerrorMessage(psql->conn));
+        fprintf(stderr, "SELECT failed: %s", PQerrorMessage(conn));
         PQclear(res);
-        PQfinish(psql->conn);
+        PQfinish(conn);
     }
     
     //show_binary_results(res);
     
     PQclear(res);
+    
+    /* close the connection to the database and cleanup */
+    PQfinish(conn);
 }
 
 PSql::Result::Result():res(NULL){}
