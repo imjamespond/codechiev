@@ -25,7 +25,7 @@ public:
         {
             codechiev::base::MutexGuard lock(&mutex_);
             db_ptr db(new DB_T);
-            db->connect(conninfo.conninfo.c_str());
+            db->connect(conninfo.c_str());
             dbs_.push_back(db);
         }
     }
