@@ -29,10 +29,6 @@ namespace codechiev{
          MAXVALUE 9223372036854775807
          START 1
          CACHE 1;
-         
-        //DECLEAR_TABLE( Student, student, ((int,id,id))((std::string,name,name))((std::string,sex,name)))
-        DECLEAR_PSQL_TABLE( User, users, ((std::string,uname,username))((int,gender,gender))\
-                           ((int64_t,createdate,createdate)))
 
         class UserEx:public User<PSql>
         {
@@ -72,6 +68,9 @@ namespace codechiev{
             User<PSql>::assembleVector(result, userVec);
         }*/
         
+        //DECLEAR_TABLE( Student, student, ((int,id,id))((std::string,name,name))((std::string,sex,name)))
+        DECLEAR_PSQL_TABLE( User, users, ((std::string,uname,username))((int,gender,gender))\
+                           ((int64_t,createdate,createdate)))
         DECLEAR_PSQL_TABLE( Test, test1, ((std::string,t,t))((std::string,b,b)) )
     }
 }
@@ -90,10 +89,11 @@ int main(int argc, const char * argv[])
     //when using localhost it will get this error by valgrind:
     //Invalid free() / delete / delete[] / realloc()
 
-    /*UserEx user;
-    user.selectById(10001);
+    User<PSql> user;
+    user.id.setValue(1);
+    user.selectById();
     LOG_INFO<<"user:"<<user.uname.getValue()<<", gender:"<<user.gender.getValue();
-
+/*
     user.uname.setValue("foobar") ;
     user.gender.setValue(123456);
     user.createdate.setValue(9876543210);
@@ -102,12 +102,12 @@ int main(int argc, const char * argv[])
     //user.update();
     //UserEx::deleteById(10002);*/
     
-    Test<PSql> test;
+    /*Test<PSql> test;
     test.id.setValue(1);
     test.selectById();
     LOG_INFO<<"id:"<<test.id.getValue();
     LOG_INFO<<"text:"<<test.t.getValue();
-    LOG_INFO<<"bytes:"<<test.b.getValue();
+    LOG_INFO<<"bytes:"<<test.b.getValue();*/
     
     manager->close();
     return 0;
