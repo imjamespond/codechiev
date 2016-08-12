@@ -85,10 +85,8 @@ int main(int argc, const char * argv[])
     user=postgres \
     password= \
     connect_timeout=3";
-    PSql* psql = Singleton<PSql >::get();
-    psql->connect(conninfo);
-    //PSqlManager1* manager = Singleton<PSqlManager1>::get();
-    //manager->init();
+    PSqlManager* manager = Singleton<PSqlManager>::get();
+    manager->init(conninfo);
     //when using localhost it will get this error by valgrind:
     //Invalid free() / delete / delete[] / realloc()
 
@@ -111,7 +109,7 @@ int main(int argc, const char * argv[])
     LOG_INFO<<"text:"<<test.t.getValue();
     LOG_INFO<<"bytes:"<<test.b.getValue();
     
-    psql->close();
+    manager->close();
     return 0;
 }
 

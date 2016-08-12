@@ -33,11 +33,12 @@ public:
     void
     close()
     {
-        for(int i=0; i<Number; i++)
+        codechiev::base::MutexGuard lock(&mutex_);
+        for(typename db_vec::const_iterator it = dbs_.begin();
+            it != dbs_.end();
+            it++)
         {
-            LOG_DEBUG<<"close";
-            codechiev::base::MutexGuard lock(&mutex_);
-            dbs_[i]->close();
+            *it->close();
         }
     }
 
