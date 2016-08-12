@@ -101,7 +101,6 @@ int main(int argc, const char * argv[])
     user.insert();
     LOG_INFO<<"id:" << user.id.getValue()<< ",user:"<<user.uname.getValue()<<", gender:"<<user.gender.getValue();
     
-    user.uname.setValue("codechiev");
     user.gender.setValue(1);
     user.update();
     User<PSql>::DeleteById(user.id.getValue()-1);
