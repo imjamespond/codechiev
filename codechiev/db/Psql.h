@@ -24,7 +24,8 @@ namespace codechiev {
                             const int *paramLengths,
                             const int *paramFormats,
                             int resultFormat);
-        static void select(Result& result, const char *sql,
+        static void select(Result& result,
+                            const char *sql,
                             int nParams,
                             //const Oid *paramTypes,
                             const char * const *paramValues,
