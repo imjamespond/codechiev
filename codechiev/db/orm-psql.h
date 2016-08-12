@@ -27,7 +27,9 @@ typedef std::vector<ptr_type > vec_type;\
 void selectById();\
 void insert();\
 void update();\
+void assemble(result_type result);\
 static void DeleteById(int64_t);\
+static void assembleVector(result_type result, vec_type& vec);\
 \
 public:\
     Field<int64_t> id;\
@@ -45,7 +47,7 @@ template <> void clazz<PSql>::selectById()\
     BOOST_PP_SEQ_FOR_EACH( TABLE_ASSIGN, 0, member_seq) \
     result.freeAll();\
 }\
-template <> inline void clazz<PSql>::insert(){\
+template <> void clazz<PSql>::insert(){\
     const char* sql = "insert into " #table " values (nextval('" #table "_id_seq')" BOOST_PP_SEQ_FOR_EACH_I( PSQL_INSERT, , member_seq) ") returning id";\
     const char *val[param_size];\
     int         len[param_size];\
@@ -56,7 +58,7 @@ template <> inline void clazz<PSql>::insert(){\
     id.toField(result.getFieldValOfRow("id", 0));\
     result.freeAll();\
 }\
-template <> inline void clazz<PSql>::update()\
+template <> void clazz<PSql>::update()\
 {\
     const char* sql = "update " #table " set id=id " BOOST_PP_SEQ_FOR_EACH_I( PSQL_UPDATE, , member_seq) " where id=$" BOOST_PP_STRINGIZE(BOOST_PP_ADD(1,BOOST_PP_SEQ_SIZE(member_seq))) "::bigint";\
     const char *val[param_num];\
@@ -71,11 +73,29 @@ template <> inline void clazz<PSql>::update()\
     PSql::query(result, sql, param_num, val, len, format, 1);\
     result.freeAll();\
 }\
-template <> inline void clazz<PSql>::DeleteById(int64_t argId)\
+template <> void clazz<PSql>::DeleteById(int64_t argId)\
 {\
     const char* sql = "delete from " #table " where id=$1::bigint";\
     PSql::Result result;\
     PSql::queryById(result, sql, argId);\
+    result.freeAll();\
+}\
+template <> void clazz<PSql>::assemble(result_type result)\
+{\
+    id.toField(result.getFieldValOfRow("id",0));\
+    BOOST_PP_SEQ_FOR_EACH( TABLE_ASSIGN, 0, member_seq)\
+    result.freeAll();\
+}\
+template <> void clazz<PSql>::assembleVector(result_type result, vec_type& vec)\
+{\
+    int rowSize = result.getRowSize();\
+    for(int row=0; row<rowSize; row++)\
+    {\
+        ptr_type clz(new clazz);\
+        clz->id.toField(result.getFieldValOfRow("id", row));\
+        BOOST_PP_SEQ_FOR_EACH( TABLE_ROW_ASSIGN, row, member_seq)\
+        vec.push_back(clz);\
+    }\
     result.freeAll();\
 }\
 
