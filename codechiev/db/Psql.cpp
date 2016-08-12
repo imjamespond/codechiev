@@ -175,7 +175,7 @@ PSql::queryById(const char *sql,int64_t id)
 }
 
 void
-PSql::selectById(Result& result, const char *sql,int64_t id)
+PSql::selectById(const char *sql,int64_t id)
 {
     const char *conninfo;
     PGconn     *conn;
@@ -202,7 +202,7 @@ PSql::selectById(Result& result, const char *sql,int64_t id)
     }
     paramValues[0] = "joe's place";
     
-    result.res = PQexecParams(conn,
+    res = PQexecParams(conn,
                        "SELECT * FROM test1 WHERE t = $1",
                        1,       /* one param */
                        NULL,    /* let the backend deduce param type */
