@@ -175,11 +175,11 @@ PSql::queryById(const char *sql,int64_t id)
 }
 
 void
-PSql::selectById(const char *sql,int64_t id)
+PSql::selectById(Result& rt, const char *sql,int64_t id)
 {
     const char *conninfo;
     PGconn     *conn;
-    PGresult   *res;
+    //PGresult   *res;
     const char *paramValues[1];
     int         paramLengths[1];
     int         paramFormats[1];
@@ -209,7 +209,7 @@ PSql::selectById(const char *sql,int64_t id)
     paramLengths[0] = sizeof(binaryIntVal);
     paramFormats[0] = 1;        /* binary */
     
-    res = PQexecParams(conn,
+    rt.res = PQexecParams(conn,
                        sql,
                        1,       /* one param */
                        NULL,    /* let the backend deduce param type */
@@ -218,16 +218,16 @@ PSql::selectById(const char *sql,int64_t id)
                        paramFormats,
                        1);      /* ask for binary results */
     
-    if (PQresultStatus(res) != PGRES_TUPLES_OK)
+    if (PQresultStatus(rt.res) != PGRES_TUPLES_OK)
     {
         fprintf(stderr, "SELECT failed: %s", PQerrorMessage(conn));
-        PQclear(res);
+        PQclear(rt.res);
         //exit_nicely(conn);
     }
     
     //show_binary_results(res);
     
-    PQclear(res);
+    rt.freeAll();
     
     /* close the connection to the database and cleanup */
     PQfinish(conn);
