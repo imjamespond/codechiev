@@ -45,7 +45,7 @@ namespace codechiev{
 
                 PSql::Result result;
                 PSql::select(result, sql, 1, paramValues, NULL, NULL, 1);
-                //user.assemble(result);
+                user.assemble(result);
                 result.freeAll();
             }
 
