@@ -98,7 +98,7 @@ int main(int argc, const char * argv[])
     user.uname.setValue("codechiev");
     user.gender.setValue(1);
     user.update();
-    /*UserEx::DeleteById(user.id.getValue()-1);*/
+    UserEx::DeleteById(user.id.getValue()-1);/**/
 
     LOG_INFO<<"\n\n\nUserEx::SelectByName";
     UserEx userFooBar;
