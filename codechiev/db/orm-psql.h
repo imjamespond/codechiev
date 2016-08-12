@@ -34,7 +34,7 @@ public:\
 };\
 template <> void clazz<PSql>::find()\
 {\
-const char* sql = "select * from " #table " where id=$1";\
+const char* sql = "SELECT * FROM " #table " WHERE id = $1::int4";\
 PSql::selectById(sql, id.getValue());\
 }
 
