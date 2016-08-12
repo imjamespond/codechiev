@@ -107,7 +107,7 @@ int main(int argc, const char * argv[])
     UserEx::DeleteById(user.id.getValue()-1);
     
     LOG_INFO<<"\n\n\nUserEx::SelectByName";
-    UserEx userFooBar;
+    //UserEx userFooBar;
     //UserEx::SelectByName(userFooBar, "foobar");
     //LOG_INFO<<"id:" << userFooBar.id.getValue()<< ",user:"<<userFooBar.uname.getValue()<<", gender:"<<userFooBar.gender.getValue();
     
