@@ -177,35 +177,47 @@ PSql::queryById(const char *sql,int64_t id)
 void
 PSql::selectById(Result& result, const char *sql,int64_t id)
 {
-    PSqlManager1* manager = Singleton<PSqlManager1 >::get();
-    psql_ptr psql = manager->getDB();
-
-    psql->transactionBegin();
-
+    const char *conninfo;
+    PGconn     *conn;
+    PGresult   *res;
     const char *paramValues[1];
-    int paramLengths[1];
-    int paramFormats[1];
-    uint64_t binaryIntId = net::hostToNetworkInt64(id);
-    paramValues[0] = (char *) &binaryIntId;
-    paramLengths[0] = sizeof(binaryIntId);
-    paramFormats[0] = 1;
-
-    result.res = PQexecParams(psql->conn,
-                              sql,
-                              1,       /* one param */
-                              NULL,    /* let the backend deduce param type */
-                              paramValues,
-                              paramLengths,    /* don't need param lengths since text */
-                              paramFormats,    /* default to all text params */
-                              1);      /* ask for binary results */
-
-    if (PQresultStatus(result.res) != PGRES_TUPLES_OK)
+    int         paramLengths[1];
+    int         paramFormats[1];
+    uint32_t    binaryIntVal;
+    
+    conninfo = "host=127.0.0.1 \
+    user=postgres \
+    dbname = codechiev";
+    
+    /* Make a connection to the database */
+    conn = PQconnectdb(conninfo);
+    
+    /* Check to see that the backend connection was successfully made */
+    if (PQstatus(conn) != CONNECTION_OK)
     {
-        fprintf(stderr, "PQexecParams failed: %s", PQerrorMessage(psql->conn));
-        result.freeAll();
+        fprintf(stderr, "Connection to database failed: %s",
+                PQerrorMessage(conn));
+        PQfinish(conn);
+        return;
     }
-
-    psql->transactionEnd();
+    paramValues[0] = "joe's place";
+    
+    result.res = PQexecParams(conn,
+                       "SELECT * FROM test1 WHERE t = $1",
+                       1,       /* one param */
+                       NULL,    /* let the backend deduce param type */
+                       paramValues,
+                       NULL,    /* don't need param lengths since text */
+                       NULL,    /* default to all text params */
+                       1);      /* ask for binary results */
+    
+    if (PQresultStatus(res) != PGRES_TUPLES_OK)
+    {
+        fprintf(stderr, "SELECT failed: %s", PQerrorMessage(conn));
+        PQclear(res);
+        PQfinish(conn);
+        return;
+    }
 }
 
 PSql::Result::Result():res(NULL){}
