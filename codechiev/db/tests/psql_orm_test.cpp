@@ -106,6 +106,7 @@ int main(int argc, const char * argv[])
     
     Test<PSql> test;
     test.selectById();
+    LOG_INFO<<"id:"<<test.id.getValue()<<", text:"<<test.t.getValue()<<", bytes:"<<test.b.getValue();
     
     psql->close();
     return 0;
