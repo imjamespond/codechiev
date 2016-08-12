@@ -45,7 +45,7 @@ public:
     getDB()
     {
         codechiev::base::MutexGuard lock(&mutex_);
-        for(db_vec::const_iterator it = dbs_.begin();
+        for(typename db_vec::const_iterator it = dbs_.begin();
             it != dbs_.end();
             it++)
         {
