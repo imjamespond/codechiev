@@ -7,7 +7,7 @@ get_filename_component(filename ${file} NAME_WE)
 message(STATUS ${filename}${CPP_SUFFIX})
 
 include_directories (${BASE_HEADERS})
-link_directories (mysql)
+link_directories (/usr/lib64)
 add_executable (${filename} ${filename}${CPP_SUFFIX})
 target_link_libraries (${filename} ${MY_LIBS} mysqlclient)
 add_test(${filename} ${CMAKE_CURRENT_BINARY_DIR}/${filename})
