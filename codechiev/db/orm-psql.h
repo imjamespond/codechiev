@@ -37,7 +37,6 @@ template <> void clazz<PSql>::find()\
 const char* sql = "select * from " #table " where id=$1";\
 PSql::Result result;\
 PSql::selectById(result, sql, id.getValue());\
-BOOST_PP_SEQ_FOR_EACH( TABLE_ASSIGN, 0, member_seq)\
 result.freeAll();\
 }
 
