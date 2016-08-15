@@ -4,7 +4,6 @@ add_custom_command(OUTPUT test.pb.cc test.pb.h
 COMMAND protoc
 ARGS --cpp_out . ${CMAKE_CURRENT_SOURCE_DIR}/test.proto -I${CMAKE_CURRENT_SOURCE_DIR}
 DEPENDS test.proto)
-add_library(codechiev_net_proto test.pb.cc)
 #add_custom_target(proto_out DEPENDS test.pb.cc test.pb.h)
 #add_dependencies(??? proto_out)
 
