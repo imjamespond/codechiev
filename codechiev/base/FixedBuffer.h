@@ -35,7 +35,7 @@ namespace codechiev {
 
             int writable()
             {
-                int wb = BUFFER_SIZE-writer_;
+                int wb = (BUFFER_SIZE-1)-writer_;
                 assert(wb>=0);
                 return wb;
             }
@@ -56,7 +56,6 @@ namespace codechiev {
                     return len;
                 }else if(wb>0)
                 {
-                    wb-=1;
                     ::memcpy(buffer_+writer_, str, wb);
                     write(wb);
                     return wb;
@@ -87,7 +86,7 @@ namespace codechiev {
                 ::memcpy(buffer_, buffer_+reader_, rb);
                 reader_=0;
                 writer_=rb;
-                ::memset(buffer_+writer_, 0, BUFFER_SIZE-writer_);
+                buffer_[writer_]=0;
             }
 
             char* data()
