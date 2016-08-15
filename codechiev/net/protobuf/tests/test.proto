@@ -26,7 +26,7 @@ message GenericReq {
 	required bytes request = 2;
 }
 
-service NodeService {
-  rpc testRpc (TestRequest) returns (GenericRsp);
+service TestService {
+  rpc RpcTest (TestRequest) returns (GenericRsp);
   rpc identify (IdentReq) returns (GenericRsp);
 }
