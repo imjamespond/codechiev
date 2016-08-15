@@ -99,6 +99,9 @@ void timerSend(const std::string &msg, int count)
 
 char msg[128];
 int main(int argc, const char * argv[]) {
+    
+    setLoggerLevel(Logger::Info);
+    
     int num(0);
     if((sizeof argv)>1)
     {

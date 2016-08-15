@@ -26,6 +26,8 @@ void onMessage(Channel* channel)
 }
 
 int main(int argc, const char * argv[]) {
+    
+    setLoggerLevel(Logger::Info);
 
     serv.setOnData(boost::bind(&onMessage, _1));
     
