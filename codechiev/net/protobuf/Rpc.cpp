@@ -1,5 +1,5 @@
 #include "Rpc.h"
-#include "tests/test.pb.h"
+#include "test.pb.h"
 using namespace codechiev::net;
 using namespace google::protobuf;
 using namespace com::codechiev::test;
