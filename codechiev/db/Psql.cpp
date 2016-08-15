@@ -108,6 +108,8 @@ PSql::select(Result& result, const char *sql,
 {
     PSqlManager* manager = Singleton<PSqlManager >::get();
     psql_ptr psql = manager->getDB();
+    if(!psql)
+        return;
 
     psql->transactionBegin();
 
@@ -136,6 +138,8 @@ PSql::queryById(Result& result, const char *sql,int64_t id)
 {
     PSqlManager* manager = Singleton<PSqlManager >::get();
     psql_ptr psql = manager->getDB();
+    if(!psql)
+        return;
 
     psql->transactionBegin();
 
@@ -181,6 +185,8 @@ PSql::selectById(Result& rt, const char *sql,int64_t id)
 
     PSqlManager* manager = Singleton<PSqlManager >::get();
     psql_ptr psql = manager->getDB();
+    if(!psql)
+        return;
 
     /* Convert integer value "2" to network byte order */
     binaryIntVal = net::hostToNetworkInt64(id);
