@@ -10,3 +10,6 @@ install(TARGETS ${LIB} DESTINATION ${ROOT}/libs)
 file(GLOB HEADERS "*.h" "*.hpp")
 install(FILES ${HEADERS} DESTINATION ${ROOT}/include/codechiev/net/protobuf)
 
+enable_testing()
+set (MY_LIBS ${LIB})
+add_subdirectory(tests)

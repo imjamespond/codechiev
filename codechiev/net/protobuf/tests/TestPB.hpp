@@ -11,6 +11,6 @@
 
 #include "test.pb.h"
 
-class TestNode
+class TestServiceImpl : com::codechiev::test::TestSer
 
 #endif /* TestPB_hpp */

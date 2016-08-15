@@ -13,7 +13,6 @@ install(FILES ${HEADERS} DESTINATION ${ROOT}/include/codechiev/net)
 add_subdirectory(protobuf)
 
 enable_testing()
-set (BASE_HEADERS ${CMAKE_CURRENT_SOURCE_DIR})
 set (MY_LIBS ${LIB})
 add_subdirectory(tests)
 
