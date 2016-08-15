@@ -78,6 +78,7 @@ namespace codechiev {
             {
                 writer_+=len;
                 assert(writer_<BUFFER_SIZE);
+                buffer_[writer_]=0;
             }
 
             void move()
