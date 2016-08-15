@@ -33,47 +33,40 @@ namespace codechiev{
         DECLEAR_PSQL_TABLE( User, users, ((std::string,uname,username))((int,gender,gender))\
                            ((int64_t,createdate,createdate)))
         DECLEAR_PSQL_TABLE( Test, test1, ((std::string,t,t))((std::string,b,b)) )
-        
+
         class UserEx : public User<PSql>
         {
         public:
-            static void SelectByName(UserEx& user, const std::string &name );
-            static void SelectListByGender(vec_type&, int32_t );
+            static void SelectByName(UserEx& user, const std::string &name)
+            {
+                const char *sql = "SELECT * FROM users WHERE username = $1";
+                const char *paramValues[1];
+                paramValues[0] = name.c_str();
+
+                PSql::Result result;
+                PSql::select(result, sql, 1, paramValues, NULL, NULL, 1);
+                user.assemble(result);
+                result.freeAll();
+            }
+
+            static void SelectListByGender(vec_type& userVec, int32_t gender )
+            {
+                const char *sql = "SELECT * FROM users WHERE gender = $1";
+                const char *paramValues[1];
+                int paramLengths[1];
+                int paramFormats[1];
+                uint32_t val = net::hostToNetworkInt32(gender);
+                paramValues[0] = (char *) &val;
+                paramLengths[0] = sizeof(val);
+                paramFormats[0] = 1;
+
+                PSql::Result result;
+                PSql::select(result, sql, 1, paramValues, paramLengths, paramFormats, 1);
+                UserEx::assembleVector(result, userVec);
+                result.freeAll();
+            }
         };
 
-        void
-        UserEx::SelectByName(UserEx& user, const std::string &name)
-        {
-            const char *sql = "SELECT * FROM users WHERE username = $1";
-            const char *paramValues[1];
-            int paramLengths[1];
-            int paramFormats[1];
-            paramValues[0] = name.c_str();
-            paramLengths[0] = static_cast<int>(name.length());
-            paramFormats[0] = 1;
-            
-            PSql::Result result;
-            PSql::select(result, sql, 1, paramValues, paramLengths, paramFormats, 1);
-            //user.assemble(result);
-            result.freeAll();
-        }
-
-        void
-        UserEx::SelectListByGender(vec_type& userVec, int32_t gender )
-        {
-            const char *sql = "SELECT * FROM users WHERE gender = $1";
-            const char *paramValues[1];
-            int paramLengths[1];
-            int paramFormats[1];
-            uint32_t val = net::hostToNetworkInt32(gender);
-            paramValues[0] = (char *) &val;
-            paramLengths[0] = sizeof(val);
-            paramFormats[0] = 1;
-
-            PSql::Result result;
-            PSql::select(result, sql, 1, paramValues, paramLengths, paramFormats, 1);
-            UserEx::assembleVector(result, userVec);
-        }
     }
 }
 using namespace codechiev::base;
@@ -101,15 +94,15 @@ int main(int argc, const char * argv[])
     user.createdate.setValue(9876543210);
     user.insert();
     LOG_INFO<<"id:" << user.id.getValue()<< ",user:"<<user.uname.getValue()<<", gender:"<<user.gender.getValue();
-    
+
     user.uname.setValue("codechiev");
     user.gender.setValue(1);
     user.update();
-    UserEx::DeleteById(user.id.getValue()-1);
-    
+    UserEx::DeleteById(user.id.getValue()-1);/**/
+
     LOG_INFO<<"\n\n\nUserEx::SelectByName";
     UserEx userFooBar;
-    //UserEx::SelectByName(userFooBar, "foobar");
+    UserEx::SelectByName(userFooBar, "foobar");
     LOG_INFO<<"id:" << userFooBar.id.getValue()<< ",user:"<<userFooBar.uname.getValue()<<", gender:"<<userFooBar.gender.getValue();
     
     LOG_INFO<<"\n\n\nUserEx::SelectListByGender";
@@ -129,7 +122,7 @@ int main(int argc, const char * argv[])
     LOG_INFO<<"id:"<<test.id.getValue();
     LOG_INFO<<"text:"<<test.t.getValue();
     LOG_INFO<<"bytes:"<<test.b.getValue();*/
-    
+
     manager->close();
     return 0;
 }
