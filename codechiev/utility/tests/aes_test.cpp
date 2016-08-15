@@ -87,8 +87,6 @@ int main(int argc, const char * argv[])
     /* "opaque" encryption, decryption ctx structures that libcrypto uses to record
      status of enc/dec operations */
     EVP_CIPHER_CTX en, de;
-    ::memset(en, 0, sizeof(EVP_CIPHER_CTX));
-    ::memset(de, 0, sizeof(EVP_CIPHER_CTX));
     
     /* 8 bytes to salt the key_data during key generation. This is an example of
      compiled in salt. We just read the bit pattern created by these two 4 byte
