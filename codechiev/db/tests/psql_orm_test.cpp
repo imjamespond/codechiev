@@ -112,7 +112,7 @@ int main(int argc, const char * argv[])
     //UserEx::SelectByName(userFooBar, "foobar");
     LOG_INFO<<"id:" << userFooBar.id.getValue()<< ",user:"<<userFooBar.uname.getValue()<<", gender:"<<userFooBar.gender.getValue();
     
-    /*LOG_INFO<<"\n\n\nUserEx::SelectListByGender";
+    LOG_INFO<<"\n\n\nUserEx::SelectListByGender";
     UserEx::vec_type users;
     UserEx::SelectListByGender( users, 1);
     for(UserEx::vec_type::const_iterator it=users.begin();
@@ -123,7 +123,7 @@ int main(int argc, const char * argv[])
         LOG_INFO<<"id:" << u->id.getValue()<< ",user:"<<u->uname.getValue()<<", gender:"<<u->gender.getValue();
     }
 
-    Test<PSql> test;
+    /*Test<PSql> test;
     test.id.setValue(1);
     test.selectById();
     LOG_INFO<<"id:"<<test.id.getValue();
