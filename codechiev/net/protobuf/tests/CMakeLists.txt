@@ -1,22 +1,14 @@
 message("message compile and link test...")
 
-add_custom_command(OUTPUT test.pb.cc test.pb.h
-  COMMAND protoc
-  ARGS --cpp_out . ${CMAKE_CURRENT_SOURCE_DIR}/test.proto -I${CMAKE_CURRENT_SOURCE_DIR}
-  DEPENDS test.proto)
-add_library(codechiev_net_proto test.pb.cc)
-#add_custom_target(proto_out DEPENDS test.pb.cc test.pb.h)
-#add_dependencies(??? proto_out)
-
 set(CPP_SUFFIX ".cpp")
-file(GLOB CPP *${CPP_SUFFIX} test.pb.cc)
+file(GLOB CPP *${CPP_SUFFIX})
 foreach(file ${CPP})
 get_filename_component(filename ${file} NAME_WE)
 message(STATUS ${filename}${CPP_SUFFIX})
 
 include_directories (${BASE_HEADERS})
 add_executable (${filename} ${filename}${CPP_SUFFIX})
-target_link_libraries (${filename} ${MY_LIBS} codechiev_net_proto pcre protobuf)
+target_link_libraries (${filename} ${MY_LIBS} codechiev_net_proto)
 add_test(${filename} ${CMAKE_CURRENT_BINARY_DIR}/${filename})
 
 endforeach(file)
