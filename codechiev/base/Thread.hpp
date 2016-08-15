@@ -13,6 +13,7 @@
 #include <string>
 #include <boost/noncopyable.hpp>
 #include <boost/function.hpp>
+#include <boost/shared_ptr.hpp>
 #include <pthread.h>
 
 namespace codechiev {
@@ -20,8 +21,9 @@ namespace codechiev {
         class Thread : public boost::noncopyable
         {
         public:
-            typedef boost::function<void()> thread_func;
-            explicit Thread(const std::string&, const thread_func&);
+            typedef boost::function<void()> thread_func_t;
+            typedef boost::shared_ptr<Thread> thread_ptr_t;
+            explicit Thread(const std::string&, const thread_func_t&);
             ~Thread();
             
             void run();
@@ -34,7 +36,7 @@ namespace codechiev {
             
         private:
             std::string name_;
-            thread_func func_;
+            thread_func_t func_;
             
             pthread_t thread_;
             pthread_attr_t attr_;
@@ -42,6 +44,9 @@ namespace codechiev {
         
         inline std::string
         Thread::getThreadName(){return name_;}
+        
+        typedef Thread::thread_func_t thread_func;
+        typedef Thread::thread_ptr_t thread_ptr;
     }
 }
 

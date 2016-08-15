@@ -35,7 +35,7 @@ start_routine(void *arg)
 
 __thread Thread* gThreadData(NULL);
 
-Thread::Thread(const std::string& name, const thread_func& func):
+Thread::Thread(const std::string& name, const thread_func_t& func):
 name_(name), func_(func)
 {
     //::pthread_attr_setdetachstate(&attr_, PTHREAD_CREATE_JOINABLE);

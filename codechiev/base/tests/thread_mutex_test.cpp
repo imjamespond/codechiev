@@ -8,6 +8,7 @@
 
 #include <stdio.h>
 #include <boost/bind.hpp>
+#include <vector>
 #include <base/Logger.hpp>
 #include <base/Thread.hpp>
 #include <base/Time.hpp>
@@ -30,16 +31,16 @@ void print()
 
 int main(int argc, const char * argv[]) {
 
-    Thread::thread_func func = boost::bind(&print);
-
-    Thread *threads[10];
-    for(int i=0; i<(sizeof threads)/sizeof(Thread*); i++)
+    thread_func func = boost::bind(&print);
+    std::vector<thread_ptr> threads;
+    for(int i=0; i<10; i++)
     {
-        threads[i] = new Thread("T", func);
-        threads[i]->start();
+        thread_ptr t(new Thread("T", func));
+        t->start();
+        threads.push_back(t);
     }
     //main thread will wait until all sub thread joined(end)
-    for(int i=0; i<(sizeof threads)/sizeof(Thread*); i++)
+    for(int i=0; i<threads.size(); i++)
     {
         threads[i]->join();
     }
