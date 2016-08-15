@@ -20,7 +20,8 @@ int aes_init(unsigned char *key_data, int key_data_len, unsigned char *salt, EVP
 {
     int i, nrounds = 5;
     unsigned char key[32], iv[32];
-    
+    ::memset(key, 0, sizeof key);
+    ::memset(iv, 0, sizeof iv);
     /*
      * Gen key & IV for AES 256 CBC mode. A SHA1 digest is used to hash the supplied key material.
      * nrounds is the number of times the we hash the material. More rounds are more secure but
