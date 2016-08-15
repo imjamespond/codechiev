@@ -36,7 +36,8 @@ TcpClient::connect()
         LOG_ERROR<<"errno:"<<errno;
         return channel_ptr();
     }
-    channel_ptr chnptr(new Channel(connfd));
+    channel_ptr channel(new Channel(connfd));
+    channel->setReuseAddr();
 
     if (-1 == ::connect(connfd, (struct sockaddr *) &addr_.sockaddrin, addr_.socklen))
     {
@@ -51,8 +52,8 @@ TcpClient::connect()
         }
     }
 
-    addChannel(chnptr.get(), EPOLLOUT);
-    return chnptr;
+    addChannel(channel.get(), EPOLLOUT);
+    return channel;
 }
 
 void
