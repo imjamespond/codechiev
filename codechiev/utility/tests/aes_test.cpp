@@ -82,7 +82,7 @@ unsigned char *aes_decrypt(EVP_CIPHER_CTX *e, unsigned char *ciphertext, int *le
 }
 
 
-int testAes()
+int main(int argc, const char * argv[])
 {
     /* "opaque" encryption, decryption ctx structures that libcrypto uses to record
      status of enc/dec operations */
