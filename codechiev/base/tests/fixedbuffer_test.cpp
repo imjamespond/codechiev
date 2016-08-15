@@ -20,23 +20,17 @@ int main(int argc, const char * argv[]) {
     
     FixedBuffer<8> buffer;
     
-    buffer.append("12345678");
-    printf("%s\n",buffer.str());
+    printf("append:%d %s\n",buffer.append("12345678"), buffer.str());
     
     buffer.read(4);
     buffer.move();
-    printf("%s\n",buffer.str());
-    
-    buffer.append("foo");
-    printf("%s\n",buffer.str());
-    
-    buffer.append("bar");
-    printf("%s\n",buffer.str());
+    printf("read move %s\n", buffer.str());
+    printf("append:%d %s\n",buffer.append("foo"), buffer.str());
+    printf("append:%d %s\n",buffer.append("bar"), buffer.str());
 
     buffer.readall();
     buffer.move();
-    buffer.append("helloworld");
-    printf("%s\n",buffer.str());
+    printf("append:%d %s\n",buffer.append("helloworld"), buffer.str());
 
     return 0;
 }
