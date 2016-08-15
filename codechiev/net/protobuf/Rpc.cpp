@@ -5,7 +5,7 @@ using namespace google::protobuf;
 using namespace com::codechiev::test;
 PbRpcChannel::PbRpcChannel(const channel_ptr& channel):channel_(channel)
 {
-    //ctor
+    //ctor???
 }
 
 void PbRpcChannel::CallMethod(
