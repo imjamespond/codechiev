@@ -444,20 +444,20 @@ namespace com {
             };
             // ===================================================================
             
-            class NodeService_Stub;
+            class TestService_Stub;
             
-            class NodeService : public ::google::protobuf::Service {
+            class TestService : public ::google::protobuf::Service {
             protected:
                 // This class should be treated as an abstract interface.
-                inline NodeService() {};
+                inline TestService() {};
             public:
-                virtual ~NodeService();
+                virtual ~TestService();
                 
-                typedef NodeService_Stub Stub;
+                typedef TestService_Stub Stub;
                 
                 static const ::google::protobuf::ServiceDescriptor* descriptor();
                 
-                virtual void testRpc(::google::protobuf::RpcController* controller,
+                virtual void RpcTest(::google::protobuf::RpcController* controller,
                                      const ::com::codechiev::test::TestRequest* request,
                                      ::com::codechiev::test::GenericRsp* response,
                                      ::google::protobuf::Closure* done);
@@ -480,21 +480,21 @@ namespace com {
                                                                         const ::google::protobuf::MethodDescriptor* method) const;
                 
             private:
-                GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(NodeService);
+                GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(TestService);
             };
             
-            class NodeService_Stub : public NodeService {
+            class TestService_Stub : public TestService {
             public:
-                NodeService_Stub(::google::protobuf::RpcChannel* channel);
-                NodeService_Stub(::google::protobuf::RpcChannel* channel,
+                TestService_Stub(::google::protobuf::RpcChannel* channel);
+                TestService_Stub(::google::protobuf::RpcChannel* channel,
                                  ::google::protobuf::Service::ChannelOwnership ownership);
-                ~NodeService_Stub();
+                ~TestService_Stub();
                 
                 inline ::google::protobuf::RpcChannel* channel() { return channel_; }
                 
-                // implements NodeService ------------------------------------------
+                // implements TestService ------------------------------------------
                 
-                void testRpc(::google::protobuf::RpcController* controller,
+                void RpcTest(::google::protobuf::RpcController* controller,
                              const ::com::codechiev::test::TestRequest* request,
                              ::com::codechiev::test::GenericRsp* response,
                              ::google::protobuf::Closure* done);
@@ -505,7 +505,7 @@ namespace com {
             private:
                 ::google::protobuf::RpcChannel* channel_;
                 bool owns_channel_;
-                GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(NodeService_Stub);
+                GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(TestService_Stub);
             };
             
             

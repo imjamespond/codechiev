@@ -11,6 +11,13 @@
 
 #include "test.pb.h"
 
-class TestServiceImpl : com::codechiev::test::TestSer
+class TestServiceImpl : com::codechiev::test::TestService
+{
+public:
+    virtual void RpcTest(::google::protobuf::RpcController* controller,
+                         const ::com::codechiev::test::TestRequest* request,
+                         ::com::codechiev::test::GenericRsp* response,
+                         ::google::protobuf::Closure* done);
+};
 
 #endif /* TestPB_hpp */

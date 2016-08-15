@@ -7,3 +7,10 @@
 //
 
 #include "TestPB.hpp"
+using namespace ::google::protobuf;
+using namespace ::com::codechiev::test;
+void
+TestServiceImpl::RpcTest(RpcController *controller, const TestRequest *request, GenericRsp *response, Closure *done)
+{
+    done->Run();
+}

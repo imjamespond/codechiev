@@ -1,6 +1,8 @@
 #include "Rpc.h"
+#include "tests/test.pb.h"
 using namespace codechiev::net;
 using namespace google::protobuf;
+using namespace com::codechiev::test;
 PbRpcChannel::PbRpcChannel(const channel_ptr& channel):channel_(channel)
 {
     //ctor
@@ -12,17 +14,10 @@ void PbRpcChannel::CallMethod(
         const Message * request,
         Message * response,
         Closure * done)
-{/*
-        com::codechiev::test::GenericReq req;
-        req.set_method("testRpc");
-        std::string serializedTest;
-        request->SerializeToString(&serializedTest);
-        req.set_request(serializedTest);
-        std::string serializedGeneric;
-        req.SerializeToString(&serializedGeneric);
-*/
+{
         if(channel_ptr c = channel_.lock())
         {
-
+            const GenericReq *req = static_cast<const GenericReq*>(request);
+            c->write(req->SerializeAsString());
         }
 }

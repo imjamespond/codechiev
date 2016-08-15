@@ -12,7 +12,7 @@
 #include <boost/bind.hpp>
 #include <errno.h>
 
-#include "test.service.h"
+#include "TestPB.hpp"
 
 using namespace codechiev::base;
 using namespace codechiev::net;
@@ -21,8 +21,7 @@ using namespace google::protobuf;
 ProtoServer serv("0.0.0.0", 9999);
 AtomicNumber<int64_t> an(0);
 
-
-TestService service;
+TestServiceImpl service;
 
 void testDone(Message *rsp)
 {
