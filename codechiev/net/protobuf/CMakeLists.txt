@@ -3,7 +3,8 @@ message(STATUS "compiling codechief::net current_source_dir: " ${CMAKE_CURRENT_S
 add_custom_command(OUTPUT test.pb.cc test.pb.h
 COMMAND protoc
 ARGS --cpp_out . ${CMAKE_CURRENT_SOURCE_DIR}/test.proto -I${CMAKE_CURRENT_SOURCE_DIR}
-DEPENDS test.proto)
+DEPENDS test.proto
+VERBATIM)
 #add_custom_target(proto_out DEPENDS test.pb.cc test.pb.h)
 #add_dependencies(${LIB} proto_out)
 set_source_files_properties(test.pb.cc PROPERTIES COMPILE_FLAGS "-Wno-conversion")
