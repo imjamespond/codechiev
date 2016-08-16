@@ -15,12 +15,15 @@
 
 using namespace codechiev::base;
 using namespace codechiev::net;
+using namespace com::codechiev::test;
 using namespace google::protobuf;
 
 ProtoServer serv("0.0.0.0", 9999);
 AtomicNumber<int64_t> an(0);
 
 TestServiceImpl service;
+typedef boost::shared_ptr< Message > message_ptr;
+typedef boost::shared_ptr<GenericReq> genericreq_ptr;
 
 void testDone(Message *rsp)
 {
@@ -28,13 +31,11 @@ void testDone(Message *rsp)
 }
 void onMessage(const std::string& msg)
 {
-    const com::codechiev::test::GenericReq &reqRef = com::codechiev::test::GenericReq::default_instance();
-    typedef boost::shared_ptr<com::codechiev::test::GenericReq> genericreq_ptr;
+    const GenericReq &reqRef = GenericReq::default_instance();
+    
     genericreq_ptr genericReqPtr(reqRef.New());
     genericReqPtr->ParseFromString(msg);
     LOG_INFO<<genericReqPtr->DebugString();
-
-    typedef boost::shared_ptr< Message > message_ptr;
 
     const ServiceDescriptor *serviceDesc = service.GetDescriptor();
     const MethodDescriptor *methodDesc = serviceDesc->FindMethodByName( genericReqPtr->method());
