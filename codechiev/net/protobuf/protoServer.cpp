@@ -79,7 +79,7 @@ ProtoServer::onMessage(const std::string& msg, int fd)
         Message *rsp = service.GetResponsePrototype(method).New();
         channel_ptr channel = getChannel(fd);
         rpc_send_func sendfunc = boost::bind(&ProtoServer::send, _1, _2);
-        PbRpcChannel rpcchannel = new PbRpcChannel(channel, sendfunc);
+        PbRpcChannel *rpcchannel = new PbRpcChannel(channel, sendfunc);
         Closure* callback = NewCallback(&PbRpcChannel::Callback, rpcchannel, rsp);
         service.CallMethod(method, NULL, msgPtr.get(), rsp, callback);
     }
