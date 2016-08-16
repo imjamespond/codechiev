@@ -8,6 +8,7 @@
 
 #include "ProtoClient.hpp"
 #include "TestPB.hpp"
+#include <boost/bind.hpp>
 
 using namespace codechiev::base;
 using namespace codechiev::net;
@@ -15,7 +16,10 @@ using namespace com::codechiev::test;
 using namespace google::protobuf;
 
 ProtoClient::ProtoClient(const std::string& ip, uint16_t port):
-TcpClient(ip, port){}
+TcpClient(ip, port)
+{
+    setOnData(boost::bind(&ProtoClient::onData, this, _1));
+}
 
 void
 ProtoClient::onData(Channel* channel)
