@@ -8,9 +8,9 @@ VERBATIM)
 add_custom_target(proto_out DEPENDS test.pb.cc test.pb.h)
 include_directories(${PROJECT_BINARY_DIR})
 
-file(GLOB SOURCE "*.cpp" test.pb.cc)
+file(GLOB SOURCE "*.cpp")
 set (LIB codechiev_net_proto)
-add_library (${LIB} ${SOURCE})#add source to this lib
+add_library (${LIB} ${SOURCE} test.pb.cc)#add source to this lib
 add_dependencies(${LIB} proto_out)
 target_link_libraries (${LIB} codechief_base codechief_net pthread rt protobuf)#link for this lib, rt is for get_clock
 
