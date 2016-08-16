@@ -21,37 +21,7 @@ using namespace google::protobuf;
 using namespace codechiev::base;
 using namespace codechiev::net;
 using namespace com::codechiev::test;
-int connNumber(1);
-BlockingQueue<2> queue;
 
-PbRpcChannel* channel;
-TestService* service;
-TestRequest request;
-GenericRsp response;
-
-void Done() {
-    delete service;
-    delete channel;
-    //delete controller;
-}
-
-void DoSearch(const channel_ptr& channelPtr) {
-    // You provide classes MyRpcChannel and MyRpcController, which implement
-    // the abstract interfaces protobuf::RpcChannel and protobuf::RpcController.
-    channel = new PbRpcChannel(channelPtr);
-    //controller = new MyRpcController;
-    
-    // The protocol compiler generates the SearchService class based on the
-    // definition given above.
-    service = new TestService_Stub(channel);
-    
-    // Set up the request.
-    request.set_id("12345");
-    request.set_name("foobar");
-    
-    // Execute the RPC.
-    service->RpcTest(NULL, &request, &response, NewCallback(&Done));
-}
 
 class MultiClient : public TcpClient
 {
@@ -102,6 +72,39 @@ public:
     channel_map channels;
 };
 MultiClient client;
+
+int connNumber(1);
+BlockingQueue<2> queue;
+
+PbRpcChannel* channel;
+TestService* service;
+TestRequest request;
+GenericRsp response;
+
+void Done() {
+    delete service;
+    delete channel;
+    //delete controller;
+}
+
+void DoSearch(const channel_ptr& channelPtr) {
+    // You provide classes MyRpcChannel and MyRpcController, which implement
+    // the abstract interfaces protobuf::RpcChannel and protobuf::RpcController.
+    channel = new PbRpcChannel(channelPtr, boost::bind(&MultiClient::send, &client, _1, _2));
+    //controller = new MyRpcController;
+    
+    // The protocol compiler generates the SearchService class based on the
+    // definition given above.
+    service = new TestService_Stub(channel);
+    
+    // Set up the request.
+    request.set_id("12345");
+    request.set_name("foobar");
+    
+    // Execute the RPC.
+    service->RpcTest(NULL, &request, &response, NewCallback(&Done));
+}
+
 
 void onConnect(Channel* channel)
 {
