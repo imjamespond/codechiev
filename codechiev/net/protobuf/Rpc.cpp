@@ -32,7 +32,7 @@ PbRpcChannel::CallMethod(
 }
 
 void
-PbRpcChannel::Callback(PbRpcChannel *pbRpc, const Message *resp)
+PbRpcChannel::Callback(PbRpcChannel *pbRpc, Message *resp)
 {
     if(channel_ptr channel = pbRpc->getChannel())
     {
