@@ -101,6 +101,7 @@ void DoSearch(const channel_ptr& channelPtr) {
     // Set up the request.
     request.set_id("12345");
     request.set_name("foobar");
+    request.set_type(123);
     
     // Execute the RPC.
     service->RpcTest(NULL, &request, &response, NewCallback(&Done));

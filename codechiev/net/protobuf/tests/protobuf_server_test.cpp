@@ -47,8 +47,8 @@ void onMessage(const std::string& msg)
         LOG_INFO<<msgPtr->DebugString();
         Message *rsp = service.GetResponsePrototype(method).New();
 
-        Closure* callback = NewCallback(&testDone, rsp);
-        service.CallMethod(method, NULL, msgPtr.get(), rsp, callback);
+        //Closure* callback = NewCallback(&testDone, rsp);
+        service.CallMethod(method, NULL, msgPtr.get(), rsp, NULL);
     }
 
 }
