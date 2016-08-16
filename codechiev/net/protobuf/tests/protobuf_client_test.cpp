@@ -79,7 +79,7 @@ int main(int argc, const char * argv[]) {
     }
 
     client.setOnConnect(boost::bind(&onConnect,_1));
-    Thread t("", boost::bind(&ProtoClient::start, &client, connNumber));
+    Thread t("", boost::bind(&ProtoClient::start, &client));
     t.start();/**/
     
     gChannel=client.connect();
