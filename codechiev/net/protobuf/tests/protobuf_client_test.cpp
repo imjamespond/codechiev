@@ -9,13 +9,15 @@
 #include <base/Logger.hpp>
 #include <base/BlockingQueue.hpp>
 #include <base/Thread.hpp>
-#include <net/TcpEndpoint.hpp>
-#include <net/TcpLengthCoder.h>
+
 #include <boost/bind.hpp>
 #include <errno.h>
 #include <stdio.h>
 #include <net/protobuf/Rpc.h>
 #include <net/protobuf/TestPB.hpp>
+#include <net/TcpEndpoint.hpp>
+#include <net/TcpLengthCoder.h>
+#include <net/protobuf/ProtoClient.hpp>
 
 using namespace google::protobuf;
 using namespace codechiev::base;
@@ -24,79 +26,31 @@ using namespace com::codechiev::test;
 
 void DoSearch(const channel_ptr& channelPtr);
 
-class MultiClient : public TcpClient
-{
-public:
-    MultiClient():TcpClient("127.0.0.1", 9999){}
-    
-    void onClose(Channel* channel)
-    {
-        TcpEndpoint::onClose(channel);
-        channels.erase(channel->getFd());
-    }
-    
-    void writetoall(const char* msg)
-    {
-        for(channel_map::const_iterator it=channels.begin();
-            it!=channels.end();
-            it++)
-        {
-            channel_ptr chn = it->second;
-            //send(chn, msg);
-            DoSearch(chn);
-        }
-    }
-    
-    void multiConnect(int num)
-    {
-        for(int i=0; i<num; i++)
-        {
-            channel_ptr chn = connect();
-            if(chn)
-                channels[chn->getFd()]=chn;
-        }
-        
-        this->start();
-    }
-    
-    void closeall()
-    {
-        for(channel_map::const_iterator it=channels.begin();
-            it!=channels.end();
-            it++)
-        {
-            channel_ptr chn = it->second;
-            this->shut(chn.get());
-        }
-    }
-    
-    channel_map channels;
-};
-MultiClient client;
+ProtoClient client("127.0.0.1", 9999);
 
 int connNumber(1);
 BlockingQueue<2> queue;
-
-PbRpcChannel* channel;
+channel_ptr* gChannel;
+PbRpcChannel* rpcchannel;
 TestService* service;
 TestRequest request;
 GenericRsp response;
 
 void Done() {
     delete service;
-    delete channel;
+    delete rpcchannel;
     //delete controller;
 }
 
-void DoSearch(const channel_ptr& channelPtr) {
+void DoSearch() {
     // You provide classes MyRpcChannel and MyRpcController, which implement
     // the abstract interfaces protobuf::RpcChannel and protobuf::RpcController.
-    channel = new PbRpcChannel(channelPtr, boost::bind(&MultiClient::send, &client, _1, _2));
+    rpcchannel = new PbRpcChannel(gChannel, boost::bind(&ProtoClient::send, &client, _1, _2));
     //controller = new MyRpcController;
     
     // The protocol compiler generates the SearchService class based on the
     // definition given above.
-    service = new TestService_Stub(channel);
+    service = new TestService_Stub(rpcchannel);
     
     // Set up the request.
     request.set_id("12345");
@@ -115,15 +69,7 @@ void onConnect(Channel* channel)
      ", setbuf size"<<channel->setSendBufSize(0)<<\ */
     ", sendbuf size:"<<channel->getSendBufSize();
 }
-void onData(Channel* channel)
-{
-    LOG_DEBUG<<"onData:"<<channel->getReadBuf()->str();
-    //channel->getReadBuf()->readAll();
-}
-void onClose(Channel* channel)
-{
-    LOG_DEBUG<<"onClose fd:"<<channel->getFd();
-}
+
 
 int main(int argc, const char * argv[]) {
 
@@ -133,10 +79,10 @@ int main(int argc, const char * argv[]) {
     }
 
     client.setOnConnect(boost::bind(&onConnect,_1));
-    client.setOnData(boost::bind(&onData,_1));
-    client.setOnClose(boost::bind(&onClose,_1));
-    Thread t("", boost::bind(&MultiClient::multiConnect, &client, connNumber));
+    Thread t("", boost::bind(&ProtoClient::start, &client, connNumber));
     t.start();/**/
+    
+    gChannel=client.connect();
 
     queue.commence();
 
@@ -148,7 +94,7 @@ int main(int argc, const char * argv[]) {
         c=getchar();
         if(c == 10)
         {
-            client.writetoall(msg);
+            DoSearch();
             i=0;
             ::memset(msg, 0, sizeof msg);
         }
