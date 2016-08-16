@@ -101,6 +101,7 @@ public:
     
     channel_map channels;
 };
+MultiClient client;
 
 void onConnect(Channel* channel)
 {
