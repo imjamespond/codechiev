@@ -53,11 +53,6 @@ ProtoServer::onData(Channel* channel)
     }
 
 }
-void
-ProtoServer::Callback(int fd, Message *rsp)
-{
-    LOG_INFO<<"";
-}
 
 void
 ProtoServer::onMessage(const std::string& msg, int fd)

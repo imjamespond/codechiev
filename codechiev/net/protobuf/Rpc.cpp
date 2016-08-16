@@ -6,26 +6,38 @@ using namespace codechiev::net;
 using namespace google::protobuf;
 using namespace com::codechiev::test;
 PbRpcChannel::PbRpcChannel(const channel_ptr& channel, const rpc_send_func& s):
-channel_(channel), send_(s)
+channel_(channel), send(s)
 {}
 
-void PbRpcChannel::CallMethod(
+void
+PbRpcChannel::CallMethod(
         const MethodDescriptor * method,
         RpcController * controller,
         const Message * request,
         Message * response,
         Closure * done)
 {
-        if(channel_ptr c = channel_.lock())
-        {
-            GenericReq req;
-            req.set_method( method->name());
-            req.set_request( request->SerializeAsString());
-            
-            std::string serialized = req.SerializeAsString();
-            TcpLengthCoder<4>::AppendInt32(c.get(), serialized.size());
-            send_(c, serialized);
-            
-            LOG_DEBUG<<req.DebugString();
-        }
+    if(channel_ptr channel = channel_.lock())
+    {
+        GenericReq req;
+        req.set_method( method->name());
+        req.set_request( request->SerializeAsString());
+        
+        std::string serialized = req.SerializeAsString();
+        TcpLengthCoder<4>::AppendInt32(channel.get(), serialized.size());
+        send(channel, serialized);
+        
+        LOG_DEBUG<<req.DebugString();
+    }
+}
+
+void
+PbRpcChannel::Callback(PbRpcChannel *pbRpc, const Message *resp)
+{
+    if(channel_ptr channel = pbRpc->getChannel())
+    {
+        std::string serialized = resp->SerializeAsString();
+        TcpLengthCoder<4>::AppendInt32(channel.get(), serialized.size());
+        pbRpc->send(channel, resp);
+    }
 }

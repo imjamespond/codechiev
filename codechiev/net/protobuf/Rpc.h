@@ -19,9 +19,12 @@ namespace codechiev
                                 google::protobuf::Message * ,
                                 google::protobuf::Message * ,
                                 google::protobuf::Closure * );
+                static void Callback(PbRpcChannel*, const ::google::protobuf::Message *);
+                inline channel_ptr getChannel(){return channel_.lock();}
+            
+                rpc_send_func send;
             protected:
                 wchannel_ptr channel_;
-                rpc_send_func send_;
             private:
         };
     }
