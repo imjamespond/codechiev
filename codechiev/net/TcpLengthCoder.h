@@ -28,9 +28,9 @@ namespace codechiev {
                 
                 if(readable>=HEADER)
                 {
-                    int32_t length,whole;
-                    ::memcpy(&length, channel->getReadBuf()->str(), sizeof(int32_t));
-                    hostToNetworkInt32(<#uint32_t val#>)
+                    uint32_t length,whole;
+                    ::memcpy(&length, channel->getReadBuf()->str(), sizeof(uint32_t));
+                    length = NetworkToHost32(length);
                     whole = length + HEADER;
                     
                     if(readable>=whole)
@@ -51,11 +51,11 @@ namespace codechiev {
                 }
             }
             
-            static void encode(Channel *channel, size_t len)
+            static void encode(Channel *channel, size_t length)
             {
-                char header[HEADER];
-                ::memcpy(header, &len, HEADER);
-                channel->getWriteBuf()->append(header, HEADER);
+                uint32_t header;
+                header = HostToNetwork32(static_cast<uint32_t>(length));
+                channel->getWriteBuf()->append(static_cast<char*>(&header), sizeof(uint32_t));
             }
         };
         
