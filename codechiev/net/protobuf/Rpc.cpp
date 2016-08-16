@@ -19,7 +19,7 @@ void PbRpcChannel::CallMethod(
         {
             const GenericReq *req = static_cast<const GenericReq*>(request);
             std::string serialized = req->SerializeAsString();
-            TcpLengthCoder::AppendInt32(c.get(), serialized.size());
+            TcpLengthCoder<4>::AppendInt32(c.get(), serialized.size());
             send_(c, serialized);
         }
 }
