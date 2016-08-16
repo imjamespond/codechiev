@@ -12,7 +12,7 @@
 #include <boost/bind.hpp>
 #include <errno.h>
 
-#include "TestPB.hpp"
+#include <net/TestPB.hpp>
 
 using namespace codechiev::base;
 using namespace codechiev::net;
