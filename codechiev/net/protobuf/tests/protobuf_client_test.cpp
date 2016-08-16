@@ -30,7 +30,7 @@ ProtoClient client("127.0.0.1", 9999);
 
 int connNumber(1);
 BlockingQueue<2> queue;
-channel_ptr* gChannel;
+channel_ptr gChannel;
 PbRpcChannel* rpcchannel;
 TestService* service;
 TestRequest request;
