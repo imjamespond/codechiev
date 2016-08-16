@@ -15,7 +15,7 @@ void PbRpcChannel::CallMethod(
         Message * response,
         Closure * done)
 {
-        if(channel_ptr c = channel_.lock() && send_)
+        if(channel_ptr c = channel_.lock())
         {
             const GenericReq *req = static_cast<const GenericReq*>(request);
             std::string serialized = req->SerializeAsString();
