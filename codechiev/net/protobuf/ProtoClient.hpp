@@ -25,9 +25,7 @@ namespace codechiev {
             
             inline void setOnMessage(const on_message_func& func){onMessage_=func;}
         private:
-            TestServiceImpl service;
             on_message_func onMessage_;
-            blocking_queue queue_;
         };
     }
 }
