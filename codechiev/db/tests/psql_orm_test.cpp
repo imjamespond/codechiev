@@ -55,7 +55,7 @@ namespace codechiev{
                 const char *paramValues[1];
                 int paramLengths[1];
                 int paramFormats[1];
-                uint32_t val = net::hostToNetworkInt32(gender);
+                uint32_t val = net::HostToNetwork32(gender);
                 paramValues[0] = (char *) &val;
                 paramLengths[0] = sizeof(val);
                 paramFormats[0] = 1;
