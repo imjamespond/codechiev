@@ -53,6 +53,71 @@ void DoSearch(const channel_ptr& channelPtr) {
     service->RpcTest(NULL, &request, &response, NewCallback(&Done));
 }
 
+class MultiClient : public TcpClient
+{
+public:
+    MultiClient():TcpClient("127.0.0.1", 9999){}
+    
+    void onClose(Channel* channel)
+    {
+        TcpEndpoint::onClose(channel);
+        channels.erase(channel->getFd());
+    }
+    
+    void writetoall(const char* msg)
+    {
+        for(channel_map::const_iterator it=channels.begin();
+            it!=channels.end();
+            it++)
+        {
+            channel_ptr chn = it->second;
+            //send(chn, msg);
+            DoSearch(chn);
+        }
+    }
+    
+    void multiConnect(int num)
+    {
+        for(int i=0; i<num; i++)
+        {
+            channel_ptr chn = connect();
+            if(chn)
+                channels[chn->getFd()]=chn;
+        }
+        
+        this->start();
+    }
+    
+    void closeall()
+    {
+        for(channel_map::const_iterator it=channels.begin();
+            it!=channels.end();
+            it++)
+        {
+            channel_ptr chn = it->second;
+            this->shut(chn.get());
+        }
+    }
+    
+    channel_map channels;
+};
+
+void onConnect(Channel* channel)
+{
+    LOG_DEBUG<<"onConnect\n fd:"<<channel->getFd()<<\
+    /*", sendbuf size:"<<channel->getSendBufSize()<<\
+     ", setbuf size"<<channel->setSendBufSize(0)<<\ */
+    ", sendbuf size:"<<channel->getSendBufSize();
+}
+void onMessage(Channel* channel)
+{
+    LOG_DEBUG<<"onMessage:"<<channel->getReadBuf()->str();
+}
+void onClose(Channel* channel)
+{
+    LOG_DEBUG<<"onClose fd:"<<channel->getFd();
+}
+
 int main(int argc, const char * argv[]) {
 
     if((sizeof argc)>1)
@@ -60,11 +125,11 @@ int main(int argc, const char * argv[]) {
         connNumber=::atoi(argv[1]);
     }
 
-    /*client.setOnConnect(boost::bind(&onConnect,_1));
+    client.setOnConnect(boost::bind(&onConnect,_1));
     client.setOnData(boost::bind(&onData,_1));
     client.setOnClose(boost::bind(&onClose,_1));
     Thread t("", boost::bind(&MultiClient::connectall, &client));
-    t.start();*/
+    t.start();/**/
 
     queue.commence();
 
@@ -76,8 +141,7 @@ int main(int argc, const char * argv[]) {
         c=getchar();
         if(c == 10)
         {
-
-            //client.writetoall(serializedGeneric.c_str());
+            client.writetoall(msg);
             i=0;
             ::memset(msg, 0, sizeof msg);
         }
