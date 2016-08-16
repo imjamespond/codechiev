@@ -1,5 +1,5 @@
 #include "Rpc.h"
-#include "test.pb.h"
+
 #include <net/TcpLengthCoder.h>
 using namespace codechiev::net;
 using namespace google::protobuf;
@@ -17,8 +17,7 @@ void PbRpcChannel::CallMethod(
 {
         if(channel_ptr c = channel_.lock())
         {
-            const GenericReq *req = static_cast<const GenericReq*>(request);
-            std::string serialized = req->SerializeAsString();
+            std::string serialized = request->SerializeAsString();
             TcpLengthCoder<4>::AppendInt32(c.get(), serialized.size());
             send_(c, serialized);
         }
