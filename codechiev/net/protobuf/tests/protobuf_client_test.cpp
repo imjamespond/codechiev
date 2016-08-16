@@ -110,9 +110,9 @@ void onConnect(Channel* channel)
      ", setbuf size"<<channel->setSendBufSize(0)<<\ */
     ", sendbuf size:"<<channel->getSendBufSize();
 }
-void onMessage(Channel* channel)
+void onData(Channel* channel)
 {
-    LOG_DEBUG<<"onMessage:"<<channel->getReadBuf()->str();
+    LOG_DEBUG<<"onData:"<<channel->getReadBuf()->str();
 }
 void onClose(Channel* channel)
 {
