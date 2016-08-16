@@ -70,7 +70,6 @@ void onConnect(Channel* channel)
     ", sendbuf size:"<<channel->getSendBufSize();
 }
 
-
 int main(int argc, const char * argv[]) {
 
     if((sizeof argc)>1)

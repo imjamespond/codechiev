@@ -7,10 +7,12 @@
 //
 
 #include "ProtoClient.hpp"
+#include "TestPB.hpp"
 
 using namespace codechiev::base;
 using namespace codechiev::net;
-
+using namespace com::codechiev::test;
+using namespace google::protobuf;
 
 ProtoClient::ProtoClient(const std::string& ip, uint16_t port):
 TcpClient(ip, port){}
@@ -33,5 +35,9 @@ ProtoClient::onData(Channel* channel)
 void
 ProtoClient::onMessage(const std::string &msg, Channel *channel)
 {
-    onMessage_(msg);
+    const GenericRsp &rspRef = GenericRsp::default_instance();
+    
+    GenericRsp *rsp = rspRef.New();
+    rsp->ParseFromString(msg);
+    LOG_INFO<<rsp->DebugString();
 }
