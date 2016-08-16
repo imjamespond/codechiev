@@ -79,8 +79,7 @@ BlockingQueue<2> queue;
 
 PbRpcChannel* channel;
 TestService* service;
-TestRequest testReq;
-GenericReq request
+TestRequest request;
 GenericRsp response;
 
 void Done() {
@@ -100,10 +99,8 @@ void DoSearch(const channel_ptr& channelPtr) {
     service = new TestService_Stub(channel);
     
     // Set up the request.
-    testReq.set_id("12345");
-    testReq.set_name("foobar");
-    request.set_request(testReq.SerializeAsString());
-    request.set_method("RpcTest");
+    request.set_id("12345");
+    request.set_name("foobar");
     
     // Execute the RPC.
     service->RpcTest(NULL, &request, &response, NewCallback(&Done));

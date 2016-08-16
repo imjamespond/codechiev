@@ -17,8 +17,11 @@ void PbRpcChannel::CallMethod(
 {
         if(channel_ptr c = channel_.lock())
         {
-            std::string serialized = request->SerializeAsString();
-            TcpLengthCoder<4>::AppendInt32(c.get(), serialized.size());
-            send_(c, serialized);
+            GenericReq req;
+            req.set_method( method->full_name());
+            req.set_request( request->SerializeAsString());
+            
+            TcpLengthCoder<4>::AppendInt32(c.get(), req.GetCachedSize());
+            send_(c, req->SerializeAsString());
         }
 }

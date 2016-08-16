@@ -38,17 +38,17 @@ void onMessage(const std::string& msg)
     LOG_INFO<<genericReqPtr->DebugString();
 
     const ServiceDescriptor *serviceDesc = service.GetDescriptor();
-    const MethodDescriptor *methodDesc = serviceDesc->FindMethodByName( genericReqPtr->method());
+    const MethodDescriptor *method = serviceDesc->FindMethodByName( genericReqPtr->method());
     LOG_INFO<<serviceDesc->name();
-    if(methodDesc)
+    if(method)
     {
-        message_ptr msgPtr(service.GetRequestPrototype(methodDesc).New());
+        message_ptr msgPtr(service.GetRequestPrototype(method).New());
         msgPtr->ParseFromString(genericReqPtr->request());
         LOG_INFO<<msgPtr->DebugString();
-        Message *rsp = service.GetResponsePrototype(methodDesc).New();
+        Message *rsp = service.GetResponsePrototype(method).New();
 
         Closure* callback = NewCallback(&testDone, rsp);
-        service.CallMethod(methodDesc, NULL, msgPtr.get(), rsp, callback);
+        service.CallMethod(method, NULL, msgPtr.get(), rsp, callback);
     }
 
 }
