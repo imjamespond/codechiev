@@ -77,8 +77,8 @@ ProtoServer::onMessage(const std::string& msg, int fd)
         msgPtr->ParseFromString(reqPtr->request());
         LOG_INFO<<msgPtr->DebugString();
         Message *rsp = service.GetResponsePrototype(method).New();
-        
-        Closure* callback = NewCallback(&ProtoServer::Callback, fd, rsp);
+        PbRpcChannel channel = new PbRpcChannel(getChannel(fd), boost::bind(&ProtoServer::send, _1, _2));
+        Closure* callback = NewCallback(&ProtoServer::Callback, channel, rsp);
         service.CallMethod(method, NULL, msgPtr.get(), rsp, callback);
     }
 }
