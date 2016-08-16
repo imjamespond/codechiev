@@ -22,6 +22,7 @@ using namespace codechiev::base;
 using namespace codechiev::net;
 using namespace com::codechiev::test;
 
+void DoSearch(const channel_ptr& channelPtr);
 
 class MultiClient : public TcpClient
 {
