@@ -5,12 +5,12 @@ COMMAND protoc
 ARGS --cpp_out . ${CMAKE_CURRENT_SOURCE_DIR}/test.proto -I${CMAKE_CURRENT_SOURCE_DIR}
 DEPENDS test.proto)
 add_custom_target(proto_out DEPENDS test.pb.cc test.pb.h)
-#add_dependencies(${LIB} proto_out)
 
 file(GLOB SOURCE "*.cpp")
 set (LIB codechiev_net_proto)
 add_library (${LIB} ${SOURCE})#add source to this lib
-target_link_libraries (${LIB} codechief_base codechief_net pthread rt protobuf proto_out)#link for this lib, rt is for get_clock
+add_dependencies(${LIB} proto_out)
+target_link_libraries (${LIB} codechief_base codechief_net pthread rt protobuf)#link for this lib, rt is for get_clock
 
 
 
