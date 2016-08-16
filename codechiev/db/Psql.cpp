@@ -146,7 +146,7 @@ PSql::queryById(Result& result, const char *sql,int64_t id)
     const char *paramValues[1];
     int paramLengths[1];
     int paramFormats[1];
-    uint64_t binaryIntId = net::hostToNetworkInt64(id);
+    uint64_t binaryIntId = net::HostToNetwork64(id);
     paramValues[0] = (char *) &binaryIntId;
     paramLengths[0] = sizeof(binaryIntId);
     paramFormats[0] = 1;
@@ -189,7 +189,7 @@ PSql::selectById(Result& rt, const char *sql,int64_t id)
         return;
 
     /* Convert integer value "2" to network byte order */
-    binaryIntVal = net::hostToNetworkInt64(id);
+    binaryIntVal = net::HostToNetwork64(id);
 
     /* Set up parameter arrays for PQexecParams */
     paramValues[0] = (char *) &binaryIntVal;
