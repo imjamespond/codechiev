@@ -7,11 +7,18 @@
 //
 
 #include "ProtoServer.hpp"
+
 #include <base/Logger.hpp>
 #include <boost/bind.hpp>
 #include <errno.h>
 
+using namespace codechiev::base;
 using namespace codechiev::net;
+using namespace com::codechiev::test;
+using namespace google::protobuf;
+
+typedef boost::shared_ptr< Message > message_ptr;
+typedef boost::shared_ptr<GenericReq> genericreq_ptr;
 
 void onClose(Channel* channel)
 {
@@ -46,16 +53,38 @@ ProtoServer::onData(Channel* channel)
     }
 
 }
+void
+ProtoServer::Callback(int fd, Message *rsp)
+{
+    LOG_INFO<<"";
+}
 
 void
 ProtoServer::onMessage(const std::string& msg, int fd)
 {
-    LOG_TRACE<<"onMessage:"<<msg;
     //channel_ptr channel = this->getChannel(fd);
-    if(onMessage_)
-    {
-        onMessage_(msg);
-    }
+    //if(onMessage_)
+    //{
+        //onMessage_(msg);
+    //}
+    const GenericReq &reqRef = GenericReq::default_instance();
     
+    genericreq_ptr reqPtr(reqRef.New());
+    reqPtr->ParseFromString(msg);
+    LOG_INFO<<reqPtr->DebugString();
+    
+    const ServiceDescriptor *serviceDesc = service.GetDescriptor();
+    const MethodDescriptor *method = serviceDesc->FindMethodByName( reqPtr->method());
+    LOG_INFO<<serviceDesc->name();
+    if(method)
+    {
+        message_ptr msgPtr(service.GetRequestPrototype(method).New());
+        msgPtr->ParseFromString(reqPtr->request());
+        LOG_INFO<<msgPtr->DebugString();
+        Message *rsp = service.GetResponsePrototype(method).New();
+        
+        Closure* callback = NewCallback(&ProtoServer::Callback, fd, rsp);
+        service.CallMethod(method, NULL, msgPtr.get(), rsp, callback);
+    }
 }
 

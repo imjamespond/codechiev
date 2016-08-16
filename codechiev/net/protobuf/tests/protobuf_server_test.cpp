@@ -21,42 +21,8 @@ using namespace google::protobuf;
 ProtoServer serv("0.0.0.0", 9999);
 AtomicNumber<int64_t> an(0);
 
-TestServiceImpl service;
-typedef boost::shared_ptr< Message > message_ptr;
-typedef boost::shared_ptr<GenericReq> genericreq_ptr;
-
-void testDone(Message *rsp)
-{
-    LOG_INFO<<"";
-}
-void onMessage(const std::string& msg)
-{
-    const GenericReq &reqRef = GenericReq::default_instance();
-    
-    genericreq_ptr genericReqPtr(reqRef.New());
-    genericReqPtr->ParseFromString(msg);
-    LOG_INFO<<genericReqPtr->DebugString();
-
-    const ServiceDescriptor *serviceDesc = service.GetDescriptor();
-    const MethodDescriptor *method = serviceDesc->FindMethodByName( genericReqPtr->method());
-    LOG_INFO<<serviceDesc->name();
-    if(method)
-    {
-        message_ptr msgPtr(service.GetRequestPrototype(method).New());
-        msgPtr->ParseFromString(genericReqPtr->request());
-        LOG_INFO<<msgPtr->DebugString();
-        Message *rsp = service.GetResponsePrototype(method).New();
-
-        //Closure* callback = NewCallback(&testDone, rsp);
-        service.CallMethod(method, NULL, msgPtr.get(), rsp, NULL);
-    }
-
-}
-
 int main(int argc, const char * argv[]) {
 
-    serv.setOnMessage(boost::bind(&onMessage, _1));
-    
 
     Thread t("", boost::bind(&ProtoServer::listen, &serv));
     t.start();

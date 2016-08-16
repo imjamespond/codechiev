@@ -9,6 +9,7 @@
 #ifndef ProtoServer_hpp
 #define ProtoServer_hpp
 
+#include "TestPB.hpp"
 #include <base/BlockingQueue.hpp>
 #include <net/TcpEndpoint.hpp>
 #include <net/TcpLengthCoder.h>
@@ -27,9 +28,10 @@ namespace codechiev {
             ProtoServer(const std::string& ip, uint16_t port);
             void onMessage(const std::string&, int);
             void onData(Channel* channel);
-            
+            static void Callback(int , ::google::protobuf::Message *);
             inline void setOnMessage(const on_message_func& func){onMessage_=func;}
         private:
+            TestServiceImpl service;
             on_message_func onMessage_;
             blocking_queue queue_;
         };
