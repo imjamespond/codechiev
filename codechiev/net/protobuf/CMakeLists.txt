@@ -5,14 +5,13 @@ COMMAND protoc
 ARGS --cpp_out . ${CMAKE_CURRENT_SOURCE_DIR}/test.proto -I${CMAKE_CURRENT_SOURCE_DIR}
 DEPENDS test.proto
 VERBATIM)
-#add_custom_target(proto_out DEPENDS test.pb.cc test.pb.h)
-#add_dependencies(${LIB} proto_out)
-set_source_files_properties(test.pb.cc PROPERTIES COMPILE_FLAGS "-Wno-conversion")
+add_custom_target(proto_out DEPENDS test.pb.cc test.pb.h)
 include_directories(${PROJECT_BINARY_DIR})
 
 file(GLOB SOURCE "*.cpp" test.pb.cc)
 set (LIB codechiev_net_proto)
 add_library (${LIB} ${SOURCE})#add source to this lib
+add_dependencies(${LIB} proto_out)
 target_link_libraries (${LIB} codechief_base codechief_net pthread rt protobuf)#link for this lib, rt is for get_clock
 
 message(STATUS "message please run \"make install\" : " ${CMAKE_INSTALL_PREFIX})
