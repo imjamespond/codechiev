@@ -3,6 +3,7 @@
 #include <google/protobuf/service.h>
 #include <google/protobuf/stubs/common.h>
 #include <net/Channel.hpp>
+#include <boost/function.hpp>
 namespace codechiev
 {
     namespace net
@@ -10,7 +11,9 @@ namespace codechiev
         class PbRpcChannel : public google::protobuf::RpcChannel
         {
             public:
-                explicit PbRpcChannel(const channel_ptr&);
+                typedef boost::function<void(const channel_ptr&, const std::string&)> rpc_send_func;
+            
+                explicit PbRpcChannel(const channel_ptr&, const rpc_send_func&);
                 void CallMethod(const google::protobuf::MethodDescriptor * ,
                                 google::protobuf::RpcController * ,const
                                 google::protobuf::Message * ,
@@ -18,6 +21,7 @@ namespace codechiev
                                 google::protobuf::Closure * );
             protected:
                 wchannel_ptr channel_;
+                rpc_send_func send_;
             private:
         };
     }
