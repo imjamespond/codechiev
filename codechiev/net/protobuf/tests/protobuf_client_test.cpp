@@ -15,7 +15,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <net/protobuf/Rpc.h>
-#include <net/protobuf/TestPB.hpp> 
+#include <net/protobuf/TestPB.hpp>
 
 using namespace google::protobuf;
 using namespace codechiev::base;
@@ -43,7 +43,7 @@ void DoSearch(const channel_ptr& channelPtr) {
     
     // The protocol compiler generates the SearchService class based on the
     // definition given above.
-    service = new TestService_Stub(&channel);
+    service = new TestService_Stub(channel);
     
     // Set up the request.
     request.set_id("12345");
