@@ -118,6 +118,7 @@ void onConnect(Channel* channel)
 void onData(Channel* channel)
 {
     LOG_DEBUG<<"onData:"<<channel->getReadBuf()->str();
+    //channel->getReadBuf()->readAll();
 }
 void onClose(Channel* channel)
 {

@@ -39,5 +39,7 @@ PbRpcChannel::Callback(PbRpcChannel *pbRpc, Message *resp)
         std::string serialized = resp->SerializeAsString();
         TcpLengthCoder<4>::AppendInt32(channel.get(), serialized.size());
         pbRpc->send(channel, serialized);
+        
+        LOG_DEBUG<<resp->DebugString();
     }
 }
