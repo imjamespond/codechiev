@@ -19,5 +19,6 @@ void PbRpcChannel::CallMethod(
         {
             const GenericReq *req = static_cast<const GenericReq*>(request);
             c->write(req->SerializeAsString());
+            printf("PbRpcChannel::CallMethod\n");
         }
 }
