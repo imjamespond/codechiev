@@ -11,7 +11,7 @@
 
 #include "test.pb.h"
 
-class TestServiceImpl : com::codechiev::test::TestService
+class TestServiceImpl : public com::codechiev::test::TestService
 {
 public:
     virtual void RpcTest(::google::protobuf::RpcController* controller,
