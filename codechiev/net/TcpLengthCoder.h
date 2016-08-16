@@ -51,7 +51,7 @@ namespace codechiev {
                 }
             }
             
-            static void encode(Channel *channel, size_t length)
+            static void AppendInt32(Channel *channel, size_t length)
             {
                 uint32_t header;
                 header = HostToNetwork32(static_cast<uint32_t>(length));
