@@ -129,7 +129,7 @@ int main(int argc, const char * argv[]) {
     client.setOnConnect(boost::bind(&onConnect,_1));
     client.setOnData(boost::bind(&onData,_1));
     client.setOnClose(boost::bind(&onClose,_1));
-    Thread t("", boost::bind(&MultiClient::multiConnect, &client));
+    Thread t("", boost::bind(&MultiClient::multiConnect, &client, connNumber));
     t.start();/**/
 
     queue.commence();
