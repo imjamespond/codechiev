@@ -50,19 +50,34 @@ namespace codechiev {
 
         typedef struct InetAddress InetAddressSt;
 
-        static inline uint16_t hostToNetworkShort(unsigned short val)
+        static inline uint16_t HostToNetwork16(uint16_t val)
         {
             return ::htons(val);
         }
 
-        static inline int32_t hostToNetworkInt32(uint32_t val)
+        static inline uint32_t HostToNetwork32(uint32_t val)
         {
             return ::htonl(val);
         }
 
-        static inline int64_t hostToNetworkInt64(uint64_t val)
+        static inline uint64_t HostToNetwork64(uint64_t val)
         {
             return htonll(val);
+        }
+        
+        static inline uint16_t NetworkToHost16(uint16_t val)
+        {
+            return ::ntohs(val);
+        }
+        
+        static inline uint32_t NetworkToHost32(uint32_t val)
+        {
+            return ::ntohl(val);
+        }
+        
+        static inline uint64_t NetworkToHost64(uint64_t val)
+        {
+            return ntohll(val);
         }
     }
 }

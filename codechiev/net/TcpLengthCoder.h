@@ -30,6 +30,7 @@ namespace codechiev {
                 {
                     int32_t length,whole;
                     ::memcpy(&length, channel->getReadBuf()->str(), sizeof(int32_t));
+                    hostToNetworkInt32(<#uint32_t val#>)
                     whole = length + HEADER;
                     
                     if(readable>=whole)
