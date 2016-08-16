@@ -1,5 +1,5 @@
 #include "Rpc.h"
-
+#include "test.pb.h"
 #include <net/TcpLengthCoder.h>
 using namespace codechiev::net;
 using namespace google::protobuf;
