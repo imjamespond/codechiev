@@ -22,6 +22,6 @@ void PbRpcChannel::CallMethod(
             req.set_request( request->SerializeAsString());
             
             TcpLengthCoder<4>::AppendInt32(c.get(), req.GetCachedSize());
-            send_(c, req->SerializeAsString());
+            send_(c, req.SerializeAsString());
         }
 }
