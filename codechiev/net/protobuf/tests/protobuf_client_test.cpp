@@ -15,7 +15,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <net/protobuf/Rpc.h>
-#include "TestPB.hpp"
+#include <net/protobuf/TestPB.hpp> 
 
 using namespace google::protobuf;
 using namespace codechiev::base;
