@@ -56,7 +56,7 @@ void onMessage(const std::string& msg)
 int main(int argc, const char * argv[]) {
 
     serv.setOnMessage(boost::bind(&onMessage, _1));
-    service.
+    
 
     Thread t("", boost::bind(&ProtoServer::listen, &serv));
     t.start();
