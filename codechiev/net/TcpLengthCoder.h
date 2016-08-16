@@ -14,6 +14,7 @@
 #include <string.h>
 #include <base/Logger.hpp>
 #include "Channel.hpp"
+#include "Internet.h"
 
 namespace codechiev {
     namespace net {
