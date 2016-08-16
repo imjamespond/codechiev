@@ -55,7 +55,7 @@ namespace codechiev {
             {
                 uint32_t header;
                 header = HostToNetwork32(static_cast<uint32_t>(length));
-                channel->getWriteBuf()->append(static_cast<char*>(&header), sizeof(uint32_t));
+                channel->getWriteBuf()->append(reinterpret_cast<char*>(&header), sizeof(uint32_t));
             }
         };
         
