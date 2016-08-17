@@ -25,6 +25,10 @@ set (HEADER ${HEADER} ${ROOT})
 include_directories (${HEADER})
 link_directories (${PSQL}/lib /usr/lib64/mysql)
 
+find_package(Boost REQUIRED)
+find_package(Protobuf)
+find_package(ZLIB)
+
 set (MY_LIBS pthread rt)
 
 add_subdirectory(base)

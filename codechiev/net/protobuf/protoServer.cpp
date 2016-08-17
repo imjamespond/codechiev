@@ -20,29 +20,21 @@ using namespace google::protobuf;
 typedef boost::shared_ptr< Message > message_ptr;
 typedef boost::shared_ptr<GenericReq> genericreq_ptr;
 
-void onClose(Channel* channel)
-{
-    LOG_DEBUG<<"onClose fd:"<<channel->getFd();
-}
-void onConnect(Channel* channel)
-{
-    LOG_DEBUG<<"onConnect fd:"<<channel->getFd();
-}
 
 ProtoServer::ProtoServer(const std::string& ip, uint16_t port):
 TcpServer(ip, port),onMessage_(0)
 {
-    setOnConnect(boost::bind(&::onConnect, _1));
+    //setOnConnect(boost::bind(&::onConnect, _1));
     setOnData(boost::bind(&ProtoServer::onData, this, _1));
-    setOnClose(boost::bind(&::onClose, _1));
-    
+    //setOnClose(boost::bind(&::onClose, _1));
+
     queue_.commence();
 }
 
 void
 ProtoServer::onData(Channel* channel)
 {
-    
+
     for(;;)
     {
         std::string msg;
@@ -63,11 +55,11 @@ ProtoServer::onMessage(const std::string& msg, int fd)
         //onMessage_(msg);
     //}
     const GenericReq &reqRef = GenericReq::default_instance();
-    
+
     genericreq_ptr reqPtr(reqRef.New());
     reqPtr->ParseFromString(msg);
     LOG_INFO<<reqPtr->DebugString();
-    
+
     const ServiceDescriptor *serviceDesc = service.GetDescriptor();
     const MethodDescriptor *method = serviceDesc->FindMethodByName( reqPtr->method());
     LOG_INFO<<serviceDesc->name();
