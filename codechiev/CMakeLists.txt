@@ -29,7 +29,7 @@ find_package(Boost REQUIRED)
 find_package(Protobuf)
 find_package(OpenSSL)
 find_package(ZLIB)
-find_path(PSQL_INCLUDE google/heap-profiler.h)
+find_path(PSQL_INCLUDE libpq-fe.h)
 
 set (MY_LIBS pthread rt)
 
