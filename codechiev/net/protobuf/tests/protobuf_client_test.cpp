@@ -30,27 +30,26 @@ ProtoClient client("127.0.0.1", 9999);
 
 int connNumber(1);
 BlockingQueue<2> queue;
-channel_ptr gChannel;
 PbRpcChannel* rpcchannel;
 TestService* service;
 TestRequest request;
 GenericRsp response;
 
 void Done() {
-    delete service;
-    delete rpcchannel;
+    //delete service;
+    //delete rpcchannel;
     //delete controller;
 }
 
 void DoSearch() {
     // You provide classes MyRpcChannel and MyRpcController, which implement
     // the abstract interfaces protobuf::RpcChannel and protobuf::RpcController.
-    rpcchannel = new PbRpcChannel(gChannel, boost::bind(&ProtoClient::send, &client, _1, _2));
+    //rpcchannel = new PbRpcChannel(gChannel, boost::bind(&ProtoClient::send, &client, _1, _2));
     //controller = new MyRpcController;
     
     // The protocol compiler generates the SearchService class based on the
     // definition given above.
-    service = new TestService_Stub(rpcchannel);
+    //service = new TestService_Stub(rpcchannel);
     
     // Set up the request.
     request.set_id("12345");
@@ -81,7 +80,9 @@ int main(int argc, const char * argv[]) {
     Thread t("", boost::bind(&ProtoClient::start, &client));
     t.start();/**/
     
-    gChannel=client.connect();
+    channel_ptr channel=client.connect();
+    rpcchannel = new PbRpcChannel(channel, boost::bind(&ProtoClient::send, &client, _1, _2));
+    service = new TestService_Stub(rpcchannel);
 
     queue.commence();
 
@@ -105,12 +106,13 @@ int main(int argc, const char * argv[]) {
     }while(c!='.');
 
 
-    //t.cancel();
-    //t.join();
+    t.cancel();
+    t.join();
 
     // Optional:  Delete all global objects allocated by libprotobuf.
     google::protobuf::ShutdownProtobufLibrary();
-
+    delete service;
+    delete rpcchannel;
 
     return 0;
 }
