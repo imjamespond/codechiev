@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="codechiev" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/codechiev" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+					<Add directory="../boost-1-60" />
+					<Add directory="codechiev" />
+				</Compiler>
+				<Linker>
+					<Add library="protobuf" />
+					<Add library="rt" />
+					<Add library="pthread" />
+				</Linker>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/codechiev" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-fexceptions" />
+		</Compiler>
+		<Unit filename="bin/test.pb.cc" />
+		<Unit filename="codechiev/base/Condition.cpp" />
+		<Unit filename="codechiev/base/Logger.cpp" />
+		<Unit filename="codechiev/base/Mutex.cpp" />
+		<Unit filename="codechiev/base/Random.cpp" />
+		<Unit filename="codechiev/base/Thread.cpp" />
+		<Unit filename="codechiev/base/Time.cpp" />
+		<Unit filename="codechiev/net/Channel.cpp" />
+		<Unit filename="codechiev/net/Channel.hpp" />
+		<Unit filename="codechiev/net/EPoll.cpp" />
+		<Unit filename="codechiev/net/EPoll.hpp" />
+		<Unit filename="codechiev/net/EventLoop.h" />
+		<Unit filename="codechiev/net/Internet.h" />
+		<Unit filename="codechiev/net/Poll.cpp" />
+		<Unit filename="codechiev/net/Poll.hpp" />
+		<Unit filename="codechiev/net/TcpClient.cpp" />
+		<Unit filename="codechiev/net/TcpEndpoint.hpp" />
+		<Unit filename="codechiev/net/TcpLengthCoder.h" />
+		<Unit filename="codechiev/net/TcpServer.cpp" />
+		<Unit filename="codechiev/net/Timer.cpp" />
+		<Unit filename="codechiev/net/Timer.hpp" />
+		<Unit filename="codechiev/net/http/HttpServer.cpp" />
+		<Unit filename="codechiev/net/http/HttpServer.hpp" />
+		<Unit filename="codechiev/net/protobuf/ProtoClient.cpp" />
+		<Unit filename="codechiev/net/protobuf/ProtoClient.hpp" />
+		<Unit filename="codechiev/net/protobuf/ProtoServer.hpp" />
+		<Unit filename="codechiev/net/protobuf/Rpc.cpp" />
+		<Unit filename="codechiev/net/protobuf/Rpc.h" />
+		<Unit filename="codechiev/net/protobuf/TestPB.cpp" />
+		<Unit filename="codechiev/net/protobuf/TestPB.hpp" />
+		<Unit filename="codechiev/net/protobuf/protoServer.cpp" />
+		<Unit filename="codechiev/net/protobuf/test.pb.h" />
+		<Unit filename="codechiev/net/protobuf/tests/protobuf_client_test.cpp" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

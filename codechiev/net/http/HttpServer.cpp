@@ -14,21 +14,12 @@
 
 using namespace codechiev::net;
 
-void onClose(Channel* channel)
-{
-    LOG_DEBUG<<"onClose fd:"<<channel->getFd();
-}
-void onConnect(Channel* channel)
-{
-    LOG_DEBUG<<"onConnect fd:"<<channel->getFd();
-}
-
 HttpServer::HttpServer(const std::string& ip, uint16_t port):
 TcpServer(ip, port)
 {
-    setOnConnect(boost::bind(&::onConnect, _1));
+    //setOnConnect(boost::bind(&::onConnect, _1));
     setOnData(boost::bind(&HttpServer::onMessage, this, _1));
-    setOnClose(boost::bind(&::onClose, _1));
+    //setOnClose(boost::bind(&::onClose, _1));
 }
 
 void
@@ -36,7 +27,7 @@ HttpServer::onMessage(Channel* channel)
 {
     LOG_TRACE<<"onMessage:"<<channel->getReadBuf()->str()<<",r:"<<channel->getReadBuf()->reader()<<",w:"<<channel->getReadBuf()->writer();
     //serv.write(channel, channel->getReadBuf()->str());//echo
-    
+
     while(1)
     {
         std::string httpMsg;
@@ -48,7 +39,7 @@ HttpServer::onMessage(Channel* channel)
             LOG_DEBUG<<httpMsg<<",len:"<<len;
             channel->getReadBuf()->read(len+4);
             channel->getReadBuf()->move();
-            
+
             //task
             //task(channel->getFd(), httpMsg)
             /*doTask()
@@ -61,7 +52,7 @@ HttpServer::onMessage(Channel* channel)
             break;
         }
     }
-    
+
     if(channel->getReadBuf()->writable()==0)
     {
         this->shut(channel);
