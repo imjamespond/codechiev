@@ -38,6 +38,7 @@ namespace codechiev {
             explicit CountLatch(int );
             ~CountLatch();
             
+            void reset(int num);
             void latch();
             void reduce(int num);
         private:

@@ -57,12 +57,19 @@ CountLatch::latch()
         cond_.wait(mutex_);//release mutex and block here
     }
 }
-
+void
+CountLatch::reset(int val)
+{
+    MutexGuard lock(&mutex_);
+    
+    count_=val;
+    cond_.notifyall();
+}
 void
 CountLatch::reduce(int val)
 {
     MutexGuard lock(&mutex_);
     
     count_-=val;
-    cond_.notify();
+    cond_.notifyall();
 }

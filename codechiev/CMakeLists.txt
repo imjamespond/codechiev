@@ -26,10 +26,7 @@ include_directories (${HEADER})
 link_directories (${PSQL}/lib /usr/lib64/mysql)
 
 find_package(Boost REQUIRED)
-find_package(Protobuf)
-find_package(OpenSSL)
 find_package(ZLIB)
-find_path(PSQL_INCLUDE libpq-fe.h)
 
 set (MY_LIBS pthread rt)
 

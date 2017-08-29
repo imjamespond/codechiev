@@ -8,42 +8,81 @@
 
 #include <stdio.h>
 #include <boost/bind.hpp>
+#include <boost/lexical_cast.hpp>
 #include <vector>
 #include <base/Logger.hpp>
 #include <base/Thread.hpp>
 #include <base/Time.hpp>
 #include <base/Mutex.hpp>
 #include <base/AtomicNumber.h>
+#include <base/Condition.hpp>
 
 using namespace codechiev::base;
 
 AtomicNumber<int64_t> atomicNum(0);
 Mutex mutex;
-void print()
+const int kThreadNum = 10;
+CountLatch latch(1);
+int dummyCount = 999999;
+
+void dummy()
 {
-    int64_t count=0;
-    while(atomicNum.fetchAndAdd(1)<9999999)
+    latch.latch();
+
+    while(dummyCount>0)
     {
-        count++;
+        dummyCount--;
     }
-    LOG_INFO<<count;
+
+    LOG_INFO<<dummyCount;
+}
+
+void print()
+{ 
+    latch.latch();
+    int count = 99999;
+    while(count--)
+    { atomicNum.fetchAndAdd(1); }
+
+    LOG_INFO<<atomicNum.get();
 }
 
 int main(int argc, const char * argv[]) {
 
-    thread_func func = boost::bind(&print);
+    thread_func dummyFunc = boost::bind(&dummy);
     std::vector<thread_ptr> threads;
-    for(int i=0; i<10; i++)
+    for(int i=0; i<kThreadNum; i++)
     {
-        thread_ptr t(new Thread("T", func));
+        std::string tName("Dummy-");
+        tName+=boost::lexical_cast<std::string>(i);
+        thread_ptr t(new Thread(tName, dummyFunc));
         t->start();
         threads.push_back(t);
     }
+    LOG_INFO<<"start dummies...";
+    latch.reset(0);
     //main thread will wait until all sub thread joined(end)
     for(int i=0; i<threads.size(); i++)
     {
         threads[i]->join();
     }
-    LOG_INFO<<atomicNum.addAndFetch(0);
+    
+    thread_func printFunc = boost::bind(&print);
+    threads.clear();
+    for(int i=0; i<kThreadNum; i++)
+    {
+        std::string tName("Print-");
+        tName+=boost::lexical_cast<std::string>(i);
+        thread_ptr t(new Thread(tName, printFunc));
+        t->start();
+        threads.push_back(t);
+    }
+    latch.reset(0);
+    //main thread will wait until all sub thread joined(end)
+    for(int i=0; i<threads.size(); i++)
+    {
+        threads[i]->join();
+    }
+    LOG_INFO<<atomicNum.get();
     return 0;
 }

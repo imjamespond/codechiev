@@ -37,7 +37,8 @@ int64_t / uint64_t
                 return __sync_sub_and_fetch(&num_, num);
             }
 
-            void set(T num){num_=num;}
+            void inline set(T num){num_=num;}
+            T inline get(){return num_;}
 
         private:
             T num_;
