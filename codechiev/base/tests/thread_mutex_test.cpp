@@ -19,19 +19,20 @@
 
 using namespace codechiev::base;
 
+int dummyCount = 0;
 AtomicNumber<int64_t> atomicNum(0);
 Mutex mutex;
 const int kThreadNum = 10;
 CountLatch latch(1);
-int dummyCount = 999999;
 
 void dummy()
 {
     latch.latch();
 
-    while(dummyCount>0)
+    int count = 100000;
+    while(count--)
     {
-        dummyCount--;
+        dummyCount++;
     }
 
     LOG_INFO<<dummyCount;
@@ -66,6 +67,7 @@ int main(int argc, const char * argv[]) {
     {
         threads[i]->join();
     }
+    LOG_INFO<<dummyCount;
     
     thread_func printFunc = boost::bind(&print);
     threads.clear();
@@ -78,6 +80,7 @@ int main(int argc, const char * argv[]) {
         threads.push_back(t);
     }
     latch.reset(0);
+    LOG_INFO<<"start prints...";
     //main thread will wait until all sub thread joined(end)
     for(int i=0; i<threads.size(); i++)
     {
