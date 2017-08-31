@@ -41,7 +41,7 @@ void dummy()
 void print()
 { 
     latch.latch();
-    int count = 99999;
+    int count = 100000;
     while(count--)
     { atomicNum.fetchAndAdd(1); }
 
@@ -59,8 +59,9 @@ int main(int argc, const char * argv[]) {
         thread_ptr t(new Thread(tName, dummyFunc));
         t->start();
         threads.push_back(t);
-    }
-    LOG_INFO<<"start dummies...";
+    } 
+    printf("start dummies...\n");
+    Time::SleepMillis(1500l);
     latch.reset(0);
     //main thread will wait until all sub thread joined(end)
     for(int i=0; i<threads.size(); i++)
@@ -68,6 +69,8 @@ int main(int argc, const char * argv[]) {
         threads[i]->join();
     }
     LOG_INFO<<dummyCount;
+
+    latch.reset(1);//Important!,here prepare to lock agian
     
     thread_func printFunc = boost::bind(&print);
     threads.clear();
@@ -78,9 +81,10 @@ int main(int argc, const char * argv[]) {
         thread_ptr t(new Thread(tName, printFunc));
         t->start();
         threads.push_back(t);
-    }
+    } 
+    printf("start prints...\n");
+    Time::SleepMillis(1500l); 
     latch.reset(0);
-    LOG_INFO<<"start prints...";
     //main thread will wait until all sub thread joined(end)
     for(int i=0; i<threads.size(); i++)
     {
