@@ -21,7 +21,7 @@ namespace codechiev {
         class FixedBuffer
         {
         public:
-            FixedBuffer():writer_(0),reader_(0)
+            FixedBuffer():writer_(0),reader_(0),writer_size_(BUFFER_SIZE-1)
             {
                 ::memset(buffer_, 0, BUFFER_SIZE);
             }
@@ -35,7 +35,7 @@ namespace codechiev {
 
             int writable()
             {
-                int wb = (BUFFER_SIZE-1)-writer_;
+                int wb = writer_size_-writer_;
                 assert(wb>=0);
                 return wb;
             }
@@ -90,7 +90,7 @@ namespace codechiev {
                 buffer_[writer_]=0;
             }
 
-            char* data()
+            char* buffer()
             {
                 return buffer_+writer_;
             }
@@ -105,6 +105,7 @@ namespace codechiev {
         private:
             int writer_;
             int reader_;
+            const int writer_size_;
             char buffer_[BUFFER_SIZE];
         };
 

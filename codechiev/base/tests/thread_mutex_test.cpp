@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/assert.hpp>
 #include <vector>
 #include <base/Logger.hpp>
 #include <base/Thread.hpp>
@@ -41,9 +42,12 @@ void dummy()
 void print()
 { 
     latch.latch();
+    
     int count = 100000;
     while(count--)
-    { atomicNum.fetchAndAdd(1); }
+    { 
+        atomicNum.fetchAndAdd(1); 
+    }
 
     LOG_INFO<<atomicNum.get();
 }
@@ -91,5 +95,6 @@ int main(int argc, const char * argv[]) {
         threads[i]->join();
     }
     LOG_INFO<<atomicNum.get();
+    BOOST_ASSERT( atomicNum.get()==100000*kThreadNum );
     return 0;
 }

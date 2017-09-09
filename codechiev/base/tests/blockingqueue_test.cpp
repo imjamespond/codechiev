@@ -16,42 +16,37 @@
 #include "base/Random.hpp"
 #include "base/Time.hpp"
 #include "base/Logger.hpp"
+#include <base/AtomicNumber.h>
+#include <base/Condition.hpp>
 
 using namespace codechiev::base;
 
-int count(0);
+AtomicNumber<int64_t> atomicNum(0);
+CountLatch latch(1); 
+
 void print()
 {
-    if(count)
-    {
-        count=0;
-        int64_t millis = random(100,110);
-        Time::SleepMillis(millis);
-        if(count)
-        {
-            //LOG_INFO<<Thread::ThreadName()<< "-" << Thread::GetTid()<<" sleep:"<<millis;
-            throw std::runtime_error(std::string("count error..."));
-        }
-    }
-    else
-    {
-        count++;
-    }
-    
-    //printf("current thread: %s - %d, %d\n",Thread::ThreadName().c_str(), Thread::GetTid(), errno);
+    int64_t count = atomicNum.addAndFetch(1);
+    if(count==999999)
+        latch.reset(0);
 }
 
 int main(int argc, const char * argv[]) {
     
+    Time begin = Time::Now();
+
     BlockingQueue<10> queue;
     queue.commence();
     
-    for(int i=0; i<999; i++)
+    for(int i=0; i<999999; i++)
     {
         queue.addJob(boost::bind(&print));
-    }
+    } 
     
-    //Time::SleepMillis(5000l);
+    latch.latch(); 
+    Time now = Time::Now(); 
+    LOG_INFO<<atomicNum.get()<<", cost:"<<now-begin;
+
     queue.addJob(boost::bind(&BlockingQueue<10>::stop, &queue));
     
     return 0;

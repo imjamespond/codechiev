@@ -99,7 +99,7 @@ namespace codechiev {
                             job();//synchronize by user
                     }catch(const QueueBreak& e)
                     {
-                        LOG_INFO<<e.what();
+                        LOG_TRACE<<e.what();
                         ::pthread_exit(NULL);
                     }catch(const std::exception &e)
                     {
