@@ -1,0 +1,3 @@
+FILE(GLOB SOURCE_FILES "*.cpp")
+ADD_LIBRARY (cc_base ${SOURCE_FILES})
+TARGET_LINK_LIBRARIES (cc_base pthread rt)
