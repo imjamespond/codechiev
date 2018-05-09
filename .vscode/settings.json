@@ -1,0 +1,8 @@
+{
+  "C_Cpp.default.includePath": [
+    "./local-include"
+  ],
+  "C_Cpp.default.systemIncludePath": [
+    "./system-include"
+  ]
+}
