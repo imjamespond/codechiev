@@ -1,3 +1,6 @@
+
 FILE(GLOB SOURCE_FILES "*.cpp")
-ADD_LIBRARY (cc_base ${SOURCE_FILES})
-TARGET_LINK_LIBRARIES (cc_base pthread rt)
+ADD_LIBRARY (ccv_base ${SOURCE_FILES})
+TARGET_LINK_LIBRARIES (ccv_base pthread rt)
+
+ADD_SUBDIRECTORY(tests)

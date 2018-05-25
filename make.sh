@@ -3,5 +3,5 @@ cd build
 cmake . ../codechiev \
   -DCMAKE_BUILD_TYPE=Debug \
   -DLOGGER_LEVEL=Trace \
-  -DBOOST_DIR=../../boost_1_65_0/
+  -DBOOST_DIR=../boost_1_67_0/
 make
