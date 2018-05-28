@@ -13,7 +13,7 @@ enum Detail
     DetailFile=2,
     DetailFunc=4,
 };
-Logger::Level initLoggerLevel()
+Logger::Level init_logger_level()
 {
 
     #ifdef LoggerThread
@@ -33,7 +33,7 @@ Logger::Level initLoggerLevel()
 
     return Logger::Info;
 }
-Logger::Level gLevel=initLoggerLevel();
+Logger::Level gLevel = init_logger_level();
 
 void setLoggerLevel(Logger::Level lv)
 {
@@ -67,15 +67,15 @@ level_(lv)
     {
         std::string str(file);
         std::size_t found = str.find_last_of("/\\");
-        this->operator<<(" file:")<<str.substr(found+1)<<" line:"<<line;
+        this->operator<<(",file:")<<str.substr(found+1)<<",line:"<<line;
     }
 
     if(gDetail&DetailFunc)
-        this->operator<<(" func:")<<func;
+        this->operator<<(",func:")<<func;
     if(gDetail&DetailThread)
-        this->operator<<(" thread:")<<Thread::ThreadName()<<" tid:"<<Thread::ThreadId();
+        this->operator<<(",thread:")<<Thread::ThreadName()<<",tid:"<<Thread::ThreadId();
 
-    this->operator<<(" ===");
+    this->operator<<(",===");
 }
 
 Logger::~Logger()

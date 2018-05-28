@@ -15,6 +15,7 @@
 #include <base/Thread.hpp>
 #include <base/Time.hpp> 
 #include <base/Condition.hpp>
+#include <base/Mutex.hpp>
 
 using namespace codechiev::base;
 
@@ -22,25 +23,35 @@ using namespace codechiev::base;
 
 CountLatch ThreadLatch(1);
 CountLatch MainLatch(ThreadNum);
+Mutex mutex;
+long Countdown = 99999999;
 
-void print()
+void print( )
 {
-    Time::SleepMillis(100l);
-    LOG_INFO << "started";
+    LOG_INFO << "thread started";
     MainLatch.reduce(1);
     ThreadLatch.latch();
-    LOG_INFO << "end";
+
+    while(true){
+        MutexGuard lock(&mutex);
+        if(Countdown)
+            --Countdown;
+        else
+            break;
+    }
+    
+    LOG_INFO << "thread end";
 }
 
 int main(int argc, const char * argv[]) {
 
-    thread_func dummyFunc = boost::bind(&print);
     std::vector<thread_ptr> threads;
     for (int i = 0; i < ThreadNum; i++)
     {
         std::string threadName("Dummy-");
         threadName += boost::lexical_cast<std::string>(i);
-        thread_ptr t(new Thread(threadName, dummyFunc)); 
+        thread_func func = boost::bind(&print );
+        thread_ptr t(new Thread(threadName, func)); 
         threads.push_back(t);
     }
     for (int i = 0; i < threads.size(); i++)
@@ -48,16 +59,18 @@ int main(int argc, const char * argv[]) {
         threads[i]->start();
     }
 
+    LOG_DEBUG << "main thread latch...";
     MainLatch.latch();
-    printf("all dummy threads started...\n");
-    Time::SleepMillis(1000l);
+    LOG_DEBUG << "all dummy threads started...";
     ThreadLatch.reduce(1);
-
+    
     //main thread will wait until all sub thread joined(end)
     for(int i=0; i<threads.size(); i++)
     {
         threads[i]->join();
-    } 
+    }
+
+    assert(Countdown==0);
     
     return 0;
 }
