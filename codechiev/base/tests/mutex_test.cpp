@@ -1,11 +1,3 @@
-//
-//  main.cpp
-//  codechiev
-//
-//  Created by metasoft on 16/7/15.
-//  Copyright © 2016年 metasoft. All rights reserved.
-//
-
 #include <stdio.h>
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>

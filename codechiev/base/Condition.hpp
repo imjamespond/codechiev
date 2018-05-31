@@ -32,10 +32,11 @@ namespace codechiev {
             ~CountLatch();
             
             void reset(int num);
-            void latch();
-            void unlatch();
-            void reduce(int num);
-        private:
+            int latch();
+            int unlatch();
+            int reduce(int num);
+
+          private:
             int count_;
             Condition cond_;
             Mutex mutex_;
