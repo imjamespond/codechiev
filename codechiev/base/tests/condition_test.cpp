@@ -21,26 +21,29 @@ using namespace codechiev::base;
 
 #define ThreadNum 10
 
-CountLatch ThreadLatch(1);
-CountLatch MainLatch(ThreadNum);
+CountLatch ThreadsLatch;
+CountLatch MainThreadLatch(ThreadNum);
 Mutex mutex;
 long Countdown = 99999999;
 
 void print( )
 {
     LOG_INFO << "thread started";
-    MainLatch.reduce(1);
-    ThreadLatch.latch();
+    MainThreadLatch.reduce(1);
+    ThreadsLatch.latch();
 
+    int count = 0;
     while(true){
         MutexGuard lock(&mutex);
         if(Countdown)
+        {
             --Countdown;
-        else
+            ++count;
+        }else
             break;
     }
-    
-    LOG_INFO << "thread end";
+
+    LOG_INFO << "thread end, count:" << count;
 }
 
 int main(int argc, const char * argv[]) {
@@ -60,10 +63,10 @@ int main(int argc, const char * argv[]) {
     }
 
     LOG_DEBUG << "main thread latch...";
-    MainLatch.latch();
+    MainThreadLatch.latch();
     LOG_DEBUG << "all dummy threads started...";
-    ThreadLatch.reduce(1);
-    
+    ThreadsLatch.unlatch();
+
     //main thread will wait until all sub thread joined(end)
     for(int i=0; i<threads.size(); i++)
     {

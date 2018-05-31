@@ -9,18 +9,20 @@
  */
 
 #include <sys/types.h>
-
 #include <event2/event-config.h>
-
 #include <sys/stat.h>
+
 #ifndef _WIN32
 #include <sys/queue.h>
 #include <unistd.h>
 #endif
+
 #include <time.h>
+
 #ifdef EVENT__HAVE_SYS_TIME_H
 #include <sys/time.h>
 #endif
+
 #include <fcntl.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -35,15 +37,19 @@
 #include <winsock2.h>
 #endif
 
+#include <base/Logger.hpp>
+
 struct timeval lasttime;
 
 int event_is_persistent;
+
+typedef struct event * event_ptr;
 
 static void
 timeout_cb(evutil_socket_t fd, short event, void *arg)
 {
 	struct timeval newtime, difference;
-	struct event *timeout = arg;
+	event_ptr timeout = static_cast<event_ptr>(arg);
 	double elapsed;
 
 	evutil_gettimeofday(&newtime, NULL);
@@ -51,8 +57,9 @@ timeout_cb(evutil_socket_t fd, short event, void *arg)
 	elapsed = difference.tv_sec +
 	    (difference.tv_usec / 1.0e6);
 
-	printf("timeout_cb called at %d: %.3f seconds elapsed.\n",
-	    (int)newtime.tv_sec, elapsed);
+	LOG_DEBUG	<<"timeout_cb called at "
+						<<(int)newtime.tv_sec<<": "
+						<<elapsed<<" seconds elapsed.";
 	lasttime = newtime;
 
 	if (! event_is_persistent) {
@@ -66,6 +73,8 @@ timeout_cb(evutil_socket_t fd, short event, void *arg)
 int
 main(int argc, char **argv)
 {
+	LOG_DEBUG<<"";
+	
 	struct event timeout;
 	struct timeval tv;
 	struct event_base *base;

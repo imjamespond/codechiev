@@ -8,6 +8,7 @@
 #include <fcntl.h>
 
 #include <event2/event.h>
+#include <event2/thread.h>
 
 #include <assert.h>
 #include <unistd.h>
@@ -15,6 +16,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
+
+#include <base/Logger.hpp>
 
 #define MAX_LINE 16384
 
@@ -106,6 +109,8 @@ do_read(evutil_socket_t fd, short events, void *arg)
         }
     }
 
+    LOG_DEBUG<<"read:"<<result;
+
     if (result == 0) {
         free_fd_state(state);
     } else if (result < 0) {
@@ -114,6 +119,7 @@ do_read(evutil_socket_t fd, short events, void *arg)
         perror("recv");
         free_fd_state(state);
     }
+
 }
 
 void
@@ -160,11 +166,15 @@ do_accept(evutil_socket_t listener, short event, void *arg)
         assert(state->write_event);
         event_add(state->read_event, NULL);
     }
+
+    LOG_DEBUG<<"accept";
 }
 
 void
 run(void)
 {
+    LOG_DEBUG<<evthread_use_pthreads();
+
     evutil_socket_t listener;
     struct sockaddr_in sin;
     struct event_base *base;

@@ -34,8 +34,12 @@ Condition::notifyall()
     ::pthread_cond_broadcast(&cond_);
 }
 
-CountLatch::CountLatch(int c):count_(c)
-{}
+CountLatch::CountLatch(int c) : count_(c)
+{
+}
+CountLatch::CountLatch() : count_(1)
+{
+}
 CountLatch::~CountLatch()
 {}
 
@@ -48,6 +52,10 @@ CountLatch::latch()
     {
         cond_.wait(mutex_);//release mutex and block here
     }
+}
+void CountLatch::unlatch()
+{
+    this->reduce(1);
 }
 void
 CountLatch::reset(int val)

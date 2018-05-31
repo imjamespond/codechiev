@@ -3,7 +3,7 @@
 
 #include <pthread.h>
 #include <boost/noncopyable.hpp>
-#include "Mutex.hpp"
+#include <base/Mutex.hpp>
 
 namespace codechiev {
     namespace base {
@@ -28,10 +28,12 @@ namespace codechiev {
         {
         public:
             explicit CountLatch(int );
+            CountLatch();
             ~CountLatch();
             
             void reset(int num);
             void latch();
+            void unlatch();
             void reduce(int num);
         private:
             int count_;

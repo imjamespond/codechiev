@@ -2,8 +2,8 @@
 #define FixedBuffer_hpp
 
 #include <stdio.h>
-#include <string>
-#include <string.h>
+#include <string>//cpp library
+#include <string.h> //c library
 #include <assert.h>
 
 namespace codechiev {

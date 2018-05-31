@@ -11,6 +11,12 @@
     "*.ftl": "html",
     "*.ipp": "cpp",
     "*.tcc": "cpp",
-    "rope": "cpp"
+    "rope": "cpp",
+    "bitset": "cpp",
+    "chrono": "cpp",
+    "algorithm": "cpp",
+    "thread": "cpp",
+    "condition_variable": "cpp",
+    "future": "cpp"
   }
 }
