@@ -2,11 +2,16 @@
 #include <assert.h>
 #include <errno.h>
 
+#include <base/Logger.hpp>
+
 using namespace codechiev::libev;
+using namespace codechiev::base;
 
 void listener_cb(struct evconnlistener *, evutil_socket_t,
                  struct sockaddr *, int socklen, void *);
 void conn_writecb(struct bufferevent *, void *);
+void conn_readcb(struct bufferevent *, void *);
+
 void conn_eventcb(struct bufferevent *, short, void *);
 
 TcpServer::TcpServer(int port): addr(port)
@@ -57,11 +62,12 @@ listener_cb(struct evconnlistener *listener, evutil_socket_t fd,
     event_base_loopbreak(base);
     return;
   }
-  bufferevent_setcb(bev, NULL, conn_writecb, conn_eventcb, NULL);
-  bufferevent_enable(bev, EV_WRITE);
-  bufferevent_disable(bev, EV_READ);
+  bufferevent_setcb(bev, conn_readcb, NULL, conn_eventcb, NULL);
+  bufferevent_enable(bev, EV_READ);
+  bufferevent_disable(bev, EV_WRITE);
 
-  bufferevent_write(bev, "foobar", strlen("foobar"));
+  // bufferevent_write(bev, "foobar", strlen("foobar"));
+
 }
 
 void
@@ -70,9 +76,13 @@ conn_writecb(struct bufferevent *bev, void *user_data)
   struct evbuffer *output = bufferevent_get_output(bev);
   if (evbuffer_get_length(output) == 0)
   {
-    printf("flushed answer\n");
+    LOG_INFO << "flushed answer";
     bufferevent_free(bev);
   }
+
+  bufferevent_setcb(bev, conn_readcb, conn_writecb, conn_eventcb, NULL);
+  bufferevent_enable(bev, EV_READ);
+  bufferevent_disable(bev, EV_WRITE);
 }
 
 void
@@ -90,4 +100,20 @@ conn_eventcb(struct bufferevent *bev, short events, void *user_data)
   /* None of the other events can happen here, since we haven't enabled
 	 * timeouts */
   bufferevent_free(bev);
+}
+
+void 
+conn_readcb(struct bufferevent *bev, void *ctx){
+  struct evbuffer *evbuf = bufferevent_get_input(bev);
+  int len = evbuffer_get_length(evbuf);
+  struct iovec iovec;
+  evbuffer_peek(evbuf, len, NULL, &iovec, 1);
+
+  LOG_INFO << "read cb:" << len << (char *)iovec.iov_base;
+
+  if (len == 0)
+  { 
+    bufferevent_free(bev);
+  }
+
 }
