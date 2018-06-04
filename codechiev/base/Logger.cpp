@@ -86,10 +86,17 @@ Logger::~Logger()
     fflush(stdout);
 }
 
-Logger&
+Logger &
 Logger::operator<<(const char *str)
 {
     buffer_.append(str);
+    return *this;
+}
+
+Logger &
+Logger::operator<<(const unsigned char *str)
+{
+    buffer_.append(reinterpret_cast<const char*>(str));
     return *this;
 }
 

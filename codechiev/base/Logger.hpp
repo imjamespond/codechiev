@@ -23,6 +23,7 @@ namespace codechiev {
             ~Logger();
 
             Logger &operator<<(const char*);
+            Logger &operator<<(const unsigned char *);
             Logger &operator<<(const std::string&);
             Logger &operator<<( int);
             Logger &operator<<( int64_t);

@@ -19,6 +19,7 @@
     "condition_variable": "cpp",
     "future": "cpp",
     "mutex": "cpp",
-    "complex": "cpp"
+    "complex": "cpp",
+    "scoped_allocator": "cpp"
   }
 }

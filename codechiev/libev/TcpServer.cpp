@@ -11,7 +11,6 @@ void listener_cb(struct evconnlistener *, evutil_socket_t,
                  struct sockaddr *, int socklen, void *);
 void conn_writecb(struct bufferevent *, void *);
 void conn_readcb(struct bufferevent *, void *);
-
 void conn_eventcb(struct bufferevent *, short, void *);
 
 TcpServer::TcpServer(int port): addr(port)
@@ -55,14 +54,14 @@ listener_cb(struct evconnlistener *listener, evutil_socket_t fd,
   struct event_base *base = static_cast<struct event_base *>(user_data);
   struct bufferevent *bev;
 
-  bev = bufferevent_socket_new(base, fd, BEV_OPT_CLOSE_ON_FREE);
+  bev = bufferevent_socket_new(base, fd, BEV_OPT_CLOSE_ON_FREE | BEV_OPT_DEFER_CALLBACKS);
   if (!bev)
   {
     fprintf(stderr, "Error constructing bufferevent!");
     event_base_loopbreak(base);
     return;
   }
-  bufferevent_setcb(bev, conn_readcb, NULL, conn_eventcb, NULL);
+  bufferevent_setcb(bev, conn_readcb, conn_writecb, conn_eventcb, NULL);
   bufferevent_enable(bev, EV_READ);
   bufferevent_disable(bev, EV_WRITE);
 
@@ -79,16 +78,19 @@ conn_writecb(struct bufferevent *bev, void *user_data)
     LOG_INFO << "flushed answer";
     bufferevent_free(bev);
   }
-
-  bufferevent_setcb(bev, conn_readcb, conn_writecb, conn_eventcb, NULL);
-  bufferevent_enable(bev, EV_READ);
-  bufferevent_disable(bev, EV_WRITE);
+  else
+  {
+    bufferevent_enable(bev, EV_READ);
+    bufferevent_disable(bev, EV_WRITE);
+  }
 }
 
 void
 conn_eventcb(struct bufferevent *bev, short events, void *user_data)
 {
-  if (events & BEV_EVENT_EOF)
+  LOG_INFO << events;
+
+      if (events & BEV_EVENT_EOF)
   {
     printf("Connection closed.\n");
   }
@@ -109,11 +111,18 @@ conn_readcb(struct bufferevent *bev, void *ctx){
   struct iovec iovec;
   evbuffer_peek(evbuf, len, NULL, &iovec, 1);
 
-  LOG_INFO << "read cb:" << len << (char *)iovec.iov_base;
+  //LOG_INFO << "read cb:" << len << "," << (char *)iovec.iov_base;
+  LOG_INFO << "read cb:" << len << "," << evbuffer_pullup(evbuf, len);
+  //fwrite(evbuffer_pullup(evbuf, len), len, 1, stdout);
+  evbuffer_drain(evbuf, len);
 
   if (len == 0)
   { 
     bufferevent_free(bev);
   }
 
+  bufferevent_enable(bev, EV_WRITE);
+  bufferevent_disable(bev, EV_READ);
+
+  bufferevent_write(bev, "foobar", strlen("foobar"));
 }

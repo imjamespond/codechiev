@@ -4,12 +4,17 @@
 #include <string.h> //memset
 
 #ifndef _WIN32
-#include <netinet/in.h>
+    /* For sockaddr_in */
+    #include <netinet/in.h>
 #ifdef _XOPEN_SOURCE_EXTENDED
-#include <arpa/inet.h>
+    #include <arpa/inet.h>
 #endif
-#include <sys/socket.h>
+    /* For socket functions */
+    #include <sys/socket.h>
 #endif
+
+/* For gethostbyname */
+#include <netdb.h>
 
 namespace codechiev
 {
