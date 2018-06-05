@@ -15,6 +15,9 @@ void conn_eventcb(struct bufferevent *, short, void *);
 
 TcpServer::TcpServer(int port) : addr(port), base(NULL), listener(NULL)
 {
+
+  evthread_use_pthreads();
+
   base = event_base_new();
   if (!base)
   {
@@ -25,7 +28,7 @@ TcpServer::TcpServer(int port) : addr(port), base(NULL), listener(NULL)
   listener = evconnlistener_new_bind(base,
                                      listener_cb,
                                      (void *)this,
-                                     LEV_OPT_REUSEABLE | LEV_OPT_CLOSE_ON_FREE,
+                                     LEV_OPT_REUSEABLE | LEV_OPT_CLOSE_ON_FREE | LEV_OPT_THREADSAFE,
                                      -1,
                                      (struct sockaddr *)&(addr.sin),
                                      sizeof(addr.sin));
@@ -57,11 +60,11 @@ TcpServer::write(int fd, const char * msg)
     LOG_DEBUG << "bufferevent is null";
     return;
   }
-
+  bufferevent_lock(bev);
   bufferevent_enable(bev, EV_WRITE);
   bufferevent_disable(bev, EV_READ);
-
   msg && bufferevent_write(bev, msg, strlen(msg));
+  bufferevent_unlock(bev);
 }
 
 void 
@@ -78,17 +81,21 @@ TcpServer::broadcast(const char * msg)
       LOG_DEBUG << "bufferevent is null";
       return;
     }
-
+    bufferevent_lock(bev);
     bufferevent_enable(bev, EV_WRITE);
     bufferevent_disable(bev, EV_READ);
-
     msg && bufferevent_write(bev, msg, strlen(msg));
+    bufferevent_unlock(bev);
   }
 }
 
 void 
-listener_cb(struct evconnlistener *listener, evutil_socket_t fd,
-                 struct sockaddr *sa, int socklen, void *user_data)
+listener_cb(
+  struct evconnlistener *listener, 
+  evutil_socket_t fd,
+  struct sockaddr *sa, 
+  int socklen, 
+  void *user_data)
 {
   TcpServer *serv = static_cast<TcpServer *>(user_data);
   
@@ -96,14 +103,16 @@ listener_cb(struct evconnlistener *listener, evutil_socket_t fd,
   bev = bufferevent_socket_new(
     serv->base, 
     fd, 
-    BEV_OPT_CLOSE_ON_FREE | BEV_OPT_DEFER_CALLBACKS
+    BEV_OPT_CLOSE_ON_FREE | BEV_OPT_DEFER_CALLBACKS | BEV_OPT_THREADSAFE
   );
+
   if (!bev)
   {
     fprintf(stderr, "Error constructing bufferevent!");
     event_base_loopbreak(serv->base);
     return;
   }
+
   bufferevent_setcb(
       bev,
       conn_readcb,
@@ -114,12 +123,14 @@ listener_cb(struct evconnlistener *listener, evutil_socket_t fd,
   bufferevent_disable(bev, EV_WRITE);
 
   serv->bevMap[fd] = bev;
-  serv->broadcast("foobar");
+  //serv->broadcast("foobar");
 }
 
 void
 conn_writecb(struct bufferevent *bev, void *user_data)
 {
+  bufferevent_lock(bev);
+
   struct evbuffer *output = bufferevent_get_output(bev);
   if (evbuffer_get_length(output) == 0)
   {
@@ -128,6 +139,8 @@ conn_writecb(struct bufferevent *bev, void *user_data)
     bufferevent_enable(bev, EV_READ);
     bufferevent_disable(bev, EV_WRITE);
   }
+
+  bufferevent_unlock(bev);
 }
 
 void
@@ -148,15 +161,22 @@ conn_eventcb(struct bufferevent *bev, short events, void *user_data)
   }
   /* None of the other events can happen here, since we haven't enabled
 	 * timeouts */
+
+  bufferevent_lock(bev);
+
   evutil_socket_t fd = bufferevent_getfd(bev);
   serv->bevMap.erase(fd);
   LOG_DEBUG << "buffer event map: " << (int)serv->bevMap.size();
-  
+
   bufferevent_free(bev); //close
+  
+  bufferevent_unlock(bev);
 }
 
 void 
 conn_readcb(struct bufferevent *bev, void *ctx){
+  bufferevent_lock(bev);
+
   struct evbuffer *evbuf = bufferevent_get_input(bev);
   int len = evbuffer_get_length(evbuf);
   struct iovec iovec;
@@ -167,4 +187,6 @@ conn_readcb(struct bufferevent *bev, void *ctx){
   //LOG_INFO << "read cb:" << len << "," << evbuffer_pullup(evbuf, len);
   //fwrite(evbuffer_pullup(evbuf, len), len, 1, stdout);
   evbuffer_drain(evbuf, len);
+
+  bufferevent_unlock(bev);
 }
