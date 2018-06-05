@@ -4,6 +4,7 @@
 using namespace codechiev::libev;
 
 void readcb(struct bufferevent *, void *);
+void writecb(struct bufferevent *, void *);
 void eventcb(struct bufferevent *, short, void *);
 
 TcpClient::TcpClient(const char *addr)
@@ -33,25 +34,37 @@ TcpClient::~TcpClient()
 void
 TcpClient::connect()
 {
-  struct bufferevent *b_out, *b_in;
-  b_out = bufferevent_socket_new(base, -1,
-                                 BEV_OPT_CLOSE_ON_FREE | BEV_OPT_DEFER_CALLBACKS);
+  struct bufferevent *buffev;
+  buffev = bufferevent_socket_new(base, -1,
+                                  BEV_OPT_CLOSE_ON_FREE | BEV_OPT_DEFER_CALLBACKS);
 
-  if (bufferevent_socket_connect(b_out,
+  if (bufferevent_socket_connect(buffev,
                                  (struct sockaddr *)&connect_to_addr, connect_to_addrlen) < 0)
   {
     perror("bufferevent_socket_connect");
-    bufferevent_free(b_out);
+    bufferevent_free(buffev);
     throw 1;
   }
 
-  bufferevent_setcb(b_out, readcb, NULL, eventcb, NULL);
+  bufferevent_setcb(buffev, readcb, writecb, eventcb, this);
 
   event_base_dispatch(base);
 }
 
+void TcpClient::write(const char *msg)
+{
+  //TODO must lock buffer, lock bevMap 
+
+  bufferevent_enable(bev, EV_WRITE);
+  bufferevent_disable(bev, EV_READ);
+
+  msg && bufferevent_write(bev, msg, strlen(msg));
+}
+
 void eventcb(struct bufferevent *bev, short events, void *user_data)
 {
+  TcpClient *client = (TcpClient *)user_data;
+
   LOG_INFO << events;
 
   if (events & BEV_EVENT_EOF)
@@ -66,10 +79,11 @@ void eventcb(struct bufferevent *bev, short events, void *user_data)
   else if (events & BEV_EVENT_CONNECTED){
     LOG_INFO << "BEV_EVENT_CONNECTED";
 
-
-      bufferevent_enable(bev, EV_READ);
-      bufferevent_disable(bev, EV_WRITE);
+    bufferevent_enable(bev, EV_READ);
+    bufferevent_disable(bev, EV_WRITE);
     
+    client->bev = bev;
+    client->write("hello");
   }
   else
   {
@@ -78,6 +92,18 @@ void eventcb(struct bufferevent *bev, short events, void *user_data)
     bufferevent_free(bev);
   }
 }
+
+void writecb(struct bufferevent *bev, void *user_data)
+{
+  struct evbuffer *output = bufferevent_get_output(bev);
+  if (evbuffer_get_length(output) == 0)
+  {
+    LOG_INFO << "writecb"; 
+    bufferevent_enable(bev, EV_READ);
+    bufferevent_disable(bev, EV_WRITE);
+  }
+}
+
 void readcb(struct bufferevent *bev, void *ctx)
 {
   struct evbuffer *evbuf = bufferevent_get_input(bev);
@@ -92,12 +118,10 @@ void readcb(struct bufferevent *bev, void *ctx)
 
   if (len == 0)
   {
-    bufferevent_free(bev);
+    bufferevent_enable(bev, EV_READ);
+    bufferevent_disable(bev, EV_WRITE);
   }
 
-  bufferevent_enable(bev, EV_WRITE);
-  bufferevent_disable(bev, EV_READ);
-
-  bufferevent_write(bev, "foobar", strlen("foobar"));
+  // bufferevent_write(bev, "foobar", strlen("foobar"));
 }
 //tcp socket

@@ -29,9 +29,12 @@ namespace codechiev {
             Logger &operator<<( int64_t);
             Logger &operator<<( float);
             Logger &operator<<( double);
+
         private:
             Level level_;
-            FixedBuffer<256> buffer_;
+            typedef FixedBuffer<256> Buffer;
+            Buffer buffer_;
+
         };
 
         class LoggerStream

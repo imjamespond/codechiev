@@ -13,10 +13,12 @@ using namespace codechiev::base;
 #define ThreadNum 10
 
 Mutex mutex;
+Mutex mutex_;
 
 void print()
 {
     MutexGuard lock(&mutex);
+    MutexGuard lock_(&mutex_);
     Time::SleepMillis(300l);
     LOG_INFO << "";
 }

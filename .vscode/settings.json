@@ -20,6 +20,7 @@
     "future": "cpp",
     "mutex": "cpp",
     "complex": "cpp",
-    "scoped_allocator": "cpp"
+    "scoped_allocator": "cpp",
+    "fstream": "cpp"
   }
 }

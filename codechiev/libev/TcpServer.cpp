@@ -13,7 +13,7 @@ void conn_writecb(struct bufferevent *, void *);
 void conn_readcb(struct bufferevent *, void *);
 void conn_eventcb(struct bufferevent *, short, void *);
 
-TcpServer::TcpServer(int port): addr(port)
+TcpServer::TcpServer(int port) : addr(port), base(NULL), listener(NULL)
 {
   base = event_base_new();
   if (!base)
@@ -24,7 +24,7 @@ TcpServer::TcpServer(int port): addr(port)
 
   listener = evconnlistener_new_bind(base,
                                      listener_cb,
-                                     (void *)base,
+                                     (void *)this,
                                      LEV_OPT_REUSEABLE | LEV_OPT_CLOSE_ON_FREE,
                                      -1,
                                      (struct sockaddr *)&(addr.sin),
@@ -48,25 +48,73 @@ TcpServer::start()
 }
 
 void 
+TcpServer::write(int fd, const char * msg)
+{
+  //TODO must lock buffer, lock bevMap
+  struct bufferevent *bev = bevMap[fd];
+  if(!bev)
+  {
+    LOG_DEBUG << "bufferevent is null";
+    return;
+  }
+
+  bufferevent_enable(bev, EV_WRITE);
+  bufferevent_disable(bev, EV_READ);
+
+  msg && bufferevent_write(bev, msg, strlen(msg));
+}
+
+void 
+TcpServer::broadcast(const char * msg)
+{
+  //TODO must lock buffer, lock bevMap
+  BuffereventMap::iterator it;
+  for (it = bevMap.begin(); it != bevMap.end(); ++it)
+  {
+    struct bufferevent *bev = it->second;
+
+    if (!bev)
+    {
+      LOG_DEBUG << "bufferevent is null";
+      return;
+    }
+
+    bufferevent_enable(bev, EV_WRITE);
+    bufferevent_disable(bev, EV_READ);
+
+    msg && bufferevent_write(bev, msg, strlen(msg));
+  }
+}
+
+void 
 listener_cb(struct evconnlistener *listener, evutil_socket_t fd,
                  struct sockaddr *sa, int socklen, void *user_data)
 {
-  struct event_base *base = static_cast<struct event_base *>(user_data);
+  TcpServer *serv = static_cast<TcpServer *>(user_data);
+  
   struct bufferevent *bev;
-
-  bev = bufferevent_socket_new(base, fd, BEV_OPT_CLOSE_ON_FREE | BEV_OPT_DEFER_CALLBACKS);
+  bev = bufferevent_socket_new(
+    serv->base, 
+    fd, 
+    BEV_OPT_CLOSE_ON_FREE | BEV_OPT_DEFER_CALLBACKS
+  );
   if (!bev)
   {
     fprintf(stderr, "Error constructing bufferevent!");
-    event_base_loopbreak(base);
+    event_base_loopbreak(serv->base);
     return;
   }
-  bufferevent_setcb(bev, conn_readcb, conn_writecb, conn_eventcb, NULL);
+  bufferevent_setcb(
+      bev,
+      conn_readcb,
+      conn_writecb,
+      conn_eventcb, serv);
+
   bufferevent_enable(bev, EV_READ);
   bufferevent_disable(bev, EV_WRITE);
 
-  // bufferevent_write(bev, "foobar", strlen("foobar"));
-
+  serv->bevMap[fd] = bev;
+  serv->broadcast("foobar");
 }
 
 void
@@ -75,11 +123,8 @@ conn_writecb(struct bufferevent *bev, void *user_data)
   struct evbuffer *output = bufferevent_get_output(bev);
   if (evbuffer_get_length(output) == 0)
   {
-    LOG_INFO << "flushed answer";
-    bufferevent_free(bev);
-  }
-  else
-  {
+    LOG_INFO << "writecb";
+    
     bufferevent_enable(bev, EV_READ);
     bufferevent_disable(bev, EV_WRITE);
   }
@@ -88,9 +133,11 @@ conn_writecb(struct bufferevent *bev, void *user_data)
 void
 conn_eventcb(struct bufferevent *bev, short events, void *user_data)
 {
-  LOG_INFO << events;
+  TcpServer *serv = static_cast<TcpServer *>(user_data);
 
-      if (events & BEV_EVENT_EOF)
+  LOG_INFO << "event: " << events;
+
+  if (events & BEV_EVENT_EOF)
   {
     printf("Connection closed.\n");
   }
@@ -101,7 +148,11 @@ conn_eventcb(struct bufferevent *bev, short events, void *user_data)
   }
   /* None of the other events can happen here, since we haven't enabled
 	 * timeouts */
-  bufferevent_free(bev);
+  evutil_socket_t fd = bufferevent_getfd(bev);
+  serv->bevMap.erase(fd);
+  LOG_DEBUG << "buffer event map: " << (int)serv->bevMap.size();
+  
+  bufferevent_free(bev); //close
 }
 
 void 
@@ -111,18 +162,9 @@ conn_readcb(struct bufferevent *bev, void *ctx){
   struct iovec iovec;
   evbuffer_peek(evbuf, len, NULL, &iovec, 1);
 
-  //LOG_INFO << "read cb:" << len << "," << (char *)iovec.iov_base;
-  LOG_INFO << "read cb:" << len << "," << evbuffer_pullup(evbuf, len);
+  std::string str((char *)iovec.iov_base, len);
+  LOG_INFO << "read cb:" << len << "," << str;
+  //LOG_INFO << "read cb:" << len << "," << evbuffer_pullup(evbuf, len);
   //fwrite(evbuffer_pullup(evbuf, len), len, 1, stdout);
   evbuffer_drain(evbuf, len);
-
-  if (len == 0)
-  { 
-    bufferevent_free(bev);
-  }
-
-  bufferevent_enable(bev, EV_WRITE);
-  bufferevent_disable(bev, EV_READ);
-
-  bufferevent_write(bev, "foobar", strlen("foobar"));
 }

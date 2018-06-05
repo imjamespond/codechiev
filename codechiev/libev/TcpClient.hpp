@@ -23,11 +23,11 @@ class TcpClient : public boost::noncopyable
     ~TcpClient();
 
     void connect();
+    void write(const char *);
 
   public:
-
-  private:
     struct event_base *base;
+    struct bufferevent *bev;
 
     struct sockaddr_storage connect_to_addr;
     int connect_to_addrlen;
