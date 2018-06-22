@@ -25,6 +25,7 @@ class TcpServer : public boost::noncopyable
     ~TcpServer();
 
     void start();
+    void stop();
     void write(int fd, const char*);
     void broadcast(const char*);
 

@@ -21,6 +21,10 @@
     "mutex": "cpp",
     "complex": "cpp",
     "scoped_allocator": "cpp",
-    "fstream": "cpp"
+    "fstream": "cpp",
+    "hash_map": "cpp",
+    "hash_set": "cpp",
+    "array": "cpp",
+    "string.h": "c"
   }
 }

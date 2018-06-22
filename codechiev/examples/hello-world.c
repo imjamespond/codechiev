@@ -113,6 +113,9 @@ conn_writecb(struct bufferevent *bev, void *user_data)
 		printf("flushed answer\n");
 		bufferevent_free(bev);
 	}
+
+	struct event_base *base = user_data;
+	event_base_loopbreak(base);
 }
 
 static void
