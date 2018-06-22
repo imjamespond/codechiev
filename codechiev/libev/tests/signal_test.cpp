@@ -22,7 +22,7 @@ signal_cb(evutil_socket_t fd, short event, void *arg)
 
 int main(int argc, const char * argv[]) {
 
-    Signal signal(&signal_cb);
+    Signal signal(&signal_cb, NULL);
     signal.start();
 
     return 0;

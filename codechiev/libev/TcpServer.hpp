@@ -21,6 +21,7 @@ namespace libev
 class TcpServer : public boost::noncopyable
 {
   public:
+    explicit TcpServer();
     explicit TcpServer(int);
     ~TcpServer();
 

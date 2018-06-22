@@ -17,15 +17,15 @@ struct Signal
     typedef struct event_base event_base_struct;
 
 //  typedef void (*event_callback_fn)(evutil_socket_t, short, void *)
-    explicit Signal(event_base_struct*, event_callback_fn);
-    explicit Signal(event_callback_fn);
+    explicit Signal(event_base_struct *, event_callback_fn, void *);
+    explicit Signal(event_callback_fn, void *);
     ~Signal();
 
     void start();
     int stop();
 
     event_base_struct *base;
-    event_struct *signal;
+    event_struct *event;
 };
 
 } // namespace libev

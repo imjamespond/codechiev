@@ -1,24 +1,27 @@
-#include <stdio.h>
 
-#include <base/Logger.hpp>
-#include <libev/Timer.hpp>
-#include <libev/TcpServer.hpp> 
+#include <libev/TcpServer.hpp>
+#include <libev/Signal.hpp>
 
-using namespace codechiev::libev;
+static void signal_cb(evutil_socket_t, short, void *);
 
-static void print(evutil_socket_t fd, short flags, void *data)
+int main(int argc, char **argv)
 {
-    LOG_INFO << "";
-    TcpServer *server = reinterpret_cast<TcpServer *>(data);
-    server->stop();
-}
 
-int main(int argc, const char * argv[]) {
-    
-    TcpServer server(12345l);
-    Timer timer(server.base, &print, EV_PERSIST, &server);
-    timer.timeout(2);
+    codechiev::libev::TcpServer server(12345);
+    codechiev::libev::Signal signal(server.base, &signal_cb, server.base);
     server.start();
 
     return 0;
+}
+
+
+static void
+signal_cb(evutil_socket_t sig, short events, void *user_data)
+{
+    struct event_base *base = reinterpret_cast<struct event_base *>(user_data);
+    struct timeval delay = {2, 0};
+
+    printf("Caught an interrupt signal; exiting cleanly in two seconds.\n");
+
+    event_base_loopexit(base, &delay);
 }

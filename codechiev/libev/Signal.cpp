@@ -2,27 +2,29 @@
 
 using namespace codechiev::libev;
 
-Signal::Signal(event_base_struct *base, event_callback_fn cb):
+Signal::Signal(event_base_struct *base, event_callback_fn cb, void* data):
 base(base)
 {
+  /* Initalize one event */
+  event = evsignal_new(base, SIGINT, cb, data ? data : event_self_cbarg());
 
+  event_add(event, NULL);
 }
 
-Signal::Signal(event_callback_fn cb)
+Signal::Signal(event_callback_fn cb, void *data)
 {
   /* Initalize the event library */
   base = event_base_new();
 
   /* Initalize one event */
-  signal = evsignal_new(base, SIGINT, cb, event_self_cbarg());
+  event = evsignal_new(base, SIGINT, cb, data ? data : event_self_cbarg());
 
-  event_add(signal, NULL);
+  event_add(event, NULL);
 }
 
 Signal::~Signal()
 {
-  event_free(signal);
-  event_base_free(base);
+  event_free(event);
 }
 
 void Signal::start()

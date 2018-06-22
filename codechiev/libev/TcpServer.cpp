@@ -1,6 +1,7 @@
 #include "TcpServer.hpp"
 #include "TcpServerHelper.hpp"
 
+#include <base/Error.hpp>
 #include <base/Logger.hpp>
 
 using namespace codechiev::libev;
@@ -87,4 +88,9 @@ TcpServer::broadcast(const char * msg)
     msg && bufferevent_write(bev, msg, strlen(msg));
     bufferevent_unlock(bev);
   }
+}
+
+TcpServer::TcpServer(): addr(12345)
+{
+  throw Error("default constructor is unavailible.");
 }
