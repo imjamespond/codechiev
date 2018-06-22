@@ -10,9 +10,9 @@ static void print(evutil_socket_t fd, short flags, void *data)
     LOG_INFO << "";
 
     static int count = 3;
-    struct event_base *base = reinterpret_cast<struct event_base *>(data);
+    Timer *timer = reinterpret_cast<Timer *>(data);
     struct timeval delay = {2, 0};
-    base && --count == 0 && event_base_loopexit(base, &delay);
+    timer && --count == 0 && timer->stop();
 }
 
 int main(int argc, const char * argv[]) {

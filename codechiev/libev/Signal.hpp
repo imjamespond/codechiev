@@ -22,7 +22,7 @@ struct Signal
     ~Signal();
 
     void start();
-    int stop();
+    void stop();
 
     event_base_struct *base;
     event_struct *event;

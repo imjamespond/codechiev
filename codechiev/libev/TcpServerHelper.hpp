@@ -103,7 +103,7 @@ void conn_readcb(struct bufferevent *bev, void *ctx)
   evbuffer_peek(evbuf, len, NULL, &iovec, 1);
 
   std::string str((char *)iovec.iov_base, len);
-  LOG_INFO << "read cb:" << len << "," << str;
+  LOG_INFO << "read:" << len << "," << str;
   //LOG_INFO << "read cb:" << len << "," << evbuffer_pullup(evbuf, len);
   //fwrite(evbuffer_pullup(evbuf, len), len, 1, stdout);
   evbuffer_drain(evbuf, len);

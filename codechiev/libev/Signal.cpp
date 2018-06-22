@@ -3,7 +3,7 @@
 using namespace codechiev::libev;
 
 Signal::Signal(event_base_struct *base, event_callback_fn cb, void* data):
-base(base)
+base(NULL)
 {
   /* Initalize one event */
   event = evsignal_new(base, SIGINT, cb, data ? data : event_self_cbarg());
@@ -25,14 +25,16 @@ Signal::Signal(event_callback_fn cb, void *data)
 Signal::~Signal()
 {
   event_free(event);
+  if(base) 
+    event_base_free(base);
 }
 
 void Signal::start()
 {
-  event_base_dispatch(base);
+  base && event_base_dispatch(base);
 }
 
-int Signal::stop()
+void Signal::stop()
 {
-  return event_base_loopbreak(base);
+  base && event_base_loopbreak(base);
 }
