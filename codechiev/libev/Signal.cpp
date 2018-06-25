@@ -34,7 +34,10 @@ void Signal::start()
   base && event_base_dispatch(base);
 }
 
-void Signal::stop()
+int Signal::stop()
 {
-  base && event_base_loopbreak(base);
+  if (base)
+    return event_base_loopexit(base, NULL);
+  else
+    return 0;
 }

@@ -8,6 +8,17 @@ Mutex::Mutex()
     ::pthread_mutex_init(&mutex_, NULL);
 }
 
+Mutex::Mutex(bool recursive)
+{
+    if(recursive)
+    {
+        ::pthread_mutexattr_init(&attr_);
+        ::pthread_mutexattr_settype(&attr_, PTHREAD_MUTEX_RECURSIVE);
+    }
+
+    ::pthread_mutex_init(&mutex_, &attr_);
+}
+
 Mutex::~Mutex()
 {
     ::pthread_mutex_destroy(&mutex_);

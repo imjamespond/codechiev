@@ -2,6 +2,7 @@
 #define TcpServer_hpp
 
 #include <boost/noncopyable.hpp>
+#include <boost/function.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <event2/bufferevent.h>
@@ -26,9 +27,11 @@ class TcpServer : public boost::noncopyable
     ~TcpServer();
 
     void start();
-    void stop();
-    void write(int fd, const char*);
-    void broadcast(const char*);
+    int stop();
+
+    typedef struct bufferevent bufferevent_struct;
+    void write(bufferevent_struct *, const char *);
+    void broadcast(const char *);
 
   public:
     struct event_base *base;
@@ -36,8 +39,17 @@ class TcpServer : public boost::noncopyable
 
     SockAddress addr;
 
-    typedef boost::unordered_map<int, bufferevent *> BuffereventMap;
+    typedef boost::unordered_map<int, bufferevent_struct *> BuffereventMap;
     BuffereventMap bevMap;
+
+    typedef boost::function<int(bufferevent_struct *)> on_connect_fn;
+    typedef boost::function<int(bufferevent_struct *, void *, int)> on_read_fn;
+    typedef boost::function<int(bufferevent_struct *)> on_write_fn;
+    typedef boost::function<int(bufferevent_struct *)> on_close_fn;
+    on_connect_fn onConnect;
+    on_read_fn onRead;
+    on_write_fn onWrite;
+    on_close_fn onClose;
 };
 
 } // namespace libev

@@ -38,5 +38,8 @@ void Timer::start()
 
 int Timer::stop()
 {
-  return base && event_base_loopexit(base, NULL);
+  if(base)
+    return event_base_loopexit(base, NULL);
+  else
+    return 0;
 }

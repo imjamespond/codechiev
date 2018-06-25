@@ -11,15 +11,17 @@ namespace codechiev {
         {
         public:
             Mutex();
+            Mutex(bool);
             ~Mutex();
             
             void lock();
             void unlock();
 
-            inline pthread_mutex_t *_pthread_mutex();
+            inline pthread_mutex_t *get_pthread_mutex();
 
-          public:
+          private:
             pthread_mutex_t mutex_;
+            pthread_mutexattr_t attr_;
         };
         
         class MutexGuard : public boost::noncopyable
@@ -32,7 +34,7 @@ namespace codechiev {
             Mutex* mutex_;
         };
 
-        inline pthread_mutex_t *Mutex::_pthread_mutex()
+        inline pthread_mutex_t *Mutex::get_pthread_mutex()
         {
             return &mutex_;
         }

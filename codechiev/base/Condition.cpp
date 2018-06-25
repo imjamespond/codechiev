@@ -17,7 +17,7 @@ void
 Condition::wait(Mutex &mutex)
 {
     //  blocks the calling thread until the specified condition is signalled. This routine should be called while mutex is locked, and it will !!!automatically release the mutex!!! while it waits. After signal is received and thread is awakened, mutex will be automatically locked for use by the thread. The programmer is then responsible for unlocking mutex when the thread is finished with it.
-    ::pthread_cond_wait(&cond_, mutex._pthread_mutex());
+    ::pthread_cond_wait(&cond_, mutex.get_pthread_mutex());
 }
 
 void
@@ -34,14 +34,9 @@ Condition::notifyall()
     ::pthread_cond_broadcast(&cond_);
 }
 
-CountLatch::CountLatch(int c) : count_(c)
-{
-}
-CountLatch::CountLatch() : count_(1)
-{
-}
-CountLatch::~CountLatch()
-{}
+CountLatch::CountLatch(int c) : count_(c){}
+CountLatch::CountLatch() : count_(1){}
+CountLatch::~CountLatch(){}
 
 int
 CountLatch::latch()

@@ -46,21 +46,17 @@ TcpServer::start()
   event_base_dispatch(base);
 }
 
-void TcpServer::stop()
+int TcpServer::stop()
 {
-  event_base_loopexit(base, NULL);
+  if (base)
+    return event_base_loopexit(base, NULL);
+  else
+    return 0;
 }
 
-void 
-TcpServer::write(int fd, const char * msg)
+void TcpServer::write(bufferevent_struct *bev,
+                      const char *msg)
 {
-  //TODO must lock buffer, lock bevMap
-  struct bufferevent *bev = bevMap[fd];
-  if(!bev)
-  {
-    LOG_DEBUG << "bufferevent is null";
-    return;
-  }
   bufferevent_lock(bev);
   bufferevent_enable(bev, EV_WRITE);
   bufferevent_disable(bev, EV_READ);
@@ -75,22 +71,18 @@ TcpServer::broadcast(const char * msg)
   BuffereventMap::iterator it;
   for (it = bevMap.begin(); it != bevMap.end(); ++it)
   {
-    struct bufferevent *bev = it->second;
+    bufferevent_struct *bev = it->second;
 
-    if (!bev)
+    if (bev)
     {
-      LOG_DEBUG << "bufferevent is null";
+      write(bev, msg);
       return;
     }
-    bufferevent_lock(bev);
-    bufferevent_enable(bev, EV_WRITE);
-    bufferevent_disable(bev, EV_READ);
-    msg && bufferevent_write(bev, msg, strlen(msg));
-    bufferevent_unlock(bev);
+    LOG_TRACE << "bufferevent is null";
   }
 }
 
-TcpServer::TcpServer(): addr(12345)
+TcpServer::TcpServer(): addr(0)
 {
   throw Error("default constructor is unavailible.");
 }
