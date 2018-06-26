@@ -6,7 +6,7 @@ Timer::Timer(event_base_struct *base, event_callback_fn timeout_cb, int flags, v
 base(NULL)
 {
   /* Initalize one event */
-  event_assign(&_timeout, base, -1, flags, timeout_cb, data ? data : this);
+  event_assign(&timeout_, base, -1, flags, timeout_cb, data ? data : this);
 }
 
 Timer::Timer(event_callback_fn timeout_cb, int flags, void* data)
@@ -15,7 +15,7 @@ Timer::Timer(event_callback_fn timeout_cb, int flags, void* data)
   base = event_base_new();
 
   /* Initalize one event */
-  event_assign(&_timeout, base, -1, flags, timeout_cb, data ? data : this);
+  event_assign(&timeout_, base, -1, flags, timeout_cb, data ? data : this);
 }
 
 Timer::~Timer()
@@ -28,7 +28,7 @@ void
 Timer::timeout(int sec){
   evutil_timerclear(&tv);
   tv.tv_sec = sec;
-  event_add(&_timeout, &tv);
+  event_add(&timeout_, &tv);
 }
 
 void Timer::start()

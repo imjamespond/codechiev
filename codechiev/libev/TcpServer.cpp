@@ -55,31 +55,14 @@ int TcpServer::stop()
 }
 
 void TcpServer::write(bufferevent_struct *bev,
-                      const char *msg)
+                      const char *msg,
+                      size_t size)
 {
   bufferevent_lock(bev);
   bufferevent_enable(bev, EV_WRITE);
   bufferevent_disable(bev, EV_READ);
-  msg && bufferevent_write(bev, msg, strlen(msg));
+  msg && bufferevent_write(bev, msg, size);
   bufferevent_unlock(bev);
-}
-
-void 
-TcpServer::broadcast(const char * msg)
-{
-  //TODO must lock buffer, lock bevMap
-  BuffereventMap::iterator it;
-  for (it = bevMap.begin(); it != bevMap.end(); ++it)
-  {
-    bufferevent_struct *bev = it->second;
-
-    if (bev)
-    {
-      write(bev, msg);
-      return;
-    }
-    LOG_TRACE << "bufferevent is null";
-  }
 }
 
 TcpServer::TcpServer(): addr(0)

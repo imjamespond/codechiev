@@ -28,7 +28,7 @@ struct Timer
     void start();
     int stop();
 
-    event_struct _timeout;
+    event_struct timeout_;
     event_base_struct *base;
 
     struct timeval tv;

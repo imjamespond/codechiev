@@ -76,14 +76,11 @@ void conn_eventcb(struct bufferevent *bev, short events, void *user_data)
 {
   TcpServer *server = static_cast<TcpServer *>(user_data);
 
-  LOG_TRACE << "event: " << events;
+  bufferevent_lock(bev);
 
   if (events & BEV_EVENT_EOF)
   {
-    bufferevent_lock(bev);
     server->onClose && server->onClose(bev);
-    bufferevent_free(bev); //close
-    bufferevent_unlock(bev);
   }
   else if (events & BEV_EVENT_ERROR)
   {
@@ -92,23 +89,36 @@ void conn_eventcb(struct bufferevent *bev, short events, void *user_data)
   }
   /* None of the other events can happen here, since we haven't enabled
 	 * timeouts */
+
+  bufferevent_free(bev);
+  bufferevent_unlock(bev);
 }
 
-void conn_readcb(struct bufferevent *bev, void *ctx)
+void conn_readcb(struct bufferevent *bufev, void *ctx)
 {
   TcpServer *server = static_cast<TcpServer *>(ctx);
 
-  bufferevent_lock(bev);
-  struct evbuffer *evbuf = bufferevent_get_input(bev);
-  int len = evbuffer_get_length(evbuf);
-  struct iovec iovec;
-  evbuffer_peek(evbuf, len, NULL, &iovec, 1);
+  bufferevent_lock(bufev);
+  // struct evbuffer *evbuf = bufferevent_get_input(bufev);
+  // int len = evbuffer_get_length(evbuf);
+  // struct iovec iovec; //data will be in iovec.iov_base
+  // evbuffer_peek(evbuf, len, NULL, &iovec, 1);
 
   // LOG_TRACE << "read cb:" << len << "," << evbuffer_pullup(evbuf, len);
   //fwrite(evbuffer_pullup(evbuf, len), len, 1, stdout);
 
-  server->onRead && server->onRead(bev, iovec.iov_base, len);
-  evbuffer_drain(evbuf, len); //Remove a specified number of bytes data from the beginning of an evbuffer
+  size_t len(0);
+  char data[8];
+  while(1) {
+    len = bufferevent_read	(bufev, data, 8);
+    if(0 == len) {
+      break;
+    }else{
+      server->onRead && server->onRead(bufev, data, len);
+    }
+  }
 
-  bufferevent_unlock(bev);
+  // evbuffer_drain(evbuf, len); //Remove a specified number of bytes data from the beginning of an evbuffer
+
+  bufferevent_unlock(bufev);
 }

@@ -39,5 +39,6 @@
     "ctime": "cpp",
     "cwchar": "cpp",
     "cwctype": "cpp"
-  }
+  },
+  "editor.tabSize": 2
 }

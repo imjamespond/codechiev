@@ -3,7 +3,6 @@
 
 #include <boost/noncopyable.hpp>
 #include <boost/function.hpp>
-#include <boost/unordered_map.hpp>
 
 #include <event2/bufferevent.h>
 #include <event2/buffer.h>
@@ -30,17 +29,13 @@ class TcpServer : public boost::noncopyable
     int stop();
 
     typedef struct bufferevent bufferevent_struct;
-    void write(bufferevent_struct *, const char *);
-    void broadcast(const char *);
+    void write(bufferevent_struct *, const char *, size_t);
 
   public:
     struct event_base *base;
     struct evconnlistener *listener;
 
     SockAddress addr;
-
-    typedef boost::unordered_map<int, bufferevent_struct *> BuffereventMap;
-    BuffereventMap bevMap;
 
     typedef boost::function<int(bufferevent_struct *)> on_connect_fn;
     typedef boost::function<int(bufferevent_struct *, void *, int)> on_read_fn;
