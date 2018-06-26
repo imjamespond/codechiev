@@ -48,10 +48,7 @@ TcpServer::start()
 
 int TcpServer::stop()
 {
-  if (base)
-    return event_base_loopexit(base, NULL);
-  else
-    return 0;
+  event_base_loopexit(base, NULL);
 }
 
 void TcpServer::write(bufferevent_struct *bev,

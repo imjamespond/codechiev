@@ -31,6 +31,22 @@ TcpClient::~TcpClient()
 }
 
 void
+TcpClient::start(int flags)
+{
+  if(flags){
+    event_base_loop(base, flags);
+  }else{
+    event_base_dispatch(base);
+  }
+}
+
+int 
+TcpClient::stop()
+{
+  event_base_loopexit(base, NULL);
+}
+
+void
 TcpClient::connect()
 {
   struct bufferevent *buffev;
@@ -47,14 +63,14 @@ TcpClient::connect()
 
   bufferevent_setcb(buffev, readcb, writecb, eventcb, this);
 
-  event_base_dispatch(base);
 }
 
-void TcpClient::write(bufferevent_struct *bev, const char *msg)
+void TcpClient::write(bufferevent_struct *bev,
+                      const char *msg,
+                      size_t size)
 {
   bufferevent_enable(bev, EV_WRITE);
   bufferevent_disable(bev, EV_READ);
-
-  msg && bufferevent_write(bev, msg, strlen(msg));
+  msg && bufferevent_write(bev, msg, size);
 }
 

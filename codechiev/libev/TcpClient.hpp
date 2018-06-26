@@ -23,11 +23,12 @@ class TcpClient : public boost::noncopyable
     explicit TcpClient(const char*);
     ~TcpClient();
 
-    void connect();
+    void start(int flags = 0);
     int stop();
 
     typedef struct bufferevent bufferevent_struct;
-    void write(bufferevent_struct *, const char *);
+    void connect();
+    void write(bufferevent_struct *, const char *, size_t);
 
     typedef boost::function<int(bufferevent_struct *)> on_connect_fn;
     typedef boost::function<int(bufferevent_struct *, void *, int)> on_read_fn;
