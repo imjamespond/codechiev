@@ -90,6 +90,12 @@ int main(int argc, char **argv)
 {
 
     TcpServerExt server;
+
+    int features = event_base_get_features(server.base);
+    LOG_INFO<<"support edge-trigger: "<<((features&EV_FEATURE_ET) ? "yes" : "no")
+        <<", support one event: "<<((features&EV_FEATURE_ET) ? "yes" : "no")
+        <<", support EV_CLOSED: "<<((features&EV_FEATURE_ET) ? "yes" : "no");
+
     Signal signal(server.base, &signal_cb, &server);
 
     server.onConnect = boost::bind(&onConnect, &server, _1);

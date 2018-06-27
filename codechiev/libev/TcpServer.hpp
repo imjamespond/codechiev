@@ -34,6 +34,7 @@ class TcpServer : public boost::noncopyable
 
   public:
     struct event_base *base;
+    struct event *listenev;
     struct evconnlistener *listener;
 
     sock_address addr;

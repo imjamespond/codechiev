@@ -7,7 +7,7 @@
 using namespace codechiev::libev;
 using namespace codechiev::base;
 
-TcpServer::TcpServer(int port) : base(NULL), listener(NULL)
+TcpServer::TcpServer(int port) : base(NULL), listenev(NULL), listener(NULL)
 {
   set_sock_address(port, addr);
 
@@ -25,6 +25,9 @@ TcpServer::~TcpServer()
 {
   if(listener){
     evconnlistener_free(listener);
+  }
+  if(listenev){
+    event_free(listenev);
   }
   event_base_free(base);
 }
@@ -68,21 +71,19 @@ TcpServer::bind()
   {
     perror("listen error"); 
     exit(EXIT_FAILURE);
-  }
-  struct event ev;
-  event_assign(&ev, 
-               base, 
-               sockfd, 
-               EV_READ | EV_PERSIST, 
-               accept_cb, 
-               this);
-  event_add(&ev, NULL);
+  } 
+  listenev = event_new(base, 
+                        sockfd, 
+                        EV_READ | EV_PERSIST, 
+                        accept_cb, 
+                        this);
+  event_add(listenev, NULL);
   event_base_dispatch(base);
 }
 
 int 
 TcpServer::stop()
-{
+{ 
   event_base_loopexit(base, NULL);
 }
 
