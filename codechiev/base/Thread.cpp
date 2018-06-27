@@ -26,7 +26,7 @@ start_routine(void *arg)
     return NULL;
 }
 
-__thread Thread* gThreadData(NULL);
+__thread Thread* this_thread(NULL);
 
 Thread::Thread(const std::string& name, const thread_func_t& func):
 name_(name), func_(func)
@@ -42,8 +42,8 @@ Thread::~Thread()
 void
 Thread::run()
 {
-    assert(!gThreadData);
-    gThreadData = this;
+    assert(!this_thread);
+    this_thread = this;
 
     if(func_) func_();
 
@@ -66,19 +66,28 @@ Thread::start()
     //start_routine: the C routine that the thread will execute once it is created.
     //arg: A single argument that may be passed to start_routine. It must be passed by reference as a pointer cast of type void. !!!!NULL may be used if no argument is to be passed!!!!.
     int s;
-    s = ::pthread_create(
-        &thread_, NULL,
-        &start_routine, this);
-    if(s != 0) handle_error_en(s, "pthread_create");
+    s = ::pthread_create( &thread_, 
+                          NULL,
+                          &start_routine, 
+                          this);
+    if(s != 0)
+    {
+        handle_error_en(s, "pthread_create");
+    } 
 }
 
 void
 Thread::join()
 {
-    //The programmer is able to !!!obtain the target thread's termination return status!!! if it was !!!!specified in the target thread's call to pthread_exit().
-    int s;
-    s = ::pthread_join(thread_, NULL);
-    if(s != 0) handle_error_en(s, "pthread_join");
+    //The programmer is able to 
+    // obtain the target thread's termination return status
+    // if it was !!!!specified in the target thread's call to pthread_exit().
+    int s = ::pthread_join(thread_, NULL);
+    if(s != 0) 
+    {
+        handle_error_en(s, "pthread_join");
+    }
+
 }
 
 void
@@ -100,9 +109,9 @@ Thread::cancel()
 std::string
 Thread::ThreadName()
 {
-    if(gThreadData)
+    if(this_thread)
     {
-        return gThreadData->getThreadName();
+        return this_thread->getThreadName();
     }
 
     return "thread-???";

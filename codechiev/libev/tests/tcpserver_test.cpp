@@ -106,7 +106,7 @@ int main(int argc, char **argv)
                 read_stdin, &server);
     event_add(&inputev, NULL);
 
-    server.start();
+    server.bind();
 
     return 0;
 }

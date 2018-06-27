@@ -11,7 +11,7 @@
 #include <event2/event.h>
 #include <event2/thread.h>
 
-#include <libev/SockAddress.hpp>
+#include <libev/SockAddress.h>
 
 namespace codechiev
 {
@@ -26,6 +26,7 @@ class TcpServer : public boost::noncopyable
     ~TcpServer();
 
     void start();
+    void bind();
     int stop();
 
     typedef struct bufferevent bufferevent_struct;
@@ -35,7 +36,7 @@ class TcpServer : public boost::noncopyable
     struct event_base *base;
     struct evconnlistener *listener;
 
-    SockAddress addr;
+    sock_address addr;
 
     typedef boost::function<int(bufferevent_struct *)> on_connect_fn;
     typedef boost::function<int(bufferevent_struct *, void *, int)> on_read_fn;

@@ -6,9 +6,9 @@
 #ifndef _WIN32
     /* For sockaddr_in */
     #include <netinet/in.h>
-#ifdef _XOPEN_SOURCE_EXTENDED
-    #include <arpa/inet.h>
-#endif
+    #ifdef _XOPEN_SOURCE_EXTENDED
+        #include <arpa/inet.h>
+    #endif
     /* For socket functions */
     #include <sys/socket.h>
 #endif
@@ -21,13 +21,9 @@ namespace codechiev
 namespace libev
 {
 
-struct SockAddress
-{ 
-    explicit SockAddress(int );
-    ~SockAddress();
+typedef struct sockaddr_in sock_address;
 
-    struct sockaddr_in sin;
-};
+void set_sock_address(int, sock_address &);
 
 } // namespace libev
 } // namespace codechiev

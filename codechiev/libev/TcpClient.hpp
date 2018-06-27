@@ -10,8 +10,6 @@
 #include <event2/util.h>
 #include <event2/event.h>
 
-#include <libev/SockAddress.hpp>
-
 namespace codechiev
 {
 namespace libev
@@ -23,7 +21,7 @@ class TcpClient : public boost::noncopyable
     explicit TcpClient(const char*);
     ~TcpClient();
 
-    void start(int flags = 0);
+    void start(int = 0);
     int stop();
 
     typedef struct bufferevent bufferevent_struct;
@@ -43,8 +41,7 @@ class TcpClient : public boost::noncopyable
     struct event_base *base;
 
     struct sockaddr_storage connect_to_addr;
-    int connect_to_addrlen;
-    //SockAddress addr;
+    int connect_to_addrlen; 
 };
 
 } // namespace libev
