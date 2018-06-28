@@ -43,14 +43,12 @@ CountLatch::latch()
 {
     MutexGuard lock(&mutex_);
 
-    int count(count_);
-
     while (count_ > 0)
     {
         cond_.wait(mutex_);//release mutex and block here
     }
 
-    return count;
+    return count_;
 }
 int CountLatch::unlatch()
 {
@@ -62,7 +60,6 @@ CountLatch::reset(int val)
     MutexGuard lock(&mutex_);
 
     count_ = val;
-    cond_.notifyall();
 }
 int
 CountLatch::reduce(int val)

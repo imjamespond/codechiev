@@ -20,10 +20,8 @@ long Countdown = 99999999;
 
 void print( )
 {
-    LOG_INFO << "thread started";
-    MainThreadLatch.reduce(1);
-    Time::SleepMillis(100l);
-    LOG_INFO << ThreadsLatch.latch(); 
+    LOG_INFO << MainThreadLatch.reduce(1);
+    ThreadsLatch.latch(); 
 
     int count = 0;
     while(true){
@@ -55,10 +53,9 @@ int main(int argc, const char * argv[]) {
         threads[i]->start();
     }
 
-    LOG_DEBUG << "main thread latch...";
     MainThreadLatch.latch();
-    LOG_DEBUG << "all dummy threads started...";
     ThreadsLatch.unlatch();
+    LOG_DEBUG << "all threads started...";
 
     //main thread will wait until all sub thread joined(end)
     for(int i=0; i<threads.size(); i++)
