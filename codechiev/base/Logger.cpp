@@ -6,42 +6,43 @@
 
 using namespace codechiev::base;
 
-unsigned int gDetail(0);
+Logger::Level gLoggerLevel;
+unsigned int gLoggerDetail(0);
 enum Detail
 {
     DetailThread=1,
     DetailFile=2,
     DetailFunc=4,
 };
-Logger::Level init_logger_level()
+int __init_logger_fn__()
 {
-
     #ifdef LoggerThread
-        gDetail|=DetailThread;
+        gLoggerDetail|=DetailThread;
     #endif // LoggerThread
     #ifdef LoggerFile
-        gDetail|=DetailFile;
+        gLoggerDetail|=DetailFile;
     #endif // LoggerFile
     #ifdef LoggerFunc
-        gDetail|=DetailFunc;
+        gLoggerDetail|=DetailFunc;
     #endif // LoggerFunc
 
     //if(::getenv("LoggerDebug"))
     #ifdef LoggerLevel
-        return Logger::LoggerLevel;
+        gLoggerLevel = Logger::LoggerLevel;
+    #else
+        gLoggerLevel = Logger::Info;
     #endif // LoggerLevel
-
-    return Logger::Info;
+    return 0;
 }
-Logger::Level gLevel = init_logger_level();
+int __init_logger__ = __init_logger_fn__();
 
-void setLoggerLevel(Logger::Level lv)
+void SetLoggerLevel(Logger::Level lv)
 {
-    gLevel=lv;
+    gLoggerLevel=lv;
 }
-void setLoggerDetail(unsigned int detail)
+void SetLoggerDetail(unsigned int detail)
 {
-    gDetail=detail;
+    gLoggerDetail=detail;
 }
 
 
@@ -54,25 +55,35 @@ const char *kLoggerLevels[Logger::LevelSize]=
     "error"
 };
 
-Logger::Logger(const char* file, const char* func, int line, Level lv):
-level_(lv)
+Logger::Logger(const char* file, 
+               const char* func, 
+               int line, 
+               Level lv, 
+               int carriage,
+               int detail
+):level_(lv), carriage_(carriage), detail_(detail)
 {
+    if (carriage_)
+    {
+        this->operator<<("\r");
+    }
+
     this->operator<<(kLoggerLevels[lv]);
 
     std::string time = Time::GetSimpleString();
     time.at(time.size()-1)='\0';
     this->operator<<(": ")<<time;
 
-    if(gDetail&DetailFile)
+    if(detail&DetailFile)
     {
         std::string str(file);
         std::size_t found = str.find_last_of("/\\");
         this->operator<<(",file:")<<str.substr(found+1)<<",line:"<<line;
     }
 
-    if(gDetail&DetailFunc)
+    if(detail&DetailFunc)
         this->operator<<(",func:")<<func;
-    if(gDetail&DetailThread)
+    if(detail&DetailThread)
         this->operator<<(",thread:")<<Thread::ThreadName()<<",tid:"<<Thread::ThreadId();
 
     this->operator<<(",===");
@@ -80,9 +91,14 @@ level_(lv)
 
 Logger::~Logger()
 {
-    this->operator<<("===\n");
-
-    fwrite(buffer_.str(),1,buffer_.readable_bytes(),stdout);
+    if (!carriage_)
+    {
+        this->operator<<("===\n");
+    }
+    
+    // fwrite(buffer_.str(), 1, buffer_.readable_bytes(), stdout);
+    // fprintf(stdout, buffer_.str());
+    printf(buffer_.str());
     fflush(stdout);
 }
 

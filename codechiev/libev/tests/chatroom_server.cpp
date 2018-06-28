@@ -14,17 +14,16 @@ using namespace codechiev::libev;
 static void signal_cb(evutil_socket_t, short, void *);
 
 
-class TcpServerExt : public TcpServer
+class Chatroom : public TcpServer
 {
     public:
-    TcpServerExt() : TcpServer(12345), total(0)
+    ChatRoomServer() : TcpServer(12345), total(0)
     { }
     
     void broadcast(const char *);
 
     typedef boost::unordered_map<int, bufferevent_struct *> BuffereventMap;
-    BuffereventMap bevMap;
-    int total;
+    BuffereventMap clients;
 };
 
 
@@ -34,8 +33,7 @@ int onAccept(TcpServer *serv, TcpServer::bufferevent_struct *bev)
     // serv->broadcast("foobar");
     // serv->write(bev, "welcome to visit");
     
-    TcpServerExt *servext = static_cast<TcpServerExt *>(serv);
-    // LOG_INFO_R << ++servext->total;
+    ChatRoomServer *servext = static_cast<ChatRoomServer *>(serv); 
     return 0;
 }
 
@@ -44,7 +42,7 @@ int onClose(TcpEndpoint *endpoint, TcpEndpoint::bufferevent_struct *bev)
     // evutil_socket_t fd = bufferevent_getfd(bev);
     // server->bevMap.erase(fd);
     // LOG_TRACE << "buffer event map: " << (int)server->bevMap.size();
-    TcpServerExt *servext = static_cast<TcpServerExt *>(endpoint);
+    ChatRoomServer *servext = static_cast<ChatRoomServer *>(endpoint);
     // LOG_INFO_R << --servext->total;
     return 0;
 }
@@ -69,17 +67,13 @@ void read_stdin(int fd, short flags, void *data)
 {
     char buffer[32];
     if ( keyboard::fgets (buffer , 32) != NULL )
-    {
-        // printf("fgets: %s\n",buffer);
+    { 
         if(0 == strcmp(buffer, "total\n"))
         {
-            TcpServerExt *server = reinterpret_cast<TcpServerExt *>(data);
+            ChatRoomServer *server = reinterpret_cast<ChatRoomServer *>(data);
             printf("display total connections: %d\n", server->total);
         }
-    }
-
-    // struct event *inputev = reinterpret_cast<struct event *>(data);
-    // event_del(inputev);
+    } 
 
     return;
 }
@@ -87,14 +81,7 @@ void read_stdin(int fd, short flags, void *data)
 int main(int argc, char **argv)
 {
 
-    TcpServerExt server;
-
-    int features = event_base_get_features(server.base);
-    LOG_INFO<<"support edge-trigger: "<<((features&EV_FEATURE_ET) ? "yes" : "no")
-        <<", support one event: "<<((features&EV_FEATURE_ET) ? "yes" : "no")
-        <<", support EV_CLOSED: "<<((features&EV_FEATURE_ET) ? "yes" : "no");
-
-    Signal signal(server.base, &signal_cb, &server);
+    ChatRoomServer server;
 
     server.onAccept = boost::bind(&onAccept, &server, _1);
     server.onClose = boost::bind(&onClose, &server, _1);
@@ -128,7 +115,7 @@ signal_cb(evutil_socket_t sig, short events, void *user_data)
 
 
 void 
-TcpServerExt::broadcast(const char * msg)
+ChatRoomServer::broadcast(const char * msg)
 {
   //TODO must lock buffer, lock bevMap
   BuffereventMap::iterator it;

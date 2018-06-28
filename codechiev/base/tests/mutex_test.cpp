@@ -22,13 +22,13 @@ void print()
         MutexGuard lock(&mutex);
         MutexGuard lock_(&mutex_);
         Time::SleepMillis(1000l);
-        LOG_INFO << "lock";
+        LOG_INFO_R << "lock";
     }
     {
         MutexGuard lock(&mutex__);
         MutexGuard lock_(&mutex__);
         Time::SleepMillis(1000l);
-        LOG_INFO << "recursive lock";
+        LOG_INFO_R << "recursive lock";
     }
 }
 

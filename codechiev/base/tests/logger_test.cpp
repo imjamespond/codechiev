@@ -21,5 +21,14 @@ int main(int argc, const char * argv[]) {
     LOG_TRACE << str;
     LOG_DEBUG << str;
 
+    SetLoggerDetail(0);
+    int n;
+    for (n = 0; n < 3; n++)
+    {
+        LOG_INFO_R<<n;
+        sleep(1);
+    }
+    LOG_INFO_R<<"\n";
+
     return 0;
 }

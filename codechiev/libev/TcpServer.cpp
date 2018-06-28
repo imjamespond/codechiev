@@ -24,13 +24,13 @@ TcpEndpoint(), listenev(NULL), listener(NULL)
 
 TcpServer::~TcpServer()
 {
+  LOG_DEBUG;
   if(listener){
     evconnlistener_free(listener);
   }
   if(listenev){
     event_free(listenev);
-  }
-  event_base_free(base);
+  } 
 }
 
 void

@@ -21,6 +21,12 @@ void TcpEndpoint::write(bufferevent_struct *bev,
   bufferevent_unlock(bev);
 }
 
+TcpEndpoint::~TcpEndpoint()
+{ 
+  LOG_DEBUG;
+  event_base_free(base);
+}
+
 void 
 codechiev::libev::eventcb(struct bufferevent *bev, short events, void *user_data)
 {
@@ -39,10 +45,10 @@ codechiev::libev::eventcb(struct bufferevent *bev, short events, void *user_data
   }  
   else if (events & BEV_EVENT_CONNECTED)
   {
-    endpoint->onConnect && endpoint->onConnect(bev);
-
     bufferevent_enable(bev, EV_READ);
     bufferevent_disable(bev, EV_WRITE);
+
+    endpoint->onConnect && endpoint->onConnect(bev);
   }
   else
   {
@@ -67,9 +73,9 @@ codechiev::libev::readcb(struct bufferevent *bufev, void *ctx)
   //fwrite(evbuffer_pullup(evbuf, len), len, 1, stdout);
 
   size_t len(0);
-  char data[8];
+  char data[128];
   while(1) {
-    len = bufferevent_read	(bufev, data, 8);
+    len = bufferevent_read	(bufev, data, 128);
     if(0 == len) {
       break;
     }else{

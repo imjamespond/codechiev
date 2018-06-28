@@ -22,6 +22,7 @@ class TcpEndpoint : public boost::noncopyable
 {
   public:
     explicit TcpEndpoint();
+    virtual ~TcpEndpoint();
 
     typedef struct bufferevent bufferevent_struct;
     void write(bufferevent_struct *, const char *, size_t);
