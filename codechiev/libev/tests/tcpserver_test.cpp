@@ -28,7 +28,7 @@ class TcpServerExt : public TcpServer
 };
 
 
-int onConnect(TcpServer *serv, TcpServer::bufferevent_struct *bev)
+int onAccept(TcpServer *serv, TcpServer::bufferevent_struct *bev)
 {
     // serv->bevMap[fd] = bev;
     // serv->broadcast("foobar");
@@ -40,27 +40,27 @@ int onConnect(TcpServer *serv, TcpServer::bufferevent_struct *bev)
     return 0;
 }
 
-int onClose(TcpServer *server, TcpServer::bufferevent_struct *bev)
+int onClose(TcpEndpoint *endpoint, TcpEndpoint::bufferevent_struct *bev)
 {
     // evutil_socket_t fd = bufferevent_getfd(bev);
     // server->bevMap.erase(fd);
     // LOG_TRACE << "buffer event map: " << (int)server->bevMap.size();
-    TcpServerExt *servext = static_cast<TcpServerExt *>(server);
+    TcpServerExt *servext = static_cast<TcpServerExt *>(endpoint);
     servext->total--;
     // LOG_INFO << "";
     return 0;
 }
 
-int onRead(TcpServer *server, TcpServer::bufferevent_struct *bev, void *data, int len)
+int onRead(TcpEndpoint *endpoint, TcpEndpoint::bufferevent_struct *bev, void *data, int len)
 {
     std::string msg((char *)data, len);
     LOG_INFO << "read:" << len << "," << msg; 
 
-    server->write(bev, msg.c_str(), len);//within recursive locks
+    endpoint->write(bev, msg.c_str(), len);//within recursive locks
     return 0;
 }
 
-int onWrite(TcpServer *server, TcpServer::bufferevent_struct *bev)
+int onWrite(TcpEndpoint *endpoint, TcpEndpoint::bufferevent_struct *bev)
 {
     LOG_INFO << "";
     return 0;
@@ -98,7 +98,7 @@ int main(int argc, char **argv)
 
     Signal signal(server.base, &signal_cb, &server);
 
-    server.onConnect = boost::bind(&onConnect, &server, _1);
+    server.onAccept = boost::bind(&onAccept, &server, _1);
     server.onClose = boost::bind(&onClose, &server, _1);
     server.onRead = boost::bind(&onRead, &server, _1, _2, _3);
     server.onWrite = boost::bind(&onWrite, &server, _1);

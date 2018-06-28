@@ -7,7 +7,8 @@
 using namespace codechiev::libev;
 using namespace codechiev::base;
 
-TcpServer::TcpServer(int port) : base(NULL), listenev(NULL), listener(NULL)
+TcpServer::TcpServer(int port) : 
+TcpEndpoint(), listenev(NULL), listener(NULL)
 {
   set_sock_address(port, addr);
 
@@ -85,18 +86,6 @@ int
 TcpServer::stop()
 { 
   event_base_loopexit(base, NULL);
-}
-
-
-void TcpServer::write(bufferevent_struct *bev,
-                      const char *msg,
-                      size_t size)
-{
-  bufferevent_lock(bev);
-  bufferevent_enable(bev, EV_WRITE);
-  bufferevent_disable(bev, EV_READ);
-  msg && bufferevent_write(bev, msg, size);
-  bufferevent_unlock(bev);
 }
 
 TcpServer::TcpServer()

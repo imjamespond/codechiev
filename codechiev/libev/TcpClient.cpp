@@ -4,7 +4,8 @@
 
 using namespace codechiev::libev;
 
-TcpClient::TcpClient(const char *addr)
+TcpClient::TcpClient(const char *addr) :
+TcpEndpoint()
 {
   memset(&connect_to_addr, 0, sizeof(connect_to_addr));
   connect_to_addrlen = sizeof(connect_to_addr);
@@ -61,16 +62,7 @@ TcpClient::connect()
     throw 1;
   }
 
-  bufferevent_setcb(buffev, readcb, writecb, eventcb, this);
+  bufferevent_setcb(buffev, _readcb, writecb, eventcb, this);
 
-}
-
-void TcpClient::write(bufferevent_struct *bev,
-                      const char *msg,
-                      size_t size)
-{
-  bufferevent_enable(bev, EV_WRITE);
-  bufferevent_disable(bev, EV_READ);
-  msg && bufferevent_write(bev, msg, size);
 }
 
