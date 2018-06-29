@@ -36,12 +36,13 @@ codechiev::libev::eventcb(struct bufferevent *bev, short events, void *user_data
   {
     bufferevent_lock(bev);
     endpoint->onClose && endpoint->onClose(bev);
+    bufferevent_free(bev);
     bufferevent_unlock(bev);
   }
   else if (events & BEV_EVENT_ERROR)
   {
-    printf("Got an error on the connection: %s\n",
-           strerror(errno)); /*XXX win32*/
+    printf("Got an error on the connection: %s\n", strerror(errno)); /*XXX win32*/
+    bufferevent_free(bev);
   }  
   else if (events & BEV_EVENT_CONNECTED)
   {
@@ -52,8 +53,8 @@ codechiev::libev::eventcb(struct bufferevent *bev, short events, void *user_data
   }
   else
   {
-    /* None of the other events can happen here, since we haven't enabled
-	 * timeouts */
+    printf("None of the other events can happen here, since we haven't enabled "\
+	    "timeouts");
     bufferevent_free(bev);
   }
 }
@@ -72,16 +73,17 @@ codechiev::libev::readcb(struct bufferevent *bufev, void *ctx)
   // LOG_TRACE << "read cb:" << len << "," << evbuffer_pullup(evbuf, len);
   //fwrite(evbuffer_pullup(evbuf, len), len, 1, stdout);
 
-  size_t len(0);
-  char data[128];
-  while(1) {
-    len = bufferevent_read	(bufev, data, 128);
-    if(0 == len) {
-      break;
-    }else{
-      endpoint->onRead && endpoint->onRead(bufev, data, len);
-    }
-  }
+  // size_t len(0);
+  // char data[128];
+  // while(1) {
+  //   len = bufferevent_read	(bufev, data, 128);
+  //   if(0 == len) {
+  //     break;
+  //   }else{
+  //     endpoint->onRead && endpoint->onRead(bufev, data, len);
+  //   }
+  // }
+  endpoint->onRead && endpoint->onRead(bufev, NULL, 0);
 
   // evbuffer_drain(evbuf, len); //Remove a specified number of bytes data from the beginning of an evbuffer
 

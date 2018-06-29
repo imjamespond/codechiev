@@ -85,7 +85,7 @@ TcpServer::bind()
 int 
 TcpServer::stop()
 { 
-  event_base_loopexit(base, NULL);
+  return event_base_loopexit(base, NULL);
 }
 
 TcpServer::TcpServer()

@@ -36,14 +36,24 @@ Mutex::unlock()
     ::pthread_mutex_unlock(&mutex_);
 }
 
-
-MutexGuard::MutexGuard(Mutex* mutex):mutex_(mutex)
+MutexGuard::MutexGuard(Mutex *mutex) : mutex_(mutex)
 {
     assert(mutex_);
     mutex_->lock();
 }
 
 MutexGuard::~MutexGuard()
+{
+    mutex_->unlock();
+}
+
+MutexLock::MutexLock(const Mutex::mutex_ptr &mutex) : mutex_(mutex)
+{
+    assert(mutex_);
+    mutex_->lock();
+}
+
+MutexLock::~MutexLock()
 {
     mutex_->unlock();
 }
