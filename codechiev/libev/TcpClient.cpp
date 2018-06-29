@@ -26,9 +26,7 @@ TcpEndpoint()
 }
 
 TcpClient::~TcpClient()
-{
-  if (base)
-    event_base_free(base);
+{ 
 }
 
 void
@@ -44,7 +42,7 @@ TcpClient::start(int flags)
 int 
 TcpClient::stop()
 {
-  event_base_loopexit(base, NULL);
+  return event_base_loopexit(base, NULL);
 }
 
 void

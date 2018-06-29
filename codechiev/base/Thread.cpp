@@ -104,7 +104,7 @@ Thread::cancel()
         // printf("thread cancel");
         ::pthread_cancel(thread_);
     }
-#endif // __linux___
+#endif // __linux__
 }
 
 std::string
@@ -115,7 +115,7 @@ Thread::ThreadName()
         return this_thread->getThreadName();
     }
 
-    return "main";
+    return "__main__";
 }
 
 int
@@ -123,7 +123,7 @@ Thread::ThreadId()
 {
     #ifdef __linux__
     return static_cast<int>(::syscall(SYS_gettid));
-    #endif // __linux___
+    #endif // __linux__
 
     #ifdef __APPLE__
     uint64_t tid;

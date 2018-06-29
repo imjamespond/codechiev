@@ -31,10 +31,12 @@ namespace codechiev {
             CountLatch();
             ~CountLatch();
             
-            void reset(int num);
+            void reset(int);
             int latch();
             int unlatch();
-            int reduce(int num);
+            int reduce(int );
+            int notify(int = 0);
+            int notifyall(int = 0);
 
           private:
             int count_;

@@ -12,8 +12,6 @@ TcpEndpoint(), listenev(NULL), listener(NULL)
 {
   set_sock_address(port, addr);
 
-  evthread_use_pthreads();
-
   base = event_base_new();
   if (!base)
   {
@@ -25,10 +23,12 @@ TcpEndpoint(), listenev(NULL), listener(NULL)
 TcpServer::~TcpServer()
 {
   LOG_DEBUG;
-  if(listener){
+  if(listener)
+  {
     evconnlistener_free(listener);
   }
-  if(listenev){
+  if(listenev)
+  {
     event_free(listenev);
   } 
 }
@@ -42,7 +42,8 @@ TcpServer::start()
                                      LEV_OPT_REUSEABLE | LEV_OPT_CLOSE_ON_FREE | LEV_OPT_THREADSAFE,
                                      -1,
                                      (struct sockaddr *)&(addr),
-                                     sizeof(addr));
+                                     sizeof(addr)
+  );
 
   if (!listener)
   {
@@ -74,10 +75,11 @@ TcpServer::bind()
     exit(EXIT_FAILURE);
   } 
   listenev = event_new(base, 
-                        sockfd, 
-                        EV_READ | EV_PERSIST, 
-                        accept_cb, 
-                        this);
+                       sockfd, 
+                       EV_READ | EV_PERSIST, 
+                       accept_cb, 
+                       this
+  );
   event_add(listenev, NULL);
   event_base_dispatch(base);
 }

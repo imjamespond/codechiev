@@ -1,6 +1,10 @@
 #ifndef Channel_hpp
 #define Channel_hpp
 
+#include <event2/event.h>
+#include <event2/event_struct.h>
+#include <event2/buffer.h>
+
 namespace codechiev
 {
 namespace libev
@@ -12,8 +16,10 @@ class Channel
     explicit Channel();
     ~Channel();
 
-    
-  public:
+    static void Decode(struct evbuffer *);
+
+  private:
+    int len_;
 };
 
 } // namespace libev

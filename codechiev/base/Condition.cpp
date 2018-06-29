@@ -71,3 +71,23 @@ CountLatch::reduce(int val)
 
     return count_;
 }
+int
+CountLatch::notify(int val)
+{
+    MutexGuard lock(&mutex_);
+
+    count_ = val;
+    cond_.notify();
+
+    return count_;
+}
+int
+CountLatch::notifyall(int val)
+{
+    MutexGuard lock(&mutex_);
+
+    count_ = val;
+    cond_.notifyall();
+
+    return count_;
+}

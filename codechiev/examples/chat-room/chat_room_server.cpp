@@ -1,7 +1,8 @@
-
 #include <libev/TcpServer.hpp>
+#include <libev/Channel.hpp>
 #include <libev/Signal.hpp>
 #include <base/Mutex.hpp>
+#include <base/Thread.hpp>
 #include <base/Logger.hpp>
 #include <base/Keyboard.hpp>
 
@@ -43,11 +44,11 @@ int onClose(TcpEndpoint *endpoint, TcpEndpoint::bufferevent_struct *bev)
     return 0;
 }
 
-int onRead(TcpEndpoint *endpoint, TcpEndpoint::bufferevent_struct *bev, void *data, int len)
+int onRead(TcpEndpoint *endpoint, TcpEndpoint::bufferevent_struct *bufev, void *data, int len)
 {
     // std::string msg((char *)data, len);
-    // len = bufferevent_read(bufev, data, 128);
-    STREAM_INFO;
+    struct evbuffer *evbuf = bufferevent_get_input(bufev);
+    Channel::Decode(evbuf);
     return 0;
 }
 
@@ -73,9 +74,8 @@ void read_stdin(int fd, short flags, void *data)
     return;
 }
 
-int main(int argc, char **argv)
+void run_server( )
 {
-
     ChatRoomServer server;
 
     server.onAccept = boost::bind(&onAccept, &server, _1);
@@ -89,10 +89,19 @@ int main(int argc, char **argv)
                 server.base, 
                 inputfd /*stdin*/, 
                 EV_READ | EV_PERSIST, 
-                read_stdin, &server);
+                read_stdin, 
+                &server
+    );
     event_add(&inputev, NULL);
 
     server.bind();
+}
+
+int main(int argc, char **argv)
+{ 
+    Thread serverThread("server", boost::bind(&run_server));
+    serverThread.start();
+    serverThread.join();
 
     return 0;
 }
@@ -113,7 +122,9 @@ ChatRoomServer::broadcast(const char * msg)
 
     if (bev) {
         write(bev, msg, ::strlen(msg)); 
-    }else{
+    }
+    else
+    {
         LOG_TRACE << "bufferevent is null";
     }
     

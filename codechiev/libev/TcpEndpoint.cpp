@@ -8,7 +8,9 @@ using namespace codechiev::libev;
 using namespace codechiev::base;
 
 TcpEndpoint::TcpEndpoint():base(NULL)
-{}
+{
+  evthread_use_pthreads();
+}
 
 void TcpEndpoint::write(bufferevent_struct *bev,
                       const char *msg,
