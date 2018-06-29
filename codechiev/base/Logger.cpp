@@ -55,13 +55,13 @@ const char *kLoggerLevels[Logger::LevelSize]=
     "error"
 };
 
-Logger::Logger(const char* file, 
-               const char* func, 
-               int line, 
-               Level lv, 
+Logger::Logger(const char *file,
+               const char *func,
+               int line,
+               Level lv,
                int carriage,
-               int detail
-):level_(lv), carriage_(carriage), detail_(detail)
+               int detail) : 
+level_(lv), carriage_(carriage), detail_(detail)
 {
     if (carriage_)
     {
@@ -78,28 +78,37 @@ Logger::Logger(const char* file,
     {
         std::string str(file);
         std::size_t found = str.find_last_of("/\\");
-        this->operator<<(",file:")<<str.substr(found+1)<<",line:"<<line;
+        this->operator<<(", file:")<<str.substr(found+1)<<", line:"<<line;
     }
 
     if(detail&DetailFunc)
-        this->operator<<(",func:")<<func;
+        this->operator<<(", func:")<<func;
     if(detail&DetailThread)
-        this->operator<<(",thread:")<<Thread::ThreadName()<<",tid:"<<Thread::ThreadId();
+        this->operator<<(", thread:")<<Thread::ThreadName()<<", tid:"<<Thread::ThreadId();
 
-    this->operator<<(",===");
+    this->operator<<(", ");
 }
 
 Logger::~Logger()
 {
     if (!carriage_)
     {
-        this->operator<<("===\n");
+        // fwrite(buffer_.str(), 1, buffer_.readable_bytes(), stdout);
+        // fprintf(stdout, buffer_.str());
+        printf("%s\n", buffer_.str());
     }
-    
-    // fwrite(buffer_.str(), 1, buffer_.readable_bytes(), stdout);
-    // fprintf(stdout, buffer_.str());
-    printf(buffer_.str());
+    else
+    {
+        printf(buffer_.str());
+    }
+
     fflush(stdout);
+}
+
+Logger &
+Logger::operator()()
+{
+    return *this;
 }
 
 Logger &

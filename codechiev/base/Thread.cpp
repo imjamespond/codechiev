@@ -1,5 +1,4 @@
 #include "Thread.hpp"
-#include "Logger.hpp"
 
 #include <stdio.h>
 #include <errno.h>
@@ -45,8 +44,10 @@ Thread::run()
     assert(!this_thread);
     this_thread = this;
 
-    if(func_) func_();
-
+    if(func_)
+    {
+        func_();
+    }
     //There are several ways in which a thread may be terminated:
     //The thread !!!returns normally!!! from its starting routine. Its work is done.
     //The thread makes a call to the pthread_exit subroutine - !!!whether its work is done or not!!!.
@@ -96,11 +97,11 @@ Thread::cancel()
 #ifdef __linux__
     if(::pthread_self() == thread_)
     {
-        LOG_TRACE<<"thread exit";
+        // printf("thread exit");
         ::pthread_exit(NULL);
     }else
     {
-        LOG_TRACE<<"thread cancel";
+        // printf("thread cancel");
         ::pthread_cancel(thread_);
     }
 #endif // __linux___
@@ -114,7 +115,7 @@ Thread::ThreadName()
         return this_thread->getThreadName();
     }
 
-    return "thread-???";
+    return "main";
 }
 
 int

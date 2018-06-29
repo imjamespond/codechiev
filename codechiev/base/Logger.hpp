@@ -2,6 +2,7 @@
 #define Logger_hpp
 
 #include <stdint.h>
+#include <boost/shared_ptr.hpp>
 #include <base/FixedBuffer.h>
 
 namespace codechiev {
@@ -22,6 +23,7 @@ namespace codechiev {
             explicit Logger(const char* , const char* , int , Level, int, int);
             ~Logger();
 
+            Logger &operator()();
             Logger &operator<<(const char*);
             Logger &operator<<(const unsigned char *);
             Logger &operator<<(const std::string&);
@@ -40,6 +42,14 @@ namespace codechiev {
 
         class LoggerStream
         {
+        public:
+            typedef boost::shared_ptr<Logger> logger_ptr;
+            logger_ptr logger;
+
+            explicit LoggerStream(const char* , const char* , int , Logger::Level, int, int);
+            ~LoggerStream();
+
+            inline logger_ptr get_logger(){ return logger;}
         };
     }
 }
@@ -53,11 +63,17 @@ extern unsigned int gLoggerDetail;
     codechiev::base::Logger(__FILE__, __func__, __LINE__, lv, 0, gLoggerDetail)
 #define LOG_CHECK_R(lv) \
     if (lv >= gLoggerLevel) \
-    codechiev::base::Logger(__FILE__, __func__, __LINE__, lv, 1, 0)
+    codechiev::base::Logger(NULL, NULL, NULL, lv, 1, 0)
+#define STREAM_CHECK(lv)    \
+    if (lv >= gLoggerLevel) \
+    codechiev::base::LoggerStream(__FILE__, __func__, __LINE__, lv, 0, gLoggerDetail).get_logger()->operator()()
 #define LOG_DEBUG LOG_CHECK(codechiev::base::Logger::Debug)
 #define LOG_TRACE LOG_CHECK(codechiev::base::Logger::Trace)
 #define LOG_INFO LOG_CHECK(codechiev::base::Logger::Info)
 #define LOG_WARN LOG_CHECK(codechiev::base::Logger::Warn)
 #define LOG_ERROR LOG_CHECK(codechiev::base::Logger::Error)
 #define LOG_INFO_R LOG_CHECK_R(codechiev::base::Logger::Info)
+
+#define STREAM_INFO STREAM_CHECK(codechiev::base::Logger::Info)
+
 #endif /* Logger_hpp */

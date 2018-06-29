@@ -3,10 +3,19 @@
 #include <boost/lexical_cast.hpp>
 #include <errno.h>
 
-#include "base/Thread.hpp"
-#include "base/Logger.hpp"
+#include <base/Time.hpp>
+#include <base/Thread.hpp>
+#include <base/Logger.hpp>
+#include <base/BlockedQueue.hpp>
 
 using namespace codechiev::base;
+extern BlockedQueue<1> __logger_stream_queue__;
+
+int statistic(int64_t costMillis)
+{
+    LOG_INFO << "main thread cost millis:" << costMillis;
+    return 1;
+}
 
 int main(int argc, const char * argv[]) {
     
@@ -17,18 +26,27 @@ int main(int argc, const char * argv[]) {
              << ", float:" << ft
              << ", int:" << 54321
              << ", double:" << db
-             << "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz";
+             << ", 111111111122222222222222233333333333333334444444444444555555555555556666666666666666667777777777777778888888888888888999999999999900000000000000";
     LOG_TRACE << str;
     LOG_DEBUG << str;
 
-    SetLoggerDetail(0);
-    int n;
-    for (n = 0; n < 3; n++)
+    // SetLoggerDetail(0);
+    // int n;
+    // for (n = 0; n < 3; n++)
+    // {
+    //     LOG_INFO_R<<n;
+    //     sleep(1);
+    // }
+    // LOG_INFO_R<<"\n";
+
+    Time before = Time::Now();
+    for(int i=0; i<999; ++i)
     {
-        LOG_INFO_R<<n;
-        sleep(1);
+        STREAM_INFO << "stream logger:"<<i;
     }
-    LOG_INFO_R<<"\n";
+    Time now = Time::Now();
+
+    __logger_stream_queue__.add(boost::bind(&statistic, now - before));
 
     return 0;
 }

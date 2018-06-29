@@ -39,7 +39,9 @@
     "ctime": "cpp",
     "cwchar": "cpp",
     "cwctype": "cpp",
-    "sstream": "cpp"
+    "sstream": "cpp",
+    "typeindex": "cpp",
+    "typeinfo": "cpp"
   },
   "editor.tabSize": 2
 }

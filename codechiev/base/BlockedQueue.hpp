@@ -87,7 +87,8 @@ public:
           job_func job = take();
           if (job)
           { 
-            if (job())
+            int quit = job();
+            if (quit == 1) //prevent not return value. One such mechanism, which has negligible overhead(开销), is to use a special value
             {
               return;
             }
@@ -106,7 +107,7 @@ public:
     }
   }
 
-  void start()
+  void start(const char * name = NULL)
   {
     {
       MutexGuard lock(&mutex_);
@@ -120,9 +121,10 @@ public:
 
     for (int i = 0; i < ThreadNum; i++)
     {
-      std::string name = "blocking-thread-";
-      name += boost::lexical_cast<std::string>(i);
-      thread_ptr thread(new Thread(name, boost::bind(&BlockedQueue::runInThread, this)));
+      std::string _name = "blocked-thread-";
+      _name += name ? name : "";
+      _name += boost::lexical_cast<std::string>(i);
+      thread_ptr thread(new Thread(_name, boost::bind(&BlockedQueue::runInThread, this)));
       threads_.push_back(thread);
 
       thread->start();
