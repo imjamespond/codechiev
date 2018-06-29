@@ -56,6 +56,7 @@ namespace codechiev {
                     write(wb);
                     return wb;
                 }
+                return 0;
             }
 
             void read(int len)

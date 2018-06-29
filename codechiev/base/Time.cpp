@@ -17,9 +17,9 @@ Time Time::Now() {
 
 Time Time::NowTm() {
     time_t rawtime;
-    struct tm * ptm;
+    // struct tm * ptm;
     ::time(&rawtime);
-    ptm = gmtime(&rawtime);
+    // ptm = gmtime(&rawtime);
     return Time(SECS_TO_MILLIS(rawtime));//less acurate
 }
 

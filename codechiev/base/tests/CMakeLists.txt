@@ -34,3 +34,8 @@ add_test(logger_test ${CMAKE_CURRENT_BINARY_DIR}/logger_test)
 # add_executable (${UnitTest} ${UnitTest}.cpp)
 # target_link_libraries (${UnitTest} ccv_base)
 # add_test(${UnitTest} ${CMAKE_CURRENT_BINARY_DIR}/${UnitTest})
+
+SET (UnitTest compiler_test)
+add_executable (${UnitTest} ${UnitTest}.cpp)
+target_link_libraries (${UnitTest} ccv_base)
+add_test(${UnitTest} ${CMAKE_CURRENT_BINARY_DIR}/${UnitTest})

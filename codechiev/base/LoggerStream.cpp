@@ -9,6 +9,7 @@ int __logger_stream_queue_start__()
 {
     // printf("__logger_stream_queue_start__\n");
     __logger_stream_queue__.start("logger-");
+    return 0;
 }
 int __logger_stream_queue_init__ = __logger_stream_queue_start__();
 
