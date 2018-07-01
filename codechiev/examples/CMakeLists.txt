@@ -14,6 +14,6 @@
 # TARGET_LINK_LIBRARIES("hello-world" event)
 # TARGET_LINK_LIBRARIES("time-test" event ccv_base)
 
-ADD_EXECUTABLE("chat-room-server" "chat-room/chat_room_server.cpp")
+ADD_EXECUTABLE("chat-room-server" "chat-room/chat_room_server.cpp" "chat-room/chat_room.cpp")
 TARGET_LINK_LIBRARIES("chat-room-server" ccv_ev)
  
