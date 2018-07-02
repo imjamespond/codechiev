@@ -73,13 +73,12 @@ TcpServer::bind()
   {
     perror("listen error"); 
     exit(EXIT_FAILURE);
-  } 
-  listenev = event_new(base, 
-                       sockfd, 
-                       EV_READ | EV_PERSIST, 
-                       accept_cb, 
-                       this
-  );
+  }
+  listenev = event_new(base,
+                       sockfd,
+                       EV_READ | EV_PERSIST /*| EV_ET will probally cause connection failed*/,
+                       accept_cb,
+                       this);
   event_add(listenev, NULL);
   event_base_dispatch(base);
 }

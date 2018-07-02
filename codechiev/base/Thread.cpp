@@ -25,7 +25,7 @@ start_routine(void *arg)
     return NULL;
 }
 
-__thread Thread* this_thread(NULL);
+__thread Thread* __this_thread__(NULL);
 
 Thread::Thread(const std::string& name, const thread_func_t& func):
 name_(name), func_(func)
@@ -41,8 +41,8 @@ Thread::~Thread()
 void
 Thread::run()
 {
-    assert(!this_thread);
-    this_thread = this;
+    assert(!__this_thread__);
+    __this_thread__ = this;
 
     if(func_)
     {
@@ -110,9 +110,9 @@ Thread::cancel()
 std::string
 Thread::ThreadName()
 {
-    if(this_thread)
+    if(__this_thread__)
     {
-        return this_thread->getThreadName();
+        return __this_thread__->getThreadName();
     }
 
     return "__main__";
@@ -137,3 +137,9 @@ Thread::ThreadId()
     return static_cast<int>(::GetCurrentThreadId());
     #endif // __MINGW32__
 }
+
+int __main_thread_start__()
+{
+    return Thread::ThreadId();
+}
+int __main_thread_id__ = __main_thread_start__();

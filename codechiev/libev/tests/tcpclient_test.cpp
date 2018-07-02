@@ -25,7 +25,7 @@ int onConnect(TcpClient *cli, TcpClient::bufferevent_struct *bev)
 
 int onClose(TcpClient *client, TcpClient::bufferevent_struct *bev)
 {
-    LOG_INFO;
+    // LOG_INFO;
     return 0;
 }
 

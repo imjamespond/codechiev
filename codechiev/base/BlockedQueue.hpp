@@ -24,7 +24,20 @@ template <int ThreadNum>
 class BlockedQueue : boost::noncopyable
 {
 public:
-  BlockedQueue() : running_(false) {}
+  explicit BlockedQueue(const char *name = NULL) : running_(false)
+  {
+
+    for (int i = 0; i < ThreadNum; i++)
+    {
+      std::string _name = "blocked-thread-";
+      _name += name ? name : "";
+      _name += boost::lexical_cast<std::string>(i);
+      thread_ptr thread(new Thread(_name, boost::bind(&BlockedQueue::runInThread, this)));
+      threads_.push_back(thread); 
+    }
+
+    start();
+  }
 
 public:
   typedef boost::shared_ptr<Thread> thread_ptr;
@@ -72,9 +85,9 @@ public:
   void runInThread()
   {
     while (1)
-    {
-      latch_.reset(1);
-      latch_.latch();
+    { 
+      latch_.reset();
+      latch_.latch(); 
       try
       {
         for (;;)
@@ -104,10 +117,10 @@ public:
         LOG_ERROR << e.what();
         return;
       }
-    }
+    } 
   }
 
-  void start(const char * name = NULL)
+  void start()
   {
     {
       MutexGuard lock(&mutex_);
@@ -119,14 +132,9 @@ public:
       running_ = true;
     }
 
-    for (int i = 0; i < ThreadNum; i++)
+    for (thread_vec::iterator it = threads_.begin(); it != threads_.end(); it++)
     {
-      std::string _name = "blocked-thread-";
-      _name += name ? name : "";
-      _name += boost::lexical_cast<std::string>(i);
-      thread_ptr thread(new Thread(_name, boost::bind(&BlockedQueue::runInThread, this)));
-      threads_.push_back(thread);
-
+      thread_ptr thread = *it;
       thread->start();
     }
   }

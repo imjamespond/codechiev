@@ -35,7 +35,7 @@ int onAccept(TcpServer *serv, TcpServer::bufferevent_struct *bev)
     // serv->write(bev, "welcome to visit");
     
     TcpServerExt *servext = static_cast<TcpServerExt *>(serv);
-    // LOG_INFO_R << ++servext->total;
+    ++servext->total;
     return 0;
 }
 
@@ -45,7 +45,7 @@ int onClose(TcpEndpoint *endpoint, TcpEndpoint::bufferevent_struct *bev)
     // server->bevMap.erase(fd);
     // LOG_TRACE << "buffer event map: " << (int)server->bevMap.size();
     TcpServerExt *servext = static_cast<TcpServerExt *>(endpoint);
-    // LOG_INFO_R << --servext->total;
+    --servext->total;
     return 0;
 }
 

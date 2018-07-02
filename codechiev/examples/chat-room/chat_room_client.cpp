@@ -14,22 +14,24 @@ TcpClient::bufferevent_struct *BufEv(NULL);
 
 int onClientConnect(TcpEndpoint *client, TcpEndpoint::bufferevent_struct *bev)
 {
-    // LOG_INFO << "";
-    Cli = static_cast<TcpClient *> (client);
-    BufEv = bev;
+    // STREAM_INFO;
+    // Cli = static_cast<TcpClient *> (client);
+    // BufEv = bev;
+
+    // client->write(bev, "welcome to visit", 5);
     return 0;
 }
 
 int onClientClose(TcpEndpoint *client, TcpEndpoint::bufferevent_struct *bev)
 {
-    LOG_INFO;
+    // STREAM_INFO;
     return 0;
 }
 
 int onClientRead(TcpEndpoint *client, TcpEndpoint::bufferevent_struct *bev, void *data, int len)
 {
     // std::string msg((char *)data, len);
-    // LOG_INFO << "read:" << len << "," << msg; 
+    // LOG_INFO ; 
 
     // client->write(bev, msg.c_str(), len);//within recursive locks
     return 0;
@@ -37,6 +39,6 @@ int onClientRead(TcpEndpoint *client, TcpEndpoint::bufferevent_struct *bev, void
 
 int onClientWrite(TcpEndpoint *client, TcpEndpoint::bufferevent_struct *bev)
 {
-    // LOG_INFO << "";
+    // LOG_INFO;
     return 0;
 }

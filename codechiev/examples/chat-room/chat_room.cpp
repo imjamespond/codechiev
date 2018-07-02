@@ -1,7 +1,7 @@
 #include <base/Thread.hpp>
 #include <base/Condition.hpp>
 #include <base/Keyboard.hpp>
-#include <libev/TcpServer.hpp>
+#include <libev/Timer.hpp>
 #include <libev/TcpClient.hpp>
 
 #include <event2/event.h>
@@ -30,7 +30,8 @@ int onClientWrite(TcpEndpoint *client, TcpEndpoint::bufferevent_struct *bev);
 ChatRoomServer *ServerPtr;
 TcpClient *CliPtr;
 
-void run_server( )
+void on_server_run();
+void run_server()
 {
     ChatRoomServer server;
     ServerPtr = &server;
@@ -40,7 +41,8 @@ void run_server( )
     server.onRead = boost::bind(&onServRead, &server, _1, _2, _3);
     server.onWrite = boost::bind(&onServWrite, &server, _1);
 
-    Latch.unlatch();
+    Timer timer(server.base);
+    timer.timeout(boost::bind(&on_server_run)); 
 
     server.bind();
 }
@@ -62,6 +64,12 @@ void run_client(int argc, const char *argv[])
         client.connect();
     }
     client.start();
+}
+
+void on_server_run()
+{
+    LOG_INFO << "server now is running.";
+    Latch.unlatch();
 }
 
 int main(int argc, const char *argv[])
@@ -98,7 +106,7 @@ int main(int argc, const char *argv[])
         }
     }
 
-    printf("break");
+    LOG_INFO << "server exit.";
 
     serverThread.join();
     cliThread.join();

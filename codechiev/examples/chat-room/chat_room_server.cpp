@@ -12,23 +12,27 @@
 using namespace codechiev::base;
 using namespace codechiev::libev;
 
-int onServAccept(TcpServer *serv, TcpServer::bufferevent_struct *bev)
+int onServAccept(TcpServer *server, TcpServer::bufferevent_struct *bev)
 {
-    // ChatRoomServer *server = static_cast<ChatRoomServer *>(serv);
-    STREAM_INFO;
+    ChatRoomServer *serv = static_cast<ChatRoomServer *>(server);
+    evutil_socket_t fd = bufferevent_getfd(bev);
+    serv->clients[fd] = bev;
+    // STREAM_INFO;
     return 0;
 }
 
 int onServClose(TcpEndpoint *endpoint, TcpEndpoint::bufferevent_struct *bev)
 {
-    // ChatRoomServer *server = static_cast<ChatRoomServer *>(endpoint);
-    STREAM_INFO;
+    ChatRoomServer *server = static_cast<ChatRoomServer *>(endpoint);
+    evutil_socket_t fd = bufferevent_getfd(bev);
+    server->clients.erase(fd);
+    // STREAM_INFO;
     return 0;
 }
 
 int onServRead(TcpEndpoint *endpoint, TcpEndpoint::bufferevent_struct *bufev, void *data, int len)
 {
-    // std::string msg((char *)data, len);
+    // STREAM_INFO;
     struct evbuffer *evbuf = bufferevent_get_input(bufev);
     Channel::Decode(evbuf);
     return 0;
@@ -36,14 +40,14 @@ int onServRead(TcpEndpoint *endpoint, TcpEndpoint::bufferevent_struct *bufev, vo
 
 int onServWrite(TcpEndpoint *endpoint, TcpEndpoint::bufferevent_struct *bev)
 {
-    STREAM_INFO;
+    // STREAM_INFO;
     return 0;
 }
 
 
 ChatRoomServer::ChatRoomServer() : TcpServer(12345)
 {
-    mutexCli = Mutex::mutex_ptr(new Mutex);
+    mutex_ = Mutex::mutex_ptr(new Mutex);
 }
 
 void 
@@ -69,6 +73,6 @@ ChatRoomServer::broadcast(const char * msg)
 int 
 ChatRoomServer::totalClient()
 {
-    MutexLock lock(mutexCli);
+    MutexLock lock(mutex_);
     return clients.size();
 }

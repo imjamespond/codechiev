@@ -5,21 +5,21 @@
 
 using namespace codechiev::libev;
 
-static void print(evutil_socket_t fd, short flags, void *data)
+void print(Timer *timer)
 {
-    LOG_INFO << "";
+    LOG_INFO;
 
     static int count = 3;
-    Timer *timer = reinterpret_cast<Timer *>(data);
-    struct timeval delay = {2, 0};
+    // struct timeval delay = {2, 0};
     timer && --count == 0 && timer->stop();
 }
 
-int main(int argc, const char * argv[]) {
-
-    Timer timer(&print, EV_PERSIST, NULL);
-    timer.timeout(2);
-    timer.start();
+int main(int argc, const char * argv[]) 
+{
+    struct event_base *base = event_base_new();
+    Timer timer(base, EV_PERSIST); 
+    timer.timeout(boost::bind(print, &timer),1);
+    event_base_dispatch(base);
 
     return 0;
 }

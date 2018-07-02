@@ -9,6 +9,9 @@
 #include <time.h>
 #include <sys/time.h>
 
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
+
 namespace codechiev
 {
 namespace libev
@@ -19,19 +22,24 @@ struct Timer
     typedef struct event event_struct;
     typedef struct event_base event_base_struct;
 
-//  typedef void (*event_callback_fn)(evutil_socket_t, short, void *)
-    explicit Timer(event_base_struct*, event_callback_fn, int, void*);
-    explicit Timer(event_callback_fn, int, void*);
-    ~Timer();
+    typedef boost::function<void()> timeout_callback_fn;
+    explicit Timer(event_base_struct *, int = EV_READ | EV_ET);
+    // explicit Timer(event_base_struct *, event_callback_fn, int = EV_READ, void * = NULL);
+    // explicit Timer(event_callback_fn, int, void*);
+    // ~Timer();
 
-    void timeout(int);
+    void timeout(int = 0);
+    void timeout(const timeout_callback_fn&, int = 0);
     void start();
     int stop();
 
-    event_struct timeout_;
-    event_base_struct *base;
+    // event_struct timeout_;
+    event_struct *timeout_;
+    // event_base_struct *base_;
 
-    struct timeval tv;
+    struct timeval timeval_;
+
+    timeout_callback_fn callback;
 };
 
 } // namespace libev

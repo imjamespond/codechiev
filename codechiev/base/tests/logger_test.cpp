@@ -40,13 +40,14 @@ int main(int argc, const char * argv[]) {
     // LOG_INFO_R<<"\n";
 
     Time before = Time::Now();
-    for(int i=0; i<999; ++i)
+    for (int i = 0; i < 999; ++i)
     {
         STREAM_INFO << "stream logger:"<<i;
     }
     Time now = Time::Now();
 
-    __logger_stream_queue__.add(boost::bind(&statistic, now - before));
-
+    LoggerStream::LoggerStreamQueue *Q = LoggerStream::GetQueue();
+    Q->add(boost::bind(&statistic, now - before));
+    Q->join();
     return 0;
 }

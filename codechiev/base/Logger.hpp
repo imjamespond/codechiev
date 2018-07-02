@@ -3,7 +3,8 @@
 
 #include <stdint.h>
 #include <boost/shared_ptr.hpp>
-#include <base/FixedBuffer.h>
+
+#include <base/FixedBuffer.h> 
 
 namespace codechiev {
     namespace base {
@@ -39,17 +40,22 @@ namespace codechiev {
             int carriage_;
             int detail_;
         };
-
+ 
+        template <int ThreadNum>
+        class BlockedQueue;
         class LoggerStream
         {
         public:
             typedef boost::shared_ptr<Logger> logger_ptr;
-            logger_ptr logger;
+            logger_ptr logger_;
 
             explicit LoggerStream(const char* , const char* , int , Logger::Level, int, int);
             ~LoggerStream();
 
-            inline logger_ptr get_logger(){ return logger;}
+            inline logger_ptr get_logger() { return logger_; }
+
+            typedef BlockedQueue<1> LoggerStreamQueue;
+            static LoggerStreamQueue *GetQueue();
         };
     }
 }
@@ -63,7 +69,7 @@ extern unsigned int gLoggerDetail;
     codechiev::base::Logger(__FILE__, __func__, __LINE__, lv, 0, gLoggerDetail)
 #define LOG_CHECK_R(lv) \
     if (lv >= gLoggerLevel) \
-    codechiev::base::Logger(NULL, NULL, NULL, lv, 1, 0)
+    codechiev::base::Logger(NULL, NULL, 0, lv, 1, 0)
 #define STREAM_CHECK(lv)    \
     if (lv >= gLoggerLevel) \
     codechiev::base::LoggerStream(__FILE__, __func__, __LINE__, lv, 0, gLoggerDetail).get_logger()->operator()()

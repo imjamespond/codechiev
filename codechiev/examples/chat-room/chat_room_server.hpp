@@ -23,13 +23,12 @@ namespace libev{
         void broadcast(const char *);
         int totalClient();
 
-    private:
-        typedef boost::unordered_map<std::string, bufferevent_struct *> BuffereventMap;
+        typedef boost::unordered_map<int, bufferevent_struct *> BuffereventMap;
         BuffereventMap clients;
 
-        
+      private: 
         typedef codechiev::base::Mutex::mutex_ptr mutex_ptr;
-        mutex_ptr mutexCli;
+        mutex_ptr mutex_;
 
     };
 }

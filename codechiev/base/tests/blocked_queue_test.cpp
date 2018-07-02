@@ -12,7 +12,7 @@ using namespace codechiev::base;
 
 #define ThreadNum 10
 
-long Countdown = 9;
+long Countdown = 9999999;
 Mutex mutexQuit;
 CountLatch mainThreadLatch;
 
@@ -28,7 +28,10 @@ int print(int i)
     if(++count->i % 100000 == 0)
         LOG_INFO<<count->i;
     if(i==Countdown)
+    {
         mainThreadLatch.unlatch();
+    }
+        
     return 0;
 }
 
@@ -54,7 +57,7 @@ int main(int argc, const char *argv[])
     int size = queue.size();
     if(size)
     {
-        LOG_INFO<<"queue size:"<<size; 
+        LOG_INFO << "queue size:" << size;
         mainThreadLatch.latch();
     }
     {

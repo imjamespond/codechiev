@@ -27,19 +27,19 @@ namespace codechiev {
         class CountLatch : public boost::noncopyable
         {
         public:
-            explicit CountLatch(unsigned short );
+            explicit CountLatch(int );
             CountLatch();
             ~CountLatch();
             
-            void reset(unsigned short);
-            unsigned short latch();
-            unsigned short unlatch();
-            unsigned short reduce(unsigned short = 1);
-            unsigned short notify(unsigned short = 0);
-            unsigned short notifyall(unsigned short = 0);
+            void reset(int = 1);
+            int latch();
+            int unlatch();
+            int reduce(int = 1);
+            int notify(int = 0);
+            int notifyall(int = 0);
 
           private:
-            unsigned short count_;
+            int count_;//don't use unsigned short, or it'll cause unknown issue like the performance is poor, even block when latch
             Condition cond_;
             Mutex mutex_;
         };
