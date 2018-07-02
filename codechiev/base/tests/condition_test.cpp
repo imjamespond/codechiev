@@ -2,7 +2,7 @@
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/assert.hpp>
-#include <vector>
+// #include <vector>
 #include <base/Logger.hpp>
 #include <base/Thread.hpp>
 #include <base/Time.hpp> 
@@ -20,8 +20,8 @@ long Countdown = 99999999;
 
 void print( )
 {
-    LOG_INFO << MainThreadLatch.reduce(1);
-    ThreadsLatch.latch(); 
+    LOG_INFO << "reduce left:" << MainThreadLatch.reduce();
+    LOG_INFO << "latch:" << ThreadsLatch.latch();
 
     int count = 0;
     while(true){
@@ -48,7 +48,7 @@ int main(int argc, const char * argv[]) {
         thread_ptr t(new Thread(threadName, func)); 
         threads.push_back(t);
     }
-    for (int i = 0; i < threads.size(); i++)
+    for (size_t i = 0; i < threads.size(); i++)
     {
         threads[i]->start();
     }
@@ -58,7 +58,7 @@ int main(int argc, const char * argv[]) {
     LOG_DEBUG << "all threads started...";
 
     //main thread will wait until all sub thread joined(end)
-    for(int i=0; i<threads.size(); i++)
+    for(size_t i=0; i<threads.size(); i++)
     {
         threads[i]->join();
     }

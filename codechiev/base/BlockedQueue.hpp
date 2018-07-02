@@ -141,13 +141,18 @@ public:
     }
   }
 
-  ~BlockedQueue()
+  void join()
   {
     for (thread_vec::iterator it = threads_.begin(); it != threads_.end(); it++)
     {
       thread_ptr thread = *it;
       thread->join();
     }
+  }
+
+  ~BlockedQueue()
+  {
+    stop();
   }
 };
 

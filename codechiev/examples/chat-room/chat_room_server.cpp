@@ -7,7 +7,7 @@
 #include <boost/bind.hpp>
 #include <boost/unordered_map.hpp> 
 
-#include "chat_room_server.h"
+#include "chat_room_server.hpp"
 
 using namespace codechiev::base;
 using namespace codechiev::libev;

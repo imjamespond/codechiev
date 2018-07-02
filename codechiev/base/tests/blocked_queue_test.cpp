@@ -12,7 +12,7 @@ using namespace codechiev::base;
 
 #define ThreadNum 10
 
-long Countdown = 99999999;
+long Countdown = 9;
 Mutex mutexQuit;
 CountLatch mainThreadLatch;
 
@@ -44,7 +44,7 @@ int quit()
 int main(int argc, const char *argv[])
 {
     SetLoggerLevel(Logger::Trace);
-    BlockedQueue<8> queue;
+    BlockedQueue<ThreadNum> queue;
     queue.start();
     for (int i = 0; i <= Countdown; ++i)
     {
@@ -59,13 +59,13 @@ int main(int argc, const char *argv[])
     }
     {
         MutexGuard lock(&mutexQuit);
-        for(int i=0; i<8; ++i)
+        for (int i = 0; i < ThreadNum; ++i)
         {
             queue.add(boost::bind(&quit)); 
         }
     }
 
-    // queue.stop();
+    queue.join();
 
     return 0;
 }

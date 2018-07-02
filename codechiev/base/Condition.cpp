@@ -34,35 +34,36 @@ Condition::notifyall()
     ::pthread_cond_broadcast(&cond_);
 }
 
-CountLatch::CountLatch(int c) : count_(c){}
+CountLatch::CountLatch(unsigned short c) : count_(c){}
 CountLatch::CountLatch() : count_(1){}
 CountLatch::~CountLatch(){}
 
-int
+unsigned short
 CountLatch::latch()
 {
     MutexGuard lock(&mutex_);
 
+    unsigned short count(count_);//preserve origin count
     while (count_ > 0)
     {
         cond_.wait(mutex_);//release mutex and block here
     }
 
-    return count_;
+    return count;
 }
-int CountLatch::unlatch()
+unsigned short CountLatch::unlatch()
 {
     return this->reduce(1);
 }
 void
-CountLatch::reset(int val)
+CountLatch::reset(unsigned short val)
 {
     MutexGuard lock(&mutex_);
 
     count_ = val;
 }
-int
-CountLatch::reduce(int val)
+unsigned short
+CountLatch::reduce(unsigned short val)
 {
     MutexGuard lock(&mutex_);
 
@@ -71,8 +72,8 @@ CountLatch::reduce(int val)
 
     return count_;
 }
-int
-CountLatch::notify(int val)
+unsigned short
+CountLatch::notify(unsigned short val)
 {
     MutexGuard lock(&mutex_);
 
@@ -81,8 +82,8 @@ CountLatch::notify(int val)
 
     return count_;
 }
-int
-CountLatch::notifyall(int val)
+unsigned short
+CountLatch::notifyall(unsigned short val)
 {
     MutexGuard lock(&mutex_);
 
