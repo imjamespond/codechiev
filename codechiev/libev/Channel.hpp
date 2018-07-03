@@ -17,6 +17,7 @@ class Channel
     ~Channel();
 
     static void Decode(struct evbuffer *);
+    static void Encode(struct evbuffer *, const char *, int);
 
   private:
     int len_;

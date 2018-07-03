@@ -39,17 +39,18 @@ Timer::Timer(event_base_struct *base, int flags)
 // }
 
 void 
-Timer::timeout(int sec){
+Timer::timeout(int sec, long millis){
   evutil_timerclear(&timeval_);
   timeval_.tv_sec = sec;
+  timeval_.tv_usec = millis * 1000;
   event_add(timeout_, &timeval_);
 }
 
 void 
-Timer::timeout(const timeout_callback_fn &cb, int sec)
+Timer::timeout(const timeout_callback_fn &cb, int sec, long millis)
 {
   callback = cb;
-  timeout(sec);
+  timeout(sec,millis);
 }
 
 // void Timer::start()

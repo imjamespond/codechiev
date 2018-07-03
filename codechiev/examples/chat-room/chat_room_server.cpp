@@ -44,11 +44,8 @@ int onServWrite(TcpEndpoint *endpoint, TcpEndpoint::bufferevent_struct *bev)
     return 0;
 }
 
-
-ChatRoomServer::ChatRoomServer() : TcpServer(12345)
-{
-    mutex_ = Mutex::mutex_ptr(new Mutex);
-}
+ChatRoomServer::ChatRoomServer() : TcpServer(12345), mutex_(new Mutex)
+{ }
 
 void 
 ChatRoomServer::broadcast(const char * msg)
@@ -59,8 +56,9 @@ ChatRoomServer::broadcast(const char * msg)
   {
     bufferevent_struct *bev = it->second;
 
-    if (bev) {
-        write(bev, msg, ::strlen(msg)); 
+    if (bev) 
+    {
+        TcpEndpoint::Write(bev, msg, ::strlen(msg)); 
     }
     else
     {

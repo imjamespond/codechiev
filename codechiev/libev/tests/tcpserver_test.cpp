@@ -137,7 +137,7 @@ TcpServerExt::broadcast(const char * msg)
     bufferevent_struct *bev = it->second;
 
     if (bev) {
-        write(bev, msg, ::strlen(msg)); 
+        TcpEndpoint::Write(bev, msg, ::strlen(msg)); 
     }else{
         LOG_TRACE << "bufferevent is null";
     }

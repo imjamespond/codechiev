@@ -11,14 +11,12 @@
 
 using namespace codechiev::base;
 using namespace codechiev::libev;
-
-TcpClient *Cli(NULL);
+ 
 TcpClient::bufferevent_struct *BufEv(NULL);
 
 int onConnect(TcpClient *cli, TcpClient::bufferevent_struct *bev)
 {
-    // LOG_INFO << "";
-    Cli = cli;
+    // LOG_INFO << ""; 
     BufEv = bev;
     return 0;
 }
@@ -70,9 +68,9 @@ int main(int argc, const char * argv[]) {
     while(1)
     {
         int input = keyboard::getchar();
-        if(Cli && BufEv)
+        if(BufEv)
         {
-            Cli->write(BufEv, reinterpret_cast<const char *>(&input), sizeof input);
+            TcpEndpoint::Write(BufEv, reinterpret_cast<const char *>(&input), sizeof input);
         }
     }
 

@@ -12,7 +12,7 @@ TcpEndpoint::TcpEndpoint():base(NULL)
   evthread_use_pthreads();
 }
 
-void TcpEndpoint::write(bufferevent_struct *bev,
+void TcpEndpoint::Write(bufferevent_struct *bev,
                       const char *msg,
                       size_t size)
 {

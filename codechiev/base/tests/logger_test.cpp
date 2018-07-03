@@ -26,6 +26,7 @@ int main(int argc, const char * argv[]) {
              << ", float:" << ft
              << ", int:" << 54321
              << ", double:" << db
+             << KRED << " red" << KGRN << " green" << KYEL << " yellow" << KBLU << " blue" << KNRM
              << ", 111111111122222222222222233333333333333334444444444444555555555555556666666666666666667777777777777778888888888888888999999999999900000000000000";
     LOG_TRACE << str;
     LOG_DEBUG << str;

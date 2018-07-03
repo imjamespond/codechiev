@@ -18,7 +18,10 @@ int onClientConnect(TcpEndpoint *client, TcpEndpoint::bufferevent_struct *bev)
     // Cli = static_cast<TcpClient *> (client);
     // BufEv = bev;
 
-    // client->write(bev, "welcome to visit", 5);
+    const char msg[] = "welcome to visit";
+    int head(sizeof msg);
+    TcpEndpoint::Write(bev, reinterpret_cast<const char *>(&head), sizeof(int));
+    TcpEndpoint::Write(bev, msg, head);
     return 0;
 }
 

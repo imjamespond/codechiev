@@ -28,8 +28,8 @@ struct Timer
     // explicit Timer(event_callback_fn, int, void*);
     // ~Timer();
 
-    void timeout(int = 0);
-    void timeout(const timeout_callback_fn&, int = 0);
+    void timeout(int = 0, long = 0);
+    void timeout(const timeout_callback_fn&, int = 0, long = 0);
     void start();
     int stop();
 

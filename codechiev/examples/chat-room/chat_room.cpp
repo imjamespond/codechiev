@@ -42,7 +42,7 @@ void run_server()
     server.onWrite = boost::bind(&onServWrite, &server, _1);
 
     Timer timer(server.base);
-    timer.timeout(boost::bind(&on_server_run)); 
+    timer.timeout(boost::bind(&on_server_run),0,500); 
 
     server.bind();
 }
