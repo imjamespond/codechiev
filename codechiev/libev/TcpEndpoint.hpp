@@ -4,14 +4,11 @@
 #include <boost/noncopyable.hpp>
 #include <boost/function.hpp>
 
-#include <event2/bufferevent.h>
-#include <event2/buffer.h>
-#include <event2/listener.h>
-#include <event2/util.h>
-#include <event2/event.h>
+#include <event2/util.h> 
 #include <event2/thread.h>
 
 #include <libev/SockAddress.h>
+#include <libev/Channel.hpp>
 
 namespace codechiev
 {
@@ -24,16 +21,15 @@ class TcpEndpoint : public boost::noncopyable
     explicit TcpEndpoint();
     virtual ~TcpEndpoint();
 
-    typedef struct bufferevent bufferevent_struct;
-    static void Write(bufferevent_struct *, const char *, size_t);
+    static void Write(Channel::bufev_struct *, const char *, size_t);
 
   public:
     struct event_base *base;
 
-    typedef boost::function<int(bufferevent_struct *)> on_connect_fn;
-    typedef boost::function<int(bufferevent_struct *, void *, int)> on_read_fn;
-    typedef boost::function<int(bufferevent_struct *)> on_write_fn;
-    typedef boost::function<int(bufferevent_struct *)> on_close_fn;
+    typedef boost::function<int(Channel::bufev_struct *)> on_connect_fn;
+    typedef boost::function<int(Channel::bufev_struct *, void *, int)> on_read_fn;
+    typedef boost::function<int(Channel::bufev_struct *)> on_write_fn;
+    typedef boost::function<int(Channel::bufev_struct *)> on_close_fn;
 
     on_connect_fn onConnect;
     on_read_fn onRead;

@@ -22,13 +22,13 @@ class TcpServerExt : public TcpServer
     
     void broadcast(const char *);
 
-    typedef boost::unordered_map<int, bufferevent_struct *> BuffereventMap;
+    typedef boost::unordered_map<int, Channel::bufev_struct *> BuffereventMap;
     BuffereventMap bevMap;
     int total;
 };
 
 
-int onAccept(TcpServer *serv, TcpServer::bufferevent_struct *bev)
+int onAccept(TcpServer *serv, Channel::bufev_struct *bev)
 {
     // serv->bevMap[fd] = bev;
     // serv->broadcast("foobar");
@@ -39,7 +39,7 @@ int onAccept(TcpServer *serv, TcpServer::bufferevent_struct *bev)
     return 0;
 }
 
-int onClose(TcpEndpoint *endpoint, TcpEndpoint::bufferevent_struct *bev)
+int onClose(TcpEndpoint *endpoint, Channel::bufev_struct *bev)
 {
     // evutil_socket_t fd = bufferevent_getfd(bev);
     // server->bevMap.erase(fd);
@@ -49,7 +49,7 @@ int onClose(TcpEndpoint *endpoint, TcpEndpoint::bufferevent_struct *bev)
     return 0;
 }
 
-int onRead(TcpEndpoint *endpoint, TcpEndpoint::bufferevent_struct *bev, void *data, int len)
+int onRead(TcpEndpoint *endpoint, Channel::bufev_struct *bev, void *data, int len)
 {
     std::string msg((char *)data, len);
     LOG_INFO << "read:" << len << "," << msg; 
@@ -58,7 +58,7 @@ int onRead(TcpEndpoint *endpoint, TcpEndpoint::bufferevent_struct *bev, void *da
     return 0;
 }
 
-int onWrite(TcpEndpoint *endpoint, TcpEndpoint::bufferevent_struct *bev)
+int onWrite(TcpEndpoint *endpoint, Channel::bufev_struct *bev)
 {
     LOG_INFO;
     return 0;
@@ -134,7 +134,7 @@ TcpServerExt::broadcast(const char * msg)
   BuffereventMap::iterator it;
   for (it = bevMap.begin(); it != bevMap.end(); ++it)
   {
-    bufferevent_struct *bev = it->second;
+    Channel::bufev_struct *bev = it->second;
 
     if (bev) {
         TcpEndpoint::Write(bev, msg, ::strlen(msg)); 

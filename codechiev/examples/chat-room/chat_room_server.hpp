@@ -23,7 +23,7 @@ namespace libev{
         void broadcast(const char *);
         int totalClient();
 
-        typedef boost::unordered_map<int, bufferevent_struct *> BuffereventMap;
+        typedef boost::unordered_map<int, Channel::bufev_struct *> BuffereventMap;
         BuffereventMap clients;
 
       private: 

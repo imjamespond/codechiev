@@ -12,7 +12,7 @@
 using namespace codechiev::base;
 using namespace codechiev::libev;
 
-int onServAccept(TcpServer *server, TcpServer::bufferevent_struct *bev)
+int onServAccept(TcpServer *server, Channel::bufev_struct *bev)
 {
     ChatRoomServer *serv = static_cast<ChatRoomServer *>(server);
     evutil_socket_t fd = bufferevent_getfd(bev);
@@ -21,7 +21,7 @@ int onServAccept(TcpServer *server, TcpServer::bufferevent_struct *bev)
     return 0;
 }
 
-int onServClose(TcpEndpoint *endpoint, TcpEndpoint::bufferevent_struct *bev)
+int onServClose(TcpEndpoint *endpoint, Channel::bufev_struct *bev)
 {
     ChatRoomServer *server = static_cast<ChatRoomServer *>(endpoint);
     evutil_socket_t fd = bufferevent_getfd(bev);
@@ -30,15 +30,17 @@ int onServClose(TcpEndpoint *endpoint, TcpEndpoint::bufferevent_struct *bev)
     return 0;
 }
 
-int onServRead(TcpEndpoint *endpoint, TcpEndpoint::bufferevent_struct *bufev, void *data, int len)
+int onServRead(TcpEndpoint *endpoint, Channel::bufev_struct *bufev, void *data, int len)
 {
     // STREAM_INFO;
-    struct evbuffer *evbuf = bufferevent_get_input(bufev);
-    Channel::Decode(evbuf);
+    Channel channel(bufev);
+
+    while (channel.decode()){}
+    
     return 0;
 }
 
-int onServWrite(TcpEndpoint *endpoint, TcpEndpoint::bufferevent_struct *bev)
+int onServWrite(TcpEndpoint *endpoint, Channel::bufev_struct *bev)
 {
     // STREAM_INFO;
     return 0;
@@ -54,7 +56,7 @@ ChatRoomServer::broadcast(const char * msg)
   BuffereventMap::iterator it;
   for (it = clients.begin(); it != clients.end(); ++it)
   {
-    bufferevent_struct *bev = it->second;
+    Channel::bufev_struct *bev = it->second;
 
     if (bev) 
     {

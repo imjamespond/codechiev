@@ -81,6 +81,8 @@ extern unsigned int gLoggerDetail;
 #define LOG_INFO_R LOG_CHECK_R(codechiev::base::Logger::Info)
 
 #define STREAM_INFO STREAM_CHECK(codechiev::base::Logger::Info)
+#define STREAM_DEBUG STREAM_CHECK(codechiev::base::Logger::Debug)
+#define STREAM_TRACE STREAM_CHECK(codechiev::base::Logger::Trace)
 
 #define KNRM "\x1B[0m"
 #define KRED "\x1B[31m"

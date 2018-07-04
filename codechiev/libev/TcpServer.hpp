@@ -4,6 +4,8 @@
 #include <libev/SockAddress.h>
 #include <libev/TcpEndpoint.hpp>
 
+#include <event2/listener.h>
+
 namespace codechiev
 {
 namespace libev
@@ -26,7 +28,7 @@ class TcpServer : public TcpEndpoint
     struct evconnlistener *listener;
     sock_address addr;
 
-    typedef boost::function<int(bufferevent_struct *)> on_accept_fn;
+    typedef boost::function<int(Channel::bufev_struct *)> on_accept_fn;
     on_accept_fn onAccept;
 };
 

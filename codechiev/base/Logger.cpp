@@ -72,21 +72,21 @@ level_(lv), carriage_(carriage), detail_(detail)
 
     std::string time = Time::GetSimpleString();
     time.at(time.size()-1)='\0';
-    this->operator<<(": ")<<time;
+    this->operator<<(": " KMAG) << time;
 
     if(detail&DetailFile)
     {
         std::string str(file);
         std::size_t found = str.find_last_of("/\\");
-        this->operator<<(", file:")<<str.substr(found+1)<<", line:"<<line;
+        this->operator<<("," KGRN " file:") << str.substr(found + 1) << ", line:" << line;
     }
 
     if(detail&DetailFunc)
-        this->operator<<(", func:")<<func;
+        this->operator<<("," KCYN " func:") << func;
     if(detail&DetailThread)
-        this->operator<<(", thread:")<<Thread::ThreadName()<<", tid:"<<Thread::ThreadId();
+        this->operator<<("," KBLU " thread:") << Thread::ThreadName() << ", tid:" << Thread::ThreadId();
 
-    this->operator<<(", log:");
+    this->operator<<("," KWHT " log:");
 }
 
 Logger::~Logger()

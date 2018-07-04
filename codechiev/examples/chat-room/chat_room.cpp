@@ -17,15 +17,15 @@ using namespace codechiev::libev;
 
 CountLatch Latch;
 
-int onServAccept(TcpServer *serv, TcpEndpoint::bufferevent_struct *bev);
-int onServClose(TcpEndpoint *endpoint, TcpEndpoint::bufferevent_struct *bev);
-int onServRead(TcpEndpoint *endpoint, TcpEndpoint::bufferevent_struct *bufev, void *data, int len);
-int onServWrite(TcpEndpoint *endpoint, TcpEndpoint::bufferevent_struct *bev);
+int onServAccept(TcpServer *serv, Channel::bufev_struct *bev);
+int onServClose(TcpEndpoint *endpoint, Channel::bufev_struct *bev);
+int onServRead(TcpEndpoint *endpoint, Channel::bufev_struct *bufev, void *data, int len);
+int onServWrite(TcpEndpoint *endpoint, Channel::bufev_struct *bev);
 
-int onClientConnect(TcpEndpoint *client, TcpEndpoint::bufferevent_struct *bev);
-int onClientClose(TcpEndpoint *client, TcpEndpoint::bufferevent_struct *bev);
-int onClientRead(TcpEndpoint *client, TcpEndpoint::bufferevent_struct *bev, void *data, int len);
-int onClientWrite(TcpEndpoint *client, TcpEndpoint::bufferevent_struct *bev);
+int onClientConnect(TcpEndpoint *client, Channel::bufev_struct *bev);
+int onClientClose(TcpEndpoint *client, Channel::bufev_struct *bev);
+int onClientRead(TcpEndpoint *client, Channel::bufev_struct *bev, void *data, int len);
+int onClientWrite(TcpEndpoint *client, Channel::bufev_struct *bev);
 
 ChatRoomServer *ServerPtr;
 TcpClient *CliPtr;
@@ -58,7 +58,7 @@ void run_client(int argc, const char *argv[])
     client.onRead = boost::bind(&onClientRead, &client, _1, _2, _3);
     client.onWrite = boost::bind(&onClientWrite, &client, _1);
 
-    int num = argc > 1 ? boost::lexical_cast<int>(argv[1]) : 10;
+    int num = argc > 1 ? boost::lexical_cast<int>(argv[1]) : 1;
     for (int i = 0; i < num; i++)
     {
         client.connect();

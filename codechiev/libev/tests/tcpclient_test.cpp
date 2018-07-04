@@ -12,22 +12,22 @@
 using namespace codechiev::base;
 using namespace codechiev::libev;
  
-TcpClient::bufferevent_struct *BufEv(NULL);
+Channel::bufev_struct *BufEv(NULL);
 
-int onConnect(TcpClient *cli, TcpClient::bufferevent_struct *bev)
+int onConnect(TcpClient *cli, Channel::bufev_struct *bev)
 {
     // LOG_INFO << ""; 
     BufEv = bev;
     return 0;
 }
 
-int onClose(TcpClient *client, TcpClient::bufferevent_struct *bev)
+int onClose(TcpClient *client, Channel::bufev_struct *bev)
 {
     // LOG_INFO;
     return 0;
 }
 
-int onRead(TcpClient *client, TcpClient::bufferevent_struct *bev, void *data, int len)
+int onRead(TcpClient *client, Channel::bufev_struct *bev, void *data, int len)
 {
     // std::string msg((char *)data, len);
     // LOG_INFO << "read:" << len << "," << msg; 
@@ -36,7 +36,7 @@ int onRead(TcpClient *client, TcpClient::bufferevent_struct *bev, void *data, in
     return 0;
 }
 
-int onWrite(TcpClient *server, TcpClient::bufferevent_struct *bev)
+int onWrite(TcpClient *server, Channel::bufev_struct *bev)
 {
     // LOG_INFO << "";
     return 0;

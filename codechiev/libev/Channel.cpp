@@ -2,46 +2,47 @@
 
 #include <base/Logger.hpp>
 
-using namespace codechiev::libev;
+using namespace codechiev::libev; 
 
 const int __int_len__(sizeof(int));
 
-Channel::Channel():len_(0)
+Channel::Channel(Channel::bufev_struct *bufev) : head_(-1), bufev_(bufev)
 {}
 
-Channel::~Channel(){}
+Channel::~Channel()
+{}
 
-void
-Channel::Decode(struct evbuffer *evbuf)
+int Channel::decode()
 {
+  struct evbuffer *evbuf = bufferevent_get_input(bufev_);
   int len = evbuffer_get_length(evbuf);
-  int head(-1);
   STREAM_INFO<<"len:"<<len;
   //read 4 bytes
-  if(len>=__int_len__ && head<0)
+  if (len >= __int_len__ && head_ < 0)
   {
     unsigned char * _len = evbuffer_pullup(evbuf, __int_len__);
     int * __len = reinterpret_cast<int *>(_len);
-    head = * __len;
-    STREAM_INFO << " head:" << head;
+    head_ = *__len;
     len -= __int_len__;
 
+    STREAM_INFO << " head:" << head_;
     evbuffer_drain(evbuf, __int_len__);
   }
-  if (head && len>=head)
+  //one complete msg
+  if (head_ && len >= head_)
   {
-    unsigned char *_msg = evbuffer_pullup(evbuf, head);
-    STREAM_INFO << " msg:" << _msg;
-    evbuffer_drain(evbuf, head);
-  }
-  // else if()
-  // {
+    unsigned char *_msg = evbuffer_pullup(evbuf, head_);
+    len -= head_;
 
-  // }
+    STREAM_INFO << " msg:" << _msg;
+    evbuffer_drain(evbuf, head_);
+  }
+
+  return 0;
 }
 
-void 
-Channel::Encode(struct evbuffer *evbuf, const char *msg, int len)
+const char *
+Channel::Encode(const char *)
 {
-  
+  return NULL;
 }
