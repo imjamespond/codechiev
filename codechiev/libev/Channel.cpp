@@ -57,8 +57,10 @@ Channel::encode(const char *msg)
 {
   int head(::strlen (msg));
   int head_len(sizeof(int));
-  ::memcpy(&send_buf_[0], &head, head_len);
+  ::memcpy(&send_buf_[send_cursor_], &head, head_len);
   std::copy(msg, msg + head, send_buf_.begin() + head_len);
-  send_size_ = head + head_len;
+  int size(head + head_len);
+  send_size_+=size;
+  send_cursor_+=size;
   return send_buf_.data();
 }

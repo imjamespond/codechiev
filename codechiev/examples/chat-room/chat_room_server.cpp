@@ -37,8 +37,8 @@ int onServRead(TcpEndpoint *endpoint, Channel::bufev_struct *bev, void *data, in
     evutil_socket_t fd = bufferevent_getfd(bev);
     ChatRoomServer::channel_ptr channel = server->clients[fd];
 
-    // while (channel.decode()){}
-    channel->decode();
+    while (channel->decode()){}
+    // channel->decode();
     
     return 0;
 }

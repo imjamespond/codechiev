@@ -106,6 +106,8 @@ int main(int argc, const char *argv[])
 
                 const char msg[] = "welcome to visit";
                 const char *encoded = channel.encode(msg);
+                channel.encode(msg);
+                channel.encode(msg);
                 // STREAM_INFO << encoded+4;
                 int sendBufSize = channel.sendBufSize();
                 int count(0),len(0);
@@ -125,8 +127,7 @@ int main(int argc, const char *argv[])
 
                 int left(sendBufSize-count);
                 printf("sending %d byte\n", left);
-                TcpEndpoint::Write(__Client__.bufev, encoded+count, left);
-                keyboard::getchar(); 
+                TcpEndpoint::Write(__Client__.bufev, encoded+count, left); 
             }
             else
             {
