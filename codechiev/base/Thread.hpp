@@ -13,7 +13,7 @@ namespace codechiev {
     namespace base {
         class Thread : public boost::noncopyable
         {
-        public:
+          public:
             typedef boost::function<void()> thread_func_t;
             typedef boost::shared_ptr<Thread> thread_ptr_t;
             explicit Thread(const std::string&, const thread_func_t&);
@@ -26,8 +26,9 @@ namespace codechiev {
             inline std::string getThreadName();
             static std::string ThreadName();
             static int ThreadId();
-            
-        private:
+            static int MainId();
+
+          private:
             std::string name_;
             thread_func_t func_;
             

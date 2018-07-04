@@ -4,20 +4,23 @@
 #include <base/Time.hpp>
 #include <base/Thread.hpp>
 #include <base/Keyboard.hpp>
+#include <libev/Channel.hpp>
 #include <libev/TcpClient.hpp> 
 
 using namespace codechiev::base;
 using namespace codechiev::libev;
 
+typedef struct
+{
+    TcpClient *client;
+    Channel::bufev_struct *bufev;
+} ChatRoomClient;
+ChatRoomClient __Client__;
 
 int onClientConnect(TcpEndpoint *client, Channel::bufev_struct *bev)
 {
-    // STREAM_INFO;
-
-    const char msg[] = "welcome to visit";
-    int head(sizeof msg);
-    TcpEndpoint::Write(bev, reinterpret_cast<const char *>(&head), sizeof(int));
-    TcpEndpoint::Write(bev, msg, head);
+    STREAM_INFO;
+    __Client__.bufev = bev;
     return 0;
 }
 

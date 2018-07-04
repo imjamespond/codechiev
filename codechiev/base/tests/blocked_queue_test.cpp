@@ -48,11 +48,12 @@ int main(int argc, const char *argv[])
 {
     SetLoggerLevel(Logger::Trace);
     BlockedQueue<ThreadNum> queue;
-    queue.start();
     for (int i = 0; i <= Countdown; ++i)
     {
         queue.add(boost::bind(&print, i));
-    } 
+    }
+
+    queue.start();
 
     int size = queue.size();
     if(size)

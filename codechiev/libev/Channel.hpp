@@ -17,21 +17,25 @@ class Channel
 {
   public:
     typedef struct bufferevent bufev_struct;
+    typedef std::vector<char> buf_vec;
 
     explicit Channel(bufev_struct *);
     explicit Channel();
     ~Channel();
 
     int decode();
-    static const char * Encode(const char *);
+    const char *encode(const char *);
+    void send(const char *);
+    inline int sendBufSize() { return send_size_;}
+    inline const buf_vec &sendBuf() { return send_buf_; }
 
   private:
     int head_;
-    int send_left_;
 
-    typedef std::vector<char> buf_vec;
-    buf_vec send_buf_;
+    int send_cursor_;
+    int send_size_;
 
+    buf_vec send_buf_; 
     bufev_struct *bufev_;
 };
 

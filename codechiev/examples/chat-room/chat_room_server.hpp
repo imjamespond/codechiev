@@ -4,6 +4,7 @@
 #include <base/Mutex.hpp>
 
 #include <boost/bind.hpp>
+#include <boost/shared_ptr.hpp>
 #include <boost/unordered_map.hpp> 
  
 
@@ -23,7 +24,8 @@ namespace libev{
         void broadcast(const char *);
         int totalClient();
 
-        typedef boost::unordered_map<int, Channel::bufev_struct *> BuffereventMap;
+        typedef boost::shared_ptr<Channel> channel_ptr;
+        typedef boost::unordered_map<int, channel_ptr> BuffereventMap;
         BuffereventMap clients;
 
       private: 

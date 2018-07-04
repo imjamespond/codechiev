@@ -16,7 +16,7 @@ int onServAccept(TcpServer *server, Channel::bufev_struct *bev)
 {
     ChatRoomServer *serv = static_cast<ChatRoomServer *>(server);
     evutil_socket_t fd = bufferevent_getfd(bev);
-    serv->clients[fd] = bev;
+    serv->clients[fd] = ChatRoomServer::channel_ptr(new Channel(bev));
     // STREAM_INFO;
     return 0;
 }
@@ -30,12 +30,15 @@ int onServClose(TcpEndpoint *endpoint, Channel::bufev_struct *bev)
     return 0;
 }
 
-int onServRead(TcpEndpoint *endpoint, Channel::bufev_struct *bufev, void *data, int len)
+int onServRead(TcpEndpoint *endpoint, Channel::bufev_struct *bev, void *data, int len)
 {
     // STREAM_INFO;
-    Channel channel(bufev);
+    ChatRoomServer *server = static_cast<ChatRoomServer *>(endpoint);
+    evutil_socket_t fd = bufferevent_getfd(bev);
+    ChatRoomServer::channel_ptr channel = server->clients[fd];
 
-    while (channel.decode()){}
+    // while (channel.decode()){}
+    channel->decode();
     
     return 0;
 }
@@ -56,11 +59,10 @@ ChatRoomServer::broadcast(const char * msg)
   BuffereventMap::iterator it;
   for (it = clients.begin(); it != clients.end(); ++it)
   {
-    Channel::bufev_struct *bev = it->second;
-
-    if (bev) 
+    channel_ptr channel = it->second;
+    if (channel) 
     {
-        TcpEndpoint::Write(bev, msg, ::strlen(msg)); 
+        // channel->send(msg, ::strlen(msg)); 
     }
     else
     {

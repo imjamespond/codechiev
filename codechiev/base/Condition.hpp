@@ -27,8 +27,7 @@ namespace codechiev {
         class CountLatch : public boost::noncopyable
         {
         public:
-            explicit CountLatch(int );
-            CountLatch();
+            explicit CountLatch(int = 1); 
             ~CountLatch();
             
             void reset(int = 1);

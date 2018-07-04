@@ -33,7 +33,7 @@ public:
       _name += name ? name : "";
       _name += boost::lexical_cast<std::string>(i);
       thread_ptr thread(new Thread(_name, boost::bind(&BlockedQueue::runInThread, this)));
-      threads_.push_back(thread); 
+      threads_.push_back(thread);
     }
 
     start();
@@ -49,7 +49,7 @@ public:
   blocked_queue queue_;
 
   Mutex mutex_;
-  CountLatch latch_;
+  Condition latch_;
   bool running_;
 
 public:
@@ -58,13 +58,13 @@ public:
     MutexGuard lock(&mutex_);
     queue_.push_back(job);
 
-    latch_.unlatch();
+    latch_.notifyall();
   }
 
-  int size( )
+  int size()
   {
     MutexGuard lock(&mutex_);
-    return queue_.size(); 
+    return queue_.size();
   }
 
   job_func take()
@@ -86,38 +86,33 @@ public:
   {
     while (1)
     { 
-      latch_.reset();
-      latch_.latch(); 
       try
       {
-        for (;;)
+        if (!running_)
         {
-          if (!running_)
+          return;
+        }
+
+        job_func job = take();
+        if (job)
+        {
+          int quit = job();
+          if (quit == 1) //prevent not return value. One such mechanism, which has negligible overhead(开销), is to use a special value
           {
             return;
           }
-
-          job_func job = take();
-          if (job)
-          { 
-            int quit = job();
-            if (quit == 1) //prevent not return value. One such mechanism, which has negligible overhead(开销), is to use a special value
-            {
-              return;
-            }
-          }
-          else
-          { 
-            break;
-          }
+        }
+        else
+        {
+          MutexGuard lock(&mutex_);
+          latch_.wait(mutex_);
         }
       }
       catch (const std::exception &e)
       {
         LOG_ERROR << e.what();
-        return;
       }
-    } 
+    }
   }
 
   void start()
@@ -145,7 +140,7 @@ public:
     if (running_)
     {
       running_ = false;
-      latch_.unlatch();
+      latch_.notifyall();
     }
   }
 

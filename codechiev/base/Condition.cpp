@@ -34,8 +34,7 @@ Condition::notifyall()
     ::pthread_cond_broadcast(&cond_);
 }
 
-CountLatch::CountLatch(int c) : count_(c){}
-CountLatch::CountLatch() : count_(1){}
+CountLatch::CountLatch(int c) : count_(c){} 
 CountLatch::~CountLatch(){}
 
 int

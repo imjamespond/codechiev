@@ -143,3 +143,9 @@ int __main_thread_start__()
     return Thread::ThreadId();
 }
 int __main_thread_id__ = __main_thread_start__();
+
+int
+Thread::MainId()
+{
+    return __main_thread_id__;
+}

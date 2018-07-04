@@ -1,8 +1,10 @@
 #include <base/Thread.hpp>
 #include <base/Condition.hpp>
 #include <base/Keyboard.hpp>
+#include <base/Time.hpp>
 #include <libev/Timer.hpp>
 #include <libev/TcpClient.hpp>
+#include <libev/Channel.hpp>
 
 #include <event2/event.h>
 #include <event2/event_struct.h>
@@ -28,7 +30,13 @@ int onClientRead(TcpEndpoint *client, Channel::bufev_struct *bev, void *data, in
 int onClientWrite(TcpEndpoint *client, Channel::bufev_struct *bev);
 
 ChatRoomServer *ServerPtr;
-TcpClient *CliPtr;
+
+typedef struct
+{
+    TcpClient *client;
+    Channel::bufev_struct *bufev;
+} ChatRoomClient;
+extern ChatRoomClient __Client__;
 
 void on_server_run();
 void run_server()
@@ -51,7 +59,7 @@ void run_client(int argc, const char *argv[])
 {
     const char *hostname = argc > 2 ? argv[2] : "127.0.0.1:12345";
     TcpClient client(hostname);
-    CliPtr = &client;
+    __Client__.client = &client;
 
     client.onConnect = boost::bind(&onClientConnect, &client, _1);
     client.onClose = boost::bind(&onClientClose, &client, _1);
@@ -68,7 +76,7 @@ void run_client(int argc, const char *argv[])
 
 void on_server_run()
 {
-    LOG_INFO << "server now is running.";
+    STREAM_INFO << "server now is running.";
     Latch.unlatch();
 }
 
@@ -84,11 +92,6 @@ int main(int argc, const char *argv[])
 
     while (1)
     {
-        // int input = keyboard::getchar();
-        // if (Cli && BufEv)
-        // {
-        //     Cli->write(BufEv, reinterpret_cast<const char *>(&input), sizeof input);
-        // }
 
         char buffer[32];
         if (keyboard::fgets(buffer, 32) != NULL)
@@ -97,10 +100,38 @@ int main(int argc, const char *argv[])
             { 
                 printf("display total connections: %d\n", ServerPtr->totalClient());
             }
+            if (0 == strcmp(buffer, "cli-send\n"))
+            {
+                Channel channel(__Client__.bufev);
+
+                const char msg[] = "welcome to visit";
+                const char *encoded = channel.encode(msg);
+                // STREAM_INFO << encoded+4;
+                int sendBufSize = channel.sendBufSize();
+                int count(0),len(0);
+                
+                len = 2;
+                printf("sending %d byte\n", len);
+                TcpEndpoint::Write(__Client__.bufev, encoded+count, len);
+                count+=2; 
+                keyboard::getchar();
+                
+
+                len = 10;
+                printf("sending %d byte\n", len);
+                TcpEndpoint::Write(__Client__.bufev, encoded+count, len);
+                count+=10; 
+                keyboard::getchar();
+
+                int left(sendBufSize-count);
+                printf("sending %d byte\n", left);
+                TcpEndpoint::Write(__Client__.bufev, encoded+count, left);
+                keyboard::getchar(); 
+            }
             else
             {
                 ServerPtr->stop();
-                CliPtr->stop();
+                __Client__.client->stop();
                 break;
             }
         }
