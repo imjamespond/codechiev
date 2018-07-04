@@ -41,6 +41,12 @@ int Channel::decode()
 
     STREAM_TRACE << " msg:" << _msg;
     evbuffer_drain(evbuf, head_);
+    head_ = -1;
+  }
+
+  if(head_ && len < head_)
+  {
+    return 0;
   }
 
   if (__max_len__ < head_ || head_ == 0)
