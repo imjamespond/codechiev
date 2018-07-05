@@ -100,7 +100,7 @@ int main(int argc, const char *argv[])
             { 
                 printf("display total connections: %d\n", ServerPtr->totalClient());
             }
-            if (0 == strcmp(buffer, "cli-send\n"))
+            if (0 == strcmp(buffer, "test\n"))
             {
                 Channel channel(__Client__.bufev);
 
