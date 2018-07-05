@@ -23,7 +23,7 @@ class Channel
     explicit Channel();
     ~Channel();
 
-    int decode();
+    int decode(const char *, int );
     const char *encode(const char *);
     void send(const char *);
     inline int sendBufSize() { return send_size_;}

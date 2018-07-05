@@ -30,15 +30,18 @@ int onServClose(TcpEndpoint *endpoint, Channel::bufev_struct *bev)
     return 0;
 }
 
-int onServRead(TcpEndpoint *endpoint, Channel::bufev_struct *bev, void *data, int len)
+int onServRead(TcpEndpoint *endpoint, Channel::bufev_struct *bev, void *data_, int len_)
 {
     // STREAM_INFO;
     ChatRoomServer *server = static_cast<ChatRoomServer *>(endpoint);
     evutil_socket_t fd = bufferevent_getfd(bev);
     ChatRoomServer::channel_ptr channel = server->clients[fd];
 
-    while (channel->decode()){}
-    // channel->decode();
+    struct evbuffer *evbuf = bufferevent_get_input(bev);
+    int len = evbuffer_get_length(evbuf);
+    unsigned char *data = evbuffer_pullup(evbuf, len);
+    int has_read = channel->decode((const char *)data,len);
+    evbuffer_drain(evbuf, has_read);
     
     return 0;
 }

@@ -17,45 +17,45 @@ Channel::Channel(Channel::bufev_struct *bufev) : head_(-1),
 Channel::~Channel()
 {}
 
-int Channel::decode()
-{
-  struct evbuffer *evbuf = bufferevent_get_input(bufev_);
-  int len = evbuffer_get_length(evbuf);
+int Channel::decode(const char *data, int len)
+{ 
+  int read(0);
   STREAM_TRACE << " len:" << len;
-  //read 4 bytes
-  if (len >= __int_len__ && head_ < 0)
+
+  for(;;)
   {
-    unsigned char * _len = evbuffer_pullup(evbuf, __int_len__);
-    int * __len = reinterpret_cast<int *>(_len);
-    head_ = *__len;
-    len -= __int_len__;
 
-    STREAM_TRACE << " head:" << head_;
-    evbuffer_drain(evbuf, __int_len__);
+    //read 4 bytes
+    if ((len >= __int_len__) && (head_ < 0))
+    { 
+      ::memcpy(&head_, data, sizeof head_); 
+      read += __int_len__;
+      len -= __int_len__;
+
+      STREAM_TRACE << " head:" << head_;
+    }
+    //one complete msg
+    if (head_ && (len >= head_))
+    {
+      read += head_;
+      len -= head_;
+  
+      STREAM_TRACE << " msg:" << data+read << ", head:" << head_;
+      head_ = -1;
+    }
+
+    if(head_ && (len < head_))
+    {
+      return read;
+    }
+
+    if ((__max_len__ < head_) || (head_ == 0))
+    {
+      // evbuffer_drain(evbuf, len);
+      return len;
+    } 
   }
-  //one complete msg
-  if (head_ && len >= head_)
-  {
-    unsigned char *_msg = evbuffer_pullup(evbuf, head_);
-    len -= head_;
-
-    STREAM_TRACE << " msg:" << _msg;
-    evbuffer_drain(evbuf, head_);
-    head_ = -1;
-  }
-
-  if(head_ && len < head_)
-  {
-    return 0;
-  }
-
-  if (__max_len__ < head_ || head_ == 0)
-  {
-    evbuffer_drain(evbuf, len);
-    return 0;
-  }
-
-  return len;
+  return 0;
 }
 
 const char *
