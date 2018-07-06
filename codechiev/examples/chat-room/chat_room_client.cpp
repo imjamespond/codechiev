@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <boost/bind.hpp>
 
 #include <base/Logger.hpp>
 #include <base/Time.hpp>
@@ -13,33 +14,41 @@ using namespace codechiev::libev;
 typedef struct
 {
     TcpClient *client;
-    Channel::bufev_struct *bufev;
+    TcpEndpoint::bufev_struct *bufev;
 } ChatRoomClient;
-ChatRoomClient __Client__;
+ChatRoomClient __client__;
 
-int onClientConnect(TcpEndpoint *client, Channel::bufev_struct *bev)
+int onMessage(const char* msg, int len)
 {
-    STREAM_INFO;
-    __Client__.bufev = bev;
+    STREAM_INFO << msg;
     return 0;
 }
 
-int onClientClose(TcpEndpoint *client, Channel::bufev_struct *bev)
+int onClientConnect( Channel *channel)
+{
+    // STREAM_INFO;
+    __client__.bufev = channel->bufev;
+    channel->onMessage = boost::bind(onMessage,_1,_2);
+    return 0;
+}
+
+int onClientClose( Channel *channel)
 {
     // STREAM_INFO;
     return 0;
 }
 
-int onClientRead(TcpEndpoint *client, Channel::bufev_struct *bev, void *data, int len)
+int onClientRead( Channel *channel )
 {
-    // std::string msg((char *)data, len);
-    // LOG_INFO ; 
-
-    // client->write(bev, msg.c_str(), len);//within recursive locks
+    struct evbuffer *evbuf = bufferevent_get_input(channel->bufev);
+    int len = evbuffer_get_length(evbuf);
+    unsigned char *data = evbuffer_pullup(evbuf, len);
+    int has_read = channel->decode((const char *)data,len);//consider put it in multiple threads
+    evbuffer_drain(evbuf, has_read);
     return 0;
 }
 
-int onClientWrite(TcpEndpoint *client, Channel::bufev_struct *bev)
+int onClientWrite(Channel *channel)
 {
     // LOG_INFO;
     return 0;

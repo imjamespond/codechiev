@@ -60,7 +60,8 @@ TcpClient::connect()
     throw 1;
   }
 
-  bufferevent_setcb(buffev, _readcb, writecb, eventcb, this);
+  Channel *channel = new Channel(this, buffev);
+  bufferevent_setcb(buffev, readcb, writecb, eventcb, channel);
 
 }
 

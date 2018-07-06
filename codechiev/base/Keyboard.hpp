@@ -16,16 +16,18 @@ namespace codechiev
 
         };
 
+        template<> void keyboard::fscanf<float>(float *);
+        template<> void keyboard::fscanf<char >(char *);
+
         struct keycode
         {
             enum code
             {
                 enter = 10,
+                a = 97, b = 98, c = 99,
+                q = 113,
             };
         };
-
-        template<> void keyboard::fscanf<float>(float *);
-        template<> void keyboard::fscanf<char >(char *);
     }
 }
 

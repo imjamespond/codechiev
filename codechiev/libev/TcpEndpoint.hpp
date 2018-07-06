@@ -21,15 +21,16 @@ class TcpEndpoint : public boost::noncopyable
     explicit TcpEndpoint();
     virtual ~TcpEndpoint();
 
-    static void Write(Channel::bufev_struct *, const char *, size_t);
+    typedef struct bufferevent bufev_struct;
+    static void Write(bufev_struct *, const char *, size_t);
 
   public:
     struct event_base *base;
-
-    typedef boost::function<int(Channel::bufev_struct *)> on_connect_fn;
-    typedef boost::function<int(Channel::bufev_struct *, void *, int)> on_read_fn;
-    typedef boost::function<int(Channel::bufev_struct *)> on_write_fn;
-    typedef boost::function<int(Channel::bufev_struct *)> on_close_fn;
+    
+    typedef boost::function<int(Channel *)> on_connect_fn;
+    typedef boost::function<int(Channel *)> on_read_fn;
+    typedef boost::function<int(Channel *)> on_write_fn;
+    typedef boost::function<int(Channel *)> on_close_fn;
 
     on_connect_fn onConnect;
     on_read_fn onRead;

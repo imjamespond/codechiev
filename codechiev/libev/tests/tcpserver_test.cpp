@@ -22,43 +22,40 @@ class TcpServerExt : public TcpServer
     
     void broadcast(const char *);
 
-    typedef boost::unordered_map<int, Channel::bufev_struct *> BuffereventMap;
+    typedef boost::unordered_map<int, TcpEndpoint::bufev_struct *> BuffereventMap;
     BuffereventMap bevMap;
     int total;
 };
 
 
-int onAccept(TcpServer *serv, Channel::bufev_struct *bev)
+int onAccept( Channel *channel)
 {
     // serv->bevMap[fd] = bev;
     // serv->broadcast("foobar");
     // serv->write(bev, "welcome to visit");
-    
-    TcpServerExt *servext = static_cast<TcpServerExt *>(serv);
+    TcpServerExt *servext = reinterpret_cast<TcpServerExt *>(channel->endpoint);
     ++servext->total;
     return 0;
 }
 
-int onClose(TcpEndpoint *endpoint, Channel::bufev_struct *bev)
+int onClose( Channel *channel)
 {
     // evutil_socket_t fd = bufferevent_getfd(bev);
     // server->bevMap.erase(fd);
     // LOG_TRACE << "buffer event map: " << (int)server->bevMap.size();
-    TcpServerExt *servext = static_cast<TcpServerExt *>(endpoint);
+    TcpServerExt *servext = reinterpret_cast<TcpServerExt *>(channel->endpoint);
     --servext->total;
     return 0;
 }
 
-int onRead(TcpEndpoint *endpoint, Channel::bufev_struct *bev, void *data, int len)
+int onRead( Channel *channel)
 {
-    std::string msg((char *)data, len);
-    LOG_INFO << "read:" << len << "," << msg; 
 
     // endpoint->write(bev, msg.c_str(), len);//within recursive locks
     return 0;
 }
 
-int onWrite(TcpEndpoint *endpoint, Channel::bufev_struct *bev)
+int onWrite( Channel *channel)
 {
     LOG_INFO;
     return 0;
@@ -96,10 +93,10 @@ int main(int argc, char **argv)
 
     Signal signal(server.base, &signal_cb, &server);
 
-    server.onAccept = boost::bind(&onAccept, &server, _1);
-    server.onClose = boost::bind(&onClose, &server, _1);
-    server.onRead = boost::bind(&onRead, &server, _1, _2, _3);
-    server.onWrite = boost::bind(&onWrite, &server, _1);
+    server.onAccept = boost::bind(&onAccept, _1);
+    server.onClose = boost::bind(&onClose, _1);
+    server.onRead = boost::bind(&onRead, _1);
+    server.onWrite = boost::bind(&onWrite, _1);
 
     int inputfd = fileno (stdin);
     struct event inputev;
@@ -134,7 +131,7 @@ TcpServerExt::broadcast(const char * msg)
   BuffereventMap::iterator it;
   for (it = bevMap.begin(); it != bevMap.end(); ++it)
   {
-    Channel::bufev_struct *bev = it->second;
+    TcpEndpoint::bufev_struct *bev = it->second;
 
     if (bev) {
         TcpEndpoint::Write(bev, msg, ::strlen(msg)); 

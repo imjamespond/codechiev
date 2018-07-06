@@ -24,9 +24,9 @@ namespace libev{
         void broadcast(const char *);
         int totalClient();
 
-        typedef boost::shared_ptr<Channel> channel_ptr;
-        typedef boost::unordered_map<int, channel_ptr> BuffereventMap;
-        BuffereventMap clients;
+        // typedef boost::shared_ptr<Channel> channel_ptr;
+        typedef boost::unordered_map<int, Channel*> ChannelMap;
+        ChannelMap channels;
 
       private: 
         typedef codechiev::base::Mutex::mutex_ptr mutex_ptr;

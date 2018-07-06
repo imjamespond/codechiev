@@ -12,22 +12,22 @@
 using namespace codechiev::base;
 using namespace codechiev::libev;
  
-Channel::bufev_struct *BufEv(NULL);
+TcpEndpoint::bufev_struct *BufEv(NULL);
 
-int onConnect(TcpClient *cli, Channel::bufev_struct *bev)
+int onConnect(Channel *channel)
 {
     // LOG_INFO << ""; 
-    BufEv = bev;
+    // BufEv = channel->bufev;
     return 0;
 }
 
-int onClose(TcpClient *client, Channel::bufev_struct *bev)
+int onClose(Channel *channel)
 {
     // LOG_INFO;
     return 0;
 }
 
-int onRead(TcpClient *client, Channel::bufev_struct *bev, void *data, int len)
+int onRead(Channel *channel)
 {
     // std::string msg((char *)data, len);
     // LOG_INFO << "read:" << len << "," << msg; 
@@ -36,7 +36,7 @@ int onRead(TcpClient *client, Channel::bufev_struct *bev, void *data, int len)
     return 0;
 }
 
-int onWrite(TcpClient *server, Channel::bufev_struct *bev)
+int onWrite(Channel *channel)
 {
     // LOG_INFO << "";
     return 0;
@@ -47,10 +47,10 @@ void run_client(int argc, const char * argv[])
     const char * hostname = argc>2 ? argv[2] : "127.0.0.1:12345";
     TcpClient client(hostname);
 
-    client.onConnect = boost::bind(&onConnect, &client, _1);
-    client.onClose = boost::bind(&onClose, &client, _1);
-    client.onRead = boost::bind(&onRead, &client, _1, _2, _3);
-    client.onWrite = boost::bind(&onWrite, &client, _1);
+    client.onConnect = boost::bind(&onConnect, _1);
+    client.onClose = boost::bind(&onClose, _1);
+    client.onRead = boost::bind(&onRead, _1);
+    client.onWrite = boost::bind(&onWrite, _1);
 
     int num = argc>1 ? boost::lexical_cast<int>(argv[1]) : 10;
     for(int i=0; i<num; i++)

@@ -12,14 +12,19 @@ TcpEndpoint::TcpEndpoint():base(NULL)
   evthread_use_pthreads();
 }
 
-void TcpEndpoint::Write(Channel::bufev_struct *bev,
-                      const char *msg,
-                      size_t size)
+void 
+TcpEndpoint::Write(bufev_struct *bev,
+                   const char *msg,
+                   size_t size)
 {
   bufferevent_lock(bev);
   bufferevent_enable(bev, EV_WRITE);
   bufferevent_disable(bev, EV_READ);
-  msg && bufferevent_write(bev, msg, size);
+  //The data is appended to the output buffer and written to the descriptor automatically as it becomes available for writing.
+  if (msg) 
+  {
+    bufferevent_write(bev, msg, size);
+  }
   bufferevent_unlock(bev);
 }
 
@@ -30,14 +35,16 @@ TcpEndpoint::~TcpEndpoint()
 }
 
 void 
-codechiev::libev::eventcb(struct bufferevent *bev, short events, void *user_data)
+codechiev::libev::eventcb(TcpEndpoint::bufev_struct *bev, short events, void *ctx)
 {
-  TcpEndpoint *endpoint = static_cast<TcpEndpoint *>(user_data);
+  Channel *channel = static_cast<Channel *>(ctx);
+  const TcpEndpoint *endpoint = channel->endpoint;
 
   if (events & BEV_EVENT_EOF)
   {
     bufferevent_lock(bev);
-    endpoint->onClose && endpoint->onClose(bev);
+    endpoint->onClose && endpoint->onClose(channel);
+    delete channel;
     bufferevent_free(bev);
     bufferevent_unlock(bev);
   }
@@ -45,26 +52,34 @@ codechiev::libev::eventcb(struct bufferevent *bev, short events, void *user_data
   {
     printf("Got an error on the connection: %s\n", strerror(errno)); /*XXX win32*/
     bufferevent_free(bev);
+    delete channel;
   }  
   else if (events & BEV_EVENT_CONNECTED)
   {
     bufferevent_enable(bev, EV_READ);
     bufferevent_disable(bev, EV_WRITE);
 
-    endpoint->onConnect && endpoint->onConnect(bev);
+    endpoint->onConnect && endpoint->onConnect(channel);
   }
+  // A timeout expired on the bufferevent.
+  // if(events & BEV_EVENT_TIMEOUT) 
+  // {
+  // }
   else
   {
+    
     printf("None of the other events can happen here, since we haven't enabled "\
 	    "timeouts");
     bufferevent_free(bev);
+    delete channel;
   }
 }
 
 void 
-codechiev::libev::readcb(struct bufferevent *bufev, void *ctx)
+codechiev::libev::readcb(TcpEndpoint::bufev_struct *bufev, void *ctx)
 {
-  TcpEndpoint *endpoint = static_cast<TcpEndpoint *>(ctx);
+  Channel *channel = static_cast<Channel *>(ctx);
+  const TcpEndpoint *endpoint = channel->endpoint;
 
   bufferevent_lock(bufev);
   // struct evbuffer *evbuf = bufferevent_get_input(bufev);
@@ -85,7 +100,7 @@ codechiev::libev::readcb(struct bufferevent *bufev, void *ctx)
   //     endpoint->onRead && endpoint->onRead(bufev, data, len);
   //   }
   // }
-  endpoint->onRead && endpoint->onRead(bufev, NULL, 0);
+  endpoint->onRead && endpoint->onRead(channel);
 
   // evbuffer_drain(evbuf, len); //Remove a specified number of bytes data from the beginning of an evbuffer
 
@@ -93,9 +108,10 @@ codechiev::libev::readcb(struct bufferevent *bufev, void *ctx)
 }
 
 void 
-codechiev::libev::writecb(struct bufferevent *bev, void *user_data)
+codechiev::libev::writecb(TcpEndpoint::bufev_struct *bev, void *ctx)
 {
-  TcpEndpoint *endpoint = static_cast<TcpEndpoint *>(user_data);
+  Channel *channel = static_cast<Channel *>(ctx);
+  const TcpEndpoint *endpoint = channel->endpoint;
 
   bufferevent_lock(bev);
   struct evbuffer *output = bufferevent_get_output(bev);
@@ -106,7 +122,7 @@ codechiev::libev::writecb(struct bufferevent *bev, void *user_data)
     bufferevent_enable(bev, EV_READ);
     bufferevent_disable(bev, EV_WRITE);
 
-    endpoint->onWrite && endpoint->onWrite(bev);
+    endpoint->onWrite && endpoint->onWrite(channel);
   }
   bufferevent_unlock(bev);
 }

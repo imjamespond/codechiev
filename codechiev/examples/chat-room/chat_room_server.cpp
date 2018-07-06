@@ -12,41 +12,41 @@
 using namespace codechiev::base;
 using namespace codechiev::libev;
 
-int onServAccept(TcpServer *server, Channel::bufev_struct *bev)
-{
-    ChatRoomServer *serv = static_cast<ChatRoomServer *>(server);
-    evutil_socket_t fd = bufferevent_getfd(bev);
-    serv->clients[fd] = ChatRoomServer::channel_ptr(new Channel(bev));
+int onServAccept(Channel *channel)
+{ 
+    ChatRoomServer * const serv = static_cast<ChatRoomServer *>(channel->endpoint);
+    evutil_socket_t fd = bufferevent_getfd(channel->bufev);
+    serv->channels[fd] = channel;
     // STREAM_INFO;
     return 0;
 }
 
-int onServClose(TcpEndpoint *endpoint, Channel::bufev_struct *bev)
+int onServClose(Channel *channel)
 {
-    ChatRoomServer *server = static_cast<ChatRoomServer *>(endpoint);
-    evutil_socket_t fd = bufferevent_getfd(bev);
-    server->clients.erase(fd);
+    ChatRoomServer * const serv = static_cast<ChatRoomServer *>(channel->endpoint);
+    evutil_socket_t fd = bufferevent_getfd(channel->bufev);
+    serv->channels.erase(fd);
     // STREAM_INFO;
     return 0;
 }
 
-int onServRead(TcpEndpoint *endpoint, Channel::bufev_struct *bev, void *data_, int len_)
+int onServRead(Channel *channel)
 {
     // STREAM_INFO;
-    ChatRoomServer *server = static_cast<ChatRoomServer *>(endpoint);
-    evutil_socket_t fd = bufferevent_getfd(bev);
-    ChatRoomServer::channel_ptr channel = server->clients[fd];
+    // ChatRoomServer * const serv = static_cast<ChatRoomServer *>(channel->endpoint);
+    // evutil_socket_t fd = bufferevent_getfd(channel->bufev);
+    // ChatRoomServer::channel_ptr channel = server->clients[fd];
 
-    struct evbuffer *evbuf = bufferevent_get_input(bev);
+    struct evbuffer *evbuf = bufferevent_get_input(channel->bufev);
     int len = evbuffer_get_length(evbuf);
     unsigned char *data = evbuffer_pullup(evbuf, len);
-    int has_read = channel->decode((const char *)data,len);
+    int has_read = channel->decode((const char *)data,len);//consider put it in multiple threads
     evbuffer_drain(evbuf, has_read);
     
     return 0;
 }
 
-int onServWrite(TcpEndpoint *endpoint, Channel::bufev_struct *bev)
+int onServWrite(Channel *channel)
 {
     // STREAM_INFO;
     return 0;
@@ -59,13 +59,13 @@ void
 ChatRoomServer::broadcast(const char * msg)
 {
   //TODO must lock buffer, lock bevMap
-  BuffereventMap::iterator it;
-  for (it = clients.begin(); it != clients.end(); ++it)
+  ChannelMap::iterator it;
+  for (it = channels.begin(); it != channels.end(); ++it)
   {
-    channel_ptr channel = it->second;
+    Channel *channel = it->second;
     if (channel) 
     {
-        // channel->send(msg, ::strlen(msg)); 
+        channel->send(msg); 
     }
     else
     {
@@ -79,5 +79,5 @@ int
 ChatRoomServer::totalClient()
 {
     MutexLock lock(mutex_);
-    return clients.size();
+    return channels.size();
 }
