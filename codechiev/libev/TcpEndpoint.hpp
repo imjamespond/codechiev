@@ -24,9 +24,11 @@ class TcpEndpoint : public boost::noncopyable
     typedef struct bufferevent bufev_struct;
     static void Write(bufev_struct *, const char *, size_t);
 
+    virtual int stop() = 0;
   public:
     struct event_base *base;
     
+    //run in io(libevent) thread
     typedef boost::function<int(Channel *)> on_connect_fn;
     typedef boost::function<int(Channel *)> on_read_fn;
     typedef boost::function<int(Channel *)> on_write_fn;

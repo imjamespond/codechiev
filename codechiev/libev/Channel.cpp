@@ -14,10 +14,14 @@ Channel::Channel(TcpEndpoint *endpoint, bufev_struct *bufev) : endpoint(endpoint
                                           //  send_cursor_(0),
                                           send_size_(0),
                                           send_buf_(__max_len__)
-{}
+{
+  fd = bufferevent_getfd(bufev);//evutil_socket_t
+}
 
 Channel::~Channel()
-{}
+{
+  bufferevent_free(bufev);
+}
 
 int Channel::decode(const char *data, int len)
 { 
@@ -42,7 +46,7 @@ int Channel::decode(const char *data, int len)
     { 
       const char * msg = data+read;
       STREAM_TRACE << " msg:" << msg << ", head:" << head_ ;
-      onMessage && onMessage(msg, head_);
+      onMessage && onMessage(msg, head_, fd);
       
       read += head_;
       len -= head_;

@@ -23,7 +23,7 @@ int onConnect(Channel *channel)
 
 int onClose(Channel *channel)
 {
-    // LOG_INFO;
+    LOG_INFO;
     return 0;
 }
 

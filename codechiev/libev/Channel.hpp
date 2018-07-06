@@ -7,7 +7,7 @@
 #include <event2/bufferevent.h> 
 
 #include <vector>
-#include <boost/function.hpp>
+#include <boost/function.hpp> 
 
 namespace codechiev
 {
@@ -19,7 +19,7 @@ class Channel
 {
   public: 
     typedef std::vector<char> buf_vec;
-    typedef boost::function<int(const char*, int)> on_message_func;
+    typedef boost::function<int(const char*, int, int)> on_message_func;//msg, head, fd
     typedef struct bufferevent bufev_struct;
 
     explicit Channel(TcpEndpoint *, bufev_struct *);
@@ -35,6 +35,7 @@ class Channel
     TcpEndpoint * const endpoint;
     bufev_struct * const bufev;
     on_message_func onMessage;
+    int fd;
   private:
     int head_; 
     // int send_cursor_;

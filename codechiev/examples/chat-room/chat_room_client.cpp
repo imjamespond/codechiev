@@ -11,15 +11,16 @@
 using namespace codechiev::base;
 using namespace codechiev::libev;
 
-typedef struct
-{
-    TcpClient *client;
-    TcpEndpoint::bufev_struct *bufev;
-} ChatRoomClient;
-ChatRoomClient __client__;
+// typedef struct
+// {
+//     TcpClient *client;
+//     TcpEndpoint::bufev_struct *bufev;
+// } ChatRoomClient;
+Channel *__client__(NULL);
 
-int onMessage(const char* msg, int len)
+int onMessage(const char* msg, int len, int fd)
 {
+
     STREAM_INFO << msg;
     return 0;
 }
@@ -27,14 +28,15 @@ int onMessage(const char* msg, int len)
 int onClientConnect( Channel *channel)
 {
     // STREAM_INFO;
-    __client__.bufev = channel->bufev;
-    channel->onMessage = boost::bind(onMessage,_1,_2);
+    __client__ = channel;
+    channel->onMessage = boost::bind(onMessage,_1,_2,_3);
     return 0;
 }
 
 int onClientClose( Channel *channel)
 {
     // STREAM_INFO;
+    delete channel;
     return 0;
 }
 

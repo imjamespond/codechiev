@@ -14,18 +14,16 @@ using namespace codechiev::libev;
 
 int onServAccept(Channel *channel)
 { 
-    ChatRoomServer * const serv = static_cast<ChatRoomServer *>(channel->endpoint);
-    evutil_socket_t fd = bufferevent_getfd(channel->bufev);
-    serv->channels[fd] = channel;
+    ChatRoomServer * const serv = static_cast<ChatRoomServer *>(channel->endpoint); 
+    serv->channels[channel->fd] = ChatRoomServer::channel_ptr(channel);
     // STREAM_INFO;
     return 0;
 }
 
 int onServClose(Channel *channel)
 {
-    ChatRoomServer * const serv = static_cast<ChatRoomServer *>(channel->endpoint);
-    evutil_socket_t fd = bufferevent_getfd(channel->bufev);
-    serv->channels.erase(fd);
+    ChatRoomServer * const serv = static_cast<ChatRoomServer *>(channel->endpoint); 
+    serv->channels.erase(channel->fd);
     // STREAM_INFO;
     return 0;
 }
@@ -62,7 +60,7 @@ ChatRoomServer::broadcast(const char * msg)
   ChannelMap::iterator it;
   for (it = channels.begin(); it != channels.end(); ++it)
   {
-    Channel *channel = it->second;
+    channel_ptr channel = it->second;
     if (channel) 
     {
         channel->send(msg); 
