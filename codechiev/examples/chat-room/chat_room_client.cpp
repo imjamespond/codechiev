@@ -18,24 +18,24 @@ using namespace codechiev::libev;
 // } ChatRoomClient;
 Channel *__client__(NULL);
 
-int onMessage(const char* msg, int len, int fd)
+int onMessage(const char* msg, int len, Channel *channel)
 {
-
-    STREAM_INFO << msg;
+    // __client__ = channel;
+    std::string msg_str(msg, len);
+    STREAM_INFO << msg_str;
     return 0;
 }
 
 int onClientConnect( Channel *channel)
 {
     // STREAM_INFO;
-    __client__ = channel;
     channel->onMessage = boost::bind(onMessage,_1,_2,_3);
     return 0;
 }
 
 int onClientClose( Channel *channel)
 {
-    // STREAM_INFO;
+    STREAM_TRACE;
     delete channel;
     return 0;
 }

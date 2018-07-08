@@ -35,7 +35,7 @@ namespace codechiev {
 
         private:
             Level level_;
-            typedef FixedBuffer<256> Buffer;
+            typedef FixedBuffer<1024> Buffer;
             Buffer buffer_;
             int carriage_;
             int detail_;

@@ -8,8 +8,7 @@
 #include <base/Logger.hpp>
 #include <base/BlockedQueue.hpp>
 
-using namespace codechiev::base;
-extern BlockedQueue<1> __logger_stream_queue__;
+using namespace codechiev::base; 
 
 int statistic(int64_t costMillis)
 {

@@ -20,6 +20,7 @@ Channel::Channel(TcpEndpoint *endpoint, bufev_struct *bufev) : endpoint(endpoint
 
 Channel::~Channel()
 {
+  STREAM_TRACE<<fd;
   bufferevent_free(bufev);
 }
 
@@ -46,7 +47,10 @@ int Channel::decode(const char *data, int len)
     { 
       const char * msg = data+read;
       STREAM_TRACE << " msg:" << msg << ", head:" << head_ ;
-      onMessage && onMessage(msg, head_, fd);
+      if(onMessage) 
+      {
+        onMessage(msg, head_, this);
+      } 
       
       read += head_;
       len -= head_;
@@ -81,6 +85,10 @@ Channel::encode(const char *msg)
 {
   int head(::strlen (msg));
   int head_len(sizeof(int));
+  if(head_len>__max_len__)
+  {
+    return NULL;
+  }
   ::memcpy(&send_buf_[send_size_], &head, head_len);
   send_size_+=head_len;
   // send_cursor_+=head_len;
@@ -94,6 +102,9 @@ void
 Channel::send(const char *msg)
 {
   const char *encoded = encode(msg);
-  TcpEndpoint::Write(this->bufev, encoded, send_size_);
-  send_size_ = 0;
+  if(encoded)
+  { 
+    TcpEndpoint::Write(this->bufev, encoded, send_size_);
+    send_size_ = 0;
+  }
 }

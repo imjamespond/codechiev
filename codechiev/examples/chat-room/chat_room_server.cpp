@@ -1,8 +1,4 @@
-#include <libev/TcpServer.hpp>
-#include <libev/Channel.hpp>
-#include <libev/Signal.hpp>
-#include <base/Logger.hpp>
-#include <base/Mutex.hpp>
+#include <libev/TcpServer.hpp> 
 
 #include <boost/bind.hpp>
 #include <boost/unordered_map.hpp> 
@@ -12,11 +8,21 @@
 using namespace codechiev::base;
 using namespace codechiev::libev;
 
+void 
+ChatRoomServer::onMessage(const char* msg, int len, Channel *channel)
+{ 
+    std::string msg_str(msg, len);
+    ChatRoomServer * const serv = static_cast<ChatRoomServer *>(channel->endpoint); 
+    queue.add(boost::bind(&ChatRoomServer::addCount, serv));
+}
+
 int onServAccept(Channel *channel)
 { 
     ChatRoomServer * const serv = static_cast<ChatRoomServer *>(channel->endpoint); 
     serv->channels[channel->fd] = ChatRoomServer::channel_ptr(channel);
-    // STREAM_INFO;
+    channel->onMessage = boost::bind(&ChatRoomServer::onMessage, serv, _1,_2,_3);
+
+    STREAM_TRACE<<channel->fd;
     return 0;
 }
 
@@ -24,17 +30,12 @@ int onServClose(Channel *channel)
 {
     ChatRoomServer * const serv = static_cast<ChatRoomServer *>(channel->endpoint); 
     serv->channels.erase(channel->fd);
-    // STREAM_INFO;
+    STREAM_TRACE;
     return 0;
 }
 
 int onServRead(Channel *channel)
 {
-    // STREAM_INFO;
-    // ChatRoomServer * const serv = static_cast<ChatRoomServer *>(channel->endpoint);
-    // evutil_socket_t fd = bufferevent_getfd(channel->bufev);
-    // ChatRoomServer::channel_ptr channel = server->clients[fd];
-
     struct evbuffer *evbuf = bufferevent_get_input(channel->bufev);
     int len = evbuffer_get_length(evbuf);
     unsigned char *data = evbuffer_pullup(evbuf, len);
@@ -51,7 +52,9 @@ int onServWrite(Channel *channel)
 }
 
 ChatRoomServer::ChatRoomServer() : TcpServer(12345), mutex_(new Mutex)
-{ }
+{ 
+    queue.start();
+}
 
 void 
 ChatRoomServer::broadcast(const char * msg)

@@ -19,7 +19,7 @@ class Channel
 {
   public: 
     typedef std::vector<char> buf_vec;
-    typedef boost::function<int(const char*, int, int)> on_message_func;//msg, head, fd
+    typedef boost::function<void(const char*, int, Channel *)> on_message_func;//msg, head, fd
     typedef struct bufferevent bufev_struct;
 
     explicit Channel(TcpEndpoint *, bufev_struct *);
@@ -29,7 +29,8 @@ class Channel
     int decode(const char *, int );
     const char *encode(const char *);
     void send(const char *);
-    inline int sendBufSize() { return send_size_;}
+    inline int getSendBufSize() { return send_size_;}
+    inline void setSendBufSize(int size) { send_size_ = size;}
     inline const buf_vec &sendBuf() { return send_buf_; }
 
     TcpEndpoint * const endpoint;

@@ -44,7 +44,7 @@ public:
   typedef std::vector<thread_ptr> thread_vec;
   thread_vec threads_;
 
-  typedef boost::function<int()> job_func;
+  typedef boost::function<void()> job_func;
   typedef std::deque<job_func> blocked_queue;
   blocked_queue queue_;
 
@@ -85,26 +85,23 @@ public:
   void runInThread()
   {
     while (1)
-    { 
+    {
+
       try
       {
-        if (!running_)
-        {
-          return;
-        }
-
         job_func job = take();
         if (job)
         {
-          int quit = job();
-          if (quit == 1) //prevent not return value. One such mechanism, which has negligible overhead(开销), is to use a special value
-          {
-            return;
-          }
+          job();
         }
         else
         {
           MutexGuard lock(&mutex_);
+          if (!running_)
+          {
+            LOG_TRACE << "queue thread exit";
+            break;
+          }
           latch_.wait(mutex_);
         }
       }

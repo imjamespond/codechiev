@@ -79,7 +79,7 @@ void on_server_run()
     Latch.unlatch();
 }
 
-void test_1();
+int test_1();
 
 int main(int argc, const char *argv[])
 { 
@@ -97,7 +97,7 @@ int main(int argc, const char *argv[])
         code = keyboard::getchar();
         if(code == keycode::a)
         {
-            test_1();
+            __client__ && test_1();
         }
         else if(code == keycode::b)
         {
@@ -114,10 +114,14 @@ int main(int argc, const char *argv[])
             { 
                 printf("display total connections: %d\n", __server_ptr__->totalClient());
             }
+            else if (0 == strcmp(buffer, "count"))
+            {
+                printf("count: %d\n", __server_ptr__->getCount());
+            }
             else if (0 == strcmp(buffer, "stop"))
             {
                 __server_ptr__->stop();
-                __client__->endpoint->stop();
+                // __client__ && __client__->endpoint->stop();
                 break;
             } 
         }
@@ -131,14 +135,14 @@ int main(int argc, const char *argv[])
     return 0;
 } 
 
-void test_1()
+int test_1()
 {
     const char msg[] = "welcome to chatroom";
     const char *encoded = __client__->encode(msg);
     __client__->encode(msg);
     __client__->encode(msg);
     // STREAM_INFO << encoded+4;
-    int sendBufSize = __client__->sendBufSize();
+    int sendBufSize = __client__->getSendBufSize();
     int count(0),len(0);
     
     len = 2;
@@ -156,5 +160,8 @@ void test_1()
 
     int left(sendBufSize-count);
     printf("sending %d byte\n", left);
-    TcpEndpoint::Write(__client__->bufev, encoded+count, left); 
+    TcpEndpoint::Write(__client__->bufev, encoded+count, left);
+
+    __client__->setSendBufSize(0);
+    return 0;
 }
