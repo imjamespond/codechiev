@@ -49,7 +49,7 @@ codechiev::libev::eventcb(TcpEndpoint::bufev_struct *bev, short events, void *ct
   }
   else if (events & BEV_EVENT_ERROR)
   {
-    printf("Got an error on the connection: %s\n", strerror(errno)); /*XXX win32*/
+    LOG_ERROR<<"Got an error on the connection: " << strerror(errno); /*XXX win32*/
     endpoint->onClose && endpoint->onClose(channel);//must delete channel;
     // bufferevent_free(bev); 
   }  
@@ -66,10 +66,9 @@ codechiev::libev::eventcb(TcpEndpoint::bufev_struct *bev, short events, void *ct
   // }
   else
   {
-    
-    printf("None of the other events can happen here, since we haven't enabled "\
+    LOG_ERROR<<("None of the other events can happen here, since we haven't enabled "\
 	    "timeouts");
-      endpoint->onClose && endpoint->onClose(channel);//must delete channel;
+    endpoint->onClose && endpoint->onClose(channel);//must delete channel;
     // bufferevent_free(bev); 
   }
 }

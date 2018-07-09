@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <boost/bind.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/unordered_map.hpp> 
 
 #include <base/Logger.hpp>
 #include <base/Time.hpp>
@@ -16,11 +18,13 @@ using namespace codechiev::libev;
 //     TcpClient *client;
 //     TcpEndpoint::bufev_struct *bufev;
 // } ChatRoomClient;
-Channel *__client__(NULL);
+
+typedef boost::shared_ptr<Channel> channel_ptr;
+typedef boost::unordered_map<int, channel_ptr> ChannelMap;
+ChannelMap __client_channels__; 
 
 int onMessage(const char* msg, int len, Channel *channel)
-{
-    // __client__ = channel;
+{ 
     std::string msg_str(msg, len);
     STREAM_INFO << msg_str;
     return 0;
@@ -28,7 +32,8 @@ int onMessage(const char* msg, int len, Channel *channel)
 
 int onClientConnect( Channel *channel)
 {
-    // STREAM_INFO;
+    STREAM_TRACE;
+    __client_channels__[channel->fd] = channel_ptr(channel);
     channel->onMessage = boost::bind(onMessage,_1,_2,_3);
     return 0;
 }
@@ -36,7 +41,7 @@ int onClientConnect( Channel *channel)
 int onClientClose( Channel *channel)
 {
     STREAM_TRACE;
-    delete channel;
+    __client_channels__.erase(channel->fd);
     return 0;
 }
 

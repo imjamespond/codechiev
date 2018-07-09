@@ -1,19 +1,23 @@
 #include "Channel.hpp"
 #include "TcpEndpoint.hpp"
+
 #include <base/Logger.hpp>
+#include <base/Singleton.hpp>
+
 #include <string>
 
-using namespace codechiev::libev; 
+using namespace codechiev::base;
+using namespace codechiev::libev;
 
 const int __head_len__(sizeof(int));
 const int __max_len__(1<<16);
 
 Channel::Channel(TcpEndpoint *endpoint, bufev_struct *bufev) : endpoint(endpoint),
                                           bufev(bufev),
-                                          head_(-1),
-                                          //  send_cursor_(0),
-                                          send_size_(0),
-                                          send_buf_(__max_len__)
+                                          head_(-1)
+                                          // send_cursor_(0),
+                                          // send_size_(0)
+                                          // send_buf_(__max_len__)
 {
   fd = bufferevent_getfd(bufev);//evutil_socket_t
 }
@@ -81,7 +85,7 @@ int Channel::decode(const char *data, int len)
 }
 
 const char *
-Channel::encode(const char *msg)
+Channel::encode(const char *msg, SendBuffer *buf)
 {
   int head(::strlen (msg));
   int head_len(sizeof(int));
@@ -89,22 +93,23 @@ Channel::encode(const char *msg)
   {
     return NULL;
   }
-  ::memcpy(&send_buf_[send_size_], &head, head_len);
-  send_size_+=head_len;
+  ::memcpy(&buf->send_buf[buf->send_size], &head, head_len);
+  buf->send_size += head_len;
   // send_cursor_+=head_len;
-  std::copy(msg, msg + head, send_buf_.begin() + send_size_);
-  send_size_+=head;
+  std::copy(msg, msg + head, buf->send_buf.begin() + buf->send_size);
+  buf->send_size += head;
   // send_cursor_+=head;
-  return send_buf_.data();
+  return buf->send_buf.data();
 }
 
 void
 Channel::send(const char *msg)
 {
-  const char *encoded = encode(msg);
+  SendBuffer *buf = ThreadSingleton<SendBuffer>::Get();
+  const char *encoded = encode(msg, buf);
   if(encoded)
-  { 
-    TcpEndpoint::Write(this->bufev, encoded, send_size_);
-    send_size_ = 0;
+  {
+    TcpEndpoint::Write(this->bufev, encoded, buf->send_size);
+    buf->send_size = 0;
   }
 }

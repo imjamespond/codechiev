@@ -13,36 +13,43 @@ namespace codechiev
 {
 namespace libev
 {
-
-class TcpEndpoint;
-class Channel 
-{
-  public: 
+  struct SendBuffer
+  { 
     typedef std::vector<char> buf_vec;
-    typedef boost::function<void(const char*, int, Channel *)> on_message_func;//msg, head, fd
-    typedef struct bufferevent bufev_struct;
+    buf_vec send_buf;
+    int send_size;
+    SendBuffer() : send_buf(1 << 10), send_size(0)
+    {}
+  };
 
-    explicit Channel(TcpEndpoint *, bufev_struct *);
-    explicit Channel();
-    ~Channel();
+  class TcpEndpoint;
+  class Channel 
+  {
+    public: 
+      typedef boost::function<void(const char*, int, Channel *)> on_message_func;//msg, head, fd
+      typedef struct bufferevent bufev_struct;
 
-    int decode(const char *, int );
-    const char *encode(const char *);
-    void send(const char *);
-    inline int getSendBufSize() { return send_size_;}
-    inline void setSendBufSize(int size) { send_size_ = size;}
-    inline const buf_vec &sendBuf() { return send_buf_; }
+      explicit Channel(TcpEndpoint *, bufev_struct *);
+      explicit Channel();
+      ~Channel();
 
-    TcpEndpoint * const endpoint;
-    bufev_struct * const bufev;
-    on_message_func onMessage;
-    int fd;
-  private:
-    int head_; 
-    // int send_cursor_;
-    int send_size_;
-    buf_vec send_buf_;
-};
+      int decode(const char *, int );
+      const char *encode(const char *, SendBuffer *);
+      void send(const char *);
+      // inline int getSendBufSize() { return send_size_;}
+      // inline void setSendBufSize(int size) { send_size_ = size;}
+      // inline const buf_vec &sendBuf() { return send_buf_; }
+
+      TcpEndpoint * const endpoint;
+      bufev_struct * const bufev;
+      on_message_func onMessage;
+      int fd;
+    private:
+      int head_; 
+      // int send_cursor_;
+      // int send_size_;
+      // buf_vec send_buf_;// poor performance!!!
+  };
 
 } // namespace libev
 } // namespace codechiev

@@ -40,7 +40,7 @@ add_executable (${UnitTest} ${UnitTest}.cpp)
 target_link_libraries (${UnitTest} ccv_base)
 add_test(${UnitTest} ${CMAKE_CURRENT_BINARY_DIR}/${UnitTest})
 
-SET (UnitTest functor_test)
+SET (UnitTest boost_test)
 add_executable (${UnitTest} ${UnitTest}.cpp)
 target_link_libraries (${UnitTest} ccv_base)
 add_test(${UnitTest} ${CMAKE_CURRENT_BINARY_DIR}/${UnitTest})

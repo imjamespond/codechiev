@@ -56,9 +56,11 @@ public:
   void add(const job_func &job)
   {
     MutexGuard lock(&mutex_);
-    queue_.push_back(job);
-
-    latch_.notifyall();
+    if (running_)
+    {
+      queue_.push_back(job);
+      latch_.notifyall();
+    }
   }
 
   int size()
@@ -99,7 +101,7 @@ public:
           MutexGuard lock(&mutex_);
           if (!running_)
           {
-            LOG_TRACE << "queue thread exit";
+            LOG_TRACE << "queue thread exit, queue size:" << (int)queue_.size();
             break;
           }
           latch_.wait(mutex_);

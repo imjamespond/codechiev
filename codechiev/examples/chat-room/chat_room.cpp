@@ -30,13 +30,17 @@ int onClientRead(Channel*);
 int onClientWrite(Channel*);
 
 ChatRoomServer *__server_ptr__;
+TcpClient *__client__;
+
+typedef boost::shared_ptr<Channel> channel_ptr;
+typedef boost::unordered_map<int, channel_ptr> ChannelMap;
+extern ChannelMap __client_channels__; 
 
 // typedef struct
 // {
 //     TcpClient *client;
 //     TcpEndpoint::bufev_struct *bufev;
 // } ChatRoomClient;
-extern Channel *__client__;
 
 void on_server_run();
 void run_server()
@@ -59,6 +63,7 @@ void run_client(int argc, const char *argv[])
 {
     const char *hostname = argc > 2 ? argv[2] : "127.0.0.1:12345";
     TcpClient client(hostname);
+    __client__ = &client;
 
     client.onConnect = boost::bind(&onClientConnect, _1);
     client.onClose = boost::bind(&onClientClose, _1);
@@ -80,6 +85,7 @@ void on_server_run()
 }
 
 int test_1();
+int test_2();
 
 int main(int argc, const char *argv[])
 { 
@@ -97,7 +103,11 @@ int main(int argc, const char *argv[])
         code = keyboard::getchar();
         if(code == keycode::a)
         {
-            __client__ && test_1();
+            // __client__ && test_1();
+        }
+        else if(code == keycode::num2)
+        {
+            test_2();
         }
         else if(code == keycode::b)
         {
@@ -106,10 +116,10 @@ int main(int argc, const char *argv[])
         else if(code == keycode::c)
         {
             printf("command:");
-
             char buffer[32] = {0};
             keyboard::fscanf(buffer); 
             printf("\nexecute: %s\n", buffer);
+
             if (0 == strcmp(buffer, "total"))
             { 
                 printf("display total connections: %d\n", __server_ptr__->totalClient());
@@ -135,33 +145,56 @@ int main(int argc, const char *argv[])
     return 0;
 } 
 
-int test_1()
+// int test_1()
+// {
+//     const char msg[] = "welcome to chatroom";
+//     const char *encoded = __client__->encode(msg);
+//     __client__->encode(msg);
+//     __client__->encode(msg);
+//     // STREAM_INFO << encoded+4;
+//     int sendBufSize = __client__->getSendBufSize();
+//     int count(0),len(0);
+    
+//     len = 2;
+//     printf("sending %d byte\n", len);
+//     TcpEndpoint::Write(__client__->bufev, encoded+count, len);
+//     count+=2; 
+//     Time::SleepMillis(500l);
+    
+
+//     len = 10;
+//     printf("sending %d byte\n", len);
+//     TcpEndpoint::Write(__client__->bufev, encoded+count, len);
+//     count+=10; 
+//     Time::SleepMillis(500l);
+
+//     int left(sendBufSize-count);
+//     printf("sending %d byte\n", left);
+//     TcpEndpoint::Write(__client__->bufev, encoded+count, left);
+
+//     __client__->setSendBufSize(0);
+//     return 0;
+// }
+
+int test_2()
 {
-    const char msg[] = "welcome to chatroom";
-    const char *encoded = __client__->encode(msg);
-    __client__->encode(msg);
-    __client__->encode(msg);
-    // STREAM_INFO << encoded+4;
-    int sendBufSize = __client__->getSendBufSize();
-    int count(0),len(0);
-    
-    len = 2;
-    printf("sending %d byte\n", len);
-    TcpEndpoint::Write(__client__->bufev, encoded+count, len);
-    count+=2; 
-    Time::SleepMillis(500l);
-    
+    printf("input msg: \n");
+    char msg[32] = {0};
+    keyboard::fscanf(msg); 
+    printf("msg: %s\n", msg);
+    ChannelMap::iterator it;
+    for (it = __client_channels__.begin(); it != __client_channels__.end(); ++it)
+    {
+        channel_ptr channel = it->second;
+    if (channel) 
+    {
+        channel->send(msg); 
+    }
+    else
+    {
+        LOG_TRACE << "bufferevent is null";
+    }
 
-    len = 10;
-    printf("sending %d byte\n", len);
-    TcpEndpoint::Write(__client__->bufev, encoded+count, len);
-    count+=10; 
-    Time::SleepMillis(500l);
-
-    int left(sendBufSize-count);
-    printf("sending %d byte\n", left);
-    TcpEndpoint::Write(__client__->bufev, encoded+count, left);
-
-    __client__->setSendBufSize(0);
+    }
     return 0;
 }
