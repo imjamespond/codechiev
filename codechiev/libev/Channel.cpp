@@ -50,7 +50,7 @@ int Channel::decode(const char *data, int len)
     if (head_ > 0 && len >= head_)
     { 
       const char * msg = data+read;
-      STREAM_TRACE << " msg:" << msg << ", head:" << head_ ;
+      STREAM_TRACE << " msg head:" << head_ ;
       if(onMessage) 
       {
         onMessage(msg, head_, this);
