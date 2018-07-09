@@ -23,7 +23,7 @@ struct Timer
     typedef struct event_base event_base_struct;
 
     typedef boost::function<void()> timeout_callback_fn;
-    explicit Timer(event_base_struct *, int = EV_READ | EV_ET);
+    explicit Timer(event_base_struct *, int = EV_READ); //EV_PERSIST, ?(| EV_ET)
     // explicit Timer(event_base_struct *, event_callback_fn, int = EV_READ, void * = NULL);
     // explicit Timer(event_callback_fn, int, void*);
     // ~Timer();

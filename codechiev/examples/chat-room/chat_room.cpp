@@ -43,6 +43,7 @@ extern ChannelMap __client_channels__;
 // } ChatRoomClient;
 
 void on_server_run();
+void on_server_statics(ChatRoomServer *);
 void run_server()
 {
     ChatRoomServer server;
@@ -54,7 +55,10 @@ void run_server()
     server.onWrite = boost::bind(&onServWrite, _1);
 
     Timer timer(server.base);
-    timer.timeout(boost::bind(&on_server_run),0,500); 
+    timer.timeout(boost::bind(&on_server_run), 0, 500);
+
+    // Timer statics(server.base, EV_PERSIST);
+    // statics.timeout(boost::bind(&on_server_statics, &server), 10);
 
     server.bind();
 }
@@ -82,6 +86,11 @@ void on_server_run()
 {
     STREAM_INFO << "server now is running.";
     Latch.unlatch();
+}
+
+void on_server_statics(ChatRoomServer * server)
+{
+    LOG_INFO_R << " count:" << server->getCount();
 }
 
 int test_1();
