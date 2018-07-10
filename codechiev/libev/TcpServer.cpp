@@ -4,6 +4,9 @@
 #include <base/Error.hpp>
 #include <base/Logger.hpp>
 
+#include <boost/bind.hpp>
+#include <boost/lexical_cast.hpp>
+
 using namespace codechiev::libev;
 using namespace codechiev::base;
 
@@ -18,6 +21,11 @@ TcpEndpoint(), listenev(NULL), listener(NULL)
     fprintf(stderr, "Could not initialize libevent!\n");
     throw 1;
   }
+
+  for(int i(0); i<2; i++){
+    worker_ptr wptr(new Worker(this, i));
+    workers.push_back(wptr);
+  }
 }
 
 TcpServer::~TcpServer()
@@ -30,7 +38,7 @@ TcpServer::~TcpServer()
   if(listenev)
   {
     event_free(listenev);
-  } 
+  }
 }
 
 void
@@ -92,4 +100,38 @@ TcpServer::stop()
 TcpServer::TcpServer()
 {
   throw Error("default constructor is unavailible.");
+}
+
+TcpServer::Worker::Worker(TcpServer *server, int i) : server(server)
+{
+  Thread::thread_func_t func = boost::bind(&TcpServer::Worker::start, this);
+  std::string name("tcpserver-worker-");
+  name += boost::lexical_cast<std::string>(i);
+  thread_ = thread_ptr(new Thread(name, func));
+  thread_->start();
+}
+TcpServer::Worker::~Worker()
+{
+  thread_->join();
+}
+void
+TcpServer::Worker::start()
+{
+  LOG_TRACE << "worker start";
+  base = event_base_new();
+  if (!base)
+  {
+    fprintf(stderr, "Could not initialize libevent!\n");
+    throw 1;
+  }
+
+  event_assign(&acceptev,
+               base,
+               -1,
+               EV_READ | EV_PERSIST,
+               worker_accept_cb, this);
+  event_add(&acceptev, NULL);
+
+  event_base_dispatch(base);
+  
 }
