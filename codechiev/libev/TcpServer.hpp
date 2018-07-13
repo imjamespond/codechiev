@@ -5,6 +5,7 @@
 #include <libev/Channel.hpp>
 #include <libev/TcpEndpoint.hpp>
 #include <base/Thread.hpp>
+#include <base/Condition.hpp>
 
 #include <vector>
 #include <event2/listener.h>
@@ -33,6 +34,8 @@ class TcpServer : public TcpEndpoint
     typedef boost::function<int(Channel *)> on_accept_fn;
     on_accept_fn onAccept;
 
+    codechiev::base::CountLatch latch;
+
     class Worker
     {
       public:
@@ -40,16 +43,21 @@ class TcpServer : public TcpEndpoint
         ~Worker();
         void start();
 
-        int connfd;
-        TcpServer* server;
+        int readfd;
+        int writefd;
+        TcpServer *server;
+
         struct event_base *base;
-        struct event acceptev;
+        struct event *acceptev;
+
         codechiev::base::Thread::thread_ptr_t thread_;
     };
 
     typedef boost::shared_ptr<Worker> worker_ptr;
     typedef std::vector<worker_ptr> workers_vec;
     workers_vec workers;
+
+    const static int worker_num = 3;
 };
 
 } // namespace libev

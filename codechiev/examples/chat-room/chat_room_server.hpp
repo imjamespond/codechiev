@@ -27,13 +27,13 @@ namespace libev{
 
         typedef boost::shared_ptr<Channel> channel_ptr;
         typedef boost::weak_ptr<Channel> channel_wptr; 
-        typedef boost::unordered_map<int, channel_ptr> ChannelMap;
-        ChannelMap channels; 
-
+        // typedef boost::unordered_map<int, channel_ptr> ChannelMap;
+        // ChannelMap channels; 
+        Channel *channel;
         ChatRoomServerQueue queue;
-      private: 
-        typedef codechiev::base::Mutex::mutex_ptr mutex_ptr;
-        mutex_ptr mutex_;
+        codechiev::base::Mutex::mutex_ptr mutex;
+
+      private:
 
         unsigned int count_;
     };

@@ -19,30 +19,26 @@ using namespace codechiev::libev;
 
 CountLatch Latch;
 
-int onServAccept(Channel*);
-int onServClose(Channel*);
-int onServRead(Channel*);
-int onServWrite(Channel*);
+int onServAccept(Channel *);
+int onServClose(Channel *);
+int onServRead(Channel *);
+int onServWrite(Channel *);
 
-int onClientConnect(Channel*);
-int onClientClose(Channel*);
-int onClientRead(Channel*);
-int onClientWrite(Channel*);
+int onClientConnect(Channel *);
+int onClientClose(Channel *);
+int onClientRead(Channel *);
+int onClientWrite(Channel *);
 
 ChatRoomServer *__server_ptr__;
 TcpClient *__client__;
 
 typedef boost::shared_ptr<Channel> channel_ptr;
 typedef boost::unordered_map<int, channel_ptr> ChannelMap;
-extern ChannelMap __client_channels__; 
+extern ChannelMap __client_channels__;
 
-// typedef struct
-// {
-//     TcpClient *client;
-//     TcpEndpoint::bufev_struct *bufev;
-// } ChatRoomClient;
+struct event *active_ev;
 
-void on_server_run();
+void on_server_run(int, short, void *);
 void on_server_statics(ChatRoomServer *);
 void run_server()
 {
@@ -54,17 +50,25 @@ void run_server()
     server.onRead = boost::bind(&onServRead, _1);
     server.onWrite = boost::bind(&onServWrite, _1);
 
-    Timer timer(server.base);
-    timer.timeout(boost::bind(&on_server_run), 0, 500);
+    active_ev = event_new(server.base,
+                          -1,
+                          EV_READ | EV_PERSIST /*| EV_ET will probally cause connection failed*/,
+                          on_server_run,
+                          NULL);
+    event_add(active_ev, NULL);
 
     // Timer statics(server.base, EV_PERSIST);
     // statics.timeout(boost::bind(&on_server_statics, &server), 10);
-
+    Latch.unlatch();
     server.bind();
 }
 
 void run_client(int argc, const char *argv[])
 {
+    Latch.latch(); //wait for activeev set
+    event_active(active_ev, 0, 0);
+    Latch.latch(); //wait for server started
+
     const char *hostname = argc > 2 ? argv[2] : "127.0.0.1:12345";
     TcpClient client(hostname);
     __client__ = &client;
@@ -79,16 +83,17 @@ void run_client(int argc, const char *argv[])
     {
         client.connect();
     }
+
     client.start();
 }
 
-void on_server_run()
+void on_server_run(int fd, short flags, void *data)
 {
     STREAM_INFO << "server now is running.";
     Latch.unlatch();
 }
 
-void on_server_statics(ChatRoomServer * server)
+void on_server_statics(ChatRoomServer *server)
 {
     LOG_INFO_R << " count:" << server->getCount();
 }
@@ -97,11 +102,9 @@ int test_1();
 int test_2();
 
 int main(int argc, const char *argv[])
-{ 
+{
     Thread serverThread("server", boost::bind(&run_server));
     serverThread.start();
-
-    Latch.latch();
 
     Thread cliThread("cli", boost::bind(&run_client, argc, argv));
     cliThread.start();
@@ -110,27 +113,27 @@ int main(int argc, const char *argv[])
     do
     {
         code = keyboard::getchar();
-        if(code == keycode::a)
+        if (code == keycode::a)
         {
             // __client__ && test_1();
         }
-        else if(code == keycode::num2)
+        else if (code == keycode::num2)
         {
             test_2();
         }
-        else if(code == keycode::b)
+        else if (code == keycode::b)
         {
             __server_ptr__->broadcast("hello all!");
         }
-        else if(code == keycode::c)
+        else if (code == keycode::c)
         {
             printf("command:");
             char buffer[32] = {0};
-            keyboard::fscanf(buffer); 
+            keyboard::fscanf(buffer);
             printf("\nexecute: %s\n", buffer);
 
             if (0 == strcmp(buffer, "total"))
-            { 
+            {
                 printf("display total connections: %d\n", __server_ptr__->totalClient());
             }
             else if (0 == strcmp(buffer, "count"))
@@ -142,9 +145,9 @@ int main(int argc, const char *argv[])
                 __server_ptr__->stop();
                 // __client__ && __client__->endpoint->stop();
                 break;
-            } 
+            }
         }
-    }while(1);
+    } while (1);
 
     LOG_INFO << "server exit.";
 
@@ -152,7 +155,7 @@ int main(int argc, const char *argv[])
     cliThread.join();
 
     return 0;
-} 
+}
 
 // int test_1()
 // {
@@ -163,18 +166,17 @@ int main(int argc, const char *argv[])
 //     // STREAM_INFO << encoded+4;
 //     int sendBufSize = __client__->getSendBufSize();
 //     int count(0),len(0);
-    
+
 //     len = 2;
 //     printf("sending %d byte\n", len);
 //     TcpEndpoint::Write(__client__->bufev, encoded+count, len);
-//     count+=2; 
+//     count+=2;
 //     Time::SleepMillis(500l);
-    
 
 //     len = 10;
 //     printf("sending %d byte\n", len);
 //     TcpEndpoint::Write(__client__->bufev, encoded+count, len);
-//     count+=10; 
+//     count+=10;
 //     Time::SleepMillis(500l);
 
 //     int left(sendBufSize-count);
@@ -189,21 +191,20 @@ int test_2()
 {
     printf("input msg: \n");
     char msg[32] = {0};
-    keyboard::fscanf(msg); 
+    keyboard::fscanf(msg);
     printf("msg: %s\n", msg);
     ChannelMap::iterator it;
     for (it = __client_channels__.begin(); it != __client_channels__.end(); ++it)
     {
         channel_ptr channel = it->second;
-    if (channel) 
-    {
-        channel->send(msg); 
-    }
-    else
-    {
-        LOG_TRACE << "bufferevent is null";
-    }
-
+        if (channel)
+        {
+            channel->send(msg);
+        }
+        else
+        {
+            LOG_TRACE << "bufferevent is null";
+        }
     }
     return 0;
 }

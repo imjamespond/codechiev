@@ -44,6 +44,9 @@ namespace libev
       bufev_struct * const bufev;
       on_message_func onMessage;
       int fd;
+
+      Channel *next;
+      Channel *prev;
     private:
       int head_; 
       // int send_cursor_;

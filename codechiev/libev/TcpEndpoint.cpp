@@ -31,7 +31,10 @@ TcpEndpoint::Write(bufev_struct *bev,
 TcpEndpoint::~TcpEndpoint()
 { 
   LOG_DEBUG;
-  event_base_free(base);
+  if (base)
+  {
+    event_base_free(base);
+  }
 }
 
 void 
