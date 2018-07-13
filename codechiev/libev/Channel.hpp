@@ -47,10 +47,11 @@ namespace libev
 
       Channel *next;
       Channel *prev;
+
+      int write_bytes;
     private:
       int head_; 
       // int send_cursor_;
-      // int send_size_;
       // buf_vec send_buf_;// poor performance!!!
   };
 

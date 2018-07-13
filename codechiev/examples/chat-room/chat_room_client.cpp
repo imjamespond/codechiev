@@ -21,7 +21,8 @@ using namespace codechiev::libev;
 
 typedef boost::shared_ptr<Channel> channel_ptr;
 typedef boost::unordered_map<int, channel_ptr> ChannelMap;
-ChannelMap __client_channels__; 
+ChannelMap __client_channels__;
+long __client_write_bytes__ = 0;
 
 int onMessage(const char* msg, int len, Channel *channel)
 { 
@@ -57,6 +58,6 @@ int onClientRead( Channel *channel )
 
 int onClientWrite(Channel *channel)
 {
-    // LOG_INFO;
+    __client_write_bytes__+=channel->write_bytes;
     return 0;
 }

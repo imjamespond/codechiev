@@ -12,7 +12,7 @@ void ChatRoomServer::onMessage(const char *msg, int len, Channel *channel)
 {
     std::string msg_str(msg, len);
     ChatRoomServer *const serv = static_cast<ChatRoomServer *>(channel->endpoint);
-    queue.add(boost::bind(&ChatRoomServer::addCount, serv));
+    queue.add(boost::bind(&ChatRoomServer::addCount, serv, len));
 }
 
 int onServAccept(Channel *channel)
@@ -90,7 +90,7 @@ int onServWrite(Channel *channel)
     return 0;
 }
 
-ChatRoomServer::ChatRoomServer() : TcpServer(12345), mutex(new Mutex)
+ChatRoomServer::ChatRoomServer() : TcpServer(12345), mutex(new Mutex), recv_bytes(0)
 {
     queue.start();
 }

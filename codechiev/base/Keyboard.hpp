@@ -26,7 +26,7 @@ namespace codechiev
                 enter = 10,
                 a = 97, b = 98, c = 99,
                 q = 113,
-                num1 = 49, num2 = 50,
+                num1 = 49, num2 = 50,  num3 = 51,  num4 = 52,  num5 = 53,
             };
         };
     }

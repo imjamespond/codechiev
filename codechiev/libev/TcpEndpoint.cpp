@@ -12,20 +12,22 @@ TcpEndpoint::TcpEndpoint():base(NULL)
   evthread_use_pthreads();
 }
 
-void 
+int 
 TcpEndpoint::Write(bufev_struct *bev,
                    const char *msg,
                    size_t size)
 {
+  int code(0);
   bufferevent_lock(bev);
   bufferevent_enable(bev, EV_WRITE);
   bufferevent_disable(bev, EV_READ);
   //The data is appended to the output buffer and written to the descriptor automatically as it becomes available for writing.
   if (msg) 
   {
-    bufferevent_write(bev, msg, size);
+    code = bufferevent_write(bev, msg, size);//0 if successful, or -1 if an error occurred
   }
   bufferevent_unlock(bev);
+  return code;
 }
 
 TcpEndpoint::~TcpEndpoint()
@@ -124,6 +126,7 @@ codechiev::libev::writecb(TcpEndpoint::bufev_struct *bev, void *ctx)
     bufferevent_disable(bev, EV_WRITE);
 
     endpoint->onWrite && endpoint->onWrite(channel);
+    channel->write_bytes = 0;
   }
   bufferevent_unlock(bev);
 }

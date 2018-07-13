@@ -35,6 +35,7 @@ TcpClient *__client__;
 typedef boost::shared_ptr<Channel> channel_ptr;
 typedef boost::unordered_map<int, channel_ptr> ChannelMap;
 extern ChannelMap __client_channels__;
+extern long __client_write_bytes__;
 
 struct event *active_ev;
 
@@ -119,11 +120,17 @@ int main(int argc, const char *argv[])
         }
         else if (code == keycode::num2)
         {
-            test_2();
+            for(int i=0; i<10000; i++)
+                test_2();
         }
         else if (code == keycode::b)
         {
             __server_ptr__->broadcast("hello all!");
+        }
+        else if (code == keycode::num3)
+        {
+            __server_ptr__->getCount();
+            LOG_INFO<<"clients write:"<<__client_write_bytes__;
         }
         else if (code == keycode::c)
         {
@@ -189,10 +196,13 @@ int main(int argc, const char *argv[])
 
 int test_2()
 {
-    printf("input msg: \n");
-    char msg[32] = {0};
-    keyboard::fscanf(msg);
-    printf("msg: %s\n", msg);
+    // printf("input msg: \n");
+    // char msg[32] = {0};
+    // keyboard::fscanf(msg);
+    // printf("msg: %s\n", msg);
+
+    const char *msg = "This is just the beggining!";
+
     ChannelMap::iterator it;
     for (it = __client_channels__.begin(); it != __client_channels__.end(); ++it)
     {

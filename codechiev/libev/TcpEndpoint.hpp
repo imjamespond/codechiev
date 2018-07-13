@@ -22,7 +22,7 @@ class TcpEndpoint : public boost::noncopyable
     virtual ~TcpEndpoint();
 
     typedef struct bufferevent bufev_struct;
-    static void Write(bufev_struct *, const char *, size_t);
+    static int Write(bufev_struct *, const char *, size_t);
 
     virtual int stop() = 0;
   public:

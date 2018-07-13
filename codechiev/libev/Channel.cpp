@@ -13,13 +13,12 @@ const int __head_len__(sizeof(int));
 const int __max_len__(1 << 16);
 
 Channel::Channel(TcpEndpoint *endpoint, bufev_struct *bufev) : endpoint(endpoint),
-                                                               bufev(bufev),
-
+                                                               bufev(bufev), 
                                                                next(NULL),
-                                                               prev(NULL),
+                                                               prev(NULL), 
+                                                               write_bytes(0),
                                                                head_(-1)
 // send_cursor_(0),
-// send_size_(0)
 // send_buf_(__max_len__)
 {
   fd = bufferevent_getfd(bufev); //evutil_socket_t
@@ -111,7 +110,10 @@ void Channel::send(const char *msg)
   const char *encoded = encode(msg, buf);
   if (encoded)
   {
-    TcpEndpoint::Write(this->bufev, encoded, buf->send_size);
+    write_bytes = buf->send_size;
+    int code = TcpEndpoint::Write(this->bufev, encoded, buf->send_size);
     buf->send_size = 0;
+
+    LOG_WARN<<"code:"<<code;
   }
 }
