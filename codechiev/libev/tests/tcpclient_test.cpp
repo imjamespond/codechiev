@@ -17,7 +17,12 @@ TcpEndpoint::bufev_struct *BufEv(NULL);
 int onConnect(Channel *channel)
 {
     // LOG_INFO << ""; 
-    // BufEv = channel->bufev;
+    for(int i=0; i<1000; i++)
+    {
+        channel->send("Returns a reference to the character at specified location pos."
+        " Bounds checking is performed, exception of type std::out_of_range will be thrown on invalid access");
+    }
+
     return 0;
 }
 

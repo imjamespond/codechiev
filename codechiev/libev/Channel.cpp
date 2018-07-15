@@ -114,6 +114,7 @@ void Channel::send(const char *msg)
     int code = TcpEndpoint::Write(this->bufev, encoded, buf->send_size);
     buf->send_size = 0;
 
-    LOG_WARN<<"code:"<<code;
+    if(code<0)
+      LOG_WARN<<"code:"<<code;
   }
 }

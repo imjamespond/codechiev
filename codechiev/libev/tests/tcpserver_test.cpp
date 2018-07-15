@@ -3,6 +3,7 @@
 #include <libev/Signal.hpp>
 #include <base/Logger.hpp>
 #include <base/Keyboard.hpp>
+#include <base/Mutex.hpp> 
 
 #include <boost/bind.hpp>
 #include <boost/unordered_map.hpp>
@@ -12,7 +13,8 @@ using namespace codechiev::base;
 using namespace codechiev::libev; 
 
 static void signal_cb(evutil_socket_t, short, void *);
-
+Mutex::mutex_ptr mutex = Mutex::mutex_ptr(new Mutex) ;
+long recv_bytes = 0;
 
 class TcpServerExt : public TcpServer
 {
@@ -27,14 +29,16 @@ class TcpServerExt : public TcpServer
     int total;
 };
 
+void onMessage(const char *msg, int len, Channel *channel)
+{
+    MutexLock lock(mutex);
+    recv_bytes += len;
+}
 
 int onAccept( Channel *channel)
-{
-    // serv->bevMap[fd] = bev;
-    // serv->broadcast("foobar");
-    // serv->write(bev, "welcome to visit");
-    TcpServerExt *servext = reinterpret_cast<TcpServerExt *>(channel->endpoint);
-    ++servext->total;
+{ 
+    channel->onMessage = boost::bind(&onMessage, _1, _2, _3);
+    
     return 0;
 }
 
@@ -50,8 +54,12 @@ int onClose( Channel *channel)
 
 int onRead( Channel *channel)
 {
+    struct evbuffer *evbuf = bufferevent_get_input(channel->bufev);
+    int len = evbuffer_get_length(evbuf);
+    unsigned char *data = evbuffer_pullup(evbuf, len);
+    int has_read = channel->decode((const char *)data, len); //consider put it in multiple threads
+    evbuffer_drain(evbuf, has_read);
 
-    // endpoint->write(bev, msg.c_str(), len);//within recursive locks
     return 0;
 }
 
@@ -72,6 +80,10 @@ void read_stdin(int fd, short flags, void *data)
         {
             TcpServerExt *server = reinterpret_cast<TcpServerExt *>(data);
             printf("display total connections: %d\n", server->total);
+        }
+        else if(0 == strcmp(buffer, "count\n"))
+        { 
+            printf("recv_bytes: %ld\n", recv_bytes);
         }
     }
 
