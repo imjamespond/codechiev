@@ -93,6 +93,13 @@ void TcpServer::bind()
 
 int TcpServer::stop()
 {
+  workers_vec::iterator it;
+  for (it = workers.begin(); it != workers.end(); ++it)
+  {
+    worker_ptr worker = *it;
+    event_base_loopexit(worker->base, NULL);
+  }
+
   return event_base_loopexit(base, NULL);
 }
 

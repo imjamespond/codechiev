@@ -48,7 +48,7 @@ void TcpClient::connect()
 {
   struct bufferevent *buffev;
   buffev = bufferevent_socket_new(base, -1,
-                                  BEV_OPT_CLOSE_ON_FREE | BEV_OPT_DEFER_CALLBACKS);
+                                  BEV_OPT_CLOSE_ON_FREE | BEV_OPT_DEFER_CALLBACKS | BEV_OPT_THREADSAFE); //BEV_OPT_THREADSAFE must be use in multi-thread write
 
   if (bufferevent_socket_connect(buffev,
                                  (struct sockaddr *)&connect_to_addr,

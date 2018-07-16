@@ -4,25 +4,21 @@
 #include <base/Time.hpp>
 #include <base/Thread.hpp>
 #include <base/Keyboard.hpp>
-#include <libev/TcpClient.hpp> 
+#include <libev/TcpClient.hpp>
 
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 
 using namespace codechiev::base;
 using namespace codechiev::libev;
- 
+
 TcpEndpoint::bufev_struct *BufEv(NULL);
+Channel *__client_channel__(NULL);
 
 int onConnect(Channel *channel)
 {
-    // LOG_INFO << ""; 
-    for(int i=0; i<1000; i++)
-    {
-        channel->send("Returns a reference to the character at specified location pos."
-        " Bounds checking is performed, exception of type std::out_of_range will be thrown on invalid access");
-    }
-
+    // LOG_INFO << "";
+    __client_channel__ = channel;
     return 0;
 }
 
@@ -35,7 +31,7 @@ int onClose(Channel *channel)
 int onRead(Channel *channel)
 {
     // std::string msg((char *)data, len);
-    // LOG_INFO << "read:" << len << "," << msg; 
+    // LOG_INFO << "read:" << len << "," << msg;
 
     // client->write(bev, msg.c_str(), len);//within recursive locks
     return 0;
@@ -47,9 +43,9 @@ int onWrite(Channel *channel)
     return 0;
 }
 
-void run_client(int argc, const char * argv[])
+void run_client(int argc, const char *argv[])
 {
-    const char * hostname = argc>2 ? argv[2] : "127.0.0.1:12345";
+    const char *hostname = argc > 2 ? argv[2] : "127.0.0.1:12345";
     TcpClient client(hostname);
 
     client.onConnect = boost::bind(&onConnect, _1);
@@ -57,28 +53,36 @@ void run_client(int argc, const char * argv[])
     client.onRead = boost::bind(&onRead, _1);
     client.onWrite = boost::bind(&onWrite, _1);
 
-    int num = argc>1 ? boost::lexical_cast<int>(argv[1]) : 10;
-    for(int i=0; i<num; i++)
+    int num = argc > 1 ? boost::lexical_cast<int>(argv[1]) : 10;
+    for (int i = 0; i < num; i++)
     {
         client.connect();
     }
-    client.start(); 
+    client.start();
 }
 
-int main(int argc, const char * argv[]) {
+int main(int argc, const char *argv[])
+{
 
     Thread threadCli("cli", boost::bind(&run_client, argc, argv));
     threadCli.start();
 
-    while(1)
+    while (1)
     {
-        int input = keyboard::getchar();
-        if(BufEv)
+        char buf[256];
+        int code = keyboard::getchar();
+        if (code == keycode::a)
         {
-            TcpEndpoint::Write(BufEv, reinterpret_cast<const char *>(&input), sizeof input);
+            ::memset(buf, 0, sizeof buf);
+            // ::sprintf(buf, );
+            for (int i = 0; i < 1000000; i++)
+            {
+
+                __client_channel__->send("Returns a reference to the character at specified location pos."
+                                         " Bounds checking is performed, exception of type std::out_of_range will be thrown on invalid access");
+            }
         }
     }
-
 
     threadCli.join();
     return 0;
