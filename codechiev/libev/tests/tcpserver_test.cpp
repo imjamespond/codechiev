@@ -39,6 +39,8 @@ int onAccept( Channel *channel)
 { 
     channel->onMessage = boost::bind(&onMessage, _1, _2, _3);
     
+    TcpServerExt *servext = reinterpret_cast<TcpServerExt *>(channel->endpoint);
+    ++servext->total;
     return 0;
 }
 

@@ -52,5 +52,7 @@
     "initializer_list": "cpp",
     "valarray": "cpp"
   },
-  "editor.tabSize": 2
+  "editor.tabSize": 2,
+  "git.enabled": false,
+  "C_Cpp.clang_format_path": "/usr/local/bin/clang-format"
 }

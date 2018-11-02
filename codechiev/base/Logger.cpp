@@ -86,7 +86,7 @@ level_(lv), carriage_(carriage), detail_(detail)
     if(detail&DetailThread)
         this->operator<<("," KBLU " thread:") << Thread::ThreadName() << ", tid:" << Thread::ThreadId();
 
-    this->operator<<("," KWHT " log:");
+    this->operator<<(", log:" KWHT);
 }
 
 Logger::~Logger()

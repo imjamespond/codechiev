@@ -105,7 +105,7 @@ void worker_accept_cb(int fd, short flags, void *data)
 {
     int connfd;
     size_t fd_size = sizeof connfd;
-    size_t len = ::read(fd, &connfd, sizeof connfd);
+    size_t len = ::read(fd, &connfd, fd_size);
     if (len != fd_size)
         LOG_WARN << "read failed:" << fd;
 

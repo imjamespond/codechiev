@@ -74,12 +74,12 @@ int main(int argc, const char *argv[])
         if (code == keycode::a)
         {
             ::memset(buf, 0, sizeof buf);
-            // ::sprintf(buf, );
             for (int i = 0; i < 1000000; i++)
             {
-
-                __client_channel__->send("Returns a reference to the character at specified location pos."
-                                         " Bounds checking is performed, exception of type std::out_of_range will be thrown on invalid access");
+                ::sprintf(buf, "Returns a reference to the character at specified location pos. %d"
+                               " Bounds checking is performed, exception of type std::out_of_range will be thrown on invalid access",
+                               i );
+                __client_channel__->send(buf);
             }
         }
     }
