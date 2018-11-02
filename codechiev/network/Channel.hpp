@@ -10,11 +10,12 @@ class Channel {
 public:
   explicit Channel(int);
 
-  inline void setFd(int fd) { this->fd = fd; }
+  // inline void setFd(int fd) { this->fd = fd; }
   inline int getFd() const { return fd; }
+  inline void setNonblocking() { ::fcntl(fd, F_SETFD, O_CLOEXEC | O_NONBLOCK); }
 
 private:
-  int fd;
+  const int fd;
 };
 } // namespace net
 } // namespace codechiev

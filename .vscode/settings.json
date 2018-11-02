@@ -1,6 +1,5 @@
 {
   "C_Cpp.default.includePath": [
-    "./local-include",
     "./bootst_1_67_0"
   ],
   "C_Cpp.default.systemIncludePath": [

@@ -1,6 +1,8 @@
 #include "Logger.hpp"
 #include "Time.hpp"
 #include "Thread.hpp"
+#include <sstream> 
+#include <string>
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp> 
 
@@ -108,6 +110,16 @@ Logger::~Logger()
 Logger &
 Logger::operator()()
 {
+    return *this;
+}
+
+Logger &
+Logger::operator<<(const void *ptr)
+{
+    std::stringstream ss;
+    ss << ptr;
+    std::string name = ss.str();
+    buffer_.append(name.c_str());
     return *this;
 }
 

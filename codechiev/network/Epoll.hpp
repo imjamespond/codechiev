@@ -2,6 +2,8 @@
 #define Epoll_hpp
 
 #include "Channel.hpp"
+
+#include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 #include <sys/epoll.h>
 
@@ -13,18 +15,26 @@ class Epoll {
 public:
   Epoll();
 
+  typedef struct epoll_event st_epoll_event;
   typedef boost::shared_ptr<Channel> ChannelPtr;
+  typedef boost::function<void(Channel *)> EpollHandler;
 
-  void ctl(const ChannelPtr &);
+  void listenCtl( Channel *);
+  void connectCtl( Channel *);
   void wait();
+  void handle(st_epoll_event &);
 
   inline Channel &getChannel() { return epChannel; };
+  inline EpollHandler &getHandler() { return handler; };
+  inline void setHandler(const EpollHandler& _handler) { handler = _handler; };
 
 private:
-  struct epoll_event ev;
-  struct epoll_event events[MAX_EVENTS];
+  int _ctl(int, int, st_epoll_event &);
+
+  st_epoll_event events[MAX_EVENTS];
+
   Channel epChannel;
-  ChannelPtr listenChannelPtr;
+  EpollHandler handler;
 };
 } // namespace net
 } // namespace codechiev

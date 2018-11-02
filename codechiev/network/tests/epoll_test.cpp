@@ -1,39 +1,48 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/epoll.h>
+#include <boost/bind.hpp>
 
 #include <network/Channel.hpp>
 #include <network/Eventloop.hpp>
-#include <network/sock_address.h>
+#include <network/socket.h>
 
 #include <base/Logger.hpp>
 
 using namespace codechiev::net;
 using namespace codechiev::base;
 
+void epollHandler(Channel *channel, Epoll *epoll, Channel *listenChannel)
+{
+  if (channel->getFd() == listenChannel->getFd())
+  {
+    LOG_DEBUG << "connect fd " << channel->getFd();
+    int conn_sock = Accept(channel->getFd());
+
+    epoll->connectCtl(new Channel(conn_sock));
+  }
+  else
+  {
+    // do_use_fd(events[n].data.fd);
+    LOG_DEBUG << "active fd " << channel->getFd();
+  }
+}
+
 int main() { 
 
-  sock_address_in addr;
-  set_sock_address(12345, addr);
 
-  int listen_sock;
+  int listen_sock = Listen(12345);
 
   /* Code to set up listening socket, 'listen_sock',
     (socket(), bind(), listen()) omitted */
-  listen_sock =
-      ::socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0);
-  if (listen_sock == -1)
-    perror("socket");
-  if (::bind(listen_sock, (sock_address *)&addr, sizeof(sock_address)) == -1)
-    perror("bind");
-#define LISTEN_BACKLOG 8192
-  if (::listen(listen_sock, LISTEN_BACKLOG) == -1)
-    perror("listen");
 
-  Epoll::ChannelPtr listenChannelPtr(new Channel(listen_sock));
+  Channel *listenChannel(new Channel(listen_sock));
   Epoll epoll;
 
-  epoll.ctl(listenChannelPtr);
+  Epoll::EpollHandler handler = boost::bind(&epollHandler, _1, &epoll, listenChannel);
+  epoll.setHandler(handler);
+
+  epoll.listenCtl(listenChannel);
 
   Eventloop evLoop;
   evLoop.loop(epoll);
