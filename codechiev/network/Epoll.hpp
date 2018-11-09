@@ -20,7 +20,8 @@ public:
   typedef boost::function<void(Channel *)> EpollHandler;
 
   void listenCtl( Channel *);
-  void connectCtl( Channel *);
+  void connectCtl(Channel *);
+  void updateChannel(Channel *, int );
   void wait();
   void handle(st_epoll_event &);
 

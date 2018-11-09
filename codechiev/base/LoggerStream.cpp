@@ -12,7 +12,7 @@ extern int __main_thread_id__;
 
 void __logger_stream__(LoggerStream::logger_ptr logger)
 {
-    assert(Thread::ThreadId() != __main_thread_id__);
+    assert(Thread::GetCurrentThreadId() != __main_thread_id__);
     // printf("__logger_stream__\n");// do nothing, leave logger self destruct automaticlly 
 }
 

@@ -33,6 +33,11 @@ name_(name), func_(func)
     //::pthread_attr_setdetachstate(&attr_, PTHREAD_CREATE_JOINABLE);
 }
 
+Thread::Thread(const std::string& name):
+name_(name)
+{ 
+}
+
 Thread::~Thread()
 {
     //::pthread_attr_destroy(&attr_);
@@ -108,7 +113,7 @@ Thread::cancel()
 }
 
 std::string
-Thread::ThreadName()
+Thread::GetCurrentThreadName()
 {
     if(__this_thread__)
     {
@@ -118,8 +123,7 @@ Thread::ThreadName()
     return "__main__";
 }
 
-int
-Thread::ThreadId()
+int Thread::GetCurrentThreadId()
 {
     #ifdef __linux__
     return static_cast<int>(::syscall(SYS_gettid));
@@ -140,12 +144,12 @@ Thread::ThreadId()
 
 int __main_thread_start__()
 {
-    return Thread::ThreadId();
+    return Thread::GetCurrentThreadId();
 }
 int __main_thread_id__ = __main_thread_start__();
 
 int
-Thread::MainId()
+Thread::GetMainId()
 {
     return __main_thread_id__;
 }

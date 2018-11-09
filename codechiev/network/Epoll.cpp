@@ -40,7 +40,7 @@ void Epoll::listenCtl(Channel *channel)
   // LOG_DEBUG << channel->getFd();
 
   st_epoll_event ev;
-  ev.events = EPOLLIN;// level mode, always notify until read or accept
+  ev.events = EPOLLIN; // level mode, always notify until read or accept
   // ev.data.fd = channel->getFd(); unable to set both fd and ptr?
   ev.data.ptr = (void *)channel;
   if (_ctl(channel->getFd(), EPOLL_CTL_ADD, ev) == -1)
@@ -54,11 +54,8 @@ void Epoll::connectCtl(Channel *channel)
 {
   // LOG_DEBUG << channel->getFd() << channel;
 
-  // setnonblocking(conn_sock);
-  channel->setNonblocking();
-
   st_epoll_event ev;
-  ev.events = EPOLLIN | EPOLLET;// edge mode
+  ev.events = EPOLLIN | EPOLLET; // edge mode
   // ev.data.fd = channel->getFd();
   ev.data.ptr = channel;
   if (_ctl(channel->getFd(), EPOLL_CTL_ADD, ev) == -1)
@@ -87,9 +84,28 @@ void Epoll::wait()
     st_epoll_event &event = events[n];
     if (handler)
     {
-      handler(reinterpret_cast<Channel *>(event.data.ptr));
+      Channel *channel = reinterpret_cast<Channel *>(event.data.ptr);
+      updateChannel(channel, event.events);
+      handler(channel);
     }
 
-    // LOG_DEBUG << event.data.fd << event.data.ptr;
+    LOG_DEBUG << "handle ptr: " << event.data.ptr
+              << ", events: " << event.events;
+  }
+}
+
+void Epoll::updateChannel(Channel *channel, int events)
+{
+  if (events & EPOLLIN)
+  {
+    channel->setReadable();
+  }
+  else if (events & EPOLLOUT)
+  {
+    channel->setWritable();
+  }
+  else if (events & (EPOLLHUP | EPOLLRDHUP))
+  {
+    channel->setClosable();
   }
 }

@@ -86,7 +86,7 @@ level_(lv), carriage_(carriage), detail_(detail)
     if(detail&DetailFunc)
         this->operator<<("," KCYN " func:") << func;
     if(detail&DetailThread)
-        this->operator<<("," KBLU " thread:") << Thread::ThreadName() << ", tid:" << Thread::ThreadId();
+        this->operator<<("," KBLU " thread:") << Thread::GetCurrentThreadName() << ", tid:" << Thread::GetCurrentThreadId();
 
     this->operator<<(", log:" KWHT);
 }
@@ -150,8 +150,20 @@ Logger::operator<<(int val)
     buffer_.append(boost::lexical_cast<std::string>(val).c_str());
     return *this;
 }
-Logger&
+Logger &
 Logger::operator<<(int64_t val)
+{
+    buffer_.append(boost::lexical_cast<std::string>(val).c_str());
+    return *this;
+}
+Logger &
+Logger::operator<<(uint64_t val)
+{
+    buffer_.append(boost::lexical_cast<std::string>(val).c_str());
+    return *this;
+}
+Logger &
+Logger::operator<<(uint32_t val)
 {
     buffer_.append(boost::lexical_cast<std::string>(val).c_str());
     return *this;

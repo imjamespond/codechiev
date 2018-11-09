@@ -16,17 +16,19 @@ namespace codechiev {
           public:
             typedef boost::function<void()> thread_func_t;
             typedef boost::shared_ptr<Thread> thread_ptr_t;
-            explicit Thread(const std::string&, const thread_func_t&);
+            explicit Thread(const std::string &, const thread_func_t &);
+            explicit Thread(const std::string &);
             ~Thread();
             
             void run();
             void start();
             void join();
             void cancel();
+            inline void setFunc(const thread_func_t & func) { func_ = func;}
             inline std::string getThreadName();
-            static std::string ThreadName();
-            static int ThreadId();
-            static int MainId();
+            static std::string GetCurrentThreadName();
+            static int GetCurrentThreadId();
+            static int GetMainId();
 
           private:
             std::string name_;
