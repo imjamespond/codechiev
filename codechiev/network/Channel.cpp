@@ -1,4 +1,5 @@
 #include "Channel.hpp"
+#include <stdio.h>
 
 using namespace codechiev::net;
 
@@ -8,6 +9,11 @@ void Channel::setNonblocking()
 {
   int flags;
   if (-1 == (flags = ::fcntl(fd, F_GETFL, 0)))
+  {
     flags = 0;
-  ::fcntl(fd, F_SETFD, flags | O_NONBLOCK);
+  }
+  if (-1 == ::fcntl(fd, F_SETFL, flags | O_NONBLOCK))
+  {
+    perror("fcntl()");
+  }
 }

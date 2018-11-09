@@ -40,9 +40,9 @@ inline int Listen(int port) {
   if (listen_sock == -1)
     perror("socket");
 
-  // int on = 1;
-  // if (::setsockopt(listen_sock, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) < 0)
-  //   perror("setsockopt");
+  int on = 1;
+  if (::setsockopt(listen_sock, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) < 0)
+    perror("setsockopt");
 
   if (::bind(listen_sock, (sock_address *)&addr, sizeof(sock_address)) == -1)
     perror("bind");
