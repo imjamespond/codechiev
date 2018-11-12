@@ -4,11 +4,14 @@
 #include <fcntl.h>
 #include <sys/socket.h>
 
+#include <base/FixedBuffer.h>
+
 namespace codechiev {
 namespace net {
 class Channel {
 public:
   explicit Channel(int);
+  ~Channel();
 
   // inline void setFd(int sockfd) { this->sockfd = sockfd; }
   inline int getFd() const { return sockfd; }
@@ -29,6 +32,8 @@ public:
   inline int isReadable(){ return (events & 1); }
   inline int isWritable(){ return (events & 2); }
   inline int isClosable(){ return (events & 4); }
+
+  codechiev::base::FixedBuffer<4096> buf;
 };
 } // namespace net
 } // namespace codechiev

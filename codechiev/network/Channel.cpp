@@ -1,10 +1,16 @@
 #include "Channel.hpp"
 #include <stdio.h>
 #include <unistd.h>
+#include <base/Logger.hpp>
 
 using namespace codechiev::net;
 
 Channel::Channel(int _sockfd) : sockfd(_sockfd), events(0) {}
+
+Channel::~Channel()
+{
+  LOG_DEBUG << "destroy channel: " << sockfd;
+}
 
 /*
   won't trigger or deteted by epoll, not recommended

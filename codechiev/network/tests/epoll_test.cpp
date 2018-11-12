@@ -2,143 +2,61 @@
 #include <stdlib.h>
 #include <errno.h> 
 #include <sys/epoll.h>
+// #include <signal.h>
 #include <boost/bind.hpp>
 
-#include <network/Channel.hpp>
-#include <network/Eventloop.hpp>
-#include <network/socket.h>
+#include <network/TcpServer.hpp>
 
 #include <base/Time.hpp>
 #include <base/Logger.hpp>
-#include <base/Keyboard.hpp>
+// #include <base/Keyboard.hpp>
 
 using namespace codechiev::net;
 using namespace codechiev::base;
 
 void onConnect(Channel *);
-void onRead(Channel *);
-void onWrite(Channel *);
-void epollHandler(Channel *, Epoll *, Channel *);
+void onRead(Channel *, const char *, int);
+void onWrite(Channel *, const char *, int);
+void onClose(Channel *);
+void epollHandler(Epoll *, Channel *, Channel *);
 
-void input();
-
-Channel *Conn = NULL;
-Epoll *Ep = NULL;
+TcpServer endpoint;
 
 int main()
 {
-  //input thread
-  Thread inputTread("input", boost::bind(&input));
-  inputTread.start();
+  // struct sigaction st[] = {SIG_IGN};
+  // sigaction(SIGPIPE, st, NULL);
 
+  endpoint.setOnConnectFunc(boost::bind(&onConnect, _1));
+  endpoint.setOnReadFunc(boost::bind(&onRead, _1, _2, _3));
+  endpoint.setOnWriteFunc(boost::bind(&onWrite, _1, _2, _3));
+  endpoint.setOnCloseFunc(boost::bind(&onClose, _1));
+  endpoint.start(12345);
 
-  int listen_sock = Listen(12345);
-
-  /* Code to set up listening socket, 'listen_sock',
-    (socket(), bind(), listen()) omitted */
-
-  Channel *listenChannel(new Channel(listen_sock));
-  Epoll epoll;
-  Ep = &epoll;
-
-  Epoll::EpollHandler handler = boost::bind(&epollHandler, _1, &epoll, listenChannel);
-  epoll.setHandler(handler);
-
-  epoll.ctlAdd(listenChannel);
-
-  Eventloop evLoop;
-  evLoop.loop(&epoll);
-
-  inputTread.join();
 }
 
-void input()
+void onConnect(Channel *channel)
 {
-  char string[256];
-  for (;;)
-  {
-    if (keyboard::fgets(string, 100) != NULL)
-    {
-      printf("fgets: %s\n", string);
-      if ( strcmp(string, "close\n") == 0)
-      {
-        if (Conn)
-        {
-          Conn->shutdown();
-        }
-      }
-      else if (Conn)
-      {
-        Ep->setWritable(Conn);
-      }
-    }
-  }
+  LOG_DEBUG << "connect fd: " << channel->getFd();
 }
-
-void onConnect(Channel *conn)
+void onRead(Channel *channel, const char *buf, int len)
 {
-  LOG_INFO << "connected channel: " << conn->getFd();
+  LOG_DEBUG << "read fd: " << channel->getFd()
+            << ", buf: "<<buf
+            << ", len: "<<len;
+  // Must not shut down when channel is writable, otherwise will received SIGPIPE, broken pipe?
+  // https://stackoverflow.com/questions/18935446/program-received-signal-sigpipe-broken-pipe
+  if (strcmp(buf, "close\n") == 0)
+  {
+    channel->shutdown();
+  }
+  endpoint.send(channel, buf, len);
 }
-
-void epollHandler(Channel *channel, Epoll *epoll, Channel *listenChannel)
+void onWrite(Channel *channel, const char *msg, int len)
 {
-  if (channel->getFd() == listenChannel->getFd())
-  {
-    LOG_DEBUG << "connect fd " << channel->getFd();
-    int conn_sock = Accept(channel->getFd());
-
-    Conn = new Channel(conn_sock);
-    // setnonblocking(conn_sock);
-    Conn->setNonblocking();
-    epoll->ctlAdd(Conn);
-    onConnect(Conn);
-  }
-  else
-  {
-    if (channel->isReadable())
-    {
-      char buf[32];
-      size_t buf_len = sizeof buf;
-      for (;;)
-      {
-        ::memset(buf, 0, buf_len);
-        ssize_t len = ::read(channel->getFd(), buf, buf_len);
-
-        LOG_DEBUG << "fd: " << channel->getFd() << ", len: " << len << ", errno: " << errno;
-
-        if (len > 0)
-        {
-          LOG_DEBUG << "buf: " << buf;
-          Time::SleepMillis(10000l);
-        }
-        else if(len)
-        {
-          if (-1 == len && errno == EAGAIN)
-          {
-            LOG_DEBUG << "EAGAIN";
-            break;
-          }
-        }
-        else
-        {
-          LOG_DEBUG << "close fd: " << channel->getFd();
-          break;
-        }
-
-
-      }
-    }
-    //write
-    else if(channel->isWritable())
-    {
-      LOG_DEBUG << "writable fd: " << channel->getFd();
-      Ep->setReadable(channel);
-    }
-    //close
-    else if (channel->isClosable())
-    {
-      LOG_DEBUG << "shut down writing half of connection fd : " << channel->getFd();
-
-    }
-  }
+  LOG_DEBUG << "write fd: " << channel->getFd();
+}
+void onClose(Channel *channel)
+{
+  LOG_DEBUG << "close fd: " << channel->getFd();
 }

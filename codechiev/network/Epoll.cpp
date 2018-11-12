@@ -1,7 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
-
 #include "Epoll.hpp"
 #include "socket.h"
 #include <base/Logger.hpp>
@@ -44,9 +40,18 @@ void Epoll::ctlAdd(Channel *channel)
   ev.events = EPOLLIN | EPOLLET; // edge trigger // level trigger, always notify until read or accept
   // ev.data.fd = channel->getFd(); unable to set both fd and ptr?
   ev.data.ptr = (void *)channel;
-  if (_ctl(channel->getFd(), EPOLL_CTL_ADD, ev) == -1)
+  if (_ctl(channel->getFd(), EPOLL_CTL_ADD, &ev) == -1)
   {
     perror("epoll_ctl: add");
+    exit(EXIT_FAILURE);
+  }
+}
+
+void Epoll::ctlDel(Channel *channel)
+{
+  if (_ctl(channel->getFd(), EPOLL_CTL_DEL, NULL) == -1)
+  {
+    perror("epoll_ctl: del");
     exit(EXIT_FAILURE);
   }
 }
@@ -56,16 +61,16 @@ void Epoll::ctlMod(Channel *channel, int type)
   st_epoll_event ev;
   ev.events = type;
   ev.data.ptr = (void *)channel;
-  if (_ctl(channel->getFd(), EPOLL_CTL_MOD, ev) == -1)
+  if (_ctl(channel->getFd(), EPOLL_CTL_MOD, &ev) == -1)
   {
     perror("epoll_ctl: mod");
     exit(EXIT_FAILURE);
   }
 }
 
-int Epoll::_ctl(int fd, int op, st_epoll_event &ev)
+int Epoll::_ctl(int fd, int op, st_epoll_event *ev)
 {
-  return ::epoll_ctl(epChannel.getFd(), op, fd, &ev);
+  return ::epoll_ctl(epChannel.getFd(), op, fd, ev);
 }
 
 void Epoll::wait()
@@ -87,8 +92,8 @@ void Epoll::wait()
       handler(channel);
     }
 
-    LOG_DEBUG << "handle ptr: " << event.data.ptr
-              << ", events: " << event.events;
+    // LOG_DEBUG << "handle ptr: " << event.data.ptr
+    //           << ", events: " << event.events;
   }
 }
 

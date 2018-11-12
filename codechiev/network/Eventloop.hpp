@@ -2,24 +2,56 @@
 #define Eventloop_hpp
 
 #include <base/Thread.hpp>
-#include "Epoll.hpp"
+#include <boost/bind.hpp>
 
 namespace codechiev
 {
 namespace net
 {
+class EventloopHelper
+{
+  public:
+
+    static std::string init_thread_name();
+
+};
+
+template <class T>
 class Eventloop
 {
 public:
-  Eventloop();
-  ~Eventloop();
+  typedef codechiev::base::Thread Thread;
 
-  void loop(Epoll *);
-  void runInThread(Epoll *);
+  explicit Eventloop(T *t) : poll(t), thread(EventloopHelper::init_thread_name())
+  {
+  }
+  ~Eventloop()
+  {
+    thread.join();
+  }
+
+  void loop()
+  {
+    thread.setFunc(boost::bind(&Eventloop::runInThread, this));
+    thread.start();
+  }
+
+  void runInThread()
+  {
+    assert(Thread::GetMainId() != Thread::GetCurrentThreadId());
+    for (;;)
+    {
+      poll->wait();
+    }
+  }
 
 private:
-  codechiev::base::Thread thread;
+  T *poll;
+
+  Thread thread;
 };
+ 
+
 } // namespace net
 } // namespace codechiev
 

@@ -20,19 +20,20 @@ public:
   typedef boost::function<void(Channel *)> EpollHandler;
 
   void ctlAdd( Channel *);
+  void ctlDel( Channel *);
   void ctlMod(Channel *, int);
   void setReadable(Channel *);
   void setWritable(Channel *);
   void updateChannel(Channel *, int);
   void wait();
-  void handle(st_epoll_event &);
 
   inline Channel &getChannel() { return epChannel; };
   inline EpollHandler &getHandler() { return handler; };
+
   inline void setHandler(const EpollHandler& _handler) { handler = _handler; };
 
 private:
-  int _ctl(int, int, st_epoll_event &);
+  int _ctl(int, int, st_epoll_event *);
 
   st_epoll_event events[MAX_EVENTS];
 

@@ -1,6 +1,10 @@
 #ifndef SockAddress_h
 #define SockAddress_h
 
+#include <errno.h>
+#include <stdlib.h>
+#include <stdio.h> //perror
+
 #include <string.h> //memset
 
 #ifndef _WIN32
