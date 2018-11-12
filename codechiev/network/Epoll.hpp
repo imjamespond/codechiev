@@ -19,9 +19,11 @@ public:
   typedef boost::shared_ptr<Channel> ChannelPtr;
   typedef boost::function<void(Channel *)> EpollHandler;
 
-  void listenCtl( Channel *);
-  void connectCtl(Channel *);
-  void updateChannel(Channel *, int );
+  void ctlAdd( Channel *);
+  void ctlMod(Channel *, int);
+  void setReadable(Channel *);
+  void setWritable(Channel *);
+  void updateChannel(Channel *, int);
   void wait();
   void handle(st_epoll_event &);
 

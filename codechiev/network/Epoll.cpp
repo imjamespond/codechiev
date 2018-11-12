@@ -36,32 +36,29 @@ Epoll::Epoll() : epChannel(_epoll_create())
 //   epoll_data_t data; /* User data variable */
 // };
 
-void Epoll::listenCtl(Channel *channel)
+void Epoll::ctlAdd(Channel *channel)
 {
   // LOG_DEBUG << channel->getFd();
 
   st_epoll_event ev;
-  ev.events = EPOLLIN; // level mode, always notify until read or accept
+  ev.events = EPOLLIN | EPOLLET; // edge trigger // level trigger, always notify until read or accept
   // ev.data.fd = channel->getFd(); unable to set both fd and ptr?
   ev.data.ptr = (void *)channel;
   if (_ctl(channel->getFd(), EPOLL_CTL_ADD, ev) == -1)
   {
-    perror("epoll_ctl: listen_sock");
+    perror("epoll_ctl: add");
     exit(EXIT_FAILURE);
   }
 }
 
-void Epoll::connectCtl(Channel *channel)
+void Epoll::ctlMod(Channel *channel, int type)
 {
-  // LOG_DEBUG << channel->getFd() << channel;
-
   st_epoll_event ev;
-  ev.events = EPOLLIN | EPOLLET; // edge mode
-  // ev.data.fd = channel->getFd();
-  ev.data.ptr = channel;
-  if (_ctl(channel->getFd(), EPOLL_CTL_ADD, ev) == -1)
+  ev.events = type;
+  ev.data.ptr = (void *)channel;
+  if (_ctl(channel->getFd(), EPOLL_CTL_MOD, ev) == -1)
   {
-    perror("epoll_ctl: conn_sock");
+    perror("epoll_ctl: mod");
     exit(EXIT_FAILURE);
   }
 }
@@ -93,8 +90,18 @@ void Epoll::wait()
     LOG_DEBUG << "handle ptr: " << event.data.ptr
               << ", events: " << event.events;
   }
-  
 }
+
+void Epoll::setReadable(Channel *channel)
+{
+  ctlMod(channel, EPOLLIN | EPOLLET);
+}
+
+void Epoll::setWritable(Channel *channel)
+{
+  ctlMod(channel, EPOLLOUT | EPOLLET);
+}
+
 
 void Epoll::updateChannel(Channel *channel, int events)
 {
@@ -111,3 +118,4 @@ void Epoll::updateChannel(Channel *channel, int events)
     channel->setClosable();
   }
 }
+

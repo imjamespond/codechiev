@@ -10,16 +10,19 @@ class Channel {
 public:
   explicit Channel(int);
 
-  // inline void setFd(int fd) { this->fd = fd; }
-  inline int getFd() const { return fd; }
+  // inline void setFd(int sockfd) { this->sockfd = sockfd; }
+  inline int getFd() const { return sockfd; }
 
   void setNonblocking();
 
 private:
-  const int fd;
+  const int sockfd;
   int events;
 
 public:
+  void close();
+  void shutdown();
+
   inline void setReadable() { events = 1; }
   inline void setWritable() { events = 2; }
   inline void setClosable(){ events = 4; }
