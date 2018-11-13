@@ -137,13 +137,19 @@ Logger::operator<<(const unsigned char *str)
     return *this;
 }
 
-Logger&
-Logger::operator<<(const std::string & str)
+Logger &
+Logger::operator<<(const std::string &str)
 {
     buffer_.append(str.c_str());
     return *this;
 }
 
+Logger &
+Logger::operator<<(bool b)
+{
+    buffer_.append(b ? "true" : "false");
+    return *this;
+}
 Logger&
 Logger::operator<<(int val)
 {

@@ -1,5 +1,4 @@
-#include "TcpServer.hpp"
-#include "Eventloop.hpp"
+#include "TcpServer.hpp" 
 #include "socket.h"
 
 #include <boost/bind.hpp>
@@ -7,6 +6,10 @@
 
 using namespace codechiev::base;
 using namespace codechiev::net;
+
+TcpServer::TcpServer() : loop(&epoll)
+{
+}
 
 void TcpServer::start(int port = 10000)
 {
@@ -19,10 +22,9 @@ void TcpServer::start(int port = 10000)
   Epoll::EpollHandler handler = boost::bind(&TcpServer::epollHandler, this, _1, listenChannel);
   epoll.setHandler(handler);
 
-  epoll.ctlAdd(listenChannel);
+  epoll.ctlAdd(listenChannel, 0);
 
-  Eventloop<Epoll> evLoop(&epoll);
-  evLoop.loop();
+  loop.loop();
 }
 
 void TcpServer::epollHandler(Channel *channel, Channel *listenChannel)
@@ -41,9 +43,9 @@ void TcpServer::epollHandler(Channel *channel, Channel *listenChannel)
   }
   else 
   {
-    handler(channel);
+    _handler(channel);
 
-    if(channel->isClosable()){
+    if(channel->isClosed()){
       epoll.ctlDel(channel);
       delete channel;
     }
@@ -52,7 +54,23 @@ void TcpServer::epollHandler(Channel *channel, Channel *listenChannel)
 
 void TcpServer::send(Channel *channel, const char * msg, int len)
 {
-  channel->buf.append(msg, len);
+    channel->buf.append(msg, len);
 
+    epoll.setWritable(channel);
+}
+
+void TcpServer::shutdown(Channel *channel)
+{
+  channel->setClosable();
   epoll.setWritable(channel);
+}
+
+void TcpServer::_writingDone(Channel *channel)
+{
+  epoll.setReadable(channel);
+
+  if (channel->isClosable())
+  {
+    channel->shutdown();
+  }
 }

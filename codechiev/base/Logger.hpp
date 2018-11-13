@@ -29,7 +29,8 @@ namespace codechiev {
             Logger &operator<<(const char *);
             Logger &operator<<(const unsigned char *);
             Logger &operator<<(const std::string&);
-            Logger &operator<<( int);
+            Logger &operator<<(bool);
+            Logger &operator<<(int);
             Logger &operator<<(uint64_t);
             Logger &operator<<(int64_t);
             Logger &operator<<(uint32_t);

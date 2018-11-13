@@ -7,7 +7,7 @@
 using namespace codechiev::base;
 using namespace codechiev::net;
 
-void TcpEndpoint::handler(Channel *channel)
+void TcpEndpoint::_handler(Channel *channel)
 {
   if (channel->isReadable())
   {
@@ -39,7 +39,7 @@ void TcpEndpoint::handler(Channel *channel)
         // LOG_DEBUG << "close fd: " << channel->getFd();
         if (onClose)
           onClose(channel);
-        channel->setClosable();// channel will be delete after return 
+        channel->setClosed(); // channel will be delete after return
         break;
       }
     }
@@ -65,20 +65,21 @@ void TcpEndpoint::handler(Channel *channel)
         // TODO check writing buf of the channel which might not be sent completely
         if (errno == EAGAIN)
         {
-          // LOG_DEBUG << "write EAGAIN";
-          epoll.setReadable(channel);
+          // LOG_DEBUG << "write EAGAIN" ;
+
+          _writingDone(channel);
           break;
         }
       }
     }
-
   }
   //close
-  else if (channel->isClosable())
+  else if (channel->isClosed())
   {
     LOG_DEBUG << "shut down writing half of connection fd : " << channel->getFd();
 
     if (onClose)
       onClose(channel);
   }
+
 }

@@ -32,12 +32,12 @@ Epoll::Epoll() : epChannel(_epoll_create())
 //   epoll_data_t data; /* User data variable */
 // };
 
-void Epoll::ctlAdd(Channel *channel)
+void Epoll::ctlAdd(Channel *channel, int mode)
 {
   // LOG_DEBUG << channel->getFd();
 
   st_epoll_event ev;
-  ev.events = EPOLLIN | EPOLLET; // edge trigger // level trigger, always notify until read or accept
+  ev.events = EPOLLIN | mode; // edge trigger // level trigger, always notify until read or accept
   // ev.data.fd = channel->getFd(); unable to set both fd and ptr?
   ev.data.ptr = (void *)channel;
   if (_ctl(channel->getFd(), EPOLL_CTL_ADD, &ev) == -1)
@@ -120,7 +120,7 @@ void Epoll::updateChannel(Channel *channel, int events)
   }
   else if (events & (EPOLLHUP | EPOLLRDHUP))
   {
-    channel->setClosable();
+    channel->setClosed();
   }
 }
 

@@ -71,6 +71,26 @@ inline int Accept(int fd)
   return conn_sock;
 }
 
+inline int Connect(int port,const char *host )
+{
+  int sockfd =
+      ::socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0);
+  if (sockfd == -1)
+    perror("socket");
+
+  sock_address_in addr;
+  set_sock_address(port, addr);
+  addr.sin_addr.s_addr = inet_addr(host); 
+  if (::connect( sockfd, (struct sockaddr *)&addr, sizeof(sock_address)) == -1)
+  {
+    if (EINPROGRESS != errno)
+    {
+      perror("connect");
+    }
+  }
+  return sockfd;
+}
+
 } // namespace net
 } // namespace codechiev
 

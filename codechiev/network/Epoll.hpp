@@ -7,7 +7,7 @@
 #include <boost/shared_ptr.hpp>
 #include <sys/epoll.h>
 
-#define MAX_EVENTS 10
+#define MAX_EVENTS 1024
 
 namespace codechiev {
 namespace net {
@@ -19,7 +19,7 @@ public:
   typedef boost::shared_ptr<Channel> ChannelPtr;
   typedef boost::function<void(Channel *)> EpollHandler;
 
-  void ctlAdd( Channel *);
+  void ctlAdd(Channel *, int mode = EPOLLET);
   void ctlDel( Channel *);
   void ctlMod(Channel *, int);
   void setReadable(Channel *);
