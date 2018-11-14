@@ -14,7 +14,7 @@ class TcpServer : public TcpEndpoint
 public:
   TcpServer();
 
-  void start(int);
+  void start(Eventloop<Epoll>&, int, const char *host = NULL);
   void epollHandler(Channel *, Channel *);
   void send(Channel *, const char *, int );
 
@@ -22,7 +22,6 @@ public:
 
 protected:
   Epoll epoll;
-  Eventloop<Epoll> loop;
 
   void _writingDone(Channel *);
 };

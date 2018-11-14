@@ -4,7 +4,7 @@
 
 using namespace codechiev::net;
 
-int _epoll_create()
+int __epoll_create()
 {
   int epollfd = ::epoll_create1(EPOLL_CLOEXEC);
   if (epollfd == -1)
@@ -15,7 +15,7 @@ int _epoll_create()
   return epollfd;
 }
 
-Epoll::Epoll() : epChannel(_epoll_create())
+Epoll::Epoll() : epollEvents(1<<2), epChannel(__epoll_create())
 {
 }
 
@@ -75,7 +75,7 @@ int Epoll::_ctl(int fd, int op, st_epoll_event *ev)
 
 void Epoll::wait()
 {
-  int nfds = ::epoll_wait(epChannel.getFd(), events, MAX_EVENTS, -1);
+  int nfds = ::epoll_wait(epChannel.getFd(), epollEvents.data(), static_cast<int>(epollEvents.size()), -1);
   if (nfds == -1)
   {
     perror("epoll_wait");
@@ -84,7 +84,12 @@ void Epoll::wait()
 
   for (int n = 0; n < nfds; ++n)
   {
-    st_epoll_event &event = events[n];
+    if (static_cast<int>(epollEvents.size()) == nfds)
+    {
+      epollEvents.resize(nfds << 1);
+    }
+
+    st_epoll_event &event = epollEvents[n];
     if (handler)
     {
       Channel *channel = reinterpret_cast<Channel *>(event.data.ptr);

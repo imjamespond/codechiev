@@ -27,7 +27,7 @@ class Time
 
     static Time Now();
     static Time NowTm();
-    static Time GetClockTime();
+    static Time NowClock();
 
     static void
         SleepMillis(int64_t);

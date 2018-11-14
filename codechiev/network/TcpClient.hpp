@@ -18,13 +18,12 @@ public:
   void send(Channel *, const char *, int);
 
   void connect(int, const char *host = "127.0.0.1");
-  void start();
+  void start(Eventloop<Epoll> &);
 
   void shutdown(Channel *);
 
 private:
   Epoll epoll;
-  Eventloop<Epoll> loop;
 
   virtual void _writingDone(Channel *);
 };

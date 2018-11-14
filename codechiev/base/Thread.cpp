@@ -28,14 +28,14 @@ start_routine(void *arg)
 __thread Thread* __this_thread__(NULL);
 
 Thread::Thread(const std::string& name, const thread_func_t& func):
-name_(name), func_(func)
+name_(name), func_(func), started(false)
 {
     //::pthread_attr_setdetachstate(&attr_, PTHREAD_CREATE_JOINABLE);
 }
 
 Thread::Thread(const std::string& name):
-name_(name)
-{ 
+name_(name), started(false)
+{
 }
 
 Thread::~Thread()
@@ -79,7 +79,9 @@ Thread::start()
     if(s != 0)
     {
         handle_error_en(s, "pthread_create");
-    } 
+    }
+
+    started = true;
 }
 
 void

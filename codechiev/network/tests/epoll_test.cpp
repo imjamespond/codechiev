@@ -16,12 +16,14 @@ using namespace codechiev::net;
 using namespace codechiev::base;
 
 void onConnect(Channel *);
-void onRead(Channel *, const char *, int);
-void onWrite(Channel *, const char *, int);
+void onRead(Channel *, const char *, int, TcpServer *);
+void onWrite(Channel *, const char *, int, TcpServer *);
 void onClose(Channel *);
-void epollHandler(Epoll *, Channel *, Channel *);
 
-TcpServer endpoint;
+void onClientConnect(Channel *);
+
+TcpServer serv1;
+TcpServer serv2;
 TcpClient client;
 int client_num = 0;
 int client_total = 1;
@@ -39,13 +41,20 @@ int main(int num, const char **args)
   // struct sigaction st[] = {SIG_IGN};
   // sigaction(SIGPIPE, st, NULL);
 
-  endpoint.setOnConnectFunc(boost::bind(&onConnect, _1));
-  endpoint.setOnReadFunc(boost::bind(&onRead, _1, _2, _3));
-  endpoint.setOnWriteFunc(boost::bind(&onWrite, _1, _2, _3));
-  endpoint.setOnCloseFunc(boost::bind(&onClose, _1));
-  endpoint.start(12345);
+  Eventloop<Epoll> serv1Loop;
+  Eventloop<Epoll> serv2Loop;
+  Eventloop<Epoll> cliLoop;
 
-  client.start();
+  serv1.setOnConnectFunc(boost::bind(&onConnect, _1));
+  serv1.setOnCloseFunc(boost::bind(&onClose, _1));
+  serv1.start(serv1Loop, 12345, "127.0.0.1");
+
+  serv2.setOnReadFunc(boost::bind(&onRead, _1, _2, _3, &serv2));
+  serv2.setOnWriteFunc(boost::bind(&onWrite, _1, _2, _3, &serv2));
+  serv2.start(serv2Loop, 12345, "192.168.0.254");
+
+  client.setOnConnectFunc(boost::bind(&onClientConnect, _1));
+  client.start(cliLoop);
 
   input();
 
@@ -81,7 +90,7 @@ void onConnect(Channel *channel)
   client_num++;
   // LOG_INFO << "connect fd: " << channel->getFd();
 }
-void onRead(Channel *channel, const char *buf, int len)
+void onRead(Channel *channel, const char *buf, int len, TcpServer * serv)
 {
   LOG_INFO << "read fd: " << channel->getFd()
             << ", buf: " << buf
@@ -90,19 +99,24 @@ void onRead(Channel *channel, const char *buf, int len)
   // https://stackoverflow.com/questions/18935446/program-received-signal-sigpipe-broken-pipe
   if (strcmp(buf, "close\n") == 0)
   {
-    endpoint.shutdown(channel);
+    serv->shutdown(channel);
   }
-  endpoint.send(channel, buf, len);
+  serv->send(channel, buf, len);
 }
-void onWrite(Channel *channel, const char *msg, int len)
+void onWrite(Channel *channel, const char *msg, int len, TcpServer *serv)
 {
   if (strcmp(msg, "write-close\n") == 0)
   {
-    endpoint.shutdown(channel);
+    serv->shutdown(channel);
   }
   LOG_INFO << "write fd: " << channel->getFd();
 }
 void onClose(Channel *channel)
 {
   LOG_INFO << "close fd: " << channel->getFd();
+}
+
+void onClientConnect(Channel *channel)
+{
+  LOG_INFO << "connect fd: " << channel->getFd();
 }

@@ -27,17 +27,31 @@ typedef struct sockaddr sock_address;
 typedef struct sockaddr_in sock_address_in;
 typedef socklen_t socklen_type;
 
-inline void set_sock_address(int port, sock_address_in &sin) {
+inline void set_sock_address(sock_address_in &sin, int port, const char *host = NULL)
+{
   ::memset(&sin, 0, sizeof(sin));
   sin.sin_family = AF_INET; // IPv4 Internet protocols
   sin.sin_port = ::htons(port);
-  sin.sin_addr.s_addr = INADDR_ANY;
+  if (host)
+    sin.sin_addr.s_addr = ::inet_addr(host);
+  else
+    sin.sin_addr.s_addr = INADDR_ANY;
 }
 
-inline int Listen(int port) {
+inline int get_sockfd()
+{
+  int sockfd =
+      ::socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0);
+  if (sockfd == -1)
+    perror("socket");
+  return sockfd;
+}
+
+inline int Listen(int port, const char *host = NULL)
+{
 
   sock_address_in addr;
-  set_sock_address(port, addr);
+  set_sock_address(addr, port, host);
 
   int listen_sock =
       ::socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0);
@@ -61,6 +75,7 @@ inline int Accept(int fd)
 {
   sock_address_in addr;
   socklen_type addrlen;
+  
   int conn_sock = ::accept(fd, (struct sockaddr *)&addr, &addrlen);
   if (conn_sock == -1)
   {
@@ -71,16 +86,11 @@ inline int Accept(int fd)
   return conn_sock;
 }
 
-inline int Connect(int port,const char *host )
+inline void Connect(int sockfd, int port, const char *host)
 {
-  int sockfd =
-      ::socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0);
-  if (sockfd == -1)
-    perror("socket");
-
   sock_address_in addr;
-  set_sock_address(port, addr);
-  addr.sin_addr.s_addr = inet_addr(host); 
+  set_sock_address(addr, port, host);
+
   if (::connect( sockfd, (struct sockaddr *)&addr, sizeof(sock_address)) == -1)
   {
     if (EINPROGRESS != errno)
@@ -88,7 +98,6 @@ inline int Connect(int port,const char *host )
       perror("connect");
     }
   }
-  return sockfd;
 }
 
 } // namespace net

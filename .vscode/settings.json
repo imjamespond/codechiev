@@ -49,7 +49,8 @@
     "vector": "cpp",
     "slist": "cpp",
     "initializer_list": "cpp",
-    "valarray": "cpp"
+    "valarray": "cpp",
+    "functional": "cpp"
   },
   "editor.tabSize": 2,
   "git.enabled": false,

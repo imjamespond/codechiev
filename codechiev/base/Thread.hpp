@@ -24,6 +24,7 @@ namespace codechiev {
             void start();
             void join();
             void cancel();
+            inline bool isStarted() { return started;}
             inline void setFunc(const thread_func_t & func) { func_ = func;}
             inline std::string getThreadName();
             static std::string GetCurrentThreadName();
@@ -36,6 +37,8 @@ namespace codechiev {
             
             pthread_t thread_;
             pthread_attr_t attr_;
+
+            bool started;
         };
         
         inline std::string

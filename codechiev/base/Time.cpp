@@ -1,4 +1,5 @@
 #include "Time.hpp"
+#include <stdio.h>
 #include <time.h>
 #include <sys/time.h>
 #ifdef __MINGW32__
@@ -22,6 +23,17 @@ Time Time::NowTm() {
     // ptm = gmtime(&rawtime);
     return Time(SECS_TO_MILLIS(rawtime));//less acurate
 }
+
+Time Time::NowClock() 
+{
+    struct timespec now;
+
+    if (::clock_gettime(CLOCK_REALTIME, &now) == -1)
+        perror("clock_gettime()");
+
+    return Time(SECS_TO_MILLIS(now.tv_sec) + NANOS_TO_MILLIS(now.tv_nsec));
+}
+
 
 void
 Time::SleepMillis(int64_t millis)

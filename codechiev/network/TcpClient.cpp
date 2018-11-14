@@ -7,13 +7,13 @@
 using namespace codechiev::base;
 using namespace codechiev::net;
 
-TcpClient::TcpClient() : loop(&epoll)
+TcpClient::TcpClient()
 {
 }
 
 void TcpClient::connect(int port, const char *host)
 {
-  int conn_sock = Connect(port, host);
+  int conn_sock = get_sockfd();
 
   /* Code to set up listening socket, 'listen_sock',
     (socket(), bind(), listen()) omitted */
@@ -23,28 +23,31 @@ void TcpClient::connect(int port, const char *host)
   epoll.setHandler(handler);
 
   epoll.ctlAdd(connChannel);
+
+  Connect(conn_sock, port, host);
 }
 
-void TcpClient::start()
+void TcpClient::start(Eventloop<Epoll> &loop)
 {
-  loop.loop();
+  loop.loop(&epoll);
 }
 
 void TcpClient::epollHandler(Channel *channel, Channel *connChannel)
 {
-  if (channel->getFd() == connChannel->getFd())
-  {
-    LOG_DEBUG << "connect fd " << channel->getFd();
-    int conn_sock = Accept(channel->getFd());
+  LOG_DEBUG << "fd " << channel->getFd();
+  // if (channel->getFd() == connChannel->getFd())
+  // {
+  //   LOG_DEBUG << "connect fd " << channel->getFd();
+  //   int conn_sock = Accept(channel->getFd());
 
-    Channel *conn = new Channel(conn_sock);
-    conn->setNonblocking();
-    epoll.ctlAdd(conn);
+  //   Channel *conn = new Channel(conn_sock);
+  //   conn->setNonblocking();
+  //   epoll.ctlAdd(conn);
 
-    if (onConnect)
-      onConnect(conn);
-  }
-  else
+  //   if (onConnect)
+  //     onConnect(conn);
+  // }
+  // else
   {
     _handler(channel);
 

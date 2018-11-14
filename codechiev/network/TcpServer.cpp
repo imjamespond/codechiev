@@ -7,13 +7,13 @@
 using namespace codechiev::base;
 using namespace codechiev::net;
 
-TcpServer::TcpServer() : loop(&epoll)
+TcpServer::TcpServer()
 {
 }
 
-void TcpServer::start(int port = 10000)
+void TcpServer::start(Eventloop<Epoll> &loop, int port, const char *host)
 {
-  int listen_sock = Listen(port);
+  int listen_sock = Listen(port, host);
 
   /* Code to set up listening socket, 'listen_sock',
     (socket(), bind(), listen()) omitted */
@@ -24,7 +24,7 @@ void TcpServer::start(int port = 10000)
 
   epoll.ctlAdd(listenChannel, 0);
 
-  loop.loop();
+  loop.loop(&epoll);
 }
 
 void TcpServer::epollHandler(Channel *channel, Channel *listenChannel)
