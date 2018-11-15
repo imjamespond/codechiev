@@ -36,6 +36,7 @@ public:
   inline int isClosable() { return events & 8; }
 
   codechiev::base::FixedBuffer<4096> buf;
+  void *loop;
 };
 } // namespace net
 } // namespace codechiev

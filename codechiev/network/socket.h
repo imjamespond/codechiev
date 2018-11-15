@@ -80,7 +80,7 @@ inline int Accept(int fd)
   if (conn_sock == -1)
   {
     perror("accept");
-    exit(EXIT_FAILURE);
+    // exit(EXIT_FAILURE); 
   }
 
   return conn_sock;

@@ -22,7 +22,7 @@ class Eventloop
 public:
   typedef codechiev::base::Thread Thread;
 
-  explicit Eventloop() : poll(NULL), thread(EventloopHelper::init_thread_name())
+  explicit Eventloop() : thread(EventloopHelper::init_thread_name())
   {
   }
   ~Eventloop()
@@ -31,9 +31,8 @@ public:
       thread.join();
   }
 
-  void loop(T *t)
+  void loop()
   {
-    poll = t;
     thread.setFunc(boost::bind(&Eventloop::runInThread, this));
     thread.start();
   }
@@ -43,12 +42,14 @@ public:
     assert(Thread::GetMainId() != Thread::GetCurrentThreadId());
     for (;;)
     {
-      poll->wait();
+      poll.wait();
     }
   }
 
+  T* getPoll() { return &poll;}
+
 private:
-  T *poll;
+  T poll;
 
   Thread thread;
 };

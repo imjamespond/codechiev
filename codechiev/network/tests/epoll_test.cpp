@@ -15,18 +15,18 @@
 using namespace codechiev::net;
 using namespace codechiev::base;
 
-void onConnect(Channel *);
+void onConnect(Channel *, TcpServer *);
 void onRead(Channel *, const char *, int, TcpServer *);
 void onWrite(Channel *, const char *, int, TcpServer *);
 void onClose(Channel *);
 
 void onClientConnect(Channel *);
+void onClientRead(Channel *, const char *, int, TcpClient *);
 
-TcpServer serv1;
-TcpServer serv2;
-TcpClient client;
 int client_num = 0;
 int client_total = 1;
+
+TcpClient *clientPtr;
 
 void input();
 
@@ -41,21 +41,32 @@ int main(int num, const char **args)
   // struct sigaction st[] = {SIG_IGN};
   // sigaction(SIGPIPE, st, NULL);
 
-  Eventloop<Epoll> serv1Loop;
-  Eventloop<Epoll> serv2Loop;
+  Eventloop<Epoll> serv1Loop1;// each server could have more than one loop
+  Eventloop<Epoll> serv1Loop2;
+  Eventloop<Epoll> serv2Loop1;
+  Eventloop<Epoll> serv2Loop2;
   Eventloop<Epoll> cliLoop;
 
-  serv1.setOnConnectFunc(boost::bind(&onConnect, _1));
-  serv1.setOnCloseFunc(boost::bind(&onClose, _1));
-  serv1.start(serv1Loop, 12345, "127.0.0.1");
+  TcpServer serv1(12345, "127.0.0.1");
+  TcpServer serv2(12345, "192.168.0.254");
+  TcpClient client(&cliLoop);
 
+  serv1.setOnConnectFunc(boost::bind(&onConnect, _1, &serv1));
+  serv1.setOnCloseFunc(boost::bind(&onClose, _1));
+  serv1.start(&serv1Loop1, false);
+  serv1.start(&serv1Loop2);
+
+  serv2.setOnConnectFunc(boost::bind(&onConnect, _1, &serv2));
   serv2.setOnReadFunc(boost::bind(&onRead, _1, _2, _3, &serv2));
   serv2.setOnWriteFunc(boost::bind(&onWrite, _1, _2, _3, &serv2));
-  serv2.start(serv2Loop, 12345, "192.168.0.254");
+  serv2.start(&serv2Loop1);
+  serv2.start(&serv2Loop2);
 
   client.setOnConnectFunc(boost::bind(&onClientConnect, _1));
-  client.start(cliLoop);
+  client.setOnReadFunc(boost::bind(&onClientRead, _1, _2, _3, &client));
+  client.start();
 
+  clientPtr = &client;
   input();
 
   return 1;
@@ -77,7 +88,7 @@ void input()
       {
         for (int i = 0; i < client_total; ++i)
         {
-          client.connect(12345);
+          clientPtr->connect(12345, "192.168.0.254");
         }
       }
     }
@@ -85,10 +96,11 @@ void input()
 
 }
 
-void onConnect(Channel *channel)
+void onConnect(Channel *channel, TcpServer *serv)
 {
   client_num++;
-  // LOG_INFO << "connect fd: " << channel->getFd();
+  serv->send(channel , "hello", 5);
+  LOG_INFO << "connect fd: " << channel->getFd();
 }
 void onRead(Channel *channel, const char *buf, int len, TcpServer * serv)
 {
@@ -119,4 +131,11 @@ void onClose(Channel *channel)
 void onClientConnect(Channel *channel)
 {
   LOG_INFO << "connect fd: " << channel->getFd();
+}
+
+void onClientRead(Channel * channel, const char *buf, int len, TcpClient *cli)
+{
+  LOG_INFO << "read fd: " << channel->getFd()
+            << ", buf: " << buf
+            << ", len: " << len;
 }

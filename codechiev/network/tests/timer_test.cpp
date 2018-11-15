@@ -17,9 +17,9 @@ using namespace codechiev::base;
 Timer timer;
 
 void input();
-void timesup()
+void print(int val)
 {
-  LOG_INFO << "timesup";
+  LOG_INFO << "print: "<< val;
 }
 
 int main( )
@@ -29,9 +29,8 @@ int main( )
   // sigaction(SIGPIPE, st, NULL);
 
 
-  Eventloop<Epoll> loop;
-  timer.setHandler( boost::bind(&timesup));
-  timer.start(loop);
+  Eventloop<Epoll> loop; 
+  timer.start(&loop);
 
   input();
 
@@ -48,9 +47,21 @@ void input()
       printf("fgets: %s", string);
       if (::strcmp(string, "set\n") == 0)
       {
-        timer.schedule(3000l, 1000l);
+        timer.schedule(boost::bind(&print,3), 3000l, 0);
+        timer.schedule(boost::bind(&print,2), 2000l, 0);
+        timer.schedule(boost::bind(&print,1), 1000l, 0);
         LOG_INFO << "setTimer";
-      } 
+      }
+      else if (::strcmp(string, "set-3\n") == 0)
+      {
+        timer.schedule(boost::bind(&print,0), 3000l, 1000l, 3);
+        LOG_INFO << "setTimer";
+      }
+      else if (::strcmp(string, "repeat\n") == 0)
+      {
+        timer.schedule(boost::bind(&print,0), 3000l, 1000l, -1);
+        LOG_INFO << "repeatTimer";
+      }
     }
   }
 

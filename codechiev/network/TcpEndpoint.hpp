@@ -34,8 +34,8 @@ protected:
   OnCloseFunc onClose;
 
   void _handler(Channel *);
-  
-  virtual void _writingDone(Channel *) = 0;
+
+  virtual void _writtingDone(Channel *) = 0;
 };
 } // namespace net
 } // namespace codechiev

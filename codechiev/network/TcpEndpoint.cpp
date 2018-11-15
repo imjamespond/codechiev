@@ -60,16 +60,22 @@ void TcpEndpoint::_handler(Channel *channel)
 
         channel->buf.read(len);
       }
-      else if (-1 == len || 0 == len)
+      else if (len)
       {
-        // TODO check writing buf of the channel which might not be sent completely
-        if (errno == EAGAIN)
+        // TODO check writting buf of the channel which might not be sent completely
+        if (-1 == len && errno == EAGAIN)
         {
           // LOG_DEBUG << "write EAGAIN" ;
 
-          _writingDone(channel);
+          _writtingDone(channel);
           break;
         }
+      }
+      else 
+      {
+        // 0 will be returned without causing any other effect
+        _writtingDone(channel);
+        break;
       }
     }
   }

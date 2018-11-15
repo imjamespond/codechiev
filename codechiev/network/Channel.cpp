@@ -5,7 +5,7 @@
 
 using namespace codechiev::net;
 
-Channel::Channel(int _sockfd) : sockfd(_sockfd), events(0)
+Channel::Channel(int _sockfd) : sockfd(_sockfd), events(0), loop(NULL)
 {}
 
 Channel::~Channel()

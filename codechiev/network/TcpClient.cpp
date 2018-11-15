@@ -7,54 +7,39 @@
 using namespace codechiev::base;
 using namespace codechiev::net;
 
-TcpClient::TcpClient()
+TcpClient::TcpClient(Eventloop<Epoll> *_loop) : loop(_loop)
 {
+  Epoll::EpollHandler handler = boost::bind(&TcpClient::epollHandler, this, _1);
+  loop->getPoll()->setHandler(handler);
 }
 
 void TcpClient::connect(int port, const char *host)
 {
   int conn_sock = get_sockfd();
 
-  /* Code to set up listening socket, 'listen_sock',
-    (socket(), bind(), listen()) omitted */
-
   Channel *connChannel(new Channel(conn_sock));
-  Epoll::EpollHandler handler = boost::bind(&TcpClient::epollHandler, this, _1, connChannel);
-  epoll.setHandler(handler);
 
-  epoll.ctlAdd(connChannel);
-  epoll.setWritable(connChannel);
+  loop->getPoll()->ctlAdd(connChannel);
+  loop->getPoll()->setWritable(connChannel);
 
   Connect(conn_sock, port, host);
 }
 
-void TcpClient::start(Eventloop<Epoll> &loop)
+void TcpClient::start()
 {
-  loop.loop(&epoll);
+  loop->loop();
 }
 
-void TcpClient::epollHandler(Channel *channel, Channel *connChannel)
+void TcpClient::epollHandler(Channel *channel)
 {
-  LOG_DEBUG << "fd " << channel->getFd();
-  // if (channel->getFd() == connChannel->getFd())
-  // {
-  //   LOG_DEBUG << "connect fd " << channel->getFd();
-  //   int conn_sock = Accept(channel->getFd());
+  // LOG_DEBUG << "fd " << channel->getFd();
 
-  //   Channel *conn = new Channel(conn_sock);
-  //   conn->setNonblocking();
-  //   epoll.ctlAdd(conn);
-
-  //   if (onConnect)
-  //     onConnect(conn);
-  // }
-  // else
   {
     _handler(channel);
 
     if (channel->isClosed())
     {
-      epoll.ctlDel(channel);
+      loop->getPoll()->ctlDel(channel);
       delete channel;
     }
   }
@@ -63,19 +48,21 @@ void TcpClient::epollHandler(Channel *channel, Channel *connChannel)
 void TcpClient::send(Channel *channel, const char *msg, int len)
 {
   channel->buf.append(msg, len);
-
-  epoll.setWritable(channel);
+  loop->getPoll()
+      ->setWritable(channel);
 }
 
 void TcpClient::shutdown(Channel *channel)
 {
   channel->setClosable();
-  epoll.setWritable(channel);
+  loop->getPoll()
+      ->setWritable(channel);
 }
 
-void TcpClient::_writingDone(Channel *channel)
+void TcpClient::_writtingDone(Channel *channel)
 {
-  epoll.setReadable(channel);
+  loop->getPoll()
+      ->setReadable(channel);
 
   if (channel->isClosable())
   {

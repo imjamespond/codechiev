@@ -8,23 +8,25 @@
 
 using namespace codechiev::base;
 
-Time::Time(int64_t t):timeMillis_(t){}
+Time::Time(int64_t t) : timeMillis_(t) {}
 
-Time Time::Now() {
+Time Time::Now()
+{
     struct timeval tv;
     ::gettimeofday(&tv, NULL);
     return Time(SECS_TO_MILLIS(tv.tv_sec) + MICROS_TO_MILLIS(tv.tv_usec));
 }
 
-Time Time::NowTm() {
+Time Time::NowTm()
+{
     time_t rawtime;
     // struct tm * ptm;
     ::time(&rawtime);
     // ptm = gmtime(&rawtime);
-    return Time(SECS_TO_MILLIS(rawtime));//less acurate
+    return Time(SECS_TO_MILLIS(rawtime)); //less acurate
 }
 
-Time Time::NowClock() 
+Time Time::NowClock()
 {
     struct timespec now;
 
@@ -34,13 +36,11 @@ Time Time::NowClock()
     return Time(SECS_TO_MILLIS(now.tv_sec) + NANOS_TO_MILLIS(now.tv_nsec));
 }
 
-
-void
-Time::SleepMillis(int64_t millis)
+void Time::SleepMillis(int64_t millis)
 {
     struct timespec tm;
-    tm.tv_sec=MILLIS_TO_SECS(millis);
-    tm.tv_nsec=MILLIS_TO_NANOS(millis);
+    tm.tv_sec = MILLIS_TO_SECS(millis);
+    tm.tv_nsec = MILLIS_TO_NANOS(millis);
     /*
     int nanosleep(const struct timespec *req, struct timespec *rem);
         If the call is interrupted by a signal handler, nanosleep() returns
@@ -56,16 +56,30 @@ Time::SleepMillis(int64_t millis)
 #endif // __MINGW32__
 }
 
-void
-Time::operator=(int64_t t)
+void Time::operator=(int64_t t)
 {
     this->timeMillis_ = t;
 }
 
 int64_t
-Time::operator-(Time & t)
+Time::operator-(Time &t)
 {
-    return this->timeMillis_-t.getMillis();
+    return this->timeMillis_ - t.getMillis();
+}
+
+bool Time::operator>(Time &t)
+{
+    return this->timeMillis_ > t.getMillis();
+}
+
+bool Time::operator<(Time &t)
+{
+    return this->timeMillis_ < t.getMillis();
+}
+
+bool Time::operator==(Time &t)
+{
+    return this->timeMillis_ == t.getMillis();
 }
 
 #include <ctime>
@@ -75,5 +89,3 @@ Time::GetSimpleString()
     std::time_t result = std::time(NULL);
     return std::asctime(std::localtime(&result));
 }
-
-

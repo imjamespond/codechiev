@@ -12,18 +12,18 @@ namespace net
 class TcpServer : public TcpEndpoint
 {
 public:
-  TcpServer();
+  explicit TcpServer(int, const char *host = NULL);
 
-  void start(Eventloop<Epoll>&, int, const char *host = NULL);
-  void epollHandler(Channel *, Channel *);
+  void start(Eventloop<Epoll> *, bool isWorker = true);
+  void epollHandler(Channel *, Eventloop<Epoll> *);
   void send(Channel *, const char *, int );
 
   void shutdown(Channel *);
 
 protected:
-  Epoll epoll;
+  Channel listenChannel;
 
-  void _writingDone(Channel *);
+  void _writtingDone(Channel *);
 };
 } // namespace net
 } // namespace codechiev

@@ -15,37 +15,43 @@ namespace base
         static const float SEC_OF_MILLI = ;
         */
 #define MILLIS_TO_NANOS(millis) millis % 1000 * 1000000
-#define MILLIS_TO_SECS(millis) millis * .001
+#define MILLIS_TO_SECS(millis) static_cast<int64_t>(millis * .001)
 #define SECS_TO_MILLIS(secs) static_cast<int64_t>(secs) * 1000
-#define MICROS_TO_MILLIS(micros) micros * .001
-#define NANOS_TO_MILLIS(nanos) nanos * .000001
+#define MICROS_TO_MILLIS(micros) static_cast<int64_t>(micros * .001)
+#define NANOS_TO_MILLIS(nanos) static_cast<int64_t>(nanos * .000001)
 
 class Time
 {
-  public:
-    Time(int64_t t = 0);
+public:
+  Time(int64_t t = 0);
 
-    static Time Now();
-    static Time NowTm();
-    static Time NowClock();
+  static Time Now();
+  static Time NowTm();
+  static Time NowClock();
 
-    static void
-        SleepMillis(int64_t);
+  static void
+      SleepMillis(int64_t);
 
-    static std::string
-    GetSimpleString();
+  static std::string
+  GetSimpleString();
 
-    inline int64_t
-    getMillis() { return timeMillis_; }
+  inline int64_t
+  getMillis() { return timeMillis_; }
 
-    void
-    operator=(int64_t);
+  void
+  operator=(int64_t);
 
-    int64_t
-    operator-(Time &);
+  int64_t
+  operator-(Time &);
+  bool
+  operator>(Time &);
+  bool
+  operator<(Time &);
+  bool
+  operator==(Time &);
 
-  private:
-    int64_t timeMillis_;
+private:
+  int64_t timeMillis_;
 };
 } // namespace base
 } // namespace codechiev

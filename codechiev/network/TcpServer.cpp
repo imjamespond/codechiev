@@ -1,4 +1,4 @@
-#include "TcpServer.hpp" 
+#include "TcpServer.hpp"
 #include "socket.h"
 
 #include <boost/bind.hpp>
@@ -7,67 +7,89 @@
 using namespace codechiev::base;
 using namespace codechiev::net;
 
-TcpServer::TcpServer()
+TcpServer::TcpServer(int port, const char *host) : listenChannel(Listen(port, host))
 {
 }
 
-void TcpServer::start(Eventloop<Epoll> &loop, int port, const char *host)
+void TcpServer::start(Eventloop<Epoll> *loop, bool isWorker)
 {
-  int listen_sock = Listen(port, host);
-
   /* Code to set up listening socket, 'listen_sock',
     (socket(), bind(), listen()) omitted */
 
-  Channel *listenChannel(new Channel(listen_sock));
-  Epoll::EpollHandler handler = boost::bind(&TcpServer::epollHandler, this, _1, listenChannel);
-  epoll.setHandler(handler);
-
-  epoll.ctlAdd(listenChannel, 0);
-
-  loop.loop(&epoll);
+  Epoll::EpollHandler handler = boost::bind(&TcpServer::epollHandler, this, _1, loop);
+  loop->getPoll()->setHandler(handler);
+  if (isWorker)
+  {
+    loop->getPoll()->ctlAdd(&listenChannel, 0);
+  }
+  loop->loop();
 }
 
-void TcpServer::epollHandler(Channel *channel, Channel *listenChannel)
+void TcpServer::epollHandler(Channel *channel, Eventloop<Epoll> *loop)
 {
-  if (channel->getFd() == listenChannel->getFd())
+  if (channel->getFd() == listenChannel.getFd())
   {
     // LOG_DEBUG << "connect fd " << channel->getFd();
     int conn_sock = Accept(channel->getFd());
+    if (conn_sock < 0)
+    {
+      LOG_ERROR << "Accept failed";
+    }
+    else
+    {
+      Channel *conn = new Channel(conn_sock);
+      conn->setNonblocking();
+      conn->loop = loop;
+      loop->getPoll()
+          ->ctlAdd(conn);
 
-    Channel *conn = new Channel(conn_sock);
-    conn->setNonblocking();
-    epoll.ctlAdd(conn);
-
-    if (onConnect)
-      onConnect(conn);
+      if (onConnect)
+        onConnect(conn);
+    }
   }
-  else 
+  else
   {
     _handler(channel);
 
-    if(channel->isClosed()){
-      epoll.ctlDel(channel);
+    if (channel->isClosed())
+    {
+      loop->getPoll()
+          ->ctlDel(channel);
+      channel->close();
       delete channel;
     }
   }
 }
 
-void TcpServer::send(Channel *channel, const char * msg, int len)
+void TcpServer::send(Channel *channel, const char *msg, int len)
 {
+  // do not set writable again
+  if (!channel->isClosable())
+  {
     channel->buf.append(msg, len);
-
-    epoll.setWritable(channel);
+    reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
+        ->getPoll()
+        ->setWritable(channel);
+  }
 }
 
 void TcpServer::shutdown(Channel *channel)
 {
-  channel->setClosable();
-  epoll.setWritable(channel);
+   // do not set writable again
+  if (!channel->isClosable())
+  {
+    channel->setClosable();
+    reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
+        ->getPoll()
+        ->setWritable(channel);
+  } 
 }
 
-void TcpServer::_writingDone(Channel *channel)
+void TcpServer::_writtingDone(Channel *channel)
 {
-  epoll.setReadable(channel);
+  reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
+      ->getPoll()
+      ->setReadable(channel);
 
   if (channel->isClosable())
   {
