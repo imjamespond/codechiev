@@ -17,6 +17,10 @@ using namespace codechiev::base;
 Timer timer;
 
 void input();
+void timesup()
+{
+  LOG_INFO << "timesup";
+}
 
 int main( )
 {
@@ -24,13 +28,12 @@ int main( )
   // struct sigaction st[] = {SIG_IGN};
   // sigaction(SIGPIPE, st, NULL);
 
-  Thread t_input("input", boost::bind(&input));
-  t_input.start();
 
   Eventloop<Epoll> loop;
+  timer.setHandler( boost::bind(&timesup));
   timer.start(loop);
 
-  t_input.join();
+  input();
 
   return 1;
 }

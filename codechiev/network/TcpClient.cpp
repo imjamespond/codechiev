@@ -23,6 +23,7 @@ void TcpClient::connect(int port, const char *host)
   epoll.setHandler(handler);
 
   epoll.ctlAdd(connChannel);
+  epoll.setWritable(connChannel);
 
   Connect(conn_sock, port, host);
 }
