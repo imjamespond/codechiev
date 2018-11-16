@@ -40,6 +40,7 @@ public:
 private:
   Channel timerChannel;
   Tasks tasks;
+  TaskFunc foreverTask;
 
   void _epollHandler(Channel *, Eventloop<Epoll> *);
   void _execTask();

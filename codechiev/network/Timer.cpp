@@ -21,7 +21,7 @@ int __timerfd_create()
   return fd;
 }
 
-Timer::Timer() : timerChannel(__timerfd_create())
+Timer::Timer() : timerChannel(__timerfd_create()), foreverTask(0)
 {
 }
 
@@ -58,7 +58,8 @@ void Timer::_epollHandler(Channel *channel, Eventloop<Epoll> *loop)
 
 void Timer::_execTask()
 {
-  // TODO lock
+  // TODO using mutex for protecting deque
+  
   Time now = Time::NowClock();
   Tasks::iterator it = tasks.begin();
   Tasks::iterator lastest = tasks.end();
@@ -69,21 +70,38 @@ void Timer::_execTask()
     // time's up
     if (now > task.when || now == task.when)
     {
+      LOG_DEBUG << "task.when: " << task.when.getMillis() << ", now: "<< now.getMillis();
+
       task.func();
 
       if (task.interval == 0)
       {
         it = tasks.erase(it);
       }
-      else if (task.repeat)
+      else if (task.repeat > 0)
       {
+        // LOG_DEBUG << "task.repeat" << task.repeat;
+
         if (--task.repeat == 0)
         {
           it = tasks.erase(it);
         }
         else
         {
-          // TODO
+          task.when = task.when.getMillis() + task.interval;
+          // find out lastest task
+          if (lastest == tasks.end())
+          { 
+            lastest = it; 
+          }
+          else
+          {
+            Task &lastestTask = *lastest;
+            if (lastestTask.when > task.when)
+            { 
+              lastest = it;
+            }
+          }
 
           ++it;
         }
@@ -109,6 +127,7 @@ void Timer::_execTask()
           lastest = it;
         }
       }
+
       ++it;
     }
   }
@@ -118,6 +137,9 @@ void Timer::_execTask()
     Task &lastestTask = *lastest;
     _schedule(lastestTask.when.getMillis());
   }
+
+  if (foreverTask)
+    foreverTask();
 }
 
 // struct timespec
@@ -134,27 +156,30 @@ void Timer::_execTask()
 
 void Timer::schedule(const TaskFunc &taskFunc, long afterMillis, long intervalMillis, int repeat)
 {
+  // TODO using mutex for protecting deque
 
   Time now = Time::NowClock();
   Time _time = now.getMillis() + afterMillis;
 
-  Timer::Task task(taskFunc, _time, intervalMillis, repeat);
-
   if (repeat < 0)
   {
     tasks.clear();
-    tasks.push_back(task);
+    foreverTask = taskFunc;
     _schedule(_time.getMillis(), intervalMillis);
   }
   else
   {
+    Timer::Task task(taskFunc, _time, intervalMillis, repeat);
     tasks.push_back(task);
+    foreverTask = 0;
     _schedule(now.getMillis()); //active timer instantly
   }
 }
 
 void Timer::_schedule(long timeMillis, long intervalMillis)
 {
+  // LOG_DEBUG << "time: "<<timeMillis<< ", interval: "<<intervalMillis;
+
   struct itimerspec new_value;
   struct itimerspec old_value;
 
