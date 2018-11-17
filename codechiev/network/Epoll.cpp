@@ -43,7 +43,7 @@ void Epoll::ctlAdd(Channel *channel, int mode)
   if (_ctl(channel->getFd(), EPOLL_CTL_ADD, &ev) == -1)
   {
     perror("epoll_ctl: add");
-    exit(EXIT_FAILURE);
+    // exit(EXIT_FAILURE);
   }
 }
 
@@ -52,7 +52,7 @@ void Epoll::ctlDel(Channel *channel)
   if (_ctl(channel->getFd(), EPOLL_CTL_DEL, NULL) == -1)
   {
     perror("epoll_ctl: del");
-    exit(EXIT_FAILURE);
+    // exit(EXIT_FAILURE);
   }
 }
 
@@ -64,7 +64,7 @@ void Epoll::ctlMod(Channel *channel, int type)
   if (_ctl(channel->getFd(), EPOLL_CTL_MOD, &ev) == -1)
   {
     perror("epoll_ctl: mod");
-    exit(EXIT_FAILURE);
+    // exit(EXIT_FAILURE);
   }
 }
 
@@ -79,7 +79,7 @@ void Epoll::wait()
   if (nfds == -1)
   {
     perror("epoll_wait");
-    exit(EXIT_FAILURE);
+    // exit(EXIT_FAILURE);
   }
 
   for (int n = 0; n < nfds; ++n)

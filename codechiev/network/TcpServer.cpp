@@ -49,7 +49,7 @@ void TcpServer::epollHandler(Channel *channel, Eventloop<Epoll> *loop)
   }
   else
   {
-    _handler(channel);
+    _handleEvent(channel);
 
     if (channel->isClosed())
     {
@@ -58,41 +58,5 @@ void TcpServer::epollHandler(Channel *channel, Eventloop<Epoll> *loop)
       channel->close();
       delete channel;
     }
-  }
-}
-
-void TcpServer::send(Channel *channel, const char *msg, int len)
-{
-  // do not set writable again
-  if (!channel->isClosable())
-  {
-    channel->buf.append(msg, len);
-    reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
-        ->getPoll()
-        ->setWritable(channel);
-  }
-}
-
-void TcpServer::shutdown(Channel *channel)
-{
-   // do not set writable again
-  if (!channel->isClosable())
-  {
-    channel->setClosable();
-    reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
-        ->getPoll()
-        ->setWritable(channel);
-  } 
-}
-
-void TcpServer::_writtingDone(Channel *channel)
-{
-  reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
-      ->getPoll()
-      ->setReadable(channel);
-
-  if (channel->isClosable())
-  {
-    channel->shutdown();
   }
 }

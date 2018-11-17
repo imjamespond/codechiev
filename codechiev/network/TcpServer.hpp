@@ -16,14 +16,9 @@ public:
 
   void start(Eventloop<Epoll> *, bool isWorker = true);
   void epollHandler(Channel *, Eventloop<Epoll> *);
-  void send(Channel *, const char *, int );
-
-  void shutdown(Channel *);
 
 protected:
   Channel listenChannel;
-
-  void _writtingDone(Channel *);
 };
 } // namespace net
 } // namespace codechiev

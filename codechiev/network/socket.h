@@ -38,7 +38,7 @@ inline void set_sock_address(sock_address_in &sin, int port, const char *host = 
     sin.sin_addr.s_addr = INADDR_ANY;
 }
 
-inline int get_sockfd()
+inline int getSockfd()
 {
   int sockfd =
       ::socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0);
@@ -47,28 +47,37 @@ inline int get_sockfd()
   return sockfd;
 }
 
+inline int setReuseAddr(int sockfd)
+{
+  int on = 1;
+  if (::setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) == -1)
+  {
+    perror("setsockopt");
+    return -1;
+  }
+  return 0;
+}
+
 inline int Listen(int port, const char *host = NULL)
 {
 
   sock_address_in addr;
   set_sock_address(addr, port, host);
 
-  int listen_sock =
-      ::socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0);
-  if (listen_sock == -1)
-    perror("socket");
+  int listenfd = getSockfd();
+  if (listenfd == -1)
+    return -1;
 
-  int on = 1;
-  if (::setsockopt(listen_sock, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) < 0)
-    perror("setsockopt");
+  if (setReuseAddr(listenfd) == -1)
+    return -1;
 
-  if (::bind(listen_sock, (sock_address *)&addr, sizeof(sock_address)) == -1)
+  if (::bind(listenfd, (sock_address *)&addr, sizeof(sock_address)) == -1)
     perror("bind");
 #define LISTEN_BACKLOG 8192
-  if (::listen(listen_sock, LISTEN_BACKLOG) == -1)
+  if (::listen(listenfd, LISTEN_BACKLOG) == -1)
     perror("listen");
 
-  return listen_sock;
+  return listenfd;
 }
 
 inline int Accept(int fd)
@@ -86,18 +95,27 @@ inline int Accept(int fd)
   return conn_sock;
 }
 
-inline void Connect(int sockfd, int port, const char *host)
+inline int Connect(int port, const char *host)
 {
   sock_address_in addr;
   set_sock_address(addr, port, host);
 
-  if (::connect( sockfd, (struct sockaddr *)&addr, sizeof(sock_address)) == -1)
+  int sockfd = getSockfd();
+  if (sockfd == -1)
+    return -1;
+
+  if (setReuseAddr(sockfd) == -1)
+    return -1;
+
+  if (::connect(sockfd, (struct sockaddr *)&addr, sizeof(sock_address)) == -1)
   {
     if (EINPROGRESS != errno)
     {
       perror("connect");
     }
   }
+
+  return sockfd;
 }
 
 } // namespace net

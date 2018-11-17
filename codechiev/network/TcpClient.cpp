@@ -7,7 +7,7 @@
 using namespace codechiev::base;
 using namespace codechiev::net;
 
-TcpClient::TcpClient(Eventloop<Epoll> *_loop) : loop(_loop)
+TcpClient::TcpClient(Eventloop<Epoll> *_loop) : TcpEndpoint(), loop(_loop)
 {
   Epoll::EpollHandler handler = boost::bind(&TcpClient::epollHandler, this, _1);
   loop->getPoll()->setHandler(handler);
@@ -15,14 +15,12 @@ TcpClient::TcpClient(Eventloop<Epoll> *_loop) : loop(_loop)
 
 void TcpClient::connect(int port, const char *host)
 {
-  int conn_sock = get_sockfd();
+  int conn_sock = Connect(port, host);
 
   Channel *connChannel(new Channel(conn_sock));
 
   loop->getPoll()->ctlAdd(connChannel);
   loop->getPoll()->setWritable(connChannel);
-
-  Connect(conn_sock, port, host);
 }
 
 void TcpClient::start()
@@ -32,40 +30,28 @@ void TcpClient::start()
 
 void TcpClient::epollHandler(Channel *channel)
 {
-  // LOG_DEBUG << "fd " << channel->getFd();
-
+  LOG_DEBUG << "fd: " << channel->getFd() << ", events: " << channel->getEvents();
+  
+  if (channel->isConnected())
   {
-    _handler(channel);
-
-    if (channel->isClosed())
-    {
-      loop->getPoll()->ctlDel(channel);
-      delete channel;
-    }
+    // _handleEvent(channel);
+    LOG_DEBUG << "_handleEvent fd: " << channel->getFd();
   }
-}
-
-void TcpClient::send(Channel *channel, const char *msg, int len)
-{
-  channel->buf.append(msg, len);
-  loop->getPoll()
-      ->setWritable(channel);
-}
-
-void TcpClient::shutdown(Channel *channel)
-{
-  channel->setClosable();
-  loop->getPoll()
-      ->setWritable(channel);
-}
-
-void TcpClient::_writtingDone(Channel *channel)
-{
-  loop->getPoll()
-      ->setReadable(channel);
-
-  if (channel->isClosable())
+  else if (channel->isWritable())
   {
-    channel->shutdown();
+    channel->setConnected();
+    channel->setReadable();
+
+    if (onConnect)
+      onConnect(channel);
   }
+
+  if (channel->isClosed())
+  {
+    loop->getPoll()
+        ->ctlDel(channel);
+    channel->close();
+    delete channel;
+  }
+
 }

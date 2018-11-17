@@ -1,5 +1,6 @@
 #include "TcpEndpoint.hpp"
 #include "Eventloop.hpp"
+#include "Epoll.hpp"
 
 #include <errno.h>
 #include <base/Logger.hpp>
@@ -7,7 +8,12 @@
 using namespace codechiev::base;
 using namespace codechiev::net;
 
-void TcpEndpoint::_handler(Channel *channel)
+TcpEndpoint::TcpEndpoint() : onConnect(0),  onRead(0),  onWrite(0),  onClose(0)
+{
+  LOG_DEBUG << "TcpEndpoint";
+}
+
+void TcpEndpoint::_handleEvent(Channel *channel)
 {
   if (channel->isReadable())
   {
@@ -18,7 +24,7 @@ void TcpEndpoint::_handler(Channel *channel)
       ::memset(buf, 0, buf_len);
       ssize_t len = ::read(channel->getFd(), buf, buf_len);
 
-      // LOG_DEBUG << "fd: " << channel->getFd() << ", len: " << len << ", errno: " << errno;
+      LOG_DEBUG << "fd: " << channel->getFd() << ", len: " << len << ", errno: " << errno;
 
       if (len > 0)
       {
@@ -51,10 +57,13 @@ void TcpEndpoint::_handler(Channel *channel)
     {
       ssize_t len = ::write(channel->getFd(), channel->buf.str(), channel->buf.readable_bytes());
 
-      // LOG_DEBUG << "write fd: " << channel->getFd() << ", len: " << len << ", errno: " << errno;
+      LOG_DEBUG << "write fd: " << channel->getFd() << ", len: " << len << ", errno: " << errno;
 
       if (len > 0)
       {
+        // TODO channel buf need to be protected
+        MutexGuard lock(&mutex);
+
         if (onWrite)
           onWrite(channel, channel->buf.str(), len);
 
@@ -88,4 +97,44 @@ void TcpEndpoint::_handler(Channel *channel)
       onClose(channel);
   }
 
+}
+
+void TcpEndpoint::send(Channel *channel, const char *msg, int len)
+{
+  // do not set writable again
+  if (!channel->isClosable())
+  {
+    {
+      MutexGuard lock(&mutex);
+      channel->buf.append(msg, len);
+    }
+    
+    reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
+        ->getPoll()
+        ->setWritable(channel);
+  }
+}
+
+void TcpEndpoint::shutdown(Channel *channel)
+{
+   // do not set writable again
+  if (!channel->isClosable())
+  {
+    channel->setClosable();
+    reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
+        ->getPoll()
+        ->setWritable(channel);
+  } 
+}
+
+void TcpEndpoint::_writtingDone(Channel *channel)
+{
+  reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
+      ->getPoll()
+      ->setReadable(channel);
+
+  if (channel->isClosable())
+  {
+    channel->shutdown();
+  }
 }

@@ -8,7 +8,7 @@ add_executable (${UnitTest} ${UnitTest}.cpp)
 target_link_libraries (${UnitTest})
 add_test(${UnitTest} ${CMAKE_CURRENT_BINARY_DIR}/${UnitTest})
 
-SET (UnitTest timer_test)
+SET (UnitTest client_test)
 add_executable (${UnitTest} ${UnitTest}.cpp)
 target_link_libraries (${UnitTest} ccv_base ccv_net)
 add_test(${UnitTest} ${CMAKE_CURRENT_BINARY_DIR}/${UnitTest})
