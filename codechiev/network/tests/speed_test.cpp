@@ -115,7 +115,7 @@ void onConnect(Channel *channel, TcpServer * serv)
 void onRead(Channel *channel, const char *buf, int len, TcpServer *serv)
 {
   servRecived+=len;
-  // serv->send(channel , "hello", 5);
+  serv->send(channel , "hello", 5);
 }
 void onWrite(Channel *channel, const char *msg, int len, TcpServer *serv)
 {
@@ -137,7 +137,7 @@ void onClientRead(Channel *channel, const char *buf, int len, TcpClient *cli)
         << ", buf: " << buf
         << ", len: " << len;
   cliRecived+=len;
-  // cli->send(channel , "hello", 5);
+  cli->send(channel , "hello", 5);
 }
 void onClientWrite(Channel *channel, const char *msg, int len, TcpClient *cli)
 {

@@ -17,12 +17,7 @@ public:
   inline int getFd() const { return sockfd; }
 
   void setNonblocking();
-
-private:
-  const int sockfd;
-  int events;
-
-public:
+  bool check();
   void close();
   void shutdown();
 
@@ -41,6 +36,10 @@ public:
 
   codechiev::base::FixedBuffer<4096> buf;
   void *loop;
+
+private:
+  const int sockfd;
+  int events;
 };
 } // namespace net
 } // namespace codechiev

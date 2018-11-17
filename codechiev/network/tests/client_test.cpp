@@ -80,7 +80,7 @@ void input()
 
 void onClientConnect(Channel *channel)
 {
-  // LOG_INFO << "connect fd: " << channel->getFd();
+  LOG_INFO << "connect fd: " << channel->getFd();
 }
 
 void onClientRead(Channel * channel, const char *buf, int len, TcpClient *cli)

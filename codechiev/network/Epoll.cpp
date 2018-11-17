@@ -37,7 +37,7 @@ void Epoll::ctlAdd(Channel *channel, int mode)
   // LOG_DEBUG << channel->getFd();
 
   st_epoll_event ev;
-  ev.events = EPOLLIN | mode; // edge trigger // level trigger, always notify until read or accept
+  ev.events = mode; // edge trigger // level trigger, always notify until read or accept
   // ev.data.fd = channel->getFd(); unable to set both fd and ptr?
   ev.data.ptr = (void *)channel;
   if (_ctl(channel->getFd(), EPOLL_CTL_ADD, &ev) == -1)

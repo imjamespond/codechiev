@@ -20,7 +20,7 @@ void TcpServer::start(Eventloop<Epoll> *loop, bool isWorker)
   loop->getPoll()->setHandler(handler);
   if (isWorker)
   {
-    loop->getPoll()->ctlAdd(&listenChannel, 0);
+    loop->getPoll()->ctlAdd(&listenChannel, EPOLLIN);
   }
   loop->loop();
 }

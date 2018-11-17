@@ -3,6 +3,7 @@
 
 #include <boost/bind.hpp>
 #include <base/Logger.hpp>
+#include <base/Time.hpp>
 
 using namespace codechiev::base;
 using namespace codechiev::net;
@@ -19,8 +20,7 @@ void TcpClient::connect(int port, const char *host)
 
   Channel *connChannel(new Channel(conn_sock));
 
-  loop->getPoll()->ctlAdd(connChannel);
-  loop->getPoll()->setWritable(connChannel);
+  loop->getPoll()->ctlAdd(connChannel, EPOLLOUT | EPOLLERR);
 }
 
 void TcpClient::start()
@@ -34,16 +34,26 @@ void TcpClient::epollHandler(Channel *channel)
   
   if (channel->isConnected())
   {
-    // _handleEvent(channel);
-    LOG_DEBUG << "_handleEvent fd: " << channel->getFd();
+    _handleEvent(channel);
+    // Time::SleepMillis(5000l);
+    // LOG_DEBUG << "_handleEvent fd: " << channel->getFd();
   }
   else if (channel->isWritable())
   {
-    channel->setConnected();
-    channel->setReadable();
+    if (channel->check())
+    {
+      channel->setConnected();
+      
+      loop->getPoll()
+          ->setReadable(channel);
 
-    if (onConnect)
-      onConnect(channel);
+      if (onConnect)
+        onConnect(channel);
+    }
+    else
+    {
+      channel->setClosed();
+    }
   }
 
   if (channel->isClosed())

@@ -107,12 +107,17 @@ inline int Connect(int port, const char *host)
   if (setReuseAddr(sockfd) == -1)
     return -1;
 
-  if (::connect(sockfd, (struct sockaddr *)&addr, sizeof(sock_address)) == -1)
+  int res = ::connect(sockfd, (struct sockaddr *)&addr, sizeof(sock_address));
+  if (res == -1)
   {
     if (EINPROGRESS != errno)
     {
       perror("connect");
     }
+  }
+  else if (res == 0)
+  {
+    printf("connection has succeeded immediately %d\n", sockfd);
   }
 
   return sockfd;

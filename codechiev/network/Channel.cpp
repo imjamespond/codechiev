@@ -1,17 +1,36 @@
 #include "Channel.hpp"
+#include "socket.h"
 #include <stdio.h>
 #include <unistd.h>
 #include <base/Logger.hpp>
 
 using namespace codechiev::net;
 
-Channel::Channel(int _sockfd) : sockfd(_sockfd), events(0), loop(NULL)
+Channel::Channel(int _sockfd) : loop(NULL), sockfd(_sockfd), events(0)
 {}
 
 Channel::~Channel()
 {
   LOG_DEBUG << "destroy channel: " << sockfd;
 }
+
+bool Channel::check()
+{
+  int result;
+  socklen_t result_len = sizeof(result);
+  if (::getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &result, &result_len) < 0) {
+      // error, fail somehow, close socket
+      return false;
+  }
+
+  if (result != 0) {
+      // connection failed; error code is in 'result'
+      return false;
+  }
+
+  return true;
+}
+
 
 /*
   won't trigger or deteted by epoll, not recommended
