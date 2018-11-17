@@ -30,7 +30,7 @@ void TcpClient::start()
 
 void TcpClient::epollHandler(Channel *channel)
 {
-  LOG_DEBUG << "fd: " << channel->getFd() << ", events: " << channel->getEvents();
+  // LOG_DEBUG << "fd: " << channel->getFd() << ", events: " << channel->getEvents();
   
   if (channel->isConnected())
   {
@@ -43,6 +43,7 @@ void TcpClient::epollHandler(Channel *channel)
     if (channel->check())
     {
       channel->setConnected();
+      channel->loop = loop;
       
       loop->getPoll()
           ->setReadable(channel);

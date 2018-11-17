@@ -31,7 +31,7 @@ void Timer::start(Eventloop<Epoll> *loop)
 
   Epoll::EpollHandler handler = boost::bind(&Timer::_epollHandler, this, _1, loop);
   loop->getPoll()->setHandler(handler);
-  loop->getPoll()->ctlAdd(&timerChannel, 0);
+  loop->getPoll()->ctlAdd(&timerChannel, EPOLLIN);
 
   loop->loop();
 }

@@ -4,6 +4,7 @@
 
 #include <errno.h>
 #include <base/Logger.hpp>
+#include <base/Time.hpp>
 
 using namespace codechiev::base;
 using namespace codechiev::net;
@@ -24,7 +25,7 @@ void TcpEndpoint::_handleEvent(Channel *channel)
       ::memset(buf, 0, buf_len);
       ssize_t len = ::read(channel->getFd(), buf, buf_len);
 
-      LOG_DEBUG << "fd: " << channel->getFd() << ", len: " << len << ", errno: " << errno;
+      // LOG_DEBUG << "fd: " << channel->getFd() << ", len: " << len << ", errno: " << errno;
 
       if (len > 0)
       {
@@ -57,7 +58,7 @@ void TcpEndpoint::_handleEvent(Channel *channel)
     {
       ssize_t len = ::write(channel->getFd(), channel->buf.str(), channel->buf.readable_bytes());
 
-      LOG_DEBUG << "write fd: " << channel->getFd() << ", len: " << len << ", errno: " << errno;
+      // LOG_DEBUG << "write fd: " << channel->getFd() << ", len: " << len << ", errno: " << errno;
 
       if (len > 0)
       {
@@ -68,6 +69,7 @@ void TcpEndpoint::_handleEvent(Channel *channel)
           onWrite(channel, channel->buf.str(), len);
 
         channel->buf.read(len);
+        channel->buf.move(); 
       }
       else if (len)
       {
@@ -109,6 +111,7 @@ void TcpEndpoint::send(Channel *channel, const char *msg, int len)
       channel->buf.append(msg, len);
     }
     
+    assert(channel->loop);
     reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
         ->getPoll()
         ->setWritable(channel);
@@ -121,6 +124,8 @@ void TcpEndpoint::shutdown(Channel *channel)
   if (!channel->isClosable())
   {
     channel->setClosable();
+
+    assert(channel->loop);
     reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
         ->getPoll()
         ->setWritable(channel);
@@ -129,6 +134,7 @@ void TcpEndpoint::shutdown(Channel *channel)
 
 void TcpEndpoint::_writtingDone(Channel *channel)
 {
+  assert(channel->loop);
   reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
       ->getPoll()
       ->setReadable(channel);

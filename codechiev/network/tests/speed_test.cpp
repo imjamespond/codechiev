@@ -40,6 +40,24 @@ void input();
 TcpClient *clientPtr = NULL;
 Channel *cliChannel = NULL;
 
+void gen_random(char *s, const int len) {
+  /* initialize random seed: */
+  srand (time(NULL));
+
+  static const char alphanum[] =
+      "0123456789"
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+      "abcdefghijklmnopqrstuvwxyz";
+
+  for (int i = 0; i < len; ++i) {
+      s[i] = alphanum[rand() % (sizeof(alphanum) - 1)];
+  }
+
+  s[len] = 0;
+}
+
+char randStr[1024];
+
 int main(int num, const char **args)
 {
   if (num > 1)
@@ -50,6 +68,8 @@ int main(int num, const char **args)
   {
     port = ::atoi(args[2]); 
   }
+
+  gen_random(randStr, sizeof randStr);
 
   LOG_INFO << "host: " << host << ", port: " << port;
 
@@ -95,7 +115,7 @@ void input()
       }
       else if (::strcmp(string, "connect\n") == 0)
       {
-        clientPtr->connect(12345);
+        clientPtr->connect(port, host);
       }
       else if (::strcmp(string, "send\n") == 0)
       {
@@ -110,12 +130,12 @@ void onConnect(Channel *channel, TcpServer * serv)
 {
   // client_num++;
   // LOG_INFO << "connect fd: " << channel->getFd();
-  serv->send(channel , "hello", 5);
+  serv->send(channel , randStr, sizeof randStr);
 }
 void onRead(Channel *channel, const char *buf, int len, TcpServer *serv)
 {
   servRecived+=len;
-  serv->send(channel , "hello", 5);
+  serv->send(channel , buf, len);
 }
 void onWrite(Channel *channel, const char *msg, int len, TcpServer *serv)
 {
@@ -127,17 +147,16 @@ void onClose(Channel *channel)
 
 void onClientConnect(Channel *channel, TcpClient *cli)
 {
-  // cli->send(channel , "hello", 5);
+  LOG_INFO << "client connect fd: " << channel->getFd(); 
   cliChannel = channel;
-  LOG_INFO << "client connect fd: " << channel->getFd();
 }
 void onClientRead(Channel *channel, const char *buf, int len, TcpClient *cli)
 {
-  LOG_INFO << "client read fd: " << channel->getFd()
-        << ", buf: " << buf
-        << ", len: " << len;
+  // LOG_INFO << "client read fd: " << channel->getFd()
+  //       << ", buf: " << buf
+  //       << ", len: " << len;
   cliRecived+=len;
-  cli->send(channel , "hello", 5);
+  cli->send(channel , buf, len);
 }
 void onClientWrite(Channel *channel, const char *msg, int len, TcpClient *cli)
 {
@@ -147,9 +166,9 @@ void onClientWrite(Channel *channel, const char *msg, int len, TcpClient *cli)
 void print()
 { 
 
-  LOG_INFO_R << " cliRecived: " << cliRecived
-  << ", cliSent: "<<cliSent
-  << ", servRecived: "<<servRecived
-  << ", servSent: " <<servSent;
+  LOG_INFO_R << " cliRecived: " << (cliRecived>>20) <<"mb,"
+  << "cliSent: "<< (cliSent>>20) << "mb,"
+  << "servRecived: "<< (servRecived>>20) << "mb,"
+  << "servSent: " << (servSent>>20) << "mb,";
 
 }
