@@ -2,7 +2,9 @@
 #include <stdlib.h> /* atoi */
 #include <errno.h>
 #include <sys/epoll.h>
-// #include <signal.h>
+#include <signal.h>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
 #include <boost/bind.hpp>
 
 #include <network/TcpServer.hpp>
@@ -24,6 +26,7 @@ void onClose(Channel *);
 void onClientConnect(Channel *, TcpClient *);
 void onClientRead(Channel *channel, const char *, int , TcpClient *);
 void onClientWrite(Channel *channel, const char *, int , TcpClient *);
+void onClientClose(Channel *);
 
 void print();
  
@@ -53,6 +56,11 @@ int main(int num, const char **args)
     port = ::atoi(args[2]); 
   }
 
+  struct sigaction st[] = {SIG_IGN};
+  sigaction(SIGPIPE, st, NULL);
+
+  boost::uuids::uuid tag = boost::uuids::random_generator()();
+  // LOG_INFO << "host: " << host << ", port: " << port;
 
   LOG_INFO << "host: " << host << ", port: " << port;
 
@@ -65,12 +73,13 @@ int main(int num, const char **args)
   serv1.setOnCloseFunc(boost::bind(&onClose, _1));
   serv1.setOnReadFunc(boost::bind(&onRead, _1, _2, _3, &serv1));
   serv1.setOnWriteFunc(boost::bind(&onWrite, _1, _2, _3, &serv1));
-  serv1.start(&serv1Loop);
+  // serv1.start(&serv1Loop);
 
   TcpClient client(&cliLoop);
-  // client.setOnConnectFunc(boost::bind(&onClientConnect, _1, &client));
-  // client.setOnReadFunc(boost::bind(&onClientRead, _1, _2, _3, &client));
-  // client.setOnWriteFunc(boost::bind(&onClientWrite, _1, _2, _3, &client));
+  client.setOnConnectFunc(boost::bind(&onClientConnect, _1, &client));
+  client.setOnCloseFunc(boost::bind(&onClientClose, _1));
+  client.setOnReadFunc(boost::bind(&onClientRead, _1, _2, _3, &client));
+  client.setOnWriteFunc(boost::bind(&onClientWrite, _1, _2, _3, &client));
   // client.start();
 
   Eventloop<Epoll> timerLoop; 
@@ -96,14 +105,6 @@ void input()
       {
         // LOG_INFO << client_num;
       }
-      else if (::strcmp(string, "connect\n") == 0)
-      {
-        clientPtr->connect(port, host);
-      }
-      else if (::strcmp(string, "send\n") == 0)
-      {
-        clientPtr->send(cliChannel , "hello", 5);
-      }
     }
   }
 
@@ -117,10 +118,10 @@ void onConnect(Channel *channel, TcpServer * serv)
 void onRead(Channel *channel, const char *buf, int len, TcpServer *serv)
 {
   LOG_INFO << "read fd: " << channel->getFd()
-        // << ", buf: " << buf
+        << ", buf: " << buf
         << ", len: " << len;  
   servRecived+=len;
-  // serv->send(channel , buf, len);
+  serv->send(channel , buf, len);//send to tunnel
 }
 void onWrite(Channel *channel, const char *msg, int len, TcpServer *serv)
 {
@@ -130,13 +131,33 @@ void onClose(Channel *channel)
 {
 }
 
+void onClientConnect(Channel *channel, TcpClient *endpoint)
+{
+  // client_num++;
+  LOG_INFO << "connect fd: " << channel->getFd();
+}
+void onClientRead(Channel *channel, const char *buf, int len, TcpClient *endpoint)
+{
+  LOG_INFO << "read fd: " << channel->getFd()
+           << ", buf: " << buf
+           << ", len: " << len;
+  servRecived += len;
+  endpoint->send(channel, buf, len); //send to tunnel
+}
+void onClientWrite(Channel *channel, const char *msg, int len, TcpClient *endpoint)
+{
+  servSent += len;
+}
+void onClientClose(Channel *channel)
+{
+}
 
 void print()
 { 
 
   LOG_INFO_R << " cliRecived: " << (cliRecived>>20) <<"mb,"
   << "cliSent: "<< (cliSent>>20) << "mb,"
-  << "servRecived: "<< (servRecived>>20) << "mb,"
-  << "servSent: " << (servSent>>20) << "mb,";
+  << "servRecived: "<< (servRecived>>10) << "kb,"
+  << "servSent: " << (servSent>>10) << "kb,";
 
 }
