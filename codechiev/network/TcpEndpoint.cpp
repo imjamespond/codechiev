@@ -9,7 +9,12 @@
 using namespace codechiev::base;
 using namespace codechiev::net;
 
-TcpEndpoint::TcpEndpoint() : onConnect(0),  onRead(0),  onWrite(0),  onClose(0)
+Channel* __create_channel__(int sockfd)
+{
+  return new Channel(sockfd);
+}
+
+TcpEndpoint::TcpEndpoint() : onConnect(0),  onRead(0),  onWrite(0),  onClose(0), createChannel(boost::bind(&__create_channel__, _1))
 {
   LOG_DEBUG << "TcpEndpoint";
 }

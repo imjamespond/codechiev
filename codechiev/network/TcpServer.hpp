@@ -17,6 +17,8 @@ public:
   void start(Eventloop<Epoll> *, bool isWorker = true);
   void epollHandler(Channel *, Eventloop<Epoll> *);
 
+  inline void setCreateChannel(const CreateChannel& func) {createChannel = func;}
+
 protected:
   Channel listenChannel;
 };

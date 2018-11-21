@@ -17,6 +17,7 @@ public:
   typedef boost::function<void(Channel *, const char *, int)> OnWriteFunc;
   typedef boost::function<void(Channel *, const char *, int)> OnReadFunc;
   typedef boost::function<void(Channel *)> OnCloseFunc;
+  typedef boost::function<Channel *(int)> CreateChannel;
 
   TcpEndpoint();
 
@@ -37,6 +38,7 @@ protected:
   OnReadFunc onRead;
   OnWriteFunc onWrite;
   OnCloseFunc onClose;
+  CreateChannel createChannel;
 
   void _handleEvent(Channel *); 
   void _writtingDone(Channel *);

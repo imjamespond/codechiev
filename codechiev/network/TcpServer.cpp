@@ -1,4 +1,4 @@
-#include "TcpServer.hpp"
+#include "TcpServer.hpp" 
 #include "socket.h"
 
 #include <boost/bind.hpp>
@@ -37,7 +37,7 @@ void TcpServer::epollHandler(Channel *channel, Eventloop<Epoll> *loop)
     }
     else
     {
-      Channel *conn = new Channel(conn_sock);
+      Channel *conn = createChannel(conn_sock);
       conn->setNonblocking();
       conn->loop = loop;
       loop->getPoll()
