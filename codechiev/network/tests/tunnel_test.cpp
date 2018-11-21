@@ -3,9 +3,9 @@
 #include <errno.h>
 #include <sys/epoll.h>
 #include <signal.h>
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
+
 #include <boost/bind.hpp>
+#include <boost/unordered_map.hpp>
 
 #include <network/TcpServer.hpp>
 #include <network/TcpClient.hpp>
@@ -59,7 +59,29 @@ int main(int num, const char **args)
   struct sigaction st[] = {SIG_IGN};
   sigaction(SIGPIPE, st, NULL);
 
-  boost::uuids::uuid tag = boost::uuids::random_generator()();
+
+
+  // typedef boost::unordered_map<boost::uuids::uuid, int> uuid_map;
+  // uuid_map uuidMap;
+
+  // for (int i=0;i<30;++i)
+  // {
+  //   boost::uuids::uuid session = gen();
+  //   uuidMap[session] = i;
+  // }
+
+  // uuid_map::iterator it = uuidMap.begin();
+  // while (it != uuidMap.end())
+  // {
+  //   const boost::uuids::uuid &session = it->first;
+  //   int i = it->second;
+  //   std::string session_str = boost::lexical_cast<std::string>(session);
+  //   LOG_INFO << session_str << "," <<i;
+  //   ++it;
+  // }
+
+
+
   // LOG_INFO << "host: " << host << ", port: " << port;
 
   LOG_INFO << "host: " << host << ", port: " << port;

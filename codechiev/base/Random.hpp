@@ -72,12 +72,12 @@ inline double random(double min, double max)
 }
 
 /* GetRandom */
-
-inline int GetRandom()
+template <typename T>
+T GetRandom()
 {
-    int rand;
-    int randfd = open("/dev/urandom", O_RDONLY);
-    read(randfd, &rand, sizeof(int));
+    T rand;
+    int randfd = ::open("/dev/urandom", O_RDONLY);
+    ::read(randfd, &rand, sizeof(int));
     return rand;
 }
 
