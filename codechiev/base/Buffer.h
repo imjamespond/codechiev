@@ -51,6 +51,7 @@ struct Buffer
         if (wb < (_buffer.capacity() >> 1) ) 
         {
             size_t buf_size = _buffer.capacity() << 1;
+            _buffer.resize(buf_size);
         }
 
         if (wb > len)
