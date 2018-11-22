@@ -16,7 +16,7 @@ public:
 
   void epollHandler(Channel *);
 
-  void connect(int, const char *host = "127.0.0.1");
+  Channel *connect(int, const char *host = "127.0.0.1");
   void start();
 
 private:

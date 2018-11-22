@@ -27,6 +27,7 @@ public:
   inline void setOnWriteFunc(const OnWriteFunc &func) { onWrite = func; };
   inline void setOnReadFunc(const OnReadFunc &func) { onRead = func; };
   inline void setOnCloseFunc(const OnCloseFunc &func) { onClose = func; };
+  inline void setCreateChannel(const CreateChannel &func) { createChannel = func; }
 
   void shutdown(Channel *);
   void send(Channel *, const char *, int );

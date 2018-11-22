@@ -14,9 +14,6 @@ public:
   explicit TunnelChannel(int); 
   explicit TunnelChannel(int, const UUID::uuid_t&); 
 
-  inline UUID::uuid_t& getSession() {return session;} 
-
-private:
   UUID::uuid_t session;
 };
 } // namespace net

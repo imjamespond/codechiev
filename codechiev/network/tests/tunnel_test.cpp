@@ -21,13 +21,13 @@
 using namespace codechiev::net;
 using namespace codechiev::base;
 
-void onConnect(Channel *, TcpServer *);
-void onRead(Channel *, const char *, int, TcpServer *);
+void onConnect(Channel *, TcpServer *, TcpClient *);
+void onRead(Channel *, const char *, int, TcpServer *, TcpClient *);
 void onWrite(Channel *, const char *, int, TcpServer *);
 void onClose(Channel *);
 
 void onClientConnect(Channel *, TcpClient *);
-void onClientRead(Channel *channel, const char *, int , TcpClient *);
+void onClientRead(Channel *channel, const char *, int, TcpClient *, TcpServer *serv);
 void onClientWrite(Channel *channel, const char *, int , TcpClient *);
 void onClientClose(Channel *);
 
@@ -49,9 +49,10 @@ Channel *cliChannel = NULL;
 typedef boost::unordered_map<UUID::uuid_t, TunnelChannel *> uuid_map;
 uuid_map serverChannels;
 uuid_map clientChannels;
+Mutex serverMutex;
+Mutex clientMutex;
 
-TunnelChannel* createServChannel(int);
-TunnelChannel* createCliChannel(int, const UUID::uuid_t&);
+TunnelChannel* createTunnelChannel(int);
 
 int main(int num, const char **args)
 {
@@ -67,21 +68,6 @@ int main(int num, const char **args)
   struct sigaction st[] = {SIG_IGN};
   sigaction(SIGPIPE, st, NULL);
 
-
-  // uuid_map::iterator it = uuidMap.begin();
-  // while (it != uuidMap.end())
-  // {
-  //   const boost::uuids::uuid &session = it->first;
-  //   int i = it->second;
-  //   std::string session_str = boost::lexical_cast<std::string>(session);
-  //   LOG_INFO << session_str << "," <<i;
-  //   ++it;
-  // }
-
-
-
-  // LOG_INFO << "host: " << host << ", port: " << port;
-
   LOG_INFO << "host: " << host << ", port: " << port;
 
   // FIXME use shared_ptr
@@ -90,18 +76,19 @@ int main(int num, const char **args)
 
   TcpServer serv1(1080);
   TcpClient client(&cliLoop);
-  clientPtr = &client;
+  // clientPtr = &client;
 
-  serv1.setCreateChannel(boost::bind(&createServChannel, _1));
-  serv1.setOnConnectFunc(boost::bind(&onConnect, _1, &serv1));
+  serv1.setCreateChannel(boost::bind(&createTunnelChannel, _1));
+  serv1.setOnConnectFunc(boost::bind(&onConnect, _1, &serv1, &client));
   serv1.setOnCloseFunc(boost::bind(&onClose, _1));
-  serv1.setOnReadFunc(boost::bind(&onRead, _1, _2, _3, &serv1));
+  serv1.setOnReadFunc(boost::bind(&onRead, _1, _2, _3, &serv1, &client));
   serv1.setOnWriteFunc(boost::bind(&onWrite, _1, _2, _3, &serv1));
   serv1.start(&serv1Loop);
 
+  client.setCreateChannel(boost::bind(&createTunnelChannel, _1));
   client.setOnConnectFunc(boost::bind(&onClientConnect, _1, &client));
   client.setOnCloseFunc(boost::bind(&onClientClose, _1));
-  client.setOnReadFunc(boost::bind(&onClientRead, _1, _2, _3, &client));
+  client.setOnReadFunc(boost::bind(&onClientRead, _1, _2, _3, &client, &serv1));
   client.setOnWriteFunc(boost::bind(&onClientWrite, _1, _2, _3, &client));
   client.start();
 
@@ -132,21 +119,39 @@ void input()
 
 }
 
-void onConnect(Channel *channel, TcpServer * serv)
+void onConnect(Channel *channel, TcpServer *serv, TcpClient *cli)
 {
   // client_num++;
   TunnelChannel *_channel = static_cast<TunnelChannel *>(channel);
-  serverChannels[_channel->getSession()] = _channel;
-  clientPtr->connect(port, host);
+  Channel *conn = cli->connect(port, host);
+  TunnelChannel *_conn = static_cast<TunnelChannel *>(conn);
+  _conn->session = _channel->session;
+  {
+    MutexGuard lock(&serverMutex);
+    serverChannels[_channel->session] = _channel;
+  }
+  {
+    MutexGuard lock(&clientMutex);
+    clientChannels[_channel->session] = _conn;
+  }
+  
   LOG_INFO << "connect fd: " << channel->getFd();
 }
-void onRead(Channel *channel, const char *buf, int len, TcpServer *serv)
+void onRead(Channel *channel, const char *buf, int len, TcpServer *serv, TcpClient *cli)
 {
   LOG_INFO << "read fd: " << channel->getFd()
         << ", buf: " << buf
         << ", len: " << len;  
   servRecived+=len;
-  serv->send(channel , buf, len);//send to tunnel
+
+  TunnelChannel *_channel = static_cast<TunnelChannel *>(channel);
+  {
+    MutexGuard lock(&clientMutex);
+    TunnelChannel *_conn = clientChannels[_channel->session];
+    if (_conn->isConnected())
+      cli->send(_conn, buf, len); //send to tunnel
+  }
+
 }
 void onWrite(Channel *channel, const char *msg, int len, TcpServer *serv)
 {
@@ -160,14 +165,22 @@ void onClientConnect(Channel *channel, TcpClient *endpoint)
 {
   // client_num++;
   LOG_INFO << "connect fd: " << channel->getFd();
+  endpoint->send(channel, "", 0);
 }
-void onClientRead(Channel *channel, const char *buf, int len, TcpClient *endpoint)
+void onClientRead(Channel *channel, const char *buf, int len, TcpClient *endpoint, TcpServer *serv)
 {
   LOG_INFO << "read fd: " << channel->getFd()
            << ", buf: " << buf
            << ", len: " << len;
   servRecived += len;
-  endpoint->send(channel, buf, len); //send to tunnel
+
+  TunnelChannel *_channel = static_cast<TunnelChannel *>(channel);
+  {
+    MutexGuard lock(&serverMutex);
+    TunnelChannel *_conn = serverChannels[_channel->session];
+    serv->send(_conn, buf, len); //send to tunnel
+  }
+
 }
 void onClientWrite(Channel *channel, const char *msg, int len, TcpClient *endpoint)
 {
@@ -183,6 +196,11 @@ void print()
   LOG_INFO_R << " cliRecived: " << (cliRecived>>20) <<"mb,"
   << "cliSent: "<< (cliSent>>20) << "mb,"
   << "servRecived: "<< (servRecived>>10) << "kb,"
-  << "servSent: " << (servSent>>10) << "kb,";
+  << "servSent: " << (servSent>>10) << "kb";
 
+}
+
+TunnelChannel *createTunnelChannel(int sockfd)
+{
+  return new TunnelChannel(sockfd);
 }

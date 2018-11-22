@@ -37,9 +37,11 @@ void TcpServer::epollHandler(Channel *channel, Eventloop<Epoll> *loop)
     }
     else
     {
+      assert(createChannel);
       Channel *conn = createChannel(conn_sock);
       conn->setNonblocking();
       conn->loop = loop;
+      conn->setConnected();
       loop->getPoll()
           ->ctlAdd(conn);
 
