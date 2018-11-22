@@ -21,11 +21,11 @@ public:
   typedef boost::shared_ptr<Channel> ChannelPtr;
   typedef boost::function<void(Channel *)> EpollHandler;
 
-  void ctlAdd(Channel *, int mode = EPOLLIN | EPOLLET);
-  void ctlDel( Channel *);
-  void ctlMod(Channel *, int);
-  void setReadable(Channel *);
-  void setWritable(Channel *);
+  int ctlAdd(Channel *, int mode = EPOLLIN | EPOLLET);
+  int ctlDel(Channel *);
+  int ctlMod(Channel *, int);
+  int setReadable(Channel *);
+  int setWritable(Channel *);
   void updateChannel(Channel *, int);
   void wait();
 

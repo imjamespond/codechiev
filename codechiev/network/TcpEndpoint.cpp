@@ -63,7 +63,9 @@ void TcpEndpoint::_handleEvent(Channel *channel)
     {
       ssize_t len = ::write(channel->getFd(), channel->buf.str(), channel->buf.readable_bytes());
 
-      // LOG_DEBUG << "write fd: " << channel->getFd() << ", len: " << len << ", errno: " << errno;
+      LOG_DEBUG << "write fd: " << channel->getFd()
+        << ", readable: " << channel->buf.readable_bytes()
+        << ", len: " << len << ", errno: " << errno;
 
       if (len > 0)
       {
@@ -114,12 +116,17 @@ void TcpEndpoint::send(Channel *channel, const char *msg, int len)
     {
       MutexGuard lock(&mutex);
       channel->buf.append(msg, len);
+      LOG_DEBUG << channel->buf.readable_bytes();
     }
     
-    assert(channel->loop);
-    reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
-        ->getPoll()
-        ->setWritable(channel);
+    if (channel->loop)
+    {
+      if (reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
+          ->getPoll()
+          ->setWritable(channel) < 0)
+        channel->setClosable();
+    }
+
   }
 }
 

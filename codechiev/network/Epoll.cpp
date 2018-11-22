@@ -32,7 +32,7 @@ Epoll::Epoll() : epollEvents(1<<2), epChannel(__epoll_create())
 //   epoll_data_t data; /* User data variable */
 // };
 
-void Epoll::ctlAdd(Channel *channel, int mode)
+int Epoll::ctlAdd(Channel *channel, int mode)
 {
   // LOG_DEBUG << channel->getFd();
 
@@ -44,19 +44,23 @@ void Epoll::ctlAdd(Channel *channel, int mode)
   {
     perror("epoll_ctl: add");
     // exit(EXIT_FAILURE);
+    return -1;
   }
+  return 0;
 }
 
-void Epoll::ctlDel(Channel *channel)
+int Epoll::ctlDel(Channel *channel)
 {
   if (_ctl(channel->getFd(), EPOLL_CTL_DEL, NULL) == -1)
   {
     perror("epoll_ctl: del");
     // exit(EXIT_FAILURE);
+    return -1;
   }
+  return 0;
 }
 
-void Epoll::ctlMod(Channel *channel, int type)
+int Epoll::ctlMod(Channel *channel, int type)
 {
   st_epoll_event ev;
   ev.events = type;
@@ -65,7 +69,9 @@ void Epoll::ctlMod(Channel *channel, int type)
   {
     perror("epoll_ctl: mod");
     // exit(EXIT_FAILURE);
+    return -1;
   }
+  return 0;
 }
 
 int Epoll::_ctl(int fd, int op, st_epoll_event *ev)
@@ -102,14 +108,14 @@ void Epoll::wait()
   }
 }
 
-void Epoll::setReadable(Channel *channel)
+int Epoll::setReadable(Channel *channel)
 {
-  ctlMod(channel, EPOLLIN | EPOLLET);
+  return ctlMod(channel, EPOLLIN | EPOLLET);
 }
 
-void Epoll::setWritable(Channel *channel)
+int Epoll::setWritable(Channel *channel)
 {
-  ctlMod(channel, EPOLLOUT | EPOLLET);
+  return ctlMod(channel, EPOLLOUT | EPOLLET);
 }
 
 

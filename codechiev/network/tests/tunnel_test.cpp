@@ -139,16 +139,16 @@ void onConnect(Channel *channel, TcpServer *serv, TcpClient *cli)
 }
 void onRead(Channel *channel, const char *buf, int len, TcpServer *serv, TcpClient *cli)
 {
-  LOG_INFO << "read fd: " << channel->getFd()
-        << ", buf: " << buf
-        << ", len: " << len;  
+  // LOG_INFO << "read fd: " << channel->getFd()
+  //       << ", buf: " << buf
+  //       << ", len: " << len;  
   servRecived+=len;
 
   TunnelChannel *_channel = static_cast<TunnelChannel *>(channel);
   {
     MutexGuard lock(&clientMutex);
     TunnelChannel *_conn = clientChannels[_channel->session];
-    if (_conn->isConnected())
+    if (_conn)
       cli->send(_conn, buf, len); //send to tunnel
   }
 
@@ -159,6 +159,20 @@ void onWrite(Channel *channel, const char *msg, int len, TcpServer *serv)
 }
 void onClose(Channel *channel)
 {
+  TunnelChannel *_channel = static_cast<TunnelChannel *>(channel);
+  {
+    MutexGuard lock(&serverMutex);
+    serverChannels.erase(_channel->session);
+  }
+  {
+    MutexGuard lock(&clientMutex);
+    uuid_map::iterator connIt = clientChannels.find(_channel->session);
+    if (connIt != clientChannels.end())
+    {
+      connIt->second->shutdown();
+      clientChannels.erase(connIt);
+    } 
+  }
 }
 
 void onClientConnect(Channel *channel, TcpClient *endpoint)
@@ -169,34 +183,49 @@ void onClientConnect(Channel *channel, TcpClient *endpoint)
 }
 void onClientRead(Channel *channel, const char *buf, int len, TcpClient *endpoint, TcpServer *serv)
 {
-  LOG_INFO << "read fd: " << channel->getFd()
-           << ", buf: " << buf
-           << ", len: " << len;
-  servRecived += len;
+  // LOG_INFO << "read fd: " << channel->getFd()
+  //          << ", buf: " << buf
+  //          << ", len: " << len;
+  cliRecived += len;
 
   TunnelChannel *_channel = static_cast<TunnelChannel *>(channel);
   {
     MutexGuard lock(&serverMutex);
     TunnelChannel *_conn = serverChannels[_channel->session];
-    serv->send(_conn, buf, len); //send to tunnel
+    if (_conn)
+      serv->send(_conn, buf, len); //send to tunnel
   }
 
 }
 void onClientWrite(Channel *channel, const char *msg, int len, TcpClient *endpoint)
 {
-  servSent += len;
+  cliSent += len;
 }
 void onClientClose(Channel *channel)
 {
+  TunnelChannel *_channel = static_cast<TunnelChannel *>(channel);
+  {
+    MutexGuard lock(&serverMutex);
+    uuid_map::iterator connIt = serverChannels.find(_channel->session);
+    if (connIt != serverChannels.end())
+    {
+      connIt->second->shutdown();
+      serverChannels.erase(connIt);
+    } 
+  }
+  {
+    MutexGuard lock(&clientMutex);
+    clientChannels.erase(_channel->session);
+  }
 }
 
 void print()
 { 
 
-  LOG_INFO_R << " cliRecived: " << (cliRecived>>20) <<"mb,"
-  << "cliSent: "<< (cliSent>>20) << "mb,"
-  << "servRecived: "<< (servRecived>>10) << "kb,"
-  << "servSent: " << (servSent>>10) << "kb";
+  LOG_INFO_R << " cliRecived: " << (cliRecived>>0) <<","
+  << "cliSent: "<< (cliSent>>0) << ","
+  << "servRecived: "<< (servRecived>>0) << ","
+  << "servSent: " << (servSent>>0) << "";
 
 }
 
