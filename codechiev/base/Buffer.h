@@ -5,21 +5,33 @@
 #include <string>   //cpp library
 #include <string.h> //c library
 #include <assert.h>
+#include <vector>
 
 namespace codechiev
 {
 namespace base
 {
 
-template <int BUFFER_SIZE>
+template <int BUFFER_SIZE, int MAXIMUM_SIZE = 1024 * 1024>
 struct Buffer
 {
     typedef std::vector<char> buff_vec;
-    FixedBuffer() : _writer(0),
-                    _reader(0),
-                    _buffer(BUFFER_SIZE)
+    Buffer() : _writer(0),
+               _reader(0),
+               _buffer(BUFFER_SIZE)
     {
         ::memset(&_buffer[0], 0, _buffer.capacity());
+    }
+
+    std::string str()
+    {
+        std::string str(&_buffer[_reader], readable_bytes());
+        return str;
+    }
+
+    const char *buf()
+    {
+        return &_buffer[_reader];
     }
 
     int readable_bytes()
@@ -48,21 +60,27 @@ struct Buffer
         int wb = writable_bytes();
 
         //resize
-        if (wb < (_buffer.capacity() >> 1) ) 
+        if (wb < (_buffer.capacity() >> 1))
         {
-            size_t buf_size = _buffer.capacity() << 1;
-            _buffer.resize(buf_size);
+            size_t size = _buffer.capacity() << 1;
+            if (size <= MAXIMUM_SIZE)
+            {
+                _buffer.resize(size); //compare to reserve, resize allocates space (if needed) and initialize it
+                wb = writable_bytes();
+            } 
         }
 
         if (wb > len)
         {
             ::memcpy(&_buffer[_writer], str, len);
+            // ::printf("_buffer[0]: %c\n", _buffer[0]);
             write(len);
             return len;
         }
         else if (wb > 0)
         {
             ::memcpy(&_buffer[_writer], str, wb);
+            // ::printf("_buffer[0]: %c\n", _buffer[0]);
             write(wb);
             return wb;
         }
@@ -84,34 +102,23 @@ struct Buffer
     void write(int len)
     {
         _writer += len;
-        assert(_writer < _buffer.capacity());
+        assert(_writer <= _buffer.capacity());
     }
 
     void move()
     {
         int rb = readable_bytes();
-        ::memcpy(_buffer, _buffer + _reader, rb);
+        ::memcpy(&_buffer[0], &_buffer[_reader], rb);
         _reader = 0;
         _writer = rb;
         _buffer[_writer] = 0;
     }
 
-    // char *_buffer()
-    // {
-    //     return _buffer + _writer;
-    // }
-
-    // const char* str()
-    // {
-    //     return _buffer+_reader;
-    // }
-
-    inline int _writer() { return _writer; }
-    inline int _reader() { return _reader; }
+    inline int writer() { return _writer; }
+    inline int reader() { return _reader; }
 
     int _writer;
     int _reader;
-    const int _buffersize;
     buff_vec _buffer;
 };
 

@@ -23,24 +23,24 @@ void TcpEndpoint::_handleEvent(Channel *channel)
 {
   if (channel->isReadable())
   {
-    char buf[32];
-    size_t buf_len = sizeof buf;
+    char buffer[32];
+    size_t buf_len = sizeof buffer;
     for (;;)
     {
-      ::memset(buf, 0, buf_len);
-      ssize_t len = ::read(channel->getFd(), buf, buf_len);
+      ::memset(buffer, 0, buf_len);
+      ssize_t len = ::read(channel->getFd(), buffer, buf_len);
 
       // LOG_DEBUG << "fd: " << channel->getFd() << ", len: " << len << ", errno: " << errno;
 
       if (len > 0)
       {
-        // LOG_DEBUG << "buf: " << buf;
+        // LOG_DEBUG << "buffer: " << buffer;
         if (onRead)
-          onRead(channel, buf, len);
+          onRead(channel, buffer, len);
       }
-      else if (len)
+      else if (len && -1 == len)
       {
-        if (-1 == len && errno == EAGAIN)
+        if (errno == EAGAIN)
         {
           // LOG_DEBUG << "EAGAIN";
           break;
@@ -51,6 +51,7 @@ void TcpEndpoint::_handleEvent(Channel *channel)
         // LOG_DEBUG << "close fd: " << channel->getFd();
         if (onClose)
           onClose(channel);
+
         channel->setClosed(); // channel will be delete after return
         break;
       }
@@ -61,33 +62,39 @@ void TcpEndpoint::_handleEvent(Channel *channel)
   {
     for (;;)
     {
-      ssize_t len = ::write(channel->getFd(), channel->buf.str(), channel->buf.readable_bytes());
+      ssize_t len = ::write(channel->getFd(), channel->buffer.buf(), channel->buffer.readable_bytes());
 
-      LOG_DEBUG << "write fd: " << channel->getFd()
-        << ", readable: " << channel->buf.readable_bytes()
-        << ", len: " << len << ", errno: " << errno;
+      // LOG_DEBUG << "write fd: " << channel->getFd()
+      //   << ", readable: " << channel->buffer.readable_bytes()
+      //   << ", len: " << len << ", errno: " << errno;
 
       if (len > 0)
       {
-        // TODO channel buf need to be protected
+        // TODO channel buffer need to be protected
         MutexGuard lock(&mutex);
 
         if (onWrite)
-          onWrite(channel, channel->buf.str(), len);
+          onWrite(channel, channel->buffer.buf(), len);
 
-        channel->buf.read(len);
-        channel->buf.move(); 
+        channel->buffer.read(len);
+        channel->buffer.move(); 
       }
-      else if (len)
+      else if (len && -1 == len)
       {
-        // TODO check writting buf of the channel which might not be sent completely
-        if (-1 == len && errno == EAGAIN)
+        // TODO check writting buffer of the channel which might not be sent completely
+        if (errno == EAGAIN)
         {
           // LOG_DEBUG << "write EAGAIN" ;
 
           _writtingDone(channel);
           break;
         }
+        else if (errno == EPIPE)
+        {
+          channel->setClosed();// broken pipe
+          break;
+        }
+        
       }
       else 
       {
@@ -111,12 +118,12 @@ void TcpEndpoint::_handleEvent(Channel *channel)
 void TcpEndpoint::send(Channel *channel, const char *msg, int len)
 {
   // do not set writable again
-  if (!channel->isClosable())
+  if (!channel->isClosing())
   {
     {
       MutexGuard lock(&mutex);
-      channel->buf.append(msg, len);
-      LOG_DEBUG << channel->buf.readable_bytes();
+      channel->buffer.append(msg, len);
+      // LOG_DEBUG << channel->buffer.readable_bytes();
     }
     
     if (channel->loop)
@@ -124,7 +131,7 @@ void TcpEndpoint::send(Channel *channel, const char *msg, int len)
       if (reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
           ->getPoll()
           ->setWritable(channel) < 0)
-        channel->setClosable();
+        channel->setClosed();
     }
 
   }
@@ -133,14 +140,14 @@ void TcpEndpoint::send(Channel *channel, const char *msg, int len)
 void TcpEndpoint::shutdown(Channel *channel)
 {
    // do not set writable again
-  if (!channel->isClosable())
-  {
-    channel->setClosable();
+   if (!channel->isClosing())
+   {
+     channel->setClosing();
 
-    assert(channel->loop);
-    reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
-        ->getPoll()
-        ->setWritable(channel);
+     assert(channel->loop);
+     reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
+         ->getPoll()
+         ->setWritable(channel);
   } 
 }
 
@@ -151,7 +158,7 @@ void TcpEndpoint::_writtingDone(Channel *channel)
       ->getPoll()
       ->setReadable(channel);
 
-  if (channel->isClosable())
+  if (channel->isClosing())
   {
     channel->shutdown();
   }

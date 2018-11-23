@@ -14,16 +14,19 @@ TcpClient::TcpClient(Eventloop<Epoll> *_loop) : TcpEndpoint(), loop(_loop)
   loop->getPoll()->setHandler(handler);
 }
 
-Channel *TcpClient::connect(int port, const char *host)
+void TcpClient::connect(int port, const char *host)
 {
   int conn_sock = Connect(port, host);
 
   assert(createChannel);
-  Channel *conn = createChannel(conn_sock); 
+  Channel *channel = createChannel(conn_sock);
 
-  loop->getPoll()->ctlAdd(conn, EPOLLOUT | EPOLLERR);
+  loop->getPoll()->ctlAdd(channel, EPOLLOUT | EPOLLERR);
+}
 
-  return conn;
+void TcpClient::connect(Channel * channel)
+{
+  loop->getPoll()->ctlAdd(channel, EPOLLOUT | EPOLLERR);
 }
 
 void TcpClient::start()

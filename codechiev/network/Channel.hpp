@@ -4,17 +4,19 @@
 #include <fcntl.h>
 #include <sys/socket.h>
 
-#include <base/FixedBuffer.h>
+#include <base/Buffer.h>
 
 namespace codechiev {
 namespace net {
+
+class ChannelWrapper;//used in epoll-wait and wrap with shared-ptr of the Channel
 class Channel {
 public:
   explicit Channel(int);
   ~Channel();
 
   // inline void setFd(int sockfd) { this->sockfd = sockfd; }
-  inline int getFd() const { return sockfd; }
+  inline int getFd() const { return sockfd; } // visit const member
 
   void setNonblocking();
   bool check();
@@ -24,17 +26,17 @@ public:
   inline void setReadable() { events = 1 | (events & 24); }
   inline void setWritable() { events = 2 | (events & 24); }
   inline void setClosed() { events = 4; }
-  inline void setClosable() { events |= 8; }
+  inline void setClosing() { events |= 8; }
   inline void setConnected() { events |= 16; }
   inline int isReadable() { return (events & 1); }
   inline int isWritable() { return (events & 2); }
   inline int isClosed() { return (events & 4); }
-  inline int isClosable() { return events & 8; }
+  inline int isClosing() { return events & 8; }
   inline int isConnected() { return events & 16; }
 
   inline int getEvents() { return events;}
 
-  codechiev::base::FixedBuffer<4096> buf;
+  codechiev::base::Buffer<1024, 4096 * 4096> buffer;
   void *loop;
 
 private:

@@ -10,6 +10,7 @@
 #include <network/TcpServer.hpp>
 #include <network/TcpClient.hpp>
 #include <network/Timer.hpp>
+#include <network/socket.h>
 
 #include <base/Time.hpp>
 #include <base/Logger.hpp>
@@ -123,7 +124,9 @@ void onConnect(Channel *channel, TcpServer *serv, TcpClient *cli)
 {
   // client_num++;
   TunnelChannel *_channel = static_cast<TunnelChannel *>(channel);
-  Channel *conn = cli->connect(port, host);
+  int conn_sock = Connect(port, host);
+  Channel *conn = new TunnelChannel(conn_sock);
+  cli->connect(conn);
   TunnelChannel *_conn = static_cast<TunnelChannel *>(conn);
   _conn->session = _channel->session;
   {
@@ -139,10 +142,10 @@ void onConnect(Channel *channel, TcpServer *serv, TcpClient *cli)
 }
 void onRead(Channel *channel, const char *buf, int len, TcpServer *serv, TcpClient *cli)
 {
-  // LOG_INFO << "read fd: " << channel->getFd()
-  //       << ", buf: " << buf
-  //       << ", len: " << len;  
-  servRecived+=len;
+  LOG_INFO << "read fd: " << channel->getFd()
+        << ", buf: " << buf
+        << ", len: " << len;
+  servRecived += len;
 
   TunnelChannel *_channel = static_cast<TunnelChannel *>(channel);
   {
@@ -155,7 +158,7 @@ void onRead(Channel *channel, const char *buf, int len, TcpServer *serv, TcpClie
 }
 void onWrite(Channel *channel, const char *msg, int len, TcpServer *serv)
 {
-  servSent+=len;
+  servSent += len;
 }
 void onClose(Channel *channel)
 {
@@ -183,9 +186,9 @@ void onClientConnect(Channel *channel, TcpClient *endpoint)
 }
 void onClientRead(Channel *channel, const char *buf, int len, TcpClient *endpoint, TcpServer *serv)
 {
-  // LOG_INFO << "read fd: " << channel->getFd()
-  //          << ", buf: " << buf
-  //          << ", len: " << len;
+  LOG_INFO << "read fd: " << channel->getFd()
+           << ", buf: " << buf
+           << ", len: " << len;
   cliRecived += len;
 
   TunnelChannel *_channel = static_cast<TunnelChannel *>(channel);
