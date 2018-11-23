@@ -31,11 +31,11 @@ void onClose(const ChannelPtr &, TcpServer *, TcpClient *);
 
 void onClientConnect(const ChannelPtr &, TcpClient *);
 void onClientRead(const ChannelPtr &channel, const char *, int, TcpClient *, TcpServer *serv);
-void onClientWrite(const ChannelPtr &channel, const char *, int , TcpClient *);
+void onClientWrite(const ChannelPtr &channel, const char *, int, TcpClient *);
 void onClientClose(const ChannelPtr &, TcpServer *, TcpClient *);
 
 void print();
- 
+
 int port = 12345;
 const char *host = "127.0.0.1";
 
@@ -52,7 +52,7 @@ void input();
 // Mutex serverMutex;
 // Mutex clientMutex;
 
-TunnelChannel* createTunnelChannel(int);
+TunnelChannel *createTunnelChannel(int);
 
 int main(int num, const char **args)
 {
@@ -62,7 +62,7 @@ int main(int num, const char **args)
   }
   if (num > 2)
   {
-    port = ::atoi(args[2]); 
+    port = ::atoi(args[2]);
   }
 
   struct sigaction st[] = {SIG_IGN};
@@ -71,7 +71,7 @@ int main(int num, const char **args)
   LOG_INFO << "host: " << host << ", port: " << port;
 
   // FIXME use shared_ptr
-  Eventloop<Epoll> serv1Loop; 
+  Eventloop<Epoll> serv1Loop;
   Eventloop<Epoll> cliLoop;
 
   TcpServer serv1(1080);
@@ -92,7 +92,7 @@ int main(int num, const char **args)
   client.setOnWriteFunc(boost::bind(&onClientWrite, _1, _2, _3, &client));
   client.start();
 
-  Eventloop<Epoll> timerLoop; 
+  Eventloop<Epoll> timerLoop;
   Timer timer;
   timer.start(&timerLoop);
   timer.schedule(boost::bind(&print), 5000l, 3000l, -1);
@@ -116,7 +116,6 @@ void input()
       }
     }
   }
-
 }
 
 void onConnect(const ChannelPtr &channel, TcpServer *serv, TcpClient *cli)
@@ -129,7 +128,7 @@ void onConnect(const ChannelPtr &channel, TcpServer *serv, TcpClient *cli)
   cli_conn->tunnel = serv_conn->ptr;
 
   cli->connect(cli_conn);
-  
+
   LOG_INFO << "connect fd: " << channel->getFd();
 }
 void onRead(const ChannelPtr &channel, const char *buf, int len, TcpServer *serv, TcpClient *cli)
@@ -140,12 +139,11 @@ void onRead(const ChannelPtr &channel, const char *buf, int len, TcpServer *serv
   servRecived += len;
 
   TunnelChannel *serv_conn = static_cast<TunnelChannel *>(channel.get());
-  
+
   if (ChannelPtr cli_conn = serv_conn->tunnel.lock())
   {
     cli->send(cli_conn, buf, len); //send to tunnel
   }
-
 }
 void onWrite(const ChannelPtr &channel, const char *msg, int len, TcpServer *serv)
 {
@@ -178,7 +176,6 @@ void onClientRead(const ChannelPtr &channel, const char *buf, int len, TcpClient
   {
     serv->send(serv_conn, buf, len); //send to tunnel
   }
-
 }
 void onClientWrite(const ChannelPtr &channel, const char *msg, int len, TcpClient *endpoint)
 {
@@ -189,18 +186,17 @@ void onClientClose(const ChannelPtr &channel, TcpServer *serv, TcpClient *cli)
   TunnelChannel *cli_conn = static_cast<TunnelChannel *>(channel.get());
   if (ChannelPtr serv_conn = cli_conn->tunnel.lock())
   {
-    serv->shutdown(serv_conn); 
+    serv->shutdown(serv_conn);
   }
 }
 
 void print()
-{ 
+{
 
-  LOG_INFO_R << " cliRecived: " << (cliRecived>>0) <<","
-  << "cliSent: "<< (cliSent>>0) << ","
-  << "servRecived: "<< (servRecived>>0) << ","
-  << "servSent: " << (servSent>>0) << "";
-
+  LOG_INFO_R << "cliRecived: " << (cliRecived >> 0) << ","
+             << "cliSent: " << (cliSent >> 0) << ","
+             << "servRecived: " << (servRecived >> 0) << ","
+             << "servSent: " << (servSent >> 0) << "";
 }
 
 TunnelChannel *createTunnelChannel(int sockfd)

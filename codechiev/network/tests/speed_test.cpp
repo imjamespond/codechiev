@@ -16,14 +16,16 @@
 using namespace codechiev::net;
 using namespace codechiev::base;
 
-void onConnect(Channel *, TcpServer *);
-void onRead(Channel *, const char *, int, TcpServer *);
-void onWrite(Channel *, const char *, int, TcpServer *);
-void onClose(Channel *);
+typedef Channel::ChannelPtr ChannelPtr;
 
-void onClientConnect(Channel *, TcpClient *);
-void onClientRead(Channel *channel, const char *, int , TcpClient *);
-void onClientWrite(Channel *channel, const char *, int , TcpClient *);
+void onConnect(const ChannelPtr &, TcpServer *);
+void onRead(const ChannelPtr &, const char *, int, TcpServer *);
+void onWrite(const ChannelPtr &, const char *, int, TcpServer *);
+void onClose(const ChannelPtr &);
+
+void onClientConnect(const ChannelPtr &, TcpClient *);
+void onClientRead(const ChannelPtr &, const char *, int , TcpClient *);
+void onClientWrite(const ChannelPtr &, const char *, int , TcpClient *);
 
 void print();
  
@@ -37,8 +39,7 @@ long servSent = 0;
 
 void input();
 
-TcpClient *clientPtr = NULL;
-Channel *cliChannel = NULL;
+TcpClient *clientPtr = NULL; 
 
 void gen_random(char *s, const int len) {
   /* initialize random seed: */
@@ -116,41 +117,36 @@ void input()
       else if (::strcmp(string, "connect\n") == 0)
       {
         clientPtr->connect(port, host);
-      }
-      else if (::strcmp(string, "send\n") == 0)
-      {
-        clientPtr->send(cliChannel , "hello", 5);
-      }
+      } 
     }
   }
 
 }
 
-void onConnect(Channel *channel, TcpServer * serv)
+void onConnect(const ChannelPtr &channel, TcpServer * serv)
 {
   // client_num++;
   // LOG_INFO << "connect fd: " << channel->getFd();
   serv->send(channel , randStr, sizeof randStr);
 }
-void onRead(Channel *channel, const char *buf, int len, TcpServer *serv)
+void onRead(const ChannelPtr &channel, const char *buf, int len, TcpServer *serv)
 {
   servRecived+=len;
   serv->send(channel , buf, len);
 }
-void onWrite(Channel *channel, const char *msg, int len, TcpServer *serv)
+void onWrite(const ChannelPtr &channel, const char *msg, int len, TcpServer *serv)
 {
   servSent+=len;
 }
-void onClose(Channel *channel)
+void onClose(const ChannelPtr &channel)
 {
 }
 
-void onClientConnect(Channel *channel, TcpClient *cli)
+void onClientConnect(const ChannelPtr &channel, TcpClient *cli)
 {
-  LOG_INFO << "client connect fd: " << channel->getFd(); 
-  cliChannel = channel;
+  LOG_INFO << "client connect fd: " << channel->getFd();  
 }
-void onClientRead(Channel *channel, const char *buf, int len, TcpClient *cli)
+void onClientRead(const ChannelPtr &channel, const char *buf, int len, TcpClient *cli)
 {
   // LOG_INFO << "client read fd: " << channel->getFd()
   //       << ", buf: " << buf
@@ -158,7 +154,7 @@ void onClientRead(Channel *channel, const char *buf, int len, TcpClient *cli)
   cliRecived+=len;
   cli->send(channel , buf, len);
 }
-void onClientWrite(Channel *channel, const char *msg, int len, TcpClient *cli)
+void onClientWrite(const ChannelPtr &channel, const char *msg, int len, TcpClient *cli)
 {
   cliSent+=len;
 }

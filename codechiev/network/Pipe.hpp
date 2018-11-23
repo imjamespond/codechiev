@@ -21,19 +21,18 @@ public:
   }
   ~Pipe()
   {
-
   }
 
   void start(Eventloop<T> *);
-  void handler(Channel *, Eventloop<T> *);
 
 private:
-    Channel p0Channel;
-    Channel p1Channel;
+  void handler(const Channel::ChannelPtr &, Eventloop<T> *);
+
+
 };
 
 template <>
-void Pipe<Epoll>::handler(Channel *, Eventloop<Epoll> *)
+void Pipe<Epoll>::handler(const Channel::ChannelPtr &, Eventloop<Epoll> *)
 {
 }
 
@@ -45,10 +44,10 @@ void Pipe<Epoll>::start(Eventloop<Epoll> *loop)
   loop->loop();
 }
 
-template <>
-Pipe<Epoll>::Pipe(int *pipefd) : p0Channel(pipefd[0]), p1Channel(pipefd[1])
-{
-}
+// template <>
+// Pipe<Epoll>::Pipe(int *pipefd) : p0Channel(pipefd[0]), p1Channel(pipefd[1])
+// {
+// }
 
 } // namespace net
 } // namespace codechiev

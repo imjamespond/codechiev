@@ -22,7 +22,7 @@ void TcpEndpoint::_handle_event(const ChannelPtr &channel)
 {
   if (channel->isReadable())
   {
-    char buffer[32];
+    char buffer[256];
     size_t buf_len = sizeof buffer;
     for (;;)
     {
