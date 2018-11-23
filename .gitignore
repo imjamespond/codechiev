@@ -1,4 +1,4 @@
 build
 *-include
-boost*
+boost_1_*
 **/.DS_Store
