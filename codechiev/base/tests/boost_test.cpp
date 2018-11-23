@@ -40,10 +40,10 @@ int main ()
   begin = codechiev::base::Time::Now();
   for(int i(0); i<99999; i++)
   {
-    codechiev::base::GetRandom();
+    codechiev::base::GetRandom<int>();
   }
   now = codechiev::base::Time::Now();
-  int rand = codechiev::base::GetRandom();
+  int rand = codechiev::base::GetRandom<int>();
   LOG_INFO << rand << ", " << (now - begin);
 
   return 0;
