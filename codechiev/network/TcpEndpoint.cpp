@@ -15,7 +15,7 @@ Channel* __create_channel__(int sockfd)
 
 TcpEndpoint::TcpEndpoint() : onConnect(0),  onRead(0),  onWrite(0),  onClose(0), createChannel(boost::bind(&__create_channel__, _1))
 {
-  LOG_DEBUG << "TcpEndpoint";
+  // LOG_DEBUG << "TcpEndpoint";
 }
 
 void TcpEndpoint::_handle_event(const ChannelPtr &channel)
@@ -134,7 +134,7 @@ void TcpEndpoint::_close(Eventloop<Epoll> *loop, const ChannelPtr &channel)
   //unable to epoll_ctl: mod: No such file or directory
   loop->getPoll()->ctlDel(channel.get()); 
   //unable to epoll_ctl: mod: Bad file descriptor
-  channel->close();
+  // channel->close(); // should close in destruct, avoid mod old pointer along with new fd
 
   // delete channel;
   Channel::ChannelPtr _channel;

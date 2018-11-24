@@ -5,49 +5,29 @@
 #include "Eventloop.hpp"
 
 #include <base/Error.hpp>
+#include <base/Logger.hpp>
 #include <boost/bind.hpp>
 
 namespace codechiev
 {
 namespace net
 {
-template <class T>
+  
 class Pipe
 {
 public:
-  Pipe(int *)
-  {
-    throw codechiev::base::Error("must not call the default constructor");
-  }
-  ~Pipe()
-  {
-  }
+  Pipe();
+  // ~Pipe();
 
-  void start(Eventloop<T> *);
+  void start(Eventloop<Epoll> *);
+  void write(short pipe = 0, void *data = NULL, ssize_t len = 0);
 
 private:
-  void handler(const Channel::ChannelPtr &, Eventloop<T> *);
 
-
+  Channel *p0;
+  Channel *p1;
 };
 
-template <>
-void Pipe<Epoll>::handler(const Channel::ChannelPtr &, Eventloop<Epoll> *)
-{
-}
-
-template <>
-void Pipe<Epoll>::start(Eventloop<Epoll> *loop)
-{
-  Epoll::EpollHandler handler = boost::bind(&Pipe<Epoll>::handler, this, _1, loop);
-  loop->getPoll()->setHandler(handler);
-  loop->loop();
-}
-
-// template <>
-// Pipe<Epoll>::Pipe(int *pipefd) : p0Channel(pipefd[0]), p1Channel(pipefd[1])
-// {
-// }
 
 } // namespace net
 } // namespace codechiev

@@ -1,0 +1,91 @@
+#ifndef Pipe_hpp
+#define Pipe_hpp
+
+#include "Epoll.hpp"
+#include "Eventloop.hpp"
+
+#include <base/Error.hpp>
+#include <base/Logger.hpp>
+#include <boost/bind.hpp>
+#include <unistd.h>
+
+namespace codechiev
+{
+namespace net
+{
+template <class T>
+class Pipe
+{
+public:
+  Pipe()
+  {
+    throw codechiev::base::Error("must not call the default constructor");
+  }
+  ~Pipe()
+  {
+  }
+
+  void start(Eventloop<T> *);
+  void write(short pipe = 0, void *data = NULL, ssize_t len = 0);
+
+private:
+  void handler(const Channel::ChannelPtr &, Eventloop<T> *);
+
+  void _init_pipe(int *pipefd)
+  {
+    // O_CLOEXEC - Specifying this flag permits a program to avoid additional
+    // fcntl(2) F_SETFD operations to set the FD_CLOEXEC flag.
+    if (-1 == ::pipe2(pipefd, O_NONBLOCK | O_CLOEXEC))
+    {
+      perror("pipe");
+      exit(EXIT_FAILURE);
+    }
+  }
+
+  Channel *p0;
+  Channel *p1;
+};
+
+template <>
+void Pipe<Epoll>::handler(const Channel::ChannelPtr &, Eventloop<Epoll> *)
+{
+  LOG_DEBUG;
+}
+
+template <>
+void Pipe<Epoll>::start(Eventloop<Epoll> *loop)
+{
+  Epoll::EpollHandler handler = boost::bind(&Pipe<Epoll>::handler, this, _1, loop);
+  loop->getPoll()->setHandler(handler);
+  loop->getPoll()->ctlAdd(p0);
+  loop->loop();
+}
+
+template <>
+void Pipe<Epoll>::write(short pipe, void *data, ssize_t len)
+{ 
+  data = data == NULL ? &pipe : data;
+  len = len ? len : sizeof pipe;
+  if (pipe) 
+  {
+    ::write(p1->getFd(), data, len);
+  }
+  else 
+  {
+    ::write(p1->getFd(), data, len);
+  }
+}
+
+template <>
+Pipe<Epoll>::Pipe()
+{
+  int pipefd[2];
+  _init_pipe(pipefd);
+  p0 = new Channel(pipefd[0]);
+  p1 = new Channel(pipefd[1]);
+}
+
+} // namespace net
+} // namespace codechiev
+
+#endif /* Pipe_hpp */

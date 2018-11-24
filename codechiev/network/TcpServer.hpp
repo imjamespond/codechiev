@@ -19,7 +19,7 @@ public:
 protected:
   void _epoll_handler(const Channel::ChannelPtr &, Eventloop<Epoll> *);
 
-  Channel listenChannel;
+  Channel *listenChannel;
 };
 } // namespace net
 } // namespace codechiev

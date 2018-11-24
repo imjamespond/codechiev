@@ -15,6 +15,7 @@ Channel::Channel(Channel *_ptr, int _sockfd) : ptr(_ptr), loop(NULL), sockfd(_so
 
 Channel::~Channel()
 {
+  close();
   LOG_DEBUG << "destroy channel: " << sockfd;
 }
 

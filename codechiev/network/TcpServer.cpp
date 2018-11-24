@@ -8,7 +8,7 @@
 using namespace codechiev::base;
 using namespace codechiev::net;
 
-TcpServer::TcpServer(int port, const char *host) : listenChannel(Listen(port, host))
+TcpServer::TcpServer(int port, const char *host) : listenChannel(new Channel(Listen(port, host)))
 {
 }
 
@@ -21,14 +21,14 @@ void TcpServer::start(Eventloop<Epoll> *loop, bool isWorker)
   loop->getPoll()->setHandler(handler);
   if (isWorker)
   {
-    loop->getPoll()->ctlAdd(&listenChannel, EPOLLIN);
+    loop->getPoll()->ctlAdd(listenChannel, EPOLLIN);
   }
   loop->loop();
 }
 
 void TcpServer::_epoll_handler(const Channel::ChannelPtr &channel, Eventloop<Epoll> *loop)
 {
-  if (channel->getFd() == listenChannel.getFd())
+  if (channel->getFd() == listenChannel->getFd())
   {
     // LOG_DEBUG << "connect fd " << channel->getFd();
     int conn_sock = Accept(channel->getFd());
