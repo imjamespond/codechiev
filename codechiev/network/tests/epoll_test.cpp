@@ -15,13 +15,15 @@
 using namespace codechiev::net;
 using namespace codechiev::base;
 
-void onConnect(Channel *, TcpServer *);
-void onRead(Channel *, const char *, int, TcpServer *);
-void onWrite(Channel *, const char *, int, TcpServer *);
-void onClose(Channel *);
+typedef Channel::ChannelPtr ChannelPtr;
 
-void onClientConnect(Channel *);
-void onClientRead(Channel *, const char *, int, TcpClient *);
+void onConnect(const ChannelPtr &, TcpServer *);
+void onRead(const ChannelPtr &, const char *, int, TcpServer *);
+void onWrite(const ChannelPtr &, const char *, int, TcpServer *);
+void onClose(const ChannelPtr &);
+
+void onClientConnect(const ChannelPtr &);
+void onClientRead(const ChannelPtr &, const char *, int, TcpClient *);
 
 int client_num = 0;
 int client_total = 1;
@@ -96,13 +98,13 @@ void input()
 
 }
 
-void onConnect(Channel *channel, TcpServer *serv)
+void onConnect(const ChannelPtr &channel, TcpServer *serv)
 {
   client_num++;
   // serv->send(channel , "hello", 5);
   // LOG_INFO << "connect fd: " << channel->getFd();
 }
-void onRead(Channel *channel, const char *buf, int len, TcpServer * serv)
+void onRead(const ChannelPtr &channel, const char *buf, int len, TcpServer * serv)
 {
   // LOG_INFO << "read fd: " << channel->getFd()
   //           << ", buf: " << buf
@@ -115,7 +117,7 @@ void onRead(Channel *channel, const char *buf, int len, TcpServer * serv)
   }
   serv->send(channel, buf, len);
 }
-void onWrite(Channel *channel, const char *msg, int len, TcpServer *serv)
+void onWrite(const ChannelPtr &channel, const char *msg, int len, TcpServer *serv)
 {
   if (strcmp(msg, "write-close\n") == 0)
   {
@@ -123,17 +125,17 @@ void onWrite(Channel *channel, const char *msg, int len, TcpServer *serv)
   }
   LOG_INFO << "write fd: " << channel->getFd();
 }
-void onClose(Channel *channel)
+void onClose(const ChannelPtr &channel)
 {
   // LOG_INFO << "close fd: " << channel->getFd();
 }
 
-void onClientConnect(Channel *channel)
+void onClientConnect(const ChannelPtr &channel)
 {
   // LOG_INFO << "connect fd: " << channel->getFd();
 }
 
-void onClientRead(Channel * channel, const char *buf, int len, TcpClient *cli)
+void onClientRead(const ChannelPtr & channel, const char *buf, int len, TcpClient *cli)
 {
   LOG_INFO << "read fd: " << channel->getFd()
             << ", buf: " << buf

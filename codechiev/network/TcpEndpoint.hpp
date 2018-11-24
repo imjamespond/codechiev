@@ -13,10 +13,11 @@ namespace net
 class TcpEndpoint
 {
 public:
-  typedef boost::function<void(Channel *)> OnConnectFunc;
-  typedef boost::function<void(Channel *, const char *, int)> OnWriteFunc;
-  typedef boost::function<void(Channel *, const char *, int)> OnReadFunc;
-  typedef boost::function<void(Channel *)> OnCloseFunc;
+  typedef Channel::ChannelPtr ChannelPtr;
+  typedef boost::function<void(const ChannelPtr &)> OnConnectFunc;
+  typedef boost::function<void(const ChannelPtr &, const char *, int)> OnWriteFunc;
+  typedef boost::function<void(const ChannelPtr &, const char *, int)> OnReadFunc;
+  typedef boost::function<void(const ChannelPtr &)> OnCloseFunc;
   typedef boost::function<Channel *(int)> CreateChannel;
 
   TcpEndpoint();
@@ -29,8 +30,8 @@ public:
   inline void setOnCloseFunc(const OnCloseFunc &func) { onClose = func; };
   inline void setCreateChannel(const CreateChannel &func) { createChannel = func; }
 
-  void shutdown(Channel *);
-  void send(Channel *, const char *, int );
+  void shutdown(const ChannelPtr &);
+  void send(const ChannelPtr &, const char *, int );
 
 protected:
   codechiev::base::Mutex mutex;
@@ -41,8 +42,8 @@ protected:
   OnCloseFunc onClose;
   CreateChannel createChannel;
 
-  void _handleEvent(Channel *); 
-  void _writtingDone(Channel *);
+  void _handle_event(const ChannelPtr &); 
+  void _writting_done(const ChannelPtr &);
 };
 } // namespace net
 } // namespace codechiev

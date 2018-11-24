@@ -22,15 +22,17 @@
 using namespace codechiev::net;
 using namespace codechiev::base;
 
-void onConnect(Channel *, TcpServer *, TcpClient *);
-void onRead(Channel *, const char *, int, TcpServer *, TcpClient *);
-void onWrite(Channel *, const char *, int, TcpServer *);
-void onClose(Channel *);
+typedef Channel::ChannelPtr ChannelPtr;
 
-void onClientConnect(Channel *, TcpClient *);
-void onClientRead(Channel *channel, const char *, int, TcpClient *, TcpServer *serv);
-void onClientWrite(Channel *channel, const char *, int , TcpClient *);
-void onClientClose(Channel *);
+void onConnect(const ChannelPtr &, TcpServer *, TcpClient *);
+void onRead(const ChannelPtr &, const char *, int, TcpServer *, TcpClient *);
+void onWrite(const ChannelPtr &, const char *, int, TcpServer *);
+void onClose(const ChannelPtr &);
+
+void onClientConnect(const ChannelPtr &, TcpClient *);
+void onClientRead(const ChannelPtr &channel, const char *, int, TcpClient *, TcpServer *serv);
+void onClientWrite(const ChannelPtr &channel, const char *, int , TcpClient *);
+void onClientClose(const ChannelPtr &);
 
 void print();
  
@@ -44,14 +46,11 @@ long servSent = 0;
 
 void input();
 
-TcpClient *clientPtr = NULL;
-Channel *cliChannel = NULL;
-
-typedef boost::unordered_map<UUID::uuid_t, TunnelChannel *> uuid_map;
-uuid_map serverChannels;
-uuid_map clientChannels;
-Mutex serverMutex;
-Mutex clientMutex;
+// typedef boost::unordered_map<UUID::uuid_t, TunnelChannel *> uuid_map;
+// uuid_map serverChannels;
+// uuid_map clientChannels;
+// Mutex serverMutex;
+// Mutex clientMutex;
 
 TunnelChannel* createTunnelChannel(int);
 
@@ -120,106 +119,96 @@ void input()
 
 }
 
-void onConnect(Channel *channel, TcpServer *serv, TcpClient *cli)
+void onConnect(const ChannelPtr &channel, TcpServer *serv, TcpClient *cli)
 {
   // client_num++;
-  TunnelChannel *_channel = static_cast<TunnelChannel *>(channel);
+  TunnelChannel *serv_conn = static_cast<TunnelChannel *>(channel.get());
   int conn_sock = Connect(port, host);
-  Channel *conn = new TunnelChannel(conn_sock);
-  cli->connect(conn);
-  TunnelChannel *_conn = static_cast<TunnelChannel *>(conn);
-  _conn->session = _channel->session;
-  {
-    MutexGuard lock(&serverMutex);
-    serverChannels[_channel->session] = _channel;
-  }
-  {
-    MutexGuard lock(&clientMutex);
-    clientChannels[_channel->session] = _conn;
-  }
+  TunnelChannel *cli_conn = createTunnelChannel(conn_sock);
+  serv_conn->tunnel = cli_conn->ptr;
+  cli_conn->tunnel = serv_conn->ptr;
+
+  cli->connect(cli_conn);
   
   LOG_INFO << "connect fd: " << channel->getFd();
 }
-void onRead(Channel *channel, const char *buf, int len, TcpServer *serv, TcpClient *cli)
+void onRead(const ChannelPtr &channel, const char *buf, int len, TcpServer *serv, TcpClient *cli)
 {
-  LOG_INFO << "read fd: " << channel->getFd()
-        << ", buf: " << buf
-        << ", len: " << len;
+  // LOG_INFO << "read fd: " << channel->getFd()
+  //       << ", buf: " << buf
+  //       << ", len: " << len;
   servRecived += len;
 
-  TunnelChannel *_channel = static_cast<TunnelChannel *>(channel);
+  TunnelChannel *serv_conn = static_cast<TunnelChannel *>(channel.get());
+  
+  if (ChannelPtr cli_conn = serv_conn->tunnel.lock())
   {
-    MutexGuard lock(&clientMutex);
-    TunnelChannel *_conn = clientChannels[_channel->session];
-    if (_conn)
-      cli->send(_conn, buf, len); //send to tunnel
+    cli->send(cli_conn, buf, len); //send to tunnel
   }
 
 }
-void onWrite(Channel *channel, const char *msg, int len, TcpServer *serv)
+void onWrite(const ChannelPtr &channel, const char *msg, int len, TcpServer *serv)
 {
   servSent += len;
 }
-void onClose(Channel *channel)
+void onClose(const ChannelPtr &channel)
 {
-  TunnelChannel *_channel = static_cast<TunnelChannel *>(channel);
-  {
-    MutexGuard lock(&serverMutex);
-    serverChannels.erase(_channel->session);
-  }
-  {
-    MutexGuard lock(&clientMutex);
-    uuid_map::iterator connIt = clientChannels.find(_channel->session);
-    if (connIt != clientChannels.end())
-    {
-      connIt->second->shutdown();
-      clientChannels.erase(connIt);
-    } 
-  }
+  // TunnelChannel *serv_conn = static_cast<TunnelChannel *>(channel.get());
+  // {
+  //   MutexGuard lock(&serverMutex);
+  //   serverChannels.erase(_channel->session);
+  // }
+  // {
+  //   MutexGuard lock(&clientMutex);
+  //   uuid_map::iterator connIt = clientChannels.find(_channel->session);
+  //   if (connIt != clientChannels.end())
+  //   {
+  //     connIt->second->shutdown();
+  //     clientChannels.erase(connIt);
+  //   } 
+  // }
 }
 
-void onClientConnect(Channel *channel, TcpClient *endpoint)
+void onClientConnect(const ChannelPtr &channel, TcpClient *endpoint)
 {
   // client_num++;
   LOG_INFO << "connect fd: " << channel->getFd();
   endpoint->send(channel, "", 0);
 }
-void onClientRead(Channel *channel, const char *buf, int len, TcpClient *endpoint, TcpServer *serv)
+void onClientRead(const ChannelPtr &channel, const char *buf, int len, TcpClient *endpoint, TcpServer *serv)
 {
-  LOG_INFO << "read fd: " << channel->getFd()
-           << ", buf: " << buf
-           << ", len: " << len;
+  // LOG_INFO << "read fd: " << channel->getFd()
+  //          << ", buf: " << buf
+  //          << ", len: " << len;
   cliRecived += len;
 
-  TunnelChannel *_channel = static_cast<TunnelChannel *>(channel);
+  TunnelChannel *cli_conn = static_cast<TunnelChannel *>(channel.get());
+  if (ChannelPtr serv_conn = cli_conn->tunnel.lock())
   {
-    MutexGuard lock(&serverMutex);
-    TunnelChannel *_conn = serverChannels[_channel->session];
-    if (_conn)
-      serv->send(_conn, buf, len); //send to tunnel
+    serv->send(serv_conn, buf, len); //send to tunnel
   }
 
 }
-void onClientWrite(Channel *channel, const char *msg, int len, TcpClient *endpoint)
+void onClientWrite(const ChannelPtr &channel, const char *msg, int len, TcpClient *endpoint)
 {
   cliSent += len;
 }
-void onClientClose(Channel *channel)
+void onClientClose(const ChannelPtr &channel)
 {
-  TunnelChannel *_channel = static_cast<TunnelChannel *>(channel);
-  {
-    MutexGuard lock(&serverMutex);
-    uuid_map::iterator connIt = serverChannels.find(_channel->session);
-    if (connIt != serverChannels.end())
-    {
-      connIt->second->shutdown();
-      serverChannels.erase(connIt);
-    } 
-  }
-  {
-    MutexGuard lock(&clientMutex);
-    clientChannels.erase(_channel->session);
-  }
+  // TunnelChannel *_channel = static_cast<TunnelChannel *>(channel);
+  // {
+  //   MutexGuard lock(&serverMutex);
+  //   uuid_map::iterator connIt = serverChannels.find(_channel->session);
+  //   if (connIt != serverChannels.end())
+  //   {
+  //     connIt->second->shutdown();
+  //     serverChannels.erase(connIt);
+  //   } 
+  // }
+  // {
+  //   MutexGuard lock(&clientMutex);
+  //   clientChannels.erase(_channel->session);
+  // }
 }
 
 void print()

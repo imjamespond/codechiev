@@ -3,16 +3,19 @@
 
 #include <fcntl.h>
 #include <sys/socket.h>
+#include <boost/shared_ptr.hpp>
 
 #include <base/Buffer.h>
 
 namespace codechiev {
 namespace net {
 
-class ChannelWrapper;//used in epoll-wait and wrap with shared-ptr of the Channel
 class Channel {
 public:
+  typedef boost::shared_ptr<Channel> ChannelPtr;
+
   explicit Channel(int);
+  explicit Channel(Channel*, int);
   ~Channel();
 
   // inline void setFd(int sockfd) { this->sockfd = sockfd; }
@@ -37,6 +40,7 @@ public:
   inline int getEvents() { return events;}
 
   codechiev::base::Buffer<1024, 4096 * 4096> buffer;
+  ChannelPtr ptr;
   void *loop;
 
 private:

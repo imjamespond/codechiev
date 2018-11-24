@@ -34,13 +34,13 @@ void TcpClient::start()
   loop->loop();
 }
 
-void TcpClient::epollHandler(Channel *channel)
+void TcpClient::epollHandler(const Channel::ChannelPtr &channel)
 {
   // LOG_DEBUG << "fd: " << channel->getFd() << ", events: " << channel->getEvents();
   
   if (channel->isConnected())
   {
-    _handleEvent(channel);
+    _handle_event(channel);
     // Time::SleepMillis(5000l);
     // LOG_DEBUG << "_handleEvent fd: " << channel->getFd();
   }
@@ -52,7 +52,7 @@ void TcpClient::epollHandler(Channel *channel)
       channel->loop = loop;
       
       loop->getPoll()
-          ->setReadable(channel);
+          ->setReadable(channel.get());
 
       if (onConnect)
         onConnect(channel);
@@ -66,9 +66,12 @@ void TcpClient::epollHandler(Channel *channel)
   if (channel->isClosed())
   {
     loop->getPoll()
-        ->ctlDel(channel);
+        ->ctlDel(channel.get());
     channel->close();
-    delete channel;
+
+    Channel::ChannelPtr _channel;
+    channel->ptr.swap(_channel);
+    // delete channel;
   }
 
 }

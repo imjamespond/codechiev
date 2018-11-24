@@ -4,7 +4,7 @@
 #include <network/Channel.hpp>
 #include <base/UUID.hpp>
 
-#include <boost/weaked_ptr.hpp>
+#include <boost/weak_ptr.hpp>
 #include <boost/shared_ptr.hpp>
 
 namespace codechiev {
@@ -16,19 +16,15 @@ class TunnelChannel : public Channel
 {
 public:
   typedef codechiev::base::UUID UUID;
-  typedef boost::weaked_ptr<struct Tunnel> UUID;
+  typedef boost::weak_ptr<Channel> TunnelPtr;
 
-  explicit TunnelChannel(int, TunnelChannel*);
-
-  Tunnel tunnel0;
-};
-
-struct Tunnel
-{
-  Tunnel();
+  explicit TunnelChannel(int);
 
   UUID::uuid_t session;
+  TunnelPtr tunnel;
 };
+
+
 
 } // namespace net
 } // namespace codechiev

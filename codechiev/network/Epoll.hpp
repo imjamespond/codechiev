@@ -4,7 +4,6 @@
 #include "Channel.hpp"
 
 #include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
 #include <sys/epoll.h>
 #include <vector>
 
@@ -18,8 +17,7 @@ public:
 
   typedef struct epoll_event st_epoll_event;
   typedef std::vector<st_epoll_event> st_vec_epoll_event;
-  typedef boost::shared_ptr<Channel> ChannelPtr;
-  typedef boost::function<void(Channel *)> EpollHandler;
+  typedef boost::function<void(const Channel::ChannelPtr &)> EpollHandler;
 
   int ctlAdd(Channel *, int mode = EPOLLIN | EPOLLET);
   int ctlDel(Channel *);

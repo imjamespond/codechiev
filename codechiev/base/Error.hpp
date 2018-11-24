@@ -17,9 +17,6 @@
       virtual char const *what() const throw();
       std::string text;
     };
-
-    inline Error::Error(const std::string &text) : text(text) {}
-    inline Error::~Error() throw(){}
   }
   }
 

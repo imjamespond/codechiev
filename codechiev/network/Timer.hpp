@@ -38,12 +38,12 @@ public:
   void schedule(const TaskFunc &, long, long interval = 0, int repeat = 0); // -1 represent repeat infinitely
 
 private:
-  Channel timerChannel;
+  Channel *timerChannel;
   Tasks tasks;
   TaskFunc foreverTask;
 
-  void _epollHandler(Channel *, Eventloop<Epoll> *);
-  void _execTask();
+  void _epoll_handler(const Channel::ChannelPtr &, Eventloop<Epoll> *);
+  void _exec_task();
   void _schedule(long, long interval = 0);
 };
 } // namespace net

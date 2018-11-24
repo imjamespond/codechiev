@@ -21,22 +21,23 @@ int __timerfd_create()
   return fd;
 }
 
-Timer::Timer() : timerChannel(__timerfd_create()), foreverTask(0)
+Timer::Timer() : foreverTask(0)
 {
+  timerChannel = new Channel(__timerfd_create());   
 }
 
 void Timer::start(Eventloop<Epoll> *loop)
 {
-  timerChannel.loop = (void *)loop;
+  timerChannel->loop = (void *)loop;
 
-  Epoll::EpollHandler handler = boost::bind(&Timer::_epollHandler, this, _1, loop);
+  Epoll::EpollHandler handler = boost::bind(&Timer::_epoll_handler, this, _1, loop);
   loop->getPoll()->setHandler(handler);
-  loop->getPoll()->ctlAdd(&timerChannel, EPOLLIN);
+  loop->getPoll()->ctlAdd(timerChannel, EPOLLIN);
 
   loop->loop();
 }
 
-void Timer::_epollHandler(Channel *channel, Eventloop<Epoll> *loop)
+void Timer::_epoll_handler(const Channel::ChannelPtr &channel, Eventloop<Epoll> *loop)
 {
   if (channel->isReadable())
   {
@@ -48,7 +49,7 @@ void Timer::_epollHandler(Channel *channel, Eventloop<Epoll> *loop)
       // LOG_DEBUG << "len: " << len << ", errno: " << errno;
       if (-1 == len && errno == EAGAIN)
       {
-        _execTask();
+        _exec_task();
 
         break;
       }
@@ -56,7 +57,7 @@ void Timer::_epollHandler(Channel *channel, Eventloop<Epoll> *loop)
   }
 }
 
-void Timer::_execTask()
+void Timer::_exec_task()
 {
   // TODO using mutex for protecting deque
   
@@ -189,7 +190,7 @@ void Timer::_schedule(long timeMillis, long intervalMillis)
   new_value.it_interval.tv_nsec = MILLIS_TO_NANOS(intervalMillis);
   new_value.it_interval.tv_sec = MILLIS_TO_SECS(intervalMillis);
 
-  if (-1 == ::timerfd_settime(timerChannel.getFd(), TFD_TIMER_ABSTIME,
+  if (-1 == ::timerfd_settime(timerChannel->getFd(), TFD_TIMER_ABSTIME,
                               &new_value /*const struct itimerspec *new_value*/,
                               &old_value /*struct itimerspec * old_value*/))
   {

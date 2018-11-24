@@ -19,7 +19,7 @@ TcpEndpoint::TcpEndpoint() : onConnect(0),  onRead(0),  onWrite(0),  onClose(0),
   LOG_DEBUG << "TcpEndpoint";
 }
 
-void TcpEndpoint::_handleEvent(Channel *channel)
+void TcpEndpoint::_handle_event(const ChannelPtr &channel)
 {
   if (channel->isReadable())
   {
@@ -86,7 +86,7 @@ void TcpEndpoint::_handleEvent(Channel *channel)
         {
           // LOG_DEBUG << "write EAGAIN" ;
 
-          _writtingDone(channel);
+          _writting_done(channel);
           break;
         }
         else if (errno == EPIPE)
@@ -99,7 +99,7 @@ void TcpEndpoint::_handleEvent(Channel *channel)
       else 
       {
         // 0 will be returned without causing any other effect
-        _writtingDone(channel);
+        _writting_done(channel);
         break;
       }
     }
@@ -112,10 +112,22 @@ void TcpEndpoint::_handleEvent(Channel *channel)
     if (onClose)
       onClose(channel);
   }
-
 }
 
-void TcpEndpoint::send(Channel *channel, const char *msg, int len)
+void TcpEndpoint::_writting_done(const ChannelPtr &channel)
+{
+  assert(channel->loop);
+  reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
+      ->getPoll()
+      ->setReadable(channel.get());
+
+  if (channel->isClosing())
+  {
+    channel->shutdown();
+  }
+}
+
+void TcpEndpoint::send(const ChannelPtr &channel, const char *msg, int len)
 {
   // do not set writable again
   if (!channel->isClosing())
@@ -130,14 +142,14 @@ void TcpEndpoint::send(Channel *channel, const char *msg, int len)
     {
       if (reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
           ->getPoll()
-          ->setWritable(channel) < 0)
+          ->setWritable(channel.get()) < 0)
         channel->setClosed();
     }
 
   }
 }
 
-void TcpEndpoint::shutdown(Channel *channel)
+void TcpEndpoint::shutdown(const ChannelPtr & channel)
 {
    // do not set writable again
    if (!channel->isClosing())
@@ -147,19 +159,6 @@ void TcpEndpoint::shutdown(Channel *channel)
      assert(channel->loop);
      reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
          ->getPoll()
-         ->setWritable(channel);
+         ->setWritable(channel.get());
   } 
-}
-
-void TcpEndpoint::_writtingDone(Channel *channel)
-{
-  assert(channel->loop);
-  reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
-      ->getPoll()
-      ->setReadable(channel);
-
-  if (channel->isClosing())
-  {
-    channel->shutdown();
-  }
 }

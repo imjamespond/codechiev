@@ -15,9 +15,10 @@ public:
   explicit TcpServer(int, const char *host = NULL);
 
   void start(Eventloop<Epoll> *, bool isWorker = true);
-  void epollHandler(Channel *, Eventloop<Epoll> *);
 
 protected:
+  void epoll_handler(const Channel::ChannelPtr &, Eventloop<Epoll> *);
+
   Channel listenChannel;
 };
 } // namespace net

@@ -100,7 +100,7 @@ void Epoll::wait()
     {
       Channel *channel = reinterpret_cast<Channel *>(event.data.ptr);
       updateChannel(channel, event.events);
-      handler(channel);
+      handler(channel->ptr);
     }
 
     // LOG_DEBUG << "handle ptr: " << event.data.ptr

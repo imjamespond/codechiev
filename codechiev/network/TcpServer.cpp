@@ -16,7 +16,7 @@ void TcpServer::start(Eventloop<Epoll> *loop, bool isWorker)
   /* Code to set up listening socket, 'listen_sock',
     (socket(), bind(), listen()) omitted */
 
-  Epoll::EpollHandler handler = boost::bind(&TcpServer::epollHandler, this, _1, loop);
+  Epoll::EpollHandler handler = boost::bind(&TcpServer::epoll_handler, this, _1, loop);
   loop->getPoll()->setHandler(handler);
   if (isWorker)
   {
@@ -25,7 +25,7 @@ void TcpServer::start(Eventloop<Epoll> *loop, bool isWorker)
   loop->loop();
 }
 
-void TcpServer::epollHandler(Channel *channel, Eventloop<Epoll> *loop)
+void TcpServer::epoll_handler(const Channel::ChannelPtr &channel, Eventloop<Epoll> *loop)
 {
   if (channel->getFd() == listenChannel.getFd())
   {
@@ -46,19 +46,22 @@ void TcpServer::epollHandler(Channel *channel, Eventloop<Epoll> *loop)
           ->ctlAdd(conn);
 
       if (onConnect)
-        onConnect(conn);
+        onConnect(conn->ptr);
     }
   }
   else
   {
-    _handleEvent(channel);
+    _handle_event(channel);
 
     if (channel->isClosed())
     {
       loop->getPoll()
-          ->ctlDel(channel);
+          ->ctlDel(channel.get());
       channel->close();
-      delete channel;
+
+      // delete channel;
+      Channel::ChannelPtr _channel;
+      channel->ptr.swap(_channel);
     }
   }
 }
