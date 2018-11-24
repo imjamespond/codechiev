@@ -1,6 +1,7 @@
 #include "TcpEndpoint.hpp"
 #include "Eventloop.hpp"
 #include "Epoll.hpp"
+#include "socket.h"
 
 #include <errno.h>
 #include <base/Logger.hpp>
@@ -63,6 +64,7 @@ void TcpEndpoint::_handle_event(const ChannelPtr &channel)
     for (;;)
     {
       ssize_t len = ::write(channel->getFd(), channel->buffer.buf(), channel->buffer.readable_bytes());
+      SetTcpNoDelay(channel->getFd());
 
       // LOG_DEBUG << "write fd: " << channel->getFd()
       //   << ", readable: " << channel->buffer.readable_bytes()
@@ -123,6 +125,8 @@ void TcpEndpoint::_writting_done(const ChannelPtr &channel)
 
   if (channel->isClosing())
   {
+    //  LOG_DEBUG << "shut down channel: " << channel->getFd();
+
     channel->shutdown();
   }
 }
@@ -151,6 +155,8 @@ void TcpEndpoint::send(const ChannelPtr &channel, const char *msg, int len)
 
 void TcpEndpoint::shutdown(const ChannelPtr & channel)
 {
+    // LOG_DEBUG << "shut down: " << channel->getFd();
+
    // do not set writable again
    if (!channel->isClosing())
    {

@@ -121,17 +121,17 @@ int Epoll::setWritable(Channel *channel)
 
 void Epoll::updateChannel(Channel *channel, int events)
 {
-  if (events & EPOLLIN)
+  if (events & (EPOLLHUP | EPOLLRDHUP | EPOLLERR))
   {
-    channel->setReadable();
+    channel->setClosed();
   }
   else if (events & EPOLLOUT)
   {
     channel->setWritable();
   }
-  else if (events & (EPOLLHUP | EPOLLRDHUP))
+  else if (events & EPOLLIN)
   {
-    channel->setClosed();
+    channel->setReadable();
   }
 }
 

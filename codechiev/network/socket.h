@@ -10,6 +10,7 @@
 #ifndef _WIN32
 /* For sockaddr_in */
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 #ifdef _XOPEN_SOURCE_EXTENDED
 #include <arpa/inet.h>
 #endif
@@ -19,6 +20,7 @@
 
 /* For gethostbyname */
 #include <netdb.h>
+
 
 namespace codechiev {
 namespace net {
@@ -38,7 +40,7 @@ inline void set_sock_address(sock_address_in &sin, int port, const char *host = 
     sin.sin_addr.s_addr = INADDR_ANY;
 }
 
-inline int getSockfd()
+inline int GetSockfd()
 {
   int sockfd =
       ::socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0);
@@ -47,10 +49,21 @@ inline int getSockfd()
   return sockfd;
 }
 
-inline int setReuseAddr(int sockfd)
+inline int SetReuseAddr(int sockfd)
 {
   int on = 1;
   if (::setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) == -1)
+  {
+    perror("setsockopt");
+    return -1;
+  }
+  return 0;
+}
+
+inline int SetTcpNoDelay(int sockfd) //TCP_QUICKACK
+{
+  int on = 1;
+  if (::setsockopt(sockfd, SOL_TCP, TCP_NODELAY, &on, sizeof(on)) == -1)
   {
     perror("setsockopt");
     return -1;
@@ -64,11 +77,11 @@ inline int Listen(int port, const char *host = NULL)
   sock_address_in addr;
   set_sock_address(addr, port, host);
 
-  int listenfd = getSockfd();
+  int listenfd = GetSockfd();
   if (listenfd == -1)
     return -1;
 
-  if (setReuseAddr(listenfd) == -1)
+  if (SetReuseAddr(listenfd) == -1)
     return -1;
 
   if (::bind(listenfd, (sock_address *)&addr, sizeof(sock_address)) == -1)
@@ -100,11 +113,11 @@ inline int Connect(int port, const char *host)
   sock_address_in addr;
   set_sock_address(addr, port, host);
 
-  int sockfd = getSockfd();
+  int sockfd = GetSockfd();
   if (sockfd == -1)
     return -1;
 
-  if (setReuseAddr(sockfd) == -1)
+  if (SetReuseAddr(sockfd) == -1)
     return -1;
 
   int res = ::connect(sockfd, (struct sockaddr *)&addr, sizeof(sock_address));
