@@ -4,6 +4,7 @@
 #include <sys/epoll.h>
 #include <signal.h>
 #include <boost/bind.hpp>
+#include <boost/unordered_map.hpp>
 
 #include <network/TcpServer.hpp>
 #include <network/TcpClient.hpp>
@@ -24,14 +25,15 @@ void onClose(const ChannelPtr &);
 
 void onClientConnect(const ChannelPtr &, TcpClient *);
 void onClientRead(const ChannelPtr &, const char *, int, TcpClient *);
-
-int client_num = 0;
+ 
 int client_total = 1;
 
 TcpClient *clientPtr;
-TcpServer *serverPtr;
-ChannelPtr clientChannelPtr;
-ChannelPtr serverChannelPtr;
+TcpServer *serverPtr; 
+
+typedef boost::unordered_map<int, ChannelPtr> channel_map;
+channel_map channels;
+Mutex channelsMutex;
 
 void input();
 
@@ -43,8 +45,8 @@ int main(int num, const char **args)
     LOG_INFO << client_total;
   }
   
-  struct sigaction st[] = {SIG_IGN};
-  sigaction(SIGPIPE, st, NULL);
+  // struct sigaction st[] = {SIG_IGN};
+  // sigaction(SIGPIPE, st, NULL);
 
   Eventloop<Epoll> serv1Loop1;// each server could have more than one loop
   Eventloop<Epoll> serv1Loop2;
@@ -90,7 +92,7 @@ void input()
       printf("fgets: %s", string);
       if (::strcmp(string, "count\n") == 0)
       {
-        LOG_INFO << client_num;
+        LOG_INFO << channels.size();
       }
       else if (::strcmp(string, "connect\n") == 0)
       {
@@ -98,18 +100,6 @@ void input()
         {
           clientPtr->connect(12345, "127.0.0.1");
         }
-      } 
-      else if (::strcmp(string, "close\n") == 0)
-      {
-        const char *msg = "close";
-        if (clientChannelPtr)
-          clientPtr->send(clientChannelPtr, msg, ::strlen(msg));
-      }
-      else if (::strcmp(string, "send\n") == 0)
-      {
-        const char *msg = "send from server";
-        if (serverChannelPtr)
-          serverPtr->send(serverChannelPtr, msg, ::strlen(msg));
       }
     }
   }
@@ -117,10 +107,12 @@ void input()
 }
 
 void onConnect(const ChannelPtr &channel, TcpServer *serv)
-{
-  client_num++;
+{ 
   // serv->send(channel , "hello", 5);
-  serverChannelPtr = channel;
+  {
+    MutexGuard lock(&channelsMutex);
+    channels[channel->getFd()] = channel;
+  }
 
   LOG_INFO << "connect fd: " << channel->getFd();
 }
@@ -131,11 +123,24 @@ void onRead(const ChannelPtr &channel, const char *buf, int len, TcpServer * ser
             << ", len: " << len;
   // Must not shut down when channel is writable, otherwise will received SIGPIPE, broken pipe?
   // https://stackoverflow.com/questions/18935446/program-received-signal-sigpipe-broken-pipe
-  if (strcmp(buf, "close\n") == 0)
+
+  // serv->send(channel, buf, len);
   {
-    serv->shutdown(channel);
+    MutexGuard lock(&channelsMutex);
+    channel_map::iterator it = channels.begin();
+    while (it != channels.end())
+    {
+      const ChannelPtr &_channel = it->second;
+      if (strcmp(buf, "close\n") == 0)
+      {
+        serv->shutdown(_channel);
+      }
+      else
+        serv->send(_channel , buf, len);
+
+      ++it;
+    } 
   }
-  serv->send(channel, buf, len);
 }
 void onWrite(const ChannelPtr &channel, const char *msg, int len, TcpServer *serv)
 {
@@ -148,12 +153,15 @@ void onWrite(const ChannelPtr &channel, const char *msg, int len, TcpServer *ser
 void onClose(const ChannelPtr &channel)
 {
   LOG_INFO << "close fd: " << channel->getFd();
+
+  {
+    MutexGuard lock(&channelsMutex);
+    channels.erase(channel->getFd());
+  }
 }
 
 void onClientConnect(const ChannelPtr &channel, TcpClient *cli)
 {
-  clientChannelPtr = channel;
-
   LOG_INFO << "connect fd: " << channel->getFd();
 }
 

@@ -17,7 +17,7 @@ public:
   void start(Eventloop<Epoll> *, bool isWorker = true);
 
 protected:
-  void epoll_handler(const Channel::ChannelPtr &, Eventloop<Epoll> *);
+  void _epoll_handler(const Channel::ChannelPtr &, Eventloop<Epoll> *);
 
   Channel listenChannel;
 };

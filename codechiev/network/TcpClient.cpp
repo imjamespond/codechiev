@@ -10,7 +10,7 @@ using namespace codechiev::net;
 
 TcpClient::TcpClient(Eventloop<Epoll> *_loop) : TcpEndpoint(), loop(_loop)
 {
-  Epoll::EpollHandler handler = boost::bind(&TcpClient::epollHandler, this, _1);
+  Epoll::EpollHandler handler = boost::bind(&TcpClient::_epoll_handler, this, _1);
   loop->getPoll()->setHandler(handler);
 }
 
@@ -34,7 +34,7 @@ void TcpClient::start()
   loop->loop();
 }
 
-void TcpClient::epollHandler(const Channel::ChannelPtr &channel)
+void TcpClient::_epoll_handler(const Channel::ChannelPtr &channel)
 {
   // LOG_DEBUG << "fd: " << channel->getFd() << ", events: " << channel->getEvents();
   
@@ -65,13 +65,7 @@ void TcpClient::epollHandler(const Channel::ChannelPtr &channel)
 
   if (channel->isClosed())
   {
-    loop->getPoll()
-        ->ctlDel(channel.get());
-    channel->close();
-
-    Channel::ChannelPtr _channel;
-    channel->ptr.swap(_channel);
-    // delete channel;
+    _close(loop, channel);
   }
 
 }

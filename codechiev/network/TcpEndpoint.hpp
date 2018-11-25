@@ -2,6 +2,8 @@
 #define TcpEndpoint_hpp
 
 #include "Channel.hpp"
+#include "Epoll.hpp"
+#include "Eventloop.hpp"
 
 #include <base/Mutex.hpp>
 #include <boost/function.hpp>
@@ -44,6 +46,7 @@ protected:
 
   void _handle_event(const ChannelPtr &); 
   void _writting_done(const ChannelPtr &);
+  void _close(Eventloop<Epoll> *, const ChannelPtr &);
 };
 } // namespace net
 } // namespace codechiev

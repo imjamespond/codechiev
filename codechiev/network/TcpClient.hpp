@@ -14,13 +14,13 @@ class TcpClient : public TcpEndpoint
 public:
   explicit TcpClient(Eventloop<Epoll> *);
 
-  void epollHandler(const Channel::ChannelPtr &);
-
   void connect(int, const char *host = "127.0.0.1");
   void connect(Channel *);
   void start();
 
 private:
+  void _epoll_handler(const Channel::ChannelPtr &);
+  
   Eventloop<Epoll> *loop;
 };
 } // namespace net

@@ -1,6 +1,4 @@
 #include "TcpEndpoint.hpp"
-#include "Eventloop.hpp"
-#include "Epoll.hpp"
 #include "socket.h"
 
 #include <errno.h>
@@ -109,7 +107,7 @@ void TcpEndpoint::_handle_event(const ChannelPtr &channel)
   //close
   else if (channel->isClosed())
   {
-    LOG_DEBUG << "shut down writing half of connection fd : " << channel->getFd();
+    LOG_DEBUG << "EPOLLHUP detected, fd: " << channel->getFd();
 
     if (onClose)
       onClose(channel);
@@ -130,6 +128,19 @@ void TcpEndpoint::_writting_done(const ChannelPtr &channel)
     channel->shutdown();
   }
 }
+
+void TcpEndpoint::_close(Eventloop<Epoll> *loop, const ChannelPtr &channel)
+{
+  //unable to epoll_ctl: mod: No such file or directory
+  loop->getPoll()->ctlDel(channel.get()); 
+  //unable to epoll_ctl: mod: Bad file descriptor
+  channel->close();
+
+  // delete channel;
+  Channel::ChannelPtr _channel;
+  channel->ptr.swap(_channel);
+}
+
 
 void TcpEndpoint::send(const ChannelPtr &channel, const char *msg, int len)
 {
@@ -155,7 +166,7 @@ void TcpEndpoint::send(const ChannelPtr &channel, const char *msg, int len)
 
 void TcpEndpoint::shutdown(const ChannelPtr & channel)
 {
-    // LOG_DEBUG << "shut down: " << channel->getFd();
+    LOG_DEBUG << "shut down: " << channel->getFd();
 
    // do not set writable again
    if (!channel->isClosing())

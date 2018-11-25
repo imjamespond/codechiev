@@ -27,12 +27,12 @@ typedef Channel::ChannelPtr ChannelPtr;
 void onConnect(const ChannelPtr &, TcpServer *, TcpClient *);
 void onRead(const ChannelPtr &, const char *, int, TcpServer *, TcpClient *);
 void onWrite(const ChannelPtr &, const char *, int, TcpServer *);
-void onClose(const ChannelPtr &);
+void onClose(const ChannelPtr &, TcpServer *, TcpClient *);
 
 void onClientConnect(const ChannelPtr &, TcpClient *);
 void onClientRead(const ChannelPtr &channel, const char *, int, TcpClient *, TcpServer *serv);
 void onClientWrite(const ChannelPtr &channel, const char *, int , TcpClient *);
-void onClientClose(const ChannelPtr &);
+void onClientClose(const ChannelPtr &, TcpServer *, TcpClient *);
 
 void print();
  
@@ -80,14 +80,14 @@ int main(int num, const char **args)
 
   serv1.setCreateChannel(boost::bind(&createTunnelChannel, _1));
   serv1.setOnConnectFunc(boost::bind(&onConnect, _1, &serv1, &client));
-  serv1.setOnCloseFunc(boost::bind(&onClose, _1));
+  serv1.setOnCloseFunc(boost::bind(&onClose, _1, &serv1, &client));
   serv1.setOnReadFunc(boost::bind(&onRead, _1, _2, _3, &serv1, &client));
   serv1.setOnWriteFunc(boost::bind(&onWrite, _1, _2, _3, &serv1));
   serv1.start(&serv1Loop);
 
   client.setCreateChannel(boost::bind(&createTunnelChannel, _1));
   client.setOnConnectFunc(boost::bind(&onClientConnect, _1, &client));
-  client.setOnCloseFunc(boost::bind(&onClientClose, _1));
+  client.setOnCloseFunc(boost::bind(&onClientClose, _1, &serv1, &client));
   client.setOnReadFunc(boost::bind(&onClientRead, _1, _2, _3, &client, &serv1));
   client.setOnWriteFunc(boost::bind(&onClientWrite, _1, _2, _3, &client));
   client.start();
@@ -151,22 +151,13 @@ void onWrite(const ChannelPtr &channel, const char *msg, int len, TcpServer *ser
 {
   servSent += len;
 }
-void onClose(const ChannelPtr &channel)
+void onClose(const ChannelPtr &channel, TcpServer *serv, TcpClient *cli)
 {
-  // TunnelChannel *serv_conn = static_cast<TunnelChannel *>(channel.get());
-  // {
-  //   MutexGuard lock(&serverMutex);
-  //   serverChannels.erase(_channel->session);
-  // }
-  // {
-  //   MutexGuard lock(&clientMutex);
-  //   uuid_map::iterator connIt = clientChannels.find(_channel->session);
-  //   if (connIt != clientChannels.end())
-  //   {
-  //     connIt->second->shutdown();
-  //     clientChannels.erase(connIt);
-  //   } 
-  // }
+  TunnelChannel *serv_conn = static_cast<TunnelChannel *>(channel.get());
+  if (ChannelPtr cli_conn = serv_conn->tunnel.lock())
+  {
+    cli->shutdown(cli_conn);
+  }
 }
 
 void onClientConnect(const ChannelPtr &channel, TcpClient *endpoint)
@@ -193,22 +184,13 @@ void onClientWrite(const ChannelPtr &channel, const char *msg, int len, TcpClien
 {
   cliSent += len;
 }
-void onClientClose(const ChannelPtr &channel)
+void onClientClose(const ChannelPtr &channel, TcpServer *serv, TcpClient *cli)
 {
-  // TunnelChannel *_channel = static_cast<TunnelChannel *>(channel);
-  // {
-  //   MutexGuard lock(&serverMutex);
-  //   uuid_map::iterator connIt = serverChannels.find(_channel->session);
-  //   if (connIt != serverChannels.end())
-  //   {
-  //     connIt->second->shutdown();
-  //     serverChannels.erase(connIt);
-  //   } 
-  // }
-  // {
-  //   MutexGuard lock(&clientMutex);
-  //   clientChannels.erase(_channel->session);
-  // }
+  TunnelChannel *cli_conn = static_cast<TunnelChannel *>(channel.get());
+  if (ChannelPtr serv_conn = cli_conn->tunnel.lock())
+  {
+    serv->shutdown(serv_conn); 
+  }
 }
 
 void print()
