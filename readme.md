@@ -12,3 +12,7 @@ checking whether pthreads work with -pthread... yes
 ``#include <event2/thread.h>``  
 ``link with  libevent_pthreads``  
 evthread_use_pthreads()  
+
+## make shell  
+通过设置env来调节日志级别  
+loglevel=Info ./make.sh 或 export loglevel=Info && ./make.sh

@@ -129,7 +129,7 @@ void onConnect(const ChannelPtr &channel, TcpServer *serv, TcpClient *cli)
 
   cli->connect(cli_conn);
 
-  LOG_INFO << "connect fd: " << channel->getFd();
+  // LOG_INFO << "connect fd: " << channel->getFd();
 }
 void onRead(const ChannelPtr &channel, const char *buf, int len, TcpServer *serv, TcpClient *cli)
 {
@@ -161,7 +161,7 @@ void onClose(const ChannelPtr &channel, TcpServer *serv, TcpClient *cli)
 void onClientConnect(const ChannelPtr &channel, TcpClient *endpoint)
 {
   // client_num++;
-  LOG_INFO << "connect fd: " << channel->getFd();
+  // LOG_INFO << "connect fd: " << channel->getFd();
   endpoint->send(channel, "", 0);
 }
 void onClientRead(const ChannelPtr &channel, const char *buf, int len, TcpClient *endpoint, TcpServer *serv)
@@ -193,10 +193,10 @@ void onClientClose(const ChannelPtr &channel, TcpServer *serv, TcpClient *cli)
 void print()
 {
 
-  LOG_INFO_R << "cliRecived: " << (cliRecived >> 0) << ","
-             << "cliSent: " << (cliSent >> 0) << ","
-             << "servRecived: " << (servRecived >> 0) << ","
-             << "servSent: " << (servSent >> 0) << "";
+  LOG_INFO_R << "cliRecived: " << (cliRecived >> 10) << ","
+             << "cliSent: " << (cliSent >> 10) << ","
+             << "servRecived: " << (servRecived >> 10) << ","
+             << "servSent: " << (servSent >> 10) << " (kb)";
 }
 
 TunnelChannel *createTunnelChannel(int sockfd)

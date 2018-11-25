@@ -172,7 +172,7 @@ void TcpEndpoint::send(const ChannelPtr &channel, const char *msg, int len, bool
 
 void TcpEndpoint::shutdown(const ChannelPtr & channel)
 {
-    LOG_DEBUG << "shut down: " << channel->getFd();
+    // LOG_DEBUG << "shut down: " << channel->getFd();
 
    // do not set writable again
    if (!channel->isClosing())

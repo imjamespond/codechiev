@@ -1,4 +1,5 @@
-build
+build*
+release
 *-include
 boost_1_*
 **/.DS_Store
