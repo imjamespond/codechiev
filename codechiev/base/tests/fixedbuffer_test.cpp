@@ -12,9 +12,9 @@ int len = 0;
 
 int main(int argc, const char * argv[]) {
 
-    Buffer<8,32> buffer;
+    Buffer<2,32> buffer;
 
-    assert(buffer.writable_bytes() == 8);
+    assert(buffer.writable_bytes() == 2);
 
     buffer.append("12345678");
     assert(buffer.readable_bytes() == 8);

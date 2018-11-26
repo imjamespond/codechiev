@@ -61,8 +61,12 @@ void TcpEndpoint::_handle_event(const ChannelPtr &channel)
   {
     for (;;)
     {
-      ssize_t len = ::write(channel->getFd(), channel->buffer.buf(), channel->buffer.readable_bytes());
-      SetTcpNoDelay(channel->getFd());
+      ssize_t len;
+      {
+        MutexGuard lock(&mutex);
+        len = ::write(channel->getFd(), channel->buffer.buf(), channel->buffer.readable_bytes());
+      }
+      // SetTcpNoDelay(channel->getFd());
 
       // LOG_DEBUG << "write fd: " << channel->getFd()
       //   << ", readable: " << channel->buffer.readable_bytes()
@@ -86,7 +90,7 @@ void TcpEndpoint::_handle_event(const ChannelPtr &channel)
         {
           // LOG_DEBUG << "write EAGAIN" ;
 
-          _writting_done(channel);
+          _writing_done(channel);
           break;
         }
         else if (errno == EPIPE)
@@ -99,7 +103,7 @@ void TcpEndpoint::_handle_event(const ChannelPtr &channel)
       else 
       {
         // 0 will be returned without causing any other effect
-        _writting_done(channel);
+        _writing_done(channel);
         break;
       }
     }
@@ -114,7 +118,7 @@ void TcpEndpoint::_handle_event(const ChannelPtr &channel)
   }
 }
 
-void TcpEndpoint::_writting_done(const ChannelPtr &channel)
+void TcpEndpoint::_writing_done(const ChannelPtr &channel)
 {
   assert(channel->loop);
   reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
@@ -142,18 +146,20 @@ void TcpEndpoint::_close(Eventloop<Epoll> *loop, const ChannelPtr &channel)
 }
 
 
-void TcpEndpoint::send(const ChannelPtr &channel, const char *msg, int len)
+void TcpEndpoint::send(const ChannelPtr &channel, const char *msg, int len, bool flush)
 {
   // do not set writable again
   if (!channel->isClosing())
   {
     {
       MutexGuard lock(&mutex);
-      channel->buffer.append(msg, len);
-      // LOG_DEBUG << channel->buffer.readable_bytes();
+      if (channel->buffer.append(msg, len) < 0)
+        LOG_ERROR << "append to buffer failed: " << len
+                  << ", readable_bytes: " << channel->buffer.readable_bytes()
+                  << ", writable_bytes: " << channel->buffer.writable_bytes();
     }
     
-    if (channel->loop)
+    if (channel->loop && flush)
     {
       if (reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
           ->getPoll()

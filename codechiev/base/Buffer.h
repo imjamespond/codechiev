@@ -57,34 +57,46 @@ struct Buffer
         if (len <= 0)
             return 0;
 
-        int wb = writable_bytes();
+        int writable = writable_bytes();
 
-        //resize
-        if (wb < (_buffer.capacity() >> 1))
+        if (writable < len)
         {
-            size_t size = _buffer.capacity() << 1;
-            if (size <= MAXIMUM_SIZE)
-            {
-                _buffer.resize(size); //compare to reserve, resize allocates space (if needed) and initialize it
-                wb = writable_bytes();
-            } 
+            resize(writable, len);
         }
 
-        if (wb > len)
+        if (writable >= len)
         {
             ::memcpy(&_buffer[_writer], str, len);
             // ::printf("_buffer[0]: %c\n", _buffer[0]);
             write(len);
             return len;
         }
-        else if (wb > 0)
+
+        return -1;
+    }
+
+    void resize(int &writable, int len)
+    {
+        size_t size = _buffer.capacity();
+        for (;;)
         {
-            ::memcpy(&_buffer[_writer], str, wb);
-            // ::printf("_buffer[0]: %c\n", _buffer[0]);
-            write(wb);
-            return wb;
+            size = size << 1;
+
+            if (size > MAXIMUM_SIZE)
+            {
+                break;
+            }
+
+            _buffer.resize(size); //compare to reserve, resize allocates space (if needed) and initialize it
+            writable = writable_bytes();
+
+            if (writable >= len)
+            {
+                break;
+            }
         }
-        return 0;
+
+
     }
 
     void read(int len)

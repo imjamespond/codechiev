@@ -39,7 +39,7 @@ public:
 
   inline int getEvents() { return events;}
 
-  codechiev::base::Buffer<1024, 4096 * 4096> buffer;
+  codechiev::base::Buffer<8, 4096 * 4096> buffer;
   ChannelPtr ptr;
   void *loop;
 

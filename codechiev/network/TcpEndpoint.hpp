@@ -33,7 +33,7 @@ public:
   inline void setCreateChannel(const CreateChannel &func) { createChannel = func; }
 
   void shutdown(const ChannelPtr &);
-  void send(const ChannelPtr &, const char *, int );
+  void send(const ChannelPtr &, const char *, int, bool flush = true );
 
 protected:
   codechiev::base::Mutex mutex;
@@ -44,8 +44,8 @@ protected:
   OnCloseFunc onClose;
   CreateChannel createChannel;
 
-  void _handle_event(const ChannelPtr &); 
-  void _writting_done(const ChannelPtr &);
+  void _handle_event(const ChannelPtr &);
+  void _writing_done(const ChannelPtr &);
   void _close(Eventloop<Epoll> *, const ChannelPtr &);
 };
 } // namespace net
