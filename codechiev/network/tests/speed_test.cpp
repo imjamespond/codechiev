@@ -24,6 +24,7 @@ void onWrite(const ChannelPtr &, const char *, int, TcpServer *);
 void onClose(const ChannelPtr &);
 
 void onClientConnect(const ChannelPtr &, TcpClient *);
+void onClientCompleteWrite(const ChannelPtr &, TcpClient *);
 void onClientRead(const ChannelPtr &, const char *, int , TcpClient *);
 void onClientWrite(const ChannelPtr &, const char *, int , TcpClient *);
 
@@ -36,6 +37,7 @@ long cliRecived = 0;
 long cliSent = 0;
 long servRecived = 0;
 long servSent = 0;
+int sendSize = 1024 * 1024;
 
 void input();
 
@@ -77,18 +79,19 @@ int main(int num, const char **args)
   Eventloop<Epoll> serv1Loop; 
   Eventloop<Epoll> cliLoop;
 
-  TcpServer serv1(port, host);
+  // TcpServer serv1(port, host);
 
-  serv1.setOnConnectFunc(boost::bind(&onConnect, _1, &serv1));
-  serv1.setOnCloseFunc(boost::bind(&onClose, _1));
-  serv1.setOnReadFunc(boost::bind(&onRead, _1, _2, _3, &serv1));
-  serv1.setOnWriteFunc(boost::bind(&onWrite, _1, _2, _3, &serv1));
-  serv1.start(&serv1Loop);
+  // serv1.setOnConnectFunc(boost::bind(&onConnect, _1, &serv1));
+  // serv1.setOnCloseFunc(boost::bind(&onClose, _1));
+  // serv1.setOnReadFunc(boost::bind(&onRead, _1, _2, _3, &serv1));
+  // serv1.setOnWriteFunc(boost::bind(&onWrite, _1, _2, _3, &serv1));
+  // serv1.start(&serv1Loop);
 
   TcpClient client(&cliLoop);
   client.setOnConnectFunc(boost::bind(&onClientConnect, _1, &client));
   client.setOnReadFunc(boost::bind(&onClientRead, _1, _2, _3, &client));
   client.setOnWriteFunc(boost::bind(&onClientWrite, _1, _2, _3, &client));
+  client.setOnCompleteWriteFunc(boost::bind(&onClientCompleteWrite, _1, &client));
   client.start();
 
   Eventloop<Epoll> timerLoop; 
@@ -144,7 +147,8 @@ void onClose(const ChannelPtr &channel)
 
 void onClientConnect(const ChannelPtr &channel, TcpClient *cli)
 {
-  LOG_INFO << "client connect fd: " << channel->getFd();  
+  LOG_INFO << "client connect fd: " << channel->getFd();
+  cli->send(channel, randStr, sizeof randStr);
 }
 void onClientRead(const ChannelPtr &channel, const char *buf, int len, TcpClient *cli)
 {
@@ -152,11 +156,20 @@ void onClientRead(const ChannelPtr &channel, const char *buf, int len, TcpClient
   //       << ", buf: " << buf
   //       << ", len: " << len;
   cliRecived+=len;
-  cli->send(channel , buf, len);
+  // cli->send(channel , buf, len);
 }
 void onClientWrite(const ChannelPtr &channel, const char *msg, int len, TcpClient *cli)
 {
   cliSent+=len;
+}
+void onClientCompleteWrite(const ChannelPtr &channel, TcpClient *cli)
+{
+  if ((sendSize -= static_cast<int>(sizeof randStr)) > 0)
+  {
+    cli->send(channel, randStr, sizeof randStr);
+    LOG_INFO << sendSize;
+  }
+
 }
 
 void print()

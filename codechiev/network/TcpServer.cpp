@@ -44,7 +44,7 @@ void TcpServer::_epoll_handler(const Channel::ChannelPtr &channel, Eventloop<Epo
       conn->loop = loop;
       conn->setConnected();
       loop->getPoll()
-          ->ctlAdd(conn);
+          ->ctlAdd(conn, EPOLLIN); // level trigger EPOLLIN
 
       if (onConnect)
         onConnect(conn->ptr);

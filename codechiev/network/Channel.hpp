@@ -31,21 +31,24 @@ public:
   inline void setClosed() { events = 4; }
   inline void setClosing() { events |= 8; }
   inline void setConnected() { events |= 16; }
+  void stopRead(bool val=true);
   inline int isReadable() { return (events & 1); }
   inline int isWritable() { return (events & 2); }
   inline int isClosed() { return (events & 4); }
   inline int isClosing() { return events & 8; }
   inline int isConnected() { return events & 16; }
+  inline int isStoppedRead() { return _stopRead; }
 
   inline int getEvents() { return events;}
 
-  codechiev::base::Buffer<8, 4096 * 4096> buffer;
+  codechiev::base::Buffer<8, 1024 * 8> buffer;
   ChannelPtr ptr;
   void *loop;
 
 private:
   const int sockfd;
   int events;
+  bool _stopRead;
 };
 } // namespace net
 } // namespace codechiev

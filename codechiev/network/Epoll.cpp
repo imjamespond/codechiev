@@ -110,12 +110,12 @@ void Epoll::wait()
 
 int Epoll::setReadable(Channel *channel)
 {
-  return ctlMod(channel, EPOLLIN | EPOLLET);
+  return ctlMod(channel, EPOLLIN );//| EPOLLET);
 }
 
 int Epoll::setWritable(Channel *channel)
 {
-  return ctlMod(channel, EPOLLOUT | EPOLLET);
+  return ctlMod(channel, EPOLLOUT );//| EPOLLET);
 }
 
 

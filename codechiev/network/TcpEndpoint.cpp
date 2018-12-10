@@ -13,7 +13,7 @@ Channel* __create_channel__(int sockfd)
   return new Channel(sockfd);
 }
 
-TcpEndpoint::TcpEndpoint() : onConnect(0),  onRead(0),  onWrite(0),  onClose(0), createChannel(boost::bind(&__create_channel__, _1))
+TcpEndpoint::TcpEndpoint() : onConnect(0),  onRead(0),  onWrite(0), onCompleteWrite(0), onClose(0), createChannel(boost::bind(&__create_channel__, _1))
 {
   // LOG_DEBUG << "TcpEndpoint";
 }
@@ -22,10 +22,21 @@ void TcpEndpoint::_handle_event(const ChannelPtr &channel)
 {
   if (channel->isReadable())
   {
+    // LOG_DEBUG;
+
     char buffer[256];
     size_t buf_len = sizeof buffer;
     for (;;)
     {
+      {
+        MutexGuard lock(&mutex);
+
+        if (channel->isStoppedRead())
+        {
+          return;
+        }
+      }
+
       ::memset(buffer, 0, buf_len);
       ssize_t len = ::read(channel->getFd(), buffer, buf_len);
 
@@ -125,6 +136,11 @@ void TcpEndpoint::_writing_done(const ChannelPtr &channel)
       ->getPoll()
       ->setReadable(channel.get());
 
+  if (onCompleteWrite)
+  {
+    onCompleteWrite(channel);
+  }
+
   if (channel->isClosing())
   {
     //  LOG_DEBUG << "shut down channel: " << channel->getFd();
@@ -146,7 +162,7 @@ void TcpEndpoint::_close(Eventloop<Epoll> *loop, const ChannelPtr &channel)
 }
 
 
-void TcpEndpoint::send(const ChannelPtr &channel, const char *msg, int len, bool flush)
+int TcpEndpoint::send(const ChannelPtr &channel, const char *msg, int len, bool flush)
 {
   // do not set writable again
   if (!channel->isClosing())
@@ -154,9 +170,12 @@ void TcpEndpoint::send(const ChannelPtr &channel, const char *msg, int len, bool
     {
       MutexGuard lock(&mutex);
       if (channel->buffer.append(msg, len) < 0)
-        LOG_ERROR << "append to buffer failed: " << len
-                  << ", readable_bytes: " << channel->buffer.readable_bytes()
-                  << ", writable_bytes: " << channel->buffer.writable_bytes();
+      {
+        // LOG_ERROR << "append to buffer failed: " << len
+        //           << ", readable_bytes: " << channel->buffer.readable_bytes()
+        //           << ", writable_bytes: " << channel->buffer.writable_bytes();
+        return -1;
+      }
     }
     
     if (channel->loop && flush)
@@ -166,8 +185,8 @@ void TcpEndpoint::send(const ChannelPtr &channel, const char *msg, int len, bool
           ->setWritable(channel.get()) < 0)
         channel->setClosed();
     }
-
   }
+  return 0;
 }
 
 void TcpEndpoint::shutdown(const ChannelPtr & channel)
@@ -184,4 +203,11 @@ void TcpEndpoint::shutdown(const ChannelPtr & channel)
          ->getPoll()
          ->setWritable(channel.get());
   } 
+}
+
+void TcpEndpoint::stopRead(const ChannelPtr &channel, bool val)
+{
+  MutexGuard lock(&mutex);
+
+  channel->stopRead(val);
 }

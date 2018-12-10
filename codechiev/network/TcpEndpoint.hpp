@@ -19,6 +19,7 @@ public:
   typedef boost::function<void(const ChannelPtr &)> OnConnectFunc;
   typedef boost::function<void(const ChannelPtr &, const char *, int)> OnWriteFunc;
   typedef boost::function<void(const ChannelPtr &, const char *, int)> OnReadFunc;
+  typedef boost::function<void(const ChannelPtr &)> OnCompleteWriteFunc;
   typedef boost::function<void(const ChannelPtr &)> OnCloseFunc;
   typedef boost::function<Channel *(int)> CreateChannel;
 
@@ -29,11 +30,13 @@ public:
   inline void setOnConnectFunc(const OnConnectFunc &func) { onConnect = func; };
   inline void setOnWriteFunc(const OnWriteFunc &func) { onWrite = func; };
   inline void setOnReadFunc(const OnReadFunc &func) { onRead = func; };
+  inline void setOnCompleteWriteFunc(const OnCompleteWriteFunc &func) { onCompleteWrite = func; };
   inline void setOnCloseFunc(const OnCloseFunc &func) { onClose = func; };
   inline void setCreateChannel(const CreateChannel &func) { createChannel = func; }
 
   void shutdown(const ChannelPtr &);
-  void send(const ChannelPtr &, const char *, int, bool flush = true );
+  void stopRead(const ChannelPtr &, bool);
+  int send(const ChannelPtr &, const char *, int, bool flush = true );
 
 protected:
   codechiev::base::Mutex mutex;
@@ -41,6 +44,7 @@ protected:
   OnConnectFunc onConnect;
   OnReadFunc onRead;
   OnWriteFunc onWrite;
+  OnCompleteWriteFunc onCompleteWrite;
   OnCloseFunc onClose;
   CreateChannel createChannel;
 

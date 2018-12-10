@@ -32,6 +32,7 @@ void onClose(const ChannelPtr &, TcpServer *, TcpClient *);
 void onClientConnect(const ChannelPtr &, TcpClient *);
 void onClientRead(const ChannelPtr &channel, const char *, int, TcpClient *, TcpServer *serv);
 void onClientWrite(const ChannelPtr &channel, const char *, int, TcpClient *);
+void onClientCompleteWrite(const ChannelPtr &channel, TcpServer *serv);
 void onClientClose(const ChannelPtr &, TcpServer *, TcpClient *);
 
 void print();
@@ -90,6 +91,7 @@ int main(int num, const char **args)
   client.setOnCloseFunc(boost::bind(&onClientClose, _1, &serv1, &client));
   client.setOnReadFunc(boost::bind(&onClientRead, _1, _2, _3, &client, &serv1));
   client.setOnWriteFunc(boost::bind(&onClientWrite, _1, _2, _3, &client));
+  client.setOnCompleteWriteFunc(boost::bind(&onClientCompleteWrite, _1, &serv1));
   client.start();
 
   Eventloop<Epoll> timerLoop;
@@ -134,15 +136,18 @@ void onConnect(const ChannelPtr &channel, TcpServer *serv, TcpClient *cli)
 void onRead(const ChannelPtr &channel, const char *buf, int len, TcpServer *serv, TcpClient *cli)
 {
   // LOG_INFO << "read fd: " << channel->getFd()
-  //       << ", buf: " << buf
+  //       // << ", buf: " << buf
   //       << ", len: " << len;
   servRecived += len;
 
-  TunnelChannel *serv_conn = static_cast<TunnelChannel *>(channel.get());
+  TunnelChannel *conn = static_cast<TunnelChannel *>(channel.get());
 
-  if (ChannelPtr cli_conn = serv_conn->tunnel.lock())
+  if (ChannelPtr tunnel = conn->tunnel.lock())
   {
-    cli->send(cli_conn, buf, len); //send to tunnel
+    serv->stopRead(channel, true); //make sure stop read before send
+    // LOG_INFO;
+
+    cli->send(tunnel, buf, len); //send to tunnel
   }
 }
 void onWrite(const ChannelPtr &channel, const char *msg, int len, TcpServer *serv)
@@ -157,6 +162,7 @@ void onClose(const ChannelPtr &channel, TcpServer *serv, TcpClient *cli)
     cli->shutdown(cli_conn);
   }
 }
+
 
 void onClientConnect(const ChannelPtr &channel, TcpClient *endpoint)
 {
@@ -187,6 +193,16 @@ void onClientClose(const ChannelPtr &channel, TcpServer *serv, TcpClient *cli)
   if (ChannelPtr serv_conn = cli_conn->tunnel.lock())
   {
     serv->shutdown(serv_conn);
+  }
+}
+void onClientCompleteWrite(const ChannelPtr &channel, TcpServer *serv)
+{
+  TunnelChannel *conn = static_cast<TunnelChannel *>(channel.get());
+
+  if (ChannelPtr tunnel = conn->tunnel.lock())
+  {
+    // LOG_INFO;
+    serv->stopRead(tunnel, false); //when tunnel is writable, then begin to read again
   }
 }
 
