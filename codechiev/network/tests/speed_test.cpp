@@ -37,7 +37,7 @@ long cliRecived = 0;
 long cliSent = 0;
 long servRecived = 0;
 long servSent = 0;
-int sendSize = 1024 * 1024;
+int sendSize = 1024 * 1024 * 32;
 
 void input();
 

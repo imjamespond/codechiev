@@ -22,8 +22,8 @@ public:
   int ctlAdd(Channel *, int mode = EPOLLIN | EPOLLET);
   int ctlDel(Channel *);
   int ctlMod(Channel *, int);
-  int setReadable(Channel *);
-  int setWritable(Channel *);
+  int setReadable(Channel *, int mode = EPOLLET);
+  int setWritable(Channel *, int mode = EPOLLET);
   void updateChannel(Channel *, int);
   void wait();
 

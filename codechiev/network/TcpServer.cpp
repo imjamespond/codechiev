@@ -8,7 +8,7 @@
 using namespace codechiev::base;
 using namespace codechiev::net;
 
-TcpServer::TcpServer(int port, const char *host) : listenChannel(new Channel(Listen(port, host)))
+TcpServer::TcpServer(int port, const char *host, bool mode) : TcpEndpoint(mode), listenChannel(new Channel(Listen(port, host)))
 {
 }
 
@@ -43,8 +43,15 @@ void TcpServer::_epoll_handler(const Channel::ChannelPtr &channel, Eventloop<Epo
       conn->setNonblocking();
       conn->loop = loop;
       conn->setConnected();
-      loop->getPoll()
-          ->ctlAdd(conn, EPOLLIN); // level trigger EPOLLIN
+      if (mode) 
+      {
+        loop->getPoll()->ctlAdd(conn, EPOLLIN); // level trigger EPOLLIN
+      }
+      else
+      {
+        loop->getPoll()->ctlAdd(conn); //edge trigger is set as default
+      }
+
 
       if (onConnect)
         onConnect(conn->ptr);

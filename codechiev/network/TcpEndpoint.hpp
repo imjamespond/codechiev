@@ -23,23 +23,24 @@ public:
   typedef boost::function<void(const ChannelPtr &)> OnCloseFunc;
   typedef boost::function<Channel *(int)> CreateChannel;
 
-  TcpEndpoint();
+  TcpEndpoint(bool);
 
   // virtual void start(int) = 0;
 
   inline void setOnConnectFunc(const OnConnectFunc &func) { onConnect = func; };
-  inline void setOnWriteFunc(const OnWriteFunc &func) { onWrite = func; };
+  inline void setOnWriteFunc(const OnWriteFunc &func) { onWrite = func; }; //must not lock
   inline void setOnReadFunc(const OnReadFunc &func) { onRead = func; };
-  inline void setOnCompleteWriteFunc(const OnCompleteWriteFunc &func) { onCompleteWrite = func; };
+  inline void setOnCompleteWriteFunc(const OnCompleteWriteFunc &func) { onCompleteWrite = func; }; //must not lock
   inline void setOnCloseFunc(const OnCloseFunc &func) { onClose = func; };
   inline void setCreateChannel(const CreateChannel &func) { createChannel = func; }
 
   void shutdown(const ChannelPtr &);
-  void stopRead(const ChannelPtr &, bool);
+  void stopRead(const ChannelPtr &, bool val = true);
   int send(const ChannelPtr &, const char *, int, bool flush = true );
 
 protected:
   codechiev::base::Mutex mutex;
+  bool mode; //true for level triggered, false for edge triggered
 
   OnConnectFunc onConnect;
   OnReadFunc onRead;

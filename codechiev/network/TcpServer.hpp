@@ -12,7 +12,7 @@ namespace net
 class TcpServer : public TcpEndpoint
 {
 public:
-  explicit TcpServer(int, const char *host = NULL);
+  explicit TcpServer(int, const char *host = NULL, bool mode = false);
 
   void start(Eventloop<Epoll> *, bool isWorker = true);
 

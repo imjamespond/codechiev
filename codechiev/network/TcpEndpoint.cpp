@@ -8,12 +8,12 @@
 using namespace codechiev::base;
 using namespace codechiev::net;
 
-Channel* __create_channel__(int sockfd)
+Channel *__create_channel__(int sockfd)
 {
   return new Channel(sockfd);
 }
 
-TcpEndpoint::TcpEndpoint() : onConnect(0),  onRead(0),  onWrite(0), onCompleteWrite(0), onClose(0), createChannel(boost::bind(&__create_channel__, _1))
+TcpEndpoint::TcpEndpoint(bool _mode) : mode(_mode), onConnect(0), onRead(0), onWrite(0), onCompleteWrite(0), onClose(0), createChannel(boost::bind(&__create_channel__, _1))
 {
   // LOG_DEBUG << "TcpEndpoint";
 }
@@ -22,7 +22,7 @@ void TcpEndpoint::_handle_event(const ChannelPtr &channel)
 {
   if (channel->isReadable())
   {
-    // LOG_DEBUG;
+    // LOG_DEBUG << "debug level triggered";
 
     char buffer[256];
     size_t buf_len = sizeof buffer;
@@ -33,6 +33,7 @@ void TcpEndpoint::_handle_event(const ChannelPtr &channel)
 
         if (channel->isStoppedRead())
         {
+          // TODO check channel in max timeout
           return;
         }
       }
@@ -92,7 +93,7 @@ void TcpEndpoint::_handle_event(const ChannelPtr &channel)
           onWrite(channel, channel->buffer.buf(), len);
 
         channel->buffer.read(len);
-        channel->buffer.move(); 
+        channel->buffer.move();
       }
       else if (len && -1 == len)
       {
@@ -106,12 +107,11 @@ void TcpEndpoint::_handle_event(const ChannelPtr &channel)
         }
         else if (errno == EPIPE)
         {
-          channel->setClosed();// broken pipe
+          channel->setClosed(); // broken pipe
           break;
         }
-        
       }
-      else 
+      else
       {
         // 0 will be returned without causing any other effect
         _writing_done(channel);
@@ -134,7 +134,7 @@ void TcpEndpoint::_writing_done(const ChannelPtr &channel)
   assert(channel->loop);
   reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
       ->getPoll()
-      ->setReadable(channel.get());
+      ->setReadable(channel.get(), mode ? 0 : EPOLLET);
 
   if (onCompleteWrite)
   {
@@ -152,7 +152,7 @@ void TcpEndpoint::_writing_done(const ChannelPtr &channel)
 void TcpEndpoint::_close(Eventloop<Epoll> *loop, const ChannelPtr &channel)
 {
   //unable to epoll_ctl: mod: No such file or directory
-  loop->getPoll()->ctlDel(channel.get()); 
+  loop->getPoll()->ctlDel(channel.get());
   //unable to epoll_ctl: mod: Bad file descriptor
   // channel->close(); // should close in destruct, avoid mod old pointer along with new fd
 
@@ -160,7 +160,6 @@ void TcpEndpoint::_close(Eventloop<Epoll> *loop, const ChannelPtr &channel)
   Channel::ChannelPtr _channel;
   channel->ptr.swap(_channel);
 }
-
 
 int TcpEndpoint::send(const ChannelPtr &channel, const char *msg, int len, bool flush)
 {
@@ -177,32 +176,32 @@ int TcpEndpoint::send(const ChannelPtr &channel, const char *msg, int len, bool 
         return -1;
       }
     }
-    
+
     if (channel->loop && flush)
     {
       if (reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
-          ->getPoll()
-          ->setWritable(channel.get()) < 0)
+              ->getPoll()
+              ->setWritable(channel.get()) < 0)
         channel->setClosed();
     }
   }
   return 0;
 }
 
-void TcpEndpoint::shutdown(const ChannelPtr & channel)
+void TcpEndpoint::shutdown(const ChannelPtr &channel)
 {
-    // LOG_DEBUG << "shut down: " << channel->getFd();
+  // LOG_DEBUG << "shut down: " << channel->getFd();
 
-   // do not set writable again
-   if (!channel->isClosing())
-   {
-     channel->setClosing();
+  // do not set writable again
+  if (!channel->isClosing())
+  {
+    channel->setClosing();
 
-     assert(channel->loop);
-     reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
-         ->getPoll()
-         ->setWritable(channel.get());
-  } 
+    assert(channel->loop);
+    reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
+        ->getPoll()
+        ->setWritable(channel.get());
+  }
 }
 
 void TcpEndpoint::stopRead(const ChannelPtr &channel, bool val)
