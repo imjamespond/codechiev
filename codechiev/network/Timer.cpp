@@ -39,7 +39,7 @@ void Timer::start(Eventloop<Epoll> *loop)
 
 void Timer::_epoll_handler(const Channel::ChannelPtr &channel, Eventloop<Epoll> *loop)
 {
-  if (channel->isReadable())
+  if (channel->is_readable())
   {
     for (;;)
     {

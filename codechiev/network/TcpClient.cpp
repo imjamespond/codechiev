@@ -38,17 +38,17 @@ void TcpClient::_epoll_handler(const Channel::ChannelPtr &channel)
 {
   // LOG_DEBUG << "fd: " << channel->getFd() << ", events: " << channel->getEvents();
   
-  if (channel->isConnected())
+  if (channel->is_connected())
   {
     _handle_event(channel);
     // Time::SleepMillis(5000l);
     // LOG_DEBUG << "_handleEvent fd: " << channel->getFd();
   }
-  else if (channel->isWritable())
+  else if (channel->is_writable())
   {
     if (channel->check())
     {
-      channel->setConnected();
+      channel->set_connected();
       channel->loop = loop;
 
       loop->getPoll()
@@ -59,11 +59,11 @@ void TcpClient::_epoll_handler(const Channel::ChannelPtr &channel)
     }
     else
     {
-      channel->setClosed();
+      channel->set_closed();
     }
   }
 
-  if (channel->isClosed())
+  if (channel->is_closed())
   {
     _close(loop, channel);
   }

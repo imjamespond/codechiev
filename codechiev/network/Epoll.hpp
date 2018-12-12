@@ -24,7 +24,6 @@ public:
   int ctlMod(Channel *, int);
   int setReadable(Channel *, int mode = EPOLLET);
   int setWritable(Channel *, int mode = EPOLLET);
-  void updateChannel(Channel *, int);
   void wait();
 
   inline Channel &getChannel() { return epChannel; };
@@ -34,6 +33,7 @@ public:
 
 private:
   int _ctl(int, int, st_epoll_event *);
+  void _update_channel(Channel *, int);
 
   st_vec_epoll_event epollEvents;
 

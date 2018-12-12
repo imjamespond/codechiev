@@ -99,7 +99,7 @@ void Epoll::wait()
     if (handler)
     {
       Channel *channel = reinterpret_cast<Channel *>(event.data.ptr);
-      updateChannel(channel, event.events);
+      _update_channel(channel, event.events);
       handler(channel->ptr);
     }
 
@@ -119,19 +119,19 @@ int Epoll::setWritable(Channel *channel, int mode)
 }
 
 
-void Epoll::updateChannel(Channel *channel, int events)
+void Epoll::_update_channel(Channel *channel, int events)
 {
   if (events & (EPOLLHUP | EPOLLRDHUP | EPOLLERR))
   {
-    channel->setClosed();
+    channel->set_closed();
   }
   else if (events & EPOLLOUT)
   {
-    channel->setWritable();
+    channel->set_writable();
   }
   else if (events & EPOLLIN)
   {
-    channel->setReadable();
+    channel->set_readable();
   }
 }
 

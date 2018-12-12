@@ -20,7 +20,7 @@ TcpEndpoint::TcpEndpoint(bool _edge) : edge(_edge), onConnect(0), onRead(0), onW
 
 void TcpEndpoint::_handle_event(const ChannelPtr &channel)
 {
-  if (channel->isReadable())
+  if (channel->is_readable())
   {
     // LOG_DEBUG << "debug level triggered";
 
@@ -63,13 +63,13 @@ void TcpEndpoint::_handle_event(const ChannelPtr &channel)
         if (onClose)
           onClose(channel);
 
-        channel->setClosed(); // channel will be delete after return
+        channel->set_closed(); // channel will be delete after return
         break;
       }
     }
   }
   //write
-  else if (channel->isWritable())
+  else if (channel->is_writable())
   {
     for (;;)
     {
@@ -107,7 +107,7 @@ void TcpEndpoint::_handle_event(const ChannelPtr &channel)
         }
         else if (errno == EPIPE)
         {
-          channel->setClosed(); // broken pipe
+          channel->set_closed(); // broken pipe
           break;
         }
       }
@@ -120,7 +120,7 @@ void TcpEndpoint::_handle_event(const ChannelPtr &channel)
     }
   }
   //close
-  else if (channel->isClosed())
+  else if (channel->is_closed())
   {
     LOG_DEBUG << "EPOLLHUP detected, fd: " << channel->getFd();
 
@@ -141,7 +141,7 @@ void TcpEndpoint::_writing_done(const ChannelPtr &channel)
     onCompleteWrite(channel);
   }
 
-  if (channel->isClosing())
+  if (channel->is_closing())
   {
     //  LOG_DEBUG << "shut down channel: " << channel->getFd();
 
@@ -163,18 +163,16 @@ void TcpEndpoint::_close(Eventloop<Epoll> *loop, const ChannelPtr &channel)
 
 int TcpEndpoint::send(const ChannelPtr &channel, const char *msg, int len, bool flush)
 {
+  MutexGuard lock(&mutex);
   // do not set writable again
-  if (!channel->isClosing())
+  if (!channel->is_closing())
   {
+    if (channel->buffer.append(msg, len) < 0)
     {
-      MutexGuard lock(&mutex);
-      if (channel->buffer.append(msg, len) < 0)
-      {
-        // LOG_ERROR << "append to buffer failed: " << len
-        //           << ", readable_bytes: " << channel->buffer.readable_bytes()
-        //           << ", writable_bytes: " << channel->buffer.writable_bytes();
-        return -1;
-      }
+      // LOG_ERROR << "append to buffer failed: " << len
+      //           << ", readable_bytes: " << channel->buffer.readable_bytes()
+      //           << ", writable_bytes: " << channel->buffer.writable_bytes();
+      return -1;
     }
 
     if (channel->loop && flush)
@@ -182,7 +180,7 @@ int TcpEndpoint::send(const ChannelPtr &channel, const char *msg, int len, bool 
       if (reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
               ->getPoll()
               ->setWritable(channel.get()) < 0)
-        channel->setClosed();
+        channel->set_closed();
     }
   }
   return 0;
@@ -191,11 +189,11 @@ int TcpEndpoint::send(const ChannelPtr &channel, const char *msg, int len, bool 
 void TcpEndpoint::shutdown(const ChannelPtr &channel)
 {
   // LOG_DEBUG << "shut down: " << channel->getFd();
-
+  MutexGuard lock(&mutex);
   // do not set writable again
-  if (!channel->isClosing())
+  if (!channel->is_closing())
   {
-    channel->setClosing();
+    channel->set_closing();
 
     assert(channel->loop);
     reinterpret_cast<Eventloop<Epoll> *>(channel->loop)

@@ -26,17 +26,18 @@ public:
   void close();
   void shutdown();
 
-  inline void setReadable() { events = 1 | (events & 24); }
-  inline void setWritable() { events = 2 | (events & 24); }
-  inline void setClosed() { events = 4; }
-  inline void setClosing() { events |= 8; }
-  inline void setConnected() { events |= 16; }
+  // not thread safe with underscore
+  inline void set_readable() { events = 1 | (events & 24); }
+  inline void set_writable() { events = 2 | (events & 24); }
+  inline void set_closed() { events = 4; }
+  inline void set_closing() { events |= 8; }
+  inline void set_connected() { events |= 16; }
   void stopRead(bool val=true);
-  inline int isReadable() { return (events & 1); }
-  inline int isWritable() { return (events & 2); }
-  inline int isClosed() { return (events & 4); }
-  inline int isClosing() { return events & 8; }
-  inline int isConnected() { return events & 16; }
+  inline int is_readable() { return (events & 1); }
+  inline int is_writable() { return (events & 2); }
+  inline int is_closed() { return (events & 4); }
+  inline int is_closing() { return events & 8; }
+  inline int is_connected() { return events & 16; }
   inline int isStoppedRead() { return _stopRead; }
 
   inline int getEvents() { return events;}

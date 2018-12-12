@@ -42,7 +42,7 @@ void TcpServer::_epoll_handler(const Channel::ChannelPtr &channel, Eventloop<Epo
       Channel *conn = createChannel(conn_sock);
       conn->setNonblocking();
       conn->loop = loop;
-      conn->setConnected();
+      conn->set_connected();
       if (edge)
       {
         loop->getPoll()->ctlAdd(conn);          //edge trigger is set as default
@@ -60,7 +60,7 @@ void TcpServer::_epoll_handler(const Channel::ChannelPtr &channel, Eventloop<Epo
   {
     _handle_event(channel);
 
-    if (channel->isClosed())
+    if (channel->is_closed())
     {
       _close(loop, channel);
     }
