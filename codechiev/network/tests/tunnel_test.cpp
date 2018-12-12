@@ -76,8 +76,8 @@ int main(int num, const char **args)
   Eventloop<Epoll> serv1Loop;
   Eventloop<Epoll> cliLoop;
 
-  TcpServer serv1(1080, "0.0.0.0", true); //level triggered
-  TcpClient client(&cliLoop, true);       //level triggered
+  TcpServer serv1(1080, "0.0.0.0", false); //level triggered
+  TcpClient client(&cliLoop, false);       //level triggered
   // clientPtr = &client;
 
   serv1.setCreateChannel(boost::bind(&createTunnelChannel, _1));

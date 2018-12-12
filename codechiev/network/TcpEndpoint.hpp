@@ -40,7 +40,7 @@ public:
 
 protected:
   codechiev::base::Mutex mutex;
-  bool mode; //true for level triggered, false for edge triggered
+  bool edge; //false for level triggered, true for edge triggered
 
   OnConnectFunc onConnect;
   OnReadFunc onRead;

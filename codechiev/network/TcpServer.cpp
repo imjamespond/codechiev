@@ -43,15 +43,14 @@ void TcpServer::_epoll_handler(const Channel::ChannelPtr &channel, Eventloop<Epo
       conn->setNonblocking();
       conn->loop = loop;
       conn->setConnected();
-      if (mode) 
+      if (edge)
       {
-        loop->getPoll()->ctlAdd(conn, EPOLLIN); // level trigger EPOLLIN
+        loop->getPoll()->ctlAdd(conn);          //edge trigger is set as default
       }
       else
       {
-        loop->getPoll()->ctlAdd(conn); //edge trigger is set as default
+        loop->getPoll()->ctlAdd(conn, EPOLLIN); // level trigger EPOLLIN
       }
-
 
       if (onConnect)
         onConnect(conn->ptr);

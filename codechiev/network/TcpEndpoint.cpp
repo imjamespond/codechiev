@@ -13,7 +13,7 @@ Channel *__create_channel__(int sockfd)
   return new Channel(sockfd);
 }
 
-TcpEndpoint::TcpEndpoint(bool _mode) : mode(_mode), onConnect(0), onRead(0), onWrite(0), onCompleteWrite(0), onClose(0), createChannel(boost::bind(&__create_channel__, _1))
+TcpEndpoint::TcpEndpoint(bool _edge) : edge(_edge), onConnect(0), onRead(0), onWrite(0), onCompleteWrite(0), onClose(0), createChannel(boost::bind(&__create_channel__, _1))
 {
   // LOG_DEBUG << "TcpEndpoint";
 }
@@ -134,7 +134,7 @@ void TcpEndpoint::_writing_done(const ChannelPtr &channel)
   assert(channel->loop);
   reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
       ->getPoll()
-      ->setReadable(channel.get(), mode ? 0 : EPOLLET);
+      ->setReadable(channel.get(), edge ? EPOLLET : 0);
 
   if (onCompleteWrite)
   {
