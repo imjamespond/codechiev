@@ -16,3 +16,6 @@ evthread_use_pthreads()
 ## make shell  
 通过设置env来调节日志级别  
 loglevel=Info ./make.sh 或 export loglevel=Info && ./make.sh
+
+## $'\r': command not found  
+Notepad++. From the "Edit" menu, select "EOL Conversion" -> "UNIX/OSX Format".   
