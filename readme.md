@@ -19,3 +19,8 @@ loglevel=Info ./make.sh 或 export loglevel=Info && ./make.sh
 
 ## $'\r': command not found  
 Notepad++. From the "Edit" menu, select "EOL Conversion" -> "UNIX/OSX Format".   
+## git old mode new mode  
+git config core.filemode false  
+## git different new line issue  
+.gitattributes  
+*        -crlf
