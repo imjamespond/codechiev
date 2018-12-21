@@ -31,7 +31,7 @@ void TcpEndpoint::_handle_event(const ChannelPtr &channel)
       {
         MutexGuard lock(&mutex);
 
-        if (channel->isStoppedRead())
+        if (!channel->readable)
         {
           // TODO check channel in max timeout
           return;
@@ -202,9 +202,9 @@ void TcpEndpoint::shutdown(const ChannelPtr &channel)
   }
 }
 
-void TcpEndpoint::stopRead(const ChannelPtr &channel, bool val)
+void TcpEndpoint::enableRead(const ChannelPtr &channel, bool val)
 {
   MutexGuard lock(&mutex);
 
-  channel->stopRead(val);
+  channel->readable = val;
 }

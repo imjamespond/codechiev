@@ -35,7 +35,7 @@ public:
   inline void setCreateChannel(const CreateChannel &func) { createChannel = func; }
 
   void shutdown(const ChannelPtr &);
-  void stopRead(const ChannelPtr &, bool val = true);
+  void enableRead(const ChannelPtr &, bool val = true);
   int send(const ChannelPtr &, const char *, int, bool flush = true );
 
 protected:

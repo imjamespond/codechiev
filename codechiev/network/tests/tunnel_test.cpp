@@ -146,7 +146,7 @@ void onRead(const ChannelPtr &channel, const char *buf, int len, TcpServer *serv
 
   if (ChannelPtr tunnel = conn->tunnel.lock())
   {
-    serv->stopRead(channel); //make sure stop read before send
+    serv->enableRead(channel, false); //make sure stop read before send
     cli->send(tunnel, buf, len); //send to tunnel
   }
 }
@@ -168,7 +168,7 @@ void onCompleteWrite(const ChannelPtr &channel, TcpClient *cli)
 
   if (ChannelPtr tunnel = conn->tunnel.lock())
   {
-    cli->stopRead(tunnel, false); 
+    cli->enableRead(tunnel); 
   }
 }
 
@@ -188,7 +188,7 @@ void onClientRead(const ChannelPtr &channel, const char *buf, int len, TcpClient
   TunnelChannel *cli_conn = static_cast<TunnelChannel *>(channel.get());
   if (ChannelPtr serv_conn = cli_conn->tunnel.lock())
   {
-    cli->stopRead(channel);
+    cli->enableRead(channel, true);
     serv->send(serv_conn, buf, len); //send to tunnel
   }
 }
@@ -210,7 +210,7 @@ void onClientCompleteWrite(const ChannelPtr &channel, TcpServer *serv)
 
   if (ChannelPtr tunnel = conn->tunnel.lock())
   { 
-    serv->stopRead(tunnel, false); //when tunnel is writable, then begin to read again
+    serv->enableRead(tunnel); //when tunnel is writable, then begin to read again
   }
 }
 

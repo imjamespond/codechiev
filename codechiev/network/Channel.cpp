@@ -6,10 +6,10 @@
 
 using namespace codechiev::net;
 
-Channel::Channel(int _sockfd) : ptr(this), loop(NULL), sockfd(_sockfd), events(0), _stopRead(false)
+Channel::Channel(int _sockfd) : ptr(this), loop(NULL), readable(true), sockfd(_sockfd), events(0)
 {}
 
-Channel::Channel(Channel *_ptr, int _sockfd) : ptr(_ptr), loop(NULL), sockfd(_sockfd), events(0), _stopRead(false)
+Channel::Channel(Channel *_ptr, int _sockfd) : ptr(_ptr), loop(NULL), readable(true), sockfd(_sockfd), events(0)
 {}
 
 
@@ -69,12 +69,12 @@ void Channel::setNonblocking()
   }
 }
 
-void Channel::stopRead(bool val)
-{
-  // events |= 32;
-  // if (!val) 
-  // {
-  //   events = events ^ 32;
-  // }
-  _stopRead = val;
-}
+// void Channel::stopRead(bool val)
+// {
+//   // events |= 32;
+//   // if (!val) 
+//   // {
+//   //   events = events ^ 32;
+//   // }
+//   _stopRead = val;
+// }
