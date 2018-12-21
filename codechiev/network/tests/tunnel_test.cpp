@@ -25,15 +25,15 @@ using namespace codechiev::base;
 typedef Channel::ChannelPtr ChannelPtr;
 
 void onConnect(const ChannelPtr &, TcpServer *, TcpClient *);
-void onRead(const ChannelPtr &, const char *, int, TcpServer *, TcpClient *);
-void onWrite(const ChannelPtr &, const char *, int, TcpServer *);
-void onCompleteWrite(const ChannelPtr &channel, TcpClient *cli);
+void onPartialRead(const ChannelPtr &, const char *, int, TcpServer *, TcpClient *);
+void onPartialWrite(const ChannelPtr &, const char *, int, TcpServer *);
+void onWrite(const ChannelPtr &channel, TcpClient *);
 void onClose(const ChannelPtr &, TcpServer *, TcpClient *);
 
 void onClientConnect(const ChannelPtr &, TcpClient *);
-void onClientRead(const ChannelPtr &channel, const char *, int, TcpClient *, TcpServer *serv);
-void onClientWrite(const ChannelPtr &channel, const char *, int, TcpClient *);
-void onClientCompleteWrite(const ChannelPtr &channel, TcpServer *serv);
+void onClientPartialRead(const ChannelPtr &channel, const char *, int, TcpClient *, TcpServer *);
+void onClientPartialWrite(const ChannelPtr &channel, const char *, int, TcpClient *);
+void onClientWrite(const ChannelPtr &channel, TcpServer *);
 void onClientClose(const ChannelPtr &, TcpServer *, TcpClient *);
 
 void print();
@@ -83,17 +83,17 @@ int main(int num, const char **args)
   serv1.setCreateChannel(boost::bind(&createTunnelChannel, _1));
   serv1.setOnConnectFunc(boost::bind(&onConnect, _1, &serv1, &client));
   serv1.setOnCloseFunc(boost::bind(&onClose, _1, &serv1, &client));
-  serv1.setOnReadFunc(boost::bind(&onRead, _1, _2, _3, &serv1, &client));
-  serv1.setOnWriteFunc(boost::bind(&onWrite, _1, _2, _3, &serv1));
-  serv1.setOnCompleteWriteFunc(boost::bind(&onCompleteWrite, _1, &client));
+  serv1.setOnPartialReadFunc(boost::bind(&onPartialRead, _1, _2, _3, &serv1, &client));
+  serv1.setOnPartialWriteFunc(boost::bind(&onPartialWrite, _1, _2, _3, &serv1));
+  serv1.setOnWriteFunc(boost::bind(&onWrite, _1, &client));
   serv1.start(&serv1Loop);
 
   client.setCreateChannel(boost::bind(&createTunnelChannel, _1));
   client.setOnConnectFunc(boost::bind(&onClientConnect, _1, &client));
   client.setOnCloseFunc(boost::bind(&onClientClose, _1, &serv1, &client));
-  client.setOnReadFunc(boost::bind(&onClientRead, _1, _2, _3, &client, &serv1));
-  client.setOnWriteFunc(boost::bind(&onClientWrite, _1, _2, _3, &client));
-  client.setOnCompleteWriteFunc(boost::bind(&onClientCompleteWrite, _1, &serv1));
+  client.setOnPartialReadFunc(boost::bind(&onClientPartialRead, _1, _2, _3, &client, &serv1));
+  client.setOnPartialWriteFunc(boost::bind(&onClientPartialWrite, _1, _2, _3, &client));
+  client.setOnWriteFunc(boost::bind(&onClientWrite, _1, &serv1));
   client.start();
 
   Eventloop<Epoll> timerLoop;
@@ -135,7 +135,7 @@ void onConnect(const ChannelPtr &channel, TcpServer *serv, TcpClient *cli)
 
   // LOG_INFO << "connect fd: " << channel->getFd();
 }
-void onRead(const ChannelPtr &channel, const char *buf, int len, TcpServer *serv, TcpClient *cli)
+void onPartialRead(const ChannelPtr &channel, const char *buf, int len, TcpServer *serv, TcpClient *cli)
 {
   // LOG_INFO << "read fd: " << channel->getFd()
   //       // << ", buf: " << buf
@@ -150,7 +150,7 @@ void onRead(const ChannelPtr &channel, const char *buf, int len, TcpServer *serv
     cli->send(tunnel, buf, len); //send to tunnel
   }
 }
-void onWrite(const ChannelPtr &channel, const char *msg, int len, TcpServer *serv)
+void onPartialWrite(const ChannelPtr &channel, const char *msg, int len, TcpServer *serv)
 {
   servSent += len;
 }
@@ -162,7 +162,7 @@ void onClose(const ChannelPtr &channel, TcpServer *serv, TcpClient *cli)
     cli->shutdown(cli_conn);
   }
 }
-void onCompleteWrite(const ChannelPtr &channel, TcpClient *cli)
+void onWrite(const ChannelPtr &channel, TcpClient *cli)
 {
   TunnelChannel *conn = static_cast<TunnelChannel *>(channel.get());
 
@@ -178,7 +178,7 @@ void onClientConnect(const ChannelPtr &channel, TcpClient *cli)
   // LOG_INFO << "connect fd: " << channel->getFd();
   cli->send(channel, "", 0);
 }
-void onClientRead(const ChannelPtr &channel, const char *buf, int len, TcpClient *cli, TcpServer *serv)
+void onClientPartialRead(const ChannelPtr &channel, const char *buf, int len, TcpClient *cli, TcpServer *serv)
 {
   // LOG_INFO << "read fd: " << channel->getFd()
   //          << ", buf: " << buf
@@ -192,7 +192,7 @@ void onClientRead(const ChannelPtr &channel, const char *buf, int len, TcpClient
     serv->send(serv_conn, buf, len); //send to tunnel
   }
 }
-void onClientWrite(const ChannelPtr &channel, const char *msg, int len, TcpClient *endpoint)
+void onClientPartialWrite(const ChannelPtr &channel, const char *msg, int len, TcpClient *endpoint)
 {
   cliSent += len;
 }
@@ -204,7 +204,7 @@ void onClientClose(const ChannelPtr &channel, TcpServer *serv, TcpClient *cli)
     serv->shutdown(serv_conn);
   }
 }
-void onClientCompleteWrite(const ChannelPtr &channel, TcpServer *serv)
+void onClientWrite(const ChannelPtr &channel, TcpServer *serv)
 {
   TunnelChannel *conn = static_cast<TunnelChannel *>(channel.get());
 
