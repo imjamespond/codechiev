@@ -59,7 +59,7 @@ struct Buffer
 
         int writable = writable_bytes();
 
-        if (writable < len)
+        if ((writable>>1) < len)
         {
             resize(writable, len);
         }
@@ -84,6 +84,7 @@ struct Buffer
 
             if (size > MAXIMUM_SIZE)
             {
+                writable = writable_bytes();
                 break;
             }
 

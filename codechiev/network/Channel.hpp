@@ -41,7 +41,9 @@ public:
 
   inline int getEvents() { return events;}
 
-  codechiev::base::Buffer<8, 1024 * 8> buffer;
+  const static int BufferSize = 256;
+
+  codechiev::base::Buffer<BufferSize, BufferSize << 4> buffer;
   ChannelPtr ptr;
   void *loop;
   bool readable;

@@ -24,7 +24,7 @@ void TcpEndpoint::_handle_event(const ChannelPtr &channel)
   {
     // LOG_DEBUG << "debug level triggered";
 
-    char buffer[256];
+    char buffer[Channel::BufferSize];
     size_t buf_len = sizeof buffer;
     for (;;)
     {
@@ -180,7 +180,7 @@ int TcpEndpoint::send(const ChannelPtr &channel, const char *msg, int len, bool 
       if (reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
               ->getPoll()
               ->setWritable(channel.get()) < 0)
-        channel->set_closed();
+        channel->set_closing();
     }
   }
   return 0;
