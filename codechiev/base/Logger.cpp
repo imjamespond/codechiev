@@ -72,9 +72,9 @@ level_(lv), carriage_(carriage), detail_(detail)
 
     this->operator<<(kLoggerLevels[lv]);
 
-    std::string time = Time::GetSimpleString();
-    time.at(time.size()-1)='\0';
-    this->operator<<(": " KMAG) << time;
+    // std::string time = Time::GetSimpleString();
+    // time.at(time.size()-1)='\0';
+    // this->operator<<(": " KMAG) << time;
 
     if(detail&DetailFile)
     {
