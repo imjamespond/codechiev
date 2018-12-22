@@ -27,30 +27,35 @@ public:
   void shutdown();
 
   // not thread safe with underscore
-  inline void set_readable() { events = 1 | (events & 24); }
-  inline void set_writable() { events = 2 | (events & 24); }
+  inline void set_event_read() { events = 1 | (events & 24); }
+  inline void set_event_write() { events = 2 | (events & 24); }
   inline void set_closed() { events = 4; }
   inline void set_closing() { events |= 8; }
   inline void set_connected() { events |= 16; }
 
-  inline int is_readable() { return (events & 1); }
-  inline int is_writable() { return (events & 2); }
+  inline void enable_read(bool enable = true) { action = (4 | action) ^ (enable ? 4 : 0); }
+
+  inline int event_read() { return (events & 1); }
+  inline int event_write() { return (events & 2); }
   inline int is_closed() { return (events & 4); }
   inline int is_closing() { return events & 8; }
   inline int is_connected() { return events & 16; } 
 
+  inline int is_read_disabled() { return action & 4; } 
+
   inline int getEvents() { return events;}
+  inline int getAction() { return action;}
 
   const static int BufferSize = 256;
 
   codechiev::base::Buffer<BufferSize, BufferSize << 4> buffer;
   ChannelPtr ptr;
   void *loop;
-  bool readable;
 
 private:
   const int sockfd;
   int events;
+  int action; //2 for write, 4 for disable read
 };
 } // namespace net
 } // namespace codechiev

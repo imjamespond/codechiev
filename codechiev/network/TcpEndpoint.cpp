@@ -20,7 +20,7 @@ TcpEndpoint::TcpEndpoint(bool _edge) : edge(_edge ? EPOLLET : 0), onConnect(0), 
 
 void TcpEndpoint::_handle_event(const ChannelPtr &channel)
 {
-  if (channel->is_readable())
+  if (channel->event_read())
   {
     // LOG_DEBUG << "debug level triggered";
 
@@ -31,7 +31,7 @@ void TcpEndpoint::_handle_event(const ChannelPtr &channel)
       {
         MutexGuard lock(&mutex);
 
-        if (!channel->readable)
+        if (channel->is_read_disabled())
         {
           // TODO check channel in max timeout
           break;
@@ -74,7 +74,7 @@ void TcpEndpoint::_handle_event(const ChannelPtr &channel)
     }
   }
   //write
-  else if (channel->is_writable())
+  else if (channel->event_write())
   {
     for (;;)
     {
@@ -136,11 +136,12 @@ void TcpEndpoint::_handle_event(const ChannelPtr &channel)
 
 void TcpEndpoint::_writing_done(const ChannelPtr &channel)
 {
+  
   assert(channel->loop);
   reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
       ->getPoll()
       ->setReadable(channel.get(), EPOLLIN | edge);
-
+      
   if (onWrite)
   {
     onWrite(channel);
@@ -190,7 +191,6 @@ int TcpEndpoint::write(const ChannelPtr &channel, const char *buf, int len)
 
 void TcpEndpoint::flush(const ChannelPtr &channel)
 {
-  MutexGuard lock(&mutex);
   if (channel->loop)
   {
     if (reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
@@ -228,12 +228,7 @@ void TcpEndpoint::enableRead(const ChannelPtr &channel, bool enable)
 {
   MutexGuard lock(&mutex);
 
-  channel->readable = enable;
+  channel->enable_read(enable);
   
-  // if (channel->loop)
-  // {
-  //   reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
-  //       ->getPoll()
-  //       ->setReadable(channel.get(), enable ? (EPOLLIN | edge) : 0);
-  // }
+  // flush(channel);
 }

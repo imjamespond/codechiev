@@ -6,10 +6,10 @@
 
 using namespace codechiev::net;
 
-Channel::Channel(int _sockfd) : ptr(this), loop(NULL), readable(true), sockfd(_sockfd), events(0)
+Channel::Channel(int _sockfd) : ptr(this), loop(NULL), sockfd(_sockfd), events(0), action(0)
 {}
 
-Channel::Channel(Channel *_ptr, int _sockfd) : ptr(_ptr), loop(NULL), readable(true), sockfd(_sockfd), events(0)
+Channel::Channel(Channel *_ptr, int _sockfd) : ptr(_ptr), loop(NULL), sockfd(_sockfd), events(0), action(0)
 {}
 
 

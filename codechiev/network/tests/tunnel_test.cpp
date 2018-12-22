@@ -152,7 +152,7 @@ void onPartialRead(const ChannelPtr &channel, const char *buf, int len, TcpServe
   {
     if (cli->write(tunnel, buf, len) < 0) 
     {
-      LOG_DEBUG << "flush: " << tunnel->getFd();
+      // LOG_DEBUG << "flush: " << tunnel->getFd();
       serv->enableRead(channel, false); //make sure stop read before send 
       cli->flush(tunnel);
     }
@@ -164,7 +164,7 @@ void onRead(const ChannelPtr &channel, TcpServer *serv, TcpClient *cli)
 
   if (ChannelPtr tunnel = conn->tunnel.lock())
   {
-    LOG_DEBUG << "flush: " << tunnel->getFd();
+    // LOG_DEBUG << "flush: " << tunnel->getFd();
     serv->enableRead(channel, false);
     cli->flush(tunnel); //send to tunnel
   }
@@ -244,7 +244,7 @@ void onClientWrite(const ChannelPtr &channel, TcpServer *serv)
 
   if (ChannelPtr tunnel = conn->tunnel.lock())
   { 
-    LOG_DEBUG << "enableRead: " << tunnel->getFd();
+    // LOG_DEBUG << "enableRead: " << tunnel->getFd();
     serv->enableRead(tunnel); //when tunnel is writable, then begin to read again
   }
 }

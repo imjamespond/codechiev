@@ -127,11 +127,11 @@ void Epoll::_update_channel(Channel *channel, int events)
   }
   else if (events & EPOLLOUT)
   {
-    channel->set_writable();
+    channel->set_event_write();
   }
   else if (events & EPOLLIN)
   {
-    channel->set_readable();
+    channel->set_event_read();
   }
 }
 

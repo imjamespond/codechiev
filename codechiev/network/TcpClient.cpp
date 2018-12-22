@@ -44,7 +44,7 @@ void TcpClient::_epoll_handler(const Channel::ChannelPtr &channel)
     // Time::SleepMillis(5000l);
     // LOG_DEBUG << "_handleEvent fd: " << channel->getFd();
   }
-  else if (channel->is_writable())
+  else if (channel->event_write())
   {
     if (channel->check())
     {
