@@ -108,14 +108,14 @@ void Epoll::wait()
   }
 }
 
-int Epoll::setReadable(Channel *channel, int mode)
+int Epoll::setReadable(Channel *channel, int events)
 {
-  return ctlMod(channel, EPOLLIN | mode); //| EPOLLET);
+  return ctlMod(channel, events); //| EPOLLET);
 }
 
-int Epoll::setWritable(Channel *channel, int mode)
+int Epoll::setWritable(Channel *channel, int events)
 {
-  return ctlMod(channel, EPOLLOUT | mode); //| EPOLLET);
+  return ctlMod(channel, events); //| EPOLLET);
 }
 
 

@@ -13,7 +13,7 @@ Channel *__create_channel__(int sockfd)
   return new Channel(sockfd);
 }
 
-TcpEndpoint::TcpEndpoint(bool _edge) : edge(_edge), onConnect(0), onPartialRead(0), onPartialWrite(0), onWrite(0), onClose(0), createChannel(boost::bind(&__create_channel__, _1))
+TcpEndpoint::TcpEndpoint(bool _edge) : edge(_edge ? EPOLLET : 0), onConnect(0), onPartialRead(0), onPartialWrite(0), onWrite(0), onClose(0), createChannel(boost::bind(&__create_channel__, _1))
 {
   // LOG_DEBUG << "TcpEndpoint";
 }
@@ -34,26 +34,31 @@ void TcpEndpoint::_handle_event(const ChannelPtr &channel)
         if (!channel->readable)
         {
           // TODO check channel in max timeout
-          return;
+          break;
         }
       }
-
+      
       ::memset(buffer, 0, buf_len);
       ssize_t len = ::read(channel->getFd(), buffer, buf_len);
 
-      // LOG_DEBUG << "fd: " << channel->getFd() << ", len: " << len << ", errno: " << errno;
+      LOG_DEBUG << "fd: " << channel->getFd() << ", len: " << len << ", errno: " << errno;
 
       if (len > 0)
       {
         // LOG_DEBUG << "buffer: " << buffer;
         if (onPartialRead)
+        {
           onPartialRead(channel, buffer, len);
+        }
+
       }
       else if (len && -1 == len)
       {
         if (errno == EAGAIN)
         {
           // LOG_DEBUG << "EAGAIN";
+          if (onRead) 
+            onRead(channel);
           break;
         }
       }
@@ -134,7 +139,7 @@ void TcpEndpoint::_writing_done(const ChannelPtr &channel)
   assert(channel->loop);
   reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
       ->getPoll()
-      ->setReadable(channel.get(), edge ? EPOLLET : 0);
+      ->setReadable(channel.get(), EPOLLIN | edge);
 
   if (onWrite)
   {
@@ -192,7 +197,7 @@ void TcpEndpoint::flush(const ChannelPtr &channel)
             ->getPoll()
             ->setWritable(channel.get()) < 0)
     {
-      channel->set_closing();
+      // channel->set_closing();
     }
   }
 }
@@ -219,9 +224,16 @@ void TcpEndpoint::shutdown(const ChannelPtr &channel)
   }
 }
 
-void TcpEndpoint::enableRead(const ChannelPtr &channel, bool val)
+void TcpEndpoint::enableRead(const ChannelPtr &channel, bool enable)
 {
   MutexGuard lock(&mutex);
 
-  channel->readable = val;
+  channel->readable = enable;
+  
+  // if (channel->loop)
+  // {
+  //   reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
+  //       ->getPoll()
+  //       ->setReadable(channel.get(), enable ? (EPOLLIN | edge) : 0);
+  // }
 }

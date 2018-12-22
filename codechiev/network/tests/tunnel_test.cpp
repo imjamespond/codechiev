@@ -27,12 +27,14 @@ typedef Channel::ChannelPtr ChannelPtr;
 void onConnect(const ChannelPtr &, TcpServer *, TcpClient *);
 void onPartialRead(const ChannelPtr &, const char *, int, TcpServer *, TcpClient *);
 void onPartialWrite(const ChannelPtr &, const char *, int, TcpServer *);
+void onRead(const ChannelPtr &channel,  TcpServer *, TcpClient *);
 void onWrite(const ChannelPtr &channel, TcpClient *);
 void onClose(const ChannelPtr &, TcpServer *, TcpClient *);
 
 void onClientConnect(const ChannelPtr &, TcpClient *);
 void onClientPartialRead(const ChannelPtr &channel, const char *, int, TcpClient *, TcpServer *);
 void onClientPartialWrite(const ChannelPtr &channel, const char *, int, TcpClient *);
+void onClientRead(const ChannelPtr &channel,  TcpClient *, TcpServer *);
 void onClientWrite(const ChannelPtr &channel, TcpServer *);
 void onClientClose(const ChannelPtr &, TcpServer *, TcpClient *);
 
@@ -85,6 +87,7 @@ int main(int num, const char **args)
   serv1.setOnCloseFunc(boost::bind(&onClose, _1, &serv1, &client));
   serv1.setOnPartialReadFunc(boost::bind(&onPartialRead, _1, _2, _3, &serv1, &client));
   serv1.setOnPartialWriteFunc(boost::bind(&onPartialWrite, _1, _2, _3, &serv1));
+  serv1.setOnReadFunc(boost::bind(&onRead, _1, &serv1, &client));
   serv1.setOnWriteFunc(boost::bind(&onWrite, _1, &client));
   serv1.start(&serv1Loop);
 
@@ -93,6 +96,7 @@ int main(int num, const char **args)
   client.setOnCloseFunc(boost::bind(&onClientClose, _1, &serv1, &client));
   client.setOnPartialReadFunc(boost::bind(&onClientPartialRead, _1, _2, _3, &client, &serv1));
   client.setOnPartialWriteFunc(boost::bind(&onClientPartialWrite, _1, _2, _3, &client));
+  client.setOnReadFunc(boost::bind(&onClientRead, _1, &client, &serv1));
   client.setOnWriteFunc(boost::bind(&onClientWrite, _1, &serv1));
   client.start();
 
@@ -146,8 +150,23 @@ void onPartialRead(const ChannelPtr &channel, const char *buf, int len, TcpServe
 
   if (ChannelPtr tunnel = conn->tunnel.lock())
   {
-    serv->enableRead(channel, false); //make sure stop read before send
-    cli->send(tunnel, buf, len); //send to tunnel
+    if (cli->write(tunnel, buf, len) < 0) 
+    {
+      LOG_DEBUG << "flush: " << tunnel->getFd();
+      serv->enableRead(channel, false); //make sure stop read before send 
+      cli->flush(tunnel);
+    }
+  }
+}
+void onRead(const ChannelPtr &channel, TcpServer *serv, TcpClient *cli)
+{
+  TunnelChannel *conn = static_cast<TunnelChannel *>(channel.get());
+
+  if (ChannelPtr tunnel = conn->tunnel.lock())
+  {
+    LOG_DEBUG << "flush: " << tunnel->getFd();
+    serv->enableRead(channel, false);
+    cli->flush(tunnel); //send to tunnel
   }
 }
 void onPartialWrite(const ChannelPtr &channel, const char *msg, int len, TcpServer *serv)
@@ -176,7 +195,7 @@ void onClientConnect(const ChannelPtr &channel, TcpClient *cli)
 {
   // client_num++;
   // LOG_INFO << "connect fd: " << channel->getFd();
-  cli->send(channel, "", 0);
+  cli->flush(channel);
 }
 void onClientPartialRead(const ChannelPtr &channel, const char *buf, int len, TcpClient *cli, TcpServer *serv)
 {
@@ -185,11 +204,26 @@ void onClientPartialRead(const ChannelPtr &channel, const char *buf, int len, Tc
   //          << ", len: " << len;
   cliRecived += len;
 
-  TunnelChannel *cli_conn = static_cast<TunnelChannel *>(channel.get());
-  if (ChannelPtr serv_conn = cli_conn->tunnel.lock())
+  TunnelChannel *conn = static_cast<TunnelChannel *>(channel.get());
+  if (ChannelPtr tunnel = conn->tunnel.lock())
   {
-    cli->enableRead(channel, true);
-    serv->send(serv_conn, buf, len); //send to tunnel
+    // cli->enableRead(channel, true);
+    // serv->send(serv_conn, buf, len); //send to tunnel
+    if (serv->write(tunnel, buf, len) < 0) 
+    { 
+      cli->enableRead(channel, false); //make sure stop read before send 
+      serv->flush(tunnel);
+    }
+  }
+}
+void onClientRead(const ChannelPtr &channel, TcpClient *cli, TcpServer *serv)
+{
+  TunnelChannel *conn = static_cast<TunnelChannel *>(channel.get());
+
+  if (ChannelPtr tunnel = conn->tunnel.lock())
+  { 
+    cli->enableRead(channel, false);
+    serv->flush(tunnel); //send to tunnel
   }
 }
 void onClientPartialWrite(const ChannelPtr &channel, const char *msg, int len, TcpClient *endpoint)
@@ -210,6 +244,7 @@ void onClientWrite(const ChannelPtr &channel, TcpServer *serv)
 
   if (ChannelPtr tunnel = conn->tunnel.lock())
   { 
+    LOG_DEBUG << "enableRead: " << tunnel->getFd();
     serv->enableRead(tunnel); //when tunnel is writable, then begin to read again
   }
 }

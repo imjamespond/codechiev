@@ -52,7 +52,7 @@ void TcpClient::_epoll_handler(const Channel::ChannelPtr &channel)
       channel->loop = loop;
 
       loop->getPoll()
-          ->setReadable(channel.get(), edge ? EPOLLET : 0);
+          ->setReadable(channel.get(), EPOLLIN | edge);
 
       if (onConnect)
         onConnect(channel);

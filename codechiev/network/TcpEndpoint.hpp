@@ -44,7 +44,7 @@ public:
 
 protected:
   codechiev::base::Mutex mutex;
-  bool edge; //false for level triggered, true for edge triggered
+  int edge; //false for level triggered, true for edge triggered
 
   OnConnectFunc onConnect;
   OnPartialReadFunc onPartialRead;
@@ -56,7 +56,6 @@ protected:
 
   void _handle_event(const ChannelPtr &);
   void _writing_done(const ChannelPtr &);
-  void _set_readable(const ChannelPtr &, bool val);
   void _close(Eventloop<Epoll> *, const ChannelPtr &);
 };
 } // namespace net
