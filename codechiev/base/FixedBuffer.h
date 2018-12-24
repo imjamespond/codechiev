@@ -36,9 +36,9 @@ namespace codechiev {
 
             int append(const char *str)
             {
-                return append(str, static_cast<int>(::strlen(str)));
+                return append(str, 0, static_cast<int>(::strlen(str)));
             }
-            int append(const char *str, int len)
+            int append(const char *str, int start, int len)
             {
                 if(len<=0)
                     return 0;
@@ -46,13 +46,13 @@ namespace codechiev {
                 int wb = writable_bytes();
                 if(wb>len)
                 {
-                    ::memcpy(buffer_+writer_, str, len);
+                    ::memcpy(buffer_ + writer_, str + start, len);
                     write(len);
                     return len;
                 }
                 else if(wb>0)
                 {
-                    ::memcpy(buffer_+writer_, str, wb);
+                    ::memcpy(buffer_ + writer_, str + start, wb);
                     write(wb);
                     return wb;
                 }

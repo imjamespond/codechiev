@@ -74,7 +74,7 @@ level_(lv), carriage_(carriage), detail_(detail)
 
     std::string time = Time::GetSimpleString();
     this->operator<<(": " KMAG);
-    buffer_.append(time.c_str(), time.size()-1);
+    buffer_.append(time.c_str(), 11, 8); //time.size()-1
 
     if(detail&DetailFile)
     {

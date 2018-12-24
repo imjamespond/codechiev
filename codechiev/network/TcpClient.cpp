@@ -8,7 +8,7 @@
 using namespace codechiev::base;
 using namespace codechiev::net;
 
-TcpClient::TcpClient(Eventloop<Epoll> *_loop, bool mode) : TcpEndpoint(mode), loop(_loop)
+TcpClient::TcpClient(Eventloop<Epoll> *_loop, bool edge) : TcpEndpoint(edge), loop(_loop)
 {
   Epoll::EpollHandler handler = boost::bind(&TcpClient::_epoll_handler, this, _1);
   loop->getPoll()->setHandler(handler);
