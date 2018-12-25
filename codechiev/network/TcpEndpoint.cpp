@@ -31,9 +31,9 @@ void TcpEndpoint::_handle_event(const ChannelPtr &channel)
       {
         MutexGuard lock(&mutex);
 
-        if (channel->is_read_disabled())
+        if (channel->read_disabled())
         {
-          // TODO check channel in max timeout
+          LOG_DEBUG << "read_disabled: " << channel->getFd();
           break;
         }
       }
@@ -41,7 +41,7 @@ void TcpEndpoint::_handle_event(const ChannelPtr &channel)
       ::memset(buffer, 0, buf_len);
       ssize_t len = ::read(channel->getFd(), buffer, buf_len);
 
-      LOG_DEBUG << "fd: " << channel->getFd() << ", len: " << len << ", errno: " << errno;
+      LOG_DEBUG << "read fd: " << channel->getFd() << ", len: " << len << ", errno: " << errno;
 
       if (len > 0)
       {
