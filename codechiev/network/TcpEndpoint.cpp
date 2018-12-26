@@ -31,9 +31,8 @@ void TcpEndpoint::_handle_event(const ChannelPtr &channel)
       {
         MutexGuard lock(&mutex);
 
-        if (channel->read_disabled())
+        if (_read_check(channel))
         {
-          LOG_DEBUG << "read_disabled: " << channel->getFd();
           break;
         }
       }
@@ -136,12 +135,17 @@ void TcpEndpoint::_handle_event(const ChannelPtr &channel)
 
 void TcpEndpoint::_writing_done(const ChannelPtr &channel)
 {
-  
+
   assert(channel->loop);
   reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
       ->getPoll()
       ->setReadable(channel.get(), EPOLLIN | edge);
-      
+
+  {
+    MutexGuard lock(&mutex);
+    channel->set_write_action(false);
+  }
+
   if (onWrite)
   {
     onWrite(channel);
@@ -202,6 +206,17 @@ void TcpEndpoint::flush(const ChannelPtr &channel)
   }
 }
 
+void TcpEndpoint::flushData(const ChannelPtr &channel)
+{
+  MutexGuard lock(&mutex);
+
+  if (channel->buffer.readable_bytes())
+  {
+    channel->set_write_action(); 
+    flush(channel);
+  }
+}
+
 void TcpEndpoint::send(const ChannelPtr &channel, const char *msg, int len)
 {
   write(channel, msg, len);
@@ -230,5 +245,30 @@ void TcpEndpoint::enableRead(const ChannelPtr &channel, bool enable)
 
   channel->enable_read(enable);
   
-  // flush(channel);
+  if (enable && !channel->write_action())
+  {
+    assert(channel->loop);
+    reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
+        ->getPoll()
+        ->setReadable(channel.get(), EPOLLIN | edge); 
+  }
+}
+
+bool TcpEndpoint::_read_check(const ChannelPtr &channel)
+{
+  if (channel->write_action())
+  {
+    return true;
+  }
+  if (channel->read_disabled())
+  {
+    LOG_DEBUG << "read_disabled: " << channel->getFd();
+
+    assert(channel->loop);
+    reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
+        ->getPoll()
+        ->setReadable(channel.get(), (EPOLLHUP | EPOLLRDHUP | EPOLLERR)); 
+    return true;
+  }
+  return false;
 }

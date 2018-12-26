@@ -39,6 +39,7 @@ public:
   void shutdown(const ChannelPtr &);
   void enableRead(const ChannelPtr &, bool val = true);
   void flush(const ChannelPtr &);
+  void flushData(const ChannelPtr &);
   void send(const ChannelPtr &, const char *, int);
   int write(const ChannelPtr &, const char *, int);
 
@@ -57,6 +58,7 @@ protected:
   void _handle_event(const ChannelPtr &);
   void _writing_done(const ChannelPtr &);
   void _close(Eventloop<Epoll> *, const ChannelPtr &);
+  bool _read_check(const ChannelPtr &);
 };
 } // namespace net
 } // namespace codechiev
