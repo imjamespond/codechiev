@@ -163,6 +163,7 @@ void onRead(const ChannelPtr &channel, TcpServer *serv, TcpClient *cli)
 
   if (ChannelPtr tunnel = conn->tunnel.lock())
   {
+    serv->enableRead(channel, false);
     cli->flushData(tunnel); //send to tunnel
   }
 }
@@ -219,6 +220,7 @@ void onClientRead(const ChannelPtr &channel, TcpClient *cli, TcpServer *serv)
 
   if (ChannelPtr tunnel = conn->tunnel.lock())
   {
+    cli->enableRead(channel, false);
     serv->flushData(tunnel);
   }
 }
