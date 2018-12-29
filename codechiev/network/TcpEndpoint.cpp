@@ -28,15 +28,11 @@ void TcpEndpoint::_handle_event(const ChannelPtr &channel)
     size_t buf_len = sizeof buffer;
     for (;;)
     {
+      if (_read_check(channel))
       {
-        MutexGuard lock(&mutex);
-
-        if (_read_check(channel))
-        {
-          break;
-        }
+        break;
       }
-      
+
       ::memset(buffer, 0, buf_len);
       ssize_t len = ::read(channel->getFd(), buffer, buf_len);
 
@@ -81,6 +77,15 @@ void TcpEndpoint::_handle_event(const ChannelPtr &channel)
       {
         MutexGuard lock(&mutex);
         len = ::write(channel->getFd(), channel->buffer.buf(), channel->buffer.readable_bytes());
+
+        if (len > 0)
+        {
+          if (onPartialWrite)
+            onPartialWrite(channel, channel->buffer.buf(), len);
+
+          channel->buffer.read(len);
+          channel->buffer.move();
+        }
       }
       // SetTcpNoDelay(channel->getFd());
 
@@ -88,18 +93,7 @@ void TcpEndpoint::_handle_event(const ChannelPtr &channel)
       //   << ", readable: " << channel->buffer.readable_bytes()
       //   << ", len: " << len << ", errno: " << errno;
 
-      if (len > 0)
-      {
-        // TODO channel buffer need to be protected
-        MutexGuard lock(&mutex);
-
-        if (onPartialWrite)
-          onPartialWrite(channel, channel->buffer.buf(), len);
-
-        channel->buffer.read(len);
-        channel->buffer.move();
-      }
-      else if (len && -1 == len)
+      if (len && -1 == len)
       {
         // TODO check writting buffer of the channel which might not be sent completely
         if (errno == EAGAIN)
@@ -126,7 +120,7 @@ void TcpEndpoint::_handle_event(const ChannelPtr &channel)
   //close
   else if (channel->is_closed())
   {
-    LOG_DEBUG << "EPOLLHUP detected, fd: " << channel->getFd();
+    LOG_DEBUG << "EPOLLHUP: " << channel->getFd();
 
     if (onClose)
       onClose(channel);
@@ -256,6 +250,8 @@ void TcpEndpoint::enableRead(const ChannelPtr &channel, bool enable)
 
 bool TcpEndpoint::_read_check(const ChannelPtr &channel)
 {
+  MutexGuard lock(&mutex);
+
   if (channel->write_action())
   {
     return true;
