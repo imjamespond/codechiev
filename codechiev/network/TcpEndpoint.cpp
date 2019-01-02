@@ -28,7 +28,7 @@ void TcpEndpoint::_handle_event(const ChannelPtr &channel)
     size_t buf_len = sizeof buffer;
     for (;;)
     {
-      if (_read_check(channel))
+      if (_read_disabled(channel))
       {
         break;
       }
@@ -129,15 +129,14 @@ void TcpEndpoint::_handle_event(const ChannelPtr &channel)
 
 void TcpEndpoint::_writing_done(const ChannelPtr &channel)
 {
-
-  assert(channel->loop);
-  reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
-      ->getPoll()
-      ->setReadable(channel.get(), EPOLLIN | edge);
-
   {
     MutexGuard lock(&mutex);
     channel->set_write_action(false);
+
+    assert(channel->loop);
+    reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
+        ->getPoll()
+        ->setReadable(channel.get(), channel->read_disabled() ? (EPOLLHUP | EPOLLRDHUP | EPOLLERR) : (EPOLLIN | edge));
   }
 
   if (onWrite)
@@ -235,20 +234,22 @@ void TcpEndpoint::shutdown(const ChannelPtr &channel)
 
 void TcpEndpoint::enableRead(const ChannelPtr &channel, bool enable)
 {
+  LOG_DEBUG << "enableRead: " << channel->getFd() << ", " << enable;
+
   MutexGuard lock(&mutex);
 
   channel->enable_read(enable);
   
-  if (enable && !channel->write_action())
+  if (!channel->write_action())
   {
     assert(channel->loop);
     reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
         ->getPoll()
-        ->setReadable(channel.get(), EPOLLIN | edge); 
+        ->setReadable(channel.get(), enable ? (EPOLLIN | edge) : (EPOLLHUP | EPOLLRDHUP | EPOLLERR)); 
   }
 }
 
-bool TcpEndpoint::_read_check(const ChannelPtr &channel)
+bool TcpEndpoint::_read_disabled(const ChannelPtr &channel)
 {
   MutexGuard lock(&mutex);
 
@@ -260,10 +261,10 @@ bool TcpEndpoint::_read_check(const ChannelPtr &channel)
   {
     LOG_DEBUG << "read_disabled: " << channel->getFd();
 
-    assert(channel->loop);
-    reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
-        ->getPoll()
-        ->setReadable(channel.get(), (EPOLLHUP | EPOLLRDHUP | EPOLLERR)); 
+    // assert(channel->loop);
+    // reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
+    //     ->getPoll()
+    //     ->setReadable(channel.get(), (EPOLLHUP | EPOLLRDHUP | EPOLLERR)); 
     return true;
   }
   return false;

@@ -58,7 +58,7 @@ protected:
   void _handle_event(const ChannelPtr &);
   void _writing_done(const ChannelPtr &);
   void _close(Eventloop<Epoll> *, const ChannelPtr &);
-  bool _read_check(const ChannelPtr &);
+  bool _read_disabled(const ChannelPtr &);
 };
 } // namespace net
 } // namespace codechiev
