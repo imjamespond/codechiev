@@ -52,7 +52,7 @@ public:
   inline int getEvents() { return events;}
   inline int getAction() { return action;}
 
-  const static int BufferSize = 256;
+  const static int BufferSize = 1024 * 128;
 
   codechiev::base::Buffer<BufferSize << 1, BufferSize << 4> buffer;
   ChannelPtr ptr;

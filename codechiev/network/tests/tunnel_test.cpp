@@ -25,14 +25,14 @@ using namespace codechiev::base;
 typedef Channel::ChannelPtr ChannelPtr;
 
 void onConnect(const ChannelPtr &, TcpServer *, TcpClient *);
-void onPartialRead(const ChannelPtr &, const char *, int, TcpServer *, TcpClient *);
+bool onPartialRead(const ChannelPtr &, const char *, int, TcpServer *, TcpClient *);
 void onPartialWrite(const ChannelPtr &, const char *, int, TcpServer *);
 void onRead(const ChannelPtr &channel,  TcpServer *, TcpClient *);
 void onWrite(const ChannelPtr &channel, TcpServer *, TcpClient *);
 void onClose(const ChannelPtr &, TcpServer *, TcpClient *);
 
 void onClientConnect(const ChannelPtr &, TcpClient *);
-void onClientPartialRead(const ChannelPtr &channel, const char *, int, TcpClient *, TcpServer *);
+bool onClientPartialRead(const ChannelPtr &channel, const char *, int, TcpClient *, TcpServer *);
 void onClientPartialWrite(const ChannelPtr &channel, const char *, int, TcpClient *);
 void onClientRead(const ChannelPtr &channel,  TcpClient *, TcpServer *);
 void onClientWrite(const ChannelPtr &channel, TcpClient *, TcpServer *);
@@ -139,7 +139,7 @@ void onConnect(const ChannelPtr &channel, TcpServer *serv, TcpClient *cli)
 
   // LOG_INFO << "connect fd: " << channel->getFd();
 }
-void onPartialRead(const ChannelPtr &channel, const char *buf, int len, TcpServer *serv, TcpClient *cli)
+bool onPartialRead(const ChannelPtr &channel, const char *buf, int len, TcpServer *serv, TcpClient *cli)
 {
   // LOG_INFO << "read fd: " << channel->getFd()
   //       // << ", buf: " << buf
@@ -154,8 +154,10 @@ void onPartialRead(const ChannelPtr &channel, const char *buf, int len, TcpServe
     {
       serv->enableRead(channel, false); //make sure stop read before send 
       cli->flushData(tunnel);
+      return true;
     }
   }
+  return false;
 }
 void onRead(const ChannelPtr &channel, TcpServer *serv, TcpClient *cli)
 {
@@ -195,7 +197,7 @@ void onClientConnect(const ChannelPtr &channel, TcpClient *cli)
   // LOG_INFO << "connect fd: " << channel->getFd();
   cli->flushData(channel);
 }
-void onClientPartialRead(const ChannelPtr &channel, const char *buf, int len, TcpClient *cli, TcpServer *serv)
+bool onClientPartialRead(const ChannelPtr &channel, const char *buf, int len, TcpClient *cli, TcpServer *serv)
 {
   // LOG_INFO << "read fd: " << channel->getFd()
   //          << ", buf: " << buf
@@ -211,8 +213,10 @@ void onClientPartialRead(const ChannelPtr &channel, const char *buf, int len, Tc
     {
       cli->enableRead(channel, false); //make sure stop read before send 
       serv->flushData(tunnel);
+      return true;
     }
   }
+  return false;
 }
 void onClientRead(const ChannelPtr &channel, TcpClient *cli, TcpServer *serv)
 {

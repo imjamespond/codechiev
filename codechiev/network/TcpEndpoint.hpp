@@ -18,7 +18,7 @@ public:
   typedef Channel::ChannelPtr ChannelPtr;
   typedef boost::function<void(const ChannelPtr &)> OnConnectFunc;
   typedef boost::function<void(const ChannelPtr &, const char *, int)> OnPartialWriteFunc;
-  typedef boost::function<void(const ChannelPtr &, const char *, int)> OnPartialReadFunc;
+  typedef boost::function<bool(const ChannelPtr &, const char *, int)> OnPartialReadFunc;
   typedef boost::function<void(const ChannelPtr &)> OnReadFunc;
   typedef boost::function<void(const ChannelPtr &)> OnWriteFunc;
   typedef boost::function<void(const ChannelPtr &)> OnCloseFunc;

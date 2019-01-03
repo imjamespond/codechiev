@@ -28,10 +28,10 @@ void TcpEndpoint::_handle_event(const ChannelPtr &channel)
     size_t buf_len = sizeof buffer;
     for (;;)
     {
-      if (_read_disabled(channel))
-      {
-        break;
-      }
+      // if (_read_disabled(channel))
+      // {
+      //   break;
+      // }
 
       ::memset(buffer, 0, buf_len);
       ssize_t len = ::read(channel->getFd(), buffer, buf_len);
@@ -41,11 +41,10 @@ void TcpEndpoint::_handle_event(const ChannelPtr &channel)
       if (len > 0)
       {
         // LOG_DEBUG << "buffer: " << buffer;
-        if (onPartialRead)
+        if (onPartialRead && onPartialRead(channel, buffer, len))
         {
-          onPartialRead(channel, buffer, len);
+          break;
         }
-
       }
       else if (len && -1 == len)
       {
@@ -249,23 +248,23 @@ void TcpEndpoint::enableRead(const ChannelPtr &channel, bool enable)
   }
 }
 
-bool TcpEndpoint::_read_disabled(const ChannelPtr &channel)
-{
-  MutexGuard lock(&mutex);
+// bool TcpEndpoint::_read_disabled(const ChannelPtr &channel)
+// {
+//   // MutexGuard lock(&mutex);
 
-  if (channel->write_action())
-  {
-    return true;
-  }
-  if (channel->read_disabled())
-  {
-    LOG_DEBUG << "read_disabled: " << channel->getFd();
+//   // if (channel->write_action())
+//   // {
+//   //   return true;
+//   // }
+//   if (channel->read_disabled())
+//   {
+//     LOG_DEBUG << "read_disabled: " << channel->getFd();
 
-    // assert(channel->loop);
-    // reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
-    //     ->getPoll()
-    //     ->setReadable(channel.get(), (EPOLLHUP | EPOLLRDHUP | EPOLLERR)); 
-    return true;
-  }
-  return false;
-}
+//     // assert(channel->loop);
+//     // reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
+//     //     ->getPoll()
+//     //     ->setReadable(channel.get(), (EPOLLHUP | EPOLLRDHUP | EPOLLERR)); 
+//     return true;
+//   }
+//   return false;
+// }
