@@ -171,9 +171,9 @@ int TcpEndpoint::write(const ChannelPtr &channel, const char *buf, int len)
   {
     if (channel->buffer.append(buf, len) < 0)
     {
-      // LOG_ERROR << "append to buffer failed: " << len
-      //           << ", readable_bytes: " << channel->buffer.readable_bytes()
-      //           << ", writable_bytes: " << channel->buffer.writable_bytes();
+      LOG_ERROR << "append to buffer failed: " << len
+                << ", readable_bytes: " << channel->buffer.readable_bytes()
+                << ", writable_bytes: " << channel->buffer.writable_bytes();
       return -1;
     }
 

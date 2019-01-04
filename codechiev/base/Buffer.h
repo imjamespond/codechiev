@@ -52,16 +52,16 @@ struct Buffer
     {
         return append(str, static_cast<int>(::strlen(str)));
     }
-    int append(const char *str, int len)
+    int append(const char *str, int len, int buffsize = BUFFER_SIZE)
     {
         if (len <= 0)
             return 0;
 
         int writable = writable_bytes();
 
-        if ((writable>>1) < len)
+        if ((writable << 1) < buffsize)
         {
-            resize(writable, len);
+            resize(writable, buffsize);
         }
 
         if (writable >= len)

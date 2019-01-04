@@ -54,7 +54,7 @@ public:
 
   const static int BufferSize = 1024 * 128;
 
-  codechiev::base::Buffer<BufferSize << 1, BufferSize << 4> buffer;
+  codechiev::base::Buffer<BufferSize, BufferSize << 4> buffer;
   ChannelPtr ptr;
   void *loop;
 
