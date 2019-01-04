@@ -14,7 +14,7 @@ TcpClient::TcpClient(Eventloop<Epoll> *_loop, bool edge) : TcpEndpoint(edge), lo
   loop->getPoll()->setHandler(handler);
 }
 
-void TcpClient::connect(int port, const char *host)
+void TcpClient::connect(const char *port, const char *host)
 {
   int conn_sock = Connect(port, host);
 
@@ -48,6 +48,7 @@ void TcpClient::_epoll_handler(const Channel::ChannelPtr &channel)
   {
     if (channel->check())
     {
+      channel->setNonblocking();
       channel->set_connected();
       channel->loop = loop;
 

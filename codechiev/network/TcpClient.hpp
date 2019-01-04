@@ -14,7 +14,7 @@ class TcpClient : public TcpEndpoint
 public:
   explicit TcpClient(Eventloop<Epoll> *, bool edge = false);
 
-  void connect(int, const char *host = "127.0.0.1");
+  void connect(const char *, const char *host = "127.0.0.1");
   void connect(Channel *);
   void start();
 

@@ -40,7 +40,8 @@ void onClientClose(const ChannelPtr &, TcpServer *, TcpClient *);
 
 void print();
 
-int port = 12345;
+const char *servPort = "1080";
+const char *port = "12345";
 const char *host = "127.0.0.1";
 
 long cliRecived = 0;
@@ -58,15 +59,19 @@ void input();
 
 TunnelChannel *createTunnelChannel(int);
 
-int main(int num, const char **args)
+int main(int argc, const char **args)
 {
-  if (num > 1)
+  if (argc > 1)
   {
-    host = args[1];
+    servPort = args[1];
   }
-  if (num > 2)
+  if (argc > 2)
   {
-    port = ::atoi(args[2]);
+    host = args[2];
+  }
+  if (argc > 3)
+  {
+    port = args[3];
   }
 
   struct sigaction st[] = {SIG_IGN};
@@ -78,8 +83,8 @@ int main(int num, const char **args)
   Eventloop<Epoll> serv1Loop;
   Eventloop<Epoll> cliLoop;
 
-  TcpServer serv1(1080, "0.0.0.0", false);  //level triggered
-  TcpClient client(&cliLoop, false);        //level triggered
+  TcpServer serv1(servPort, "0.0.0.0", false); //level triggered
+  TcpClient client(&cliLoop, false);           //level triggered
   // clientPtr = &client;
 
   serv1.setCreateChannel(boost::bind(&createTunnelChannel, _1));
@@ -195,6 +200,7 @@ void onClientConnect(const ChannelPtr &channel, TcpClient *cli)
 {
   // client_num++;
   // LOG_INFO << "connect fd: " << channel->getFd();
+  // printSockopt(channel->getFd());
   cli->flushData(channel);
 }
 bool onClientPartialRead(const ChannelPtr &channel, const char *buf, int len, TcpClient *cli, TcpServer *serv)

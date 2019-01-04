@@ -8,7 +8,7 @@
 using namespace codechiev::base;
 using namespace codechiev::net;
 
-TcpServer::TcpServer(int port, const char *host, bool edge) : TcpEndpoint(edge), listenChannel(new Channel(Listen(port, host)))
+TcpServer::TcpServer(const char *port, const char *host, bool edge) : TcpEndpoint(edge), listenChannel(new Channel(Listen(::atoi(port), host)))
 {
 }
 
