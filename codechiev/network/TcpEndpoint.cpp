@@ -179,6 +179,7 @@ int TcpEndpoint::write(const ChannelPtr &channel, const char *buf, int len)
 
     if (channel->buffer.writable_bytes() < Channel::BufferSize)
     {
+      // LOG_DEBUG << "writable_bytes: " << channel->getFd() << ", " << channel->buffer.writable_bytes();
       return -1; // reserve for next read
     }
   }

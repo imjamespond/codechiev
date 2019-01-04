@@ -61,17 +61,18 @@ TunnelChannel *createTunnelChannel(int);
 
 int main(int argc, const char **args)
 {
+
   if (argc > 1)
   {
-    servPort = args[1];
+    host = args[1];
   }
   if (argc > 2)
   {
-    host = args[2];
+    port = args[2];
   }
   if (argc > 3)
   {
-    port = args[3];
+    servPort = args[3];
   }
 
   struct sigaction st[] = {SIG_IGN};

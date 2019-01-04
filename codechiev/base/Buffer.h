@@ -12,13 +12,13 @@ namespace codechiev
 namespace base
 {
 
-template <int BUFFER_SIZE, int MAXIMUM_SIZE = 1024 * 1024>
+template <int INITIAL_SIZE, int MAXIMUM_SIZE = 1024 * 1024>
 struct Buffer
 {
     typedef std::vector<char> buff_vec;
     Buffer() : _writer(0),
                _reader(0),
-               _buffer(BUFFER_SIZE)
+               _buffer(INITIAL_SIZE)
     {
         ::memset(&_buffer[0], 0, _buffer.capacity());
     }
@@ -52,16 +52,16 @@ struct Buffer
     {
         return append(str, static_cast<int>(::strlen(str)));
     }
-    int append(const char *str, int len, int buffsize = BUFFER_SIZE)
+    int append(const char *str, int len, int reserved_size = INITIAL_SIZE)
     {
         if (len <= 0)
             return 0;
 
         int writable = writable_bytes();
 
-        if ((writable << 1) < buffsize)
+        if ((writable >> 1) < reserved_size)
         {
-            resize(writable, buffsize);
+            resize(writable, reserved_size);
         }
 
         if (writable >= len)
@@ -93,6 +93,7 @@ struct Buffer
 
             if (writable >= len)
             {
+                // printf("writable_bytes: %d, %d\n", writable, len);
                 break;
             }
         }
