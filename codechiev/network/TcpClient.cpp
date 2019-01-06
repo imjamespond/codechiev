@@ -20,12 +20,15 @@ void TcpClient::connect(const char *port, const char *host)
 
   assert(createChannel);
   Channel *channel = createChannel(conn_sock);
+  channel->loop = loop;
 
   loop->getPoll()->ctlAdd(channel, EPOLLOUT | EPOLLERR);
 }
 
 void TcpClient::connect(Channel * channel)
 {
+  channel->loop = loop;
+
   loop->getPoll()->ctlAdd(channel, EPOLLOUT | EPOLLERR);
 }
 
@@ -50,7 +53,6 @@ void TcpClient::_epoll_handler(const Channel::ChannelPtr &channel)
     {
       channel->setNonblocking();
       channel->set_connected();
-      channel->loop = loop;
 
       loop->getPoll()
           ->setReadable(channel.get(), EPOLLIN | edge);
