@@ -116,7 +116,7 @@ struct Buffer
     void write(int len)
     {
         _writer += len;
-        assert(_writer <= _buffer.capacity());
+        assert(_writer <= (int)_buffer.capacity());
     }
 
     void move()
