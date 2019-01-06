@@ -133,7 +133,7 @@ inline int Listen(int port, const char *host = NULL)
 inline int Accept(int fd)
 {
   sock_address_in addr;
-  socklen_type addrlen;
+  socklen_type addrlen = sizeof(addr);
   
   int conn_sock = ::accept(fd, (struct sockaddr *)&addr, &addrlen);
   if (conn_sock == -1)

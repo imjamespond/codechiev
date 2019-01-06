@@ -75,8 +75,11 @@ int main(int argc, const char **args)
     servPort = args[3];
   }
 
-  struct sigaction st[] = {SIG_IGN};
-  sigaction(SIGPIPE, st, NULL);
+  // struct sigaction st[] = {SIG_IGN};
+  // sigaction(SIGPIPE, st, NULL);
+  struct sigaction sa;
+  sigaction(SIGPIPE, &sa, NULL);
+
 
   LOG_INFO << "host: " << host << ", port: " << port;
 
@@ -262,10 +265,10 @@ void onClientClose(const ChannelPtr &channel, TcpServer *serv, TcpClient *cli)
 void print()
 {
 
-  LOG_INFO_R << "cliRecived: " << (cliRecived >> 10) << ","
-             << "cliSent: " << (cliSent >> 10) << ","
-             << "servRecived: " << (servRecived >> 10) << ","
-             << "servSent: " << (servSent >> 10) << " (kb)";
+  LOG_INFO_R << "cliRecived: " << (int)(cliRecived >> 10) << ","
+             << "cliSent: " << (int)(cliSent >> 10) << ","
+             << "servRecived: " << (int)(servRecived >> 10) << ","
+             << "servSent: " << (int)(servSent >> 10) << " (kb)";
 }
 
 TunnelChannel *createTunnelChannel(int sockfd)
