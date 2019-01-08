@@ -32,8 +32,8 @@ typedef socklen_t socklen_type;
 inline void set_sock_address(sock_address_in &sin, int port, const char *host = NULL)
 {
   ::memset(&sin, 0, sizeof(sin));
-  sin.sin_family = AF_INET; // IPv4 Internet protocols
-  sin.sin_port = ::htons(port);
+  sin.sin_family = AF_INET;  // IPv4 Internet protocols
+  sin.sin_port = htons(port);// ::htons(port); not OK with -O2 because it is being replaced with ::(__extension__ ({ register unsigned int __v, ...
   if (host)
     sin.sin_addr.s_addr = ::inet_addr(host);
   else
