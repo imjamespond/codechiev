@@ -181,7 +181,7 @@ inline int Connect(const char *port = "80", const char *host = "localhost")
   {
     char host[256];
     getnameinfo(rp->ai_addr, rp->ai_addrlen, host, sizeof(host), NULL, 0, NI_NUMERICHOST);
-    printf("host: %s, port: %d\n", host, ntohs(((struct sockaddr_in *)rp->ai_addr)->sin_port));
+    // printf("host: %s, port: %d\n", host, ntohs(((struct sockaddr_in *)rp->ai_addr)->sin_port));
 
     sockfd = ::socket(rp->ai_family, rp->ai_socktype , rp->ai_protocol);
     if (sockfd == -1)

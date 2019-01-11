@@ -16,4 +16,4 @@ cmake . ../codechiev \
   -DCMAKE_BUILD_TYPE=${buildtype} \
   -DLOGGER_LEVEL=${loglevel} \
   -DBOOST_DIR="../${boost}/"
-make
+make -j 4

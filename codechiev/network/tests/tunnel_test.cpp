@@ -265,10 +265,10 @@ void onClientClose(const ChannelPtr &channel, TcpServer *serv, TcpClient *cli)
 void print()
 {
 
-  LOG_INFO_R << "cliRecived: " << (int)(cliRecived >> 10) << ","
-             << "cliSent: " << (int)(cliSent >> 10) << ","
-             << "servRecived: " << (int)(servRecived >> 10) << ","
-             << "servSent: " << (int)(servSent >> 10) << " (kb)";
+  LOG_INFO_R << "cliRecived: " << (int)(cliRecived >> 20) << ","
+             << "cliSent: " << (int)(cliSent >> 20) << ","
+             << "servRecived: " << (int)(servRecived >> 20) << ","
+             << "servSent: " << (int)(servSent >> 20) << " (mb)";
 }
 
 TunnelChannel *createTunnelChannel(int sockfd)
