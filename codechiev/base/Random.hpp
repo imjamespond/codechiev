@@ -77,7 +77,7 @@ T GetRandom()
 {
     T rand;
     int randfd = ::open("/dev/urandom", O_RDONLY);
-    ::read(randfd, &rand, sizeof(int));
+    ::read(randfd, &rand, sizeof(T));
     return rand;
 }
 
