@@ -75,7 +75,7 @@ public:
 
     job_func job = 0;
 
-    if (queue_.size())
+    if (queue_.size() && running_)
     {
       job = queue_.front();
       queue_.pop_front();
