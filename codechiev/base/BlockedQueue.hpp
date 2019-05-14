@@ -53,7 +53,7 @@ public:
   bool running_;
 
 public:
-  void add(const job_func &job)
+  bool add(const job_func &job)
   {
     MutexGuard lock(&mutex_);
     if (running_)
@@ -61,6 +61,7 @@ public:
       queue_.push_back(job);
       latch_.notifyall();
     }
+    return running_;
   }
 
   int size()
