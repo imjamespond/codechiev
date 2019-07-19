@@ -1,0 +1,31 @@
+{
+  // 使用 IntelliSense 了解相关属性。 
+  // 悬停以查看现有属性的描述。
+  // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug",
+      "type": "gdb",
+      "request": "launch",
+      // "target": "./bin/executable",
+      "cwd": "${workspaceRoot}",
+      // "valuesFormatting": "parseText",
+ 
+      // "request": "attach", 
+      // "executable": "./build/network/tests/epoll_test",
+      "target": "/home/test/codechiev/build/network/tests/epoll_test",
+      "ssh": {
+        "forwardX11": false,
+        "host": "yy",
+        "cwd": "/home/test/codechiev",
+        // "keyfile": "/path/to/.ssh/key", // OR
+        "password": "1212",
+        "user": "test",
+        "useAgent": false, 
+        // Optional, content will be executed on the SSH host before the debugger call.
+        //"bootstrap": "source /home/remoteUser/some-env"
+      }
+    }
+  ]
+}

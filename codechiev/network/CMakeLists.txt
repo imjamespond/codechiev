@@ -1,0 +1,6 @@
+
+FILE(GLOB SOURCE_FILES "*.cpp")
+ADD_LIBRARY (cc_net ${SOURCE_FILES})
+TARGET_LINK_LIBRARIES (cc_net cc_base)
+
+ADD_SUBDIRECTORY(tests)
