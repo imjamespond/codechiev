@@ -14,78 +14,71 @@ TcpClient::TcpClient(bool edge_mode) : TcpEndpoint(edge_mode), loop(NULL)
 
 void TcpClient::connect(const char *port, const char *host)
 {
-    assert(loop);
-    int conn_sock = Connect(port, host);
+  assert(loop);
+  int conn_sock = Connect(port, host);
 
-    Channel *conn;
-    if (createChannel)
-    {
-        conn = createChannel(conn_sock);
-    }
-    else
-    {
-        conn = Channel::CreateRaw(conn_sock);
-    } 
-    conn->loop = loop;
-    conn->ptr = Channel::ChannelPtr(conn);
+  Channel *conn;
+  if (createChannel)
+  {
+    conn = createChannel(conn_sock);
+  }
+  else
+  {
+    conn = Channel::CreateRaw(conn_sock);
+  }
+  conn->loop = loop;
+  conn->ptr = Channel::ChannelPtr(conn);
 
-    loop->getPoll()->ctlAdd(conn, EPOLLOUT | EPOLLERR);
+  loop->getPoll()->ctlAdd(conn, EPOLLOUT | EPOLLERR);
 }
 
 void TcpClient::connect(Channel *channel)
 {
-    channel->loop = loop;
+  channel->loop = loop;
 
-    loop->getPoll()->ctlAdd(channel, EPOLLOUT | EPOLLERR);
+  loop->getPoll()->ctlAdd(channel, EPOLLOUT | EPOLLERR);
 }
 
 void TcpClient::start(Loop *loop)
 {
-    this->loop = loop;
-    Handler handler = boost::bind(&TcpClient::epoll_handler_, this, _1);
-    loop->getPoll()->setHandler(handler);
-    loop->loop();
+  this->loop = loop;
+  Handler handler = boost::bind(&TcpClient::epoll_handler_, this, _1);
+  loop->getPoll()->setHandler(handler);
+  loop->loop();
 }
 
 void TcpClient::epoll_handler_(const Channel::ChannelPtr &channel)
 {
-    // LOG_DEBUG << "fd: " << channel->getFd() << ", events: " << channel->getEvents();
+  // LOG_DEBUG << "fd: " << channel->getFd() << ", events: " << channel->getEvents();
 
-    if (channel->connected())
+  if (channel->connected())
+  {
+    handle_event_(channel);
+  }
+  else if (channel->writable())
+  {
+    if (channel->check())
     {
-        handle_event_(channel);
+      channel->setNonblocking();
+      channel->setConnected();
+
+      loop->getPoll()->setReadable(channel.get(), event_read);
+
+      if (onConnect)
+        onConnect(channel);
     }
-    else if (channel->writable())
+    else
     {
-        if (channel->check())
-        {
-            channel->setNonblocking();
-            channel->setConnected();
-
-            if (edge_mode)
-            {
-                loop->getPoll()->setReadable(channel.get());
-            }
-            else
-            {
-                loop->getPoll()->setReadable(channel.get(), EPOLLIN);
-            }
-
-            if (onConnect)
-                onConnect(channel);
-        }
-        else
-        {
-            channel->setClosed();
-        }
+      channel->setClosed();
     }
+  }
 
-    if (channel->closed())
+  if (channel->closed())
+  {
+    if (onClose)
     {
-        if (onClose)
-        {
-            onClose(channel);
-        }
-        close_(loop, channel);
+      onClose(channel);
     }
+    close_(loop, channel);
+  }
 }

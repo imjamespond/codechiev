@@ -1,10 +1,10 @@
 boost=${boost:-'boost_1_67_0'}
 loglevel=${loglevel:-'Trace'}
-dev=${profile:-'yes'}
+release=${release:-'no'}
 buildpath='build'
 buildtype='Debug'
 
-if [ 'no' = "${dev}" ]; then 
+if [ 'yes' = "${release}" ]; then 
   loglevel='Info'
   buildpath="${buildpath}-release"
   buildtype='Release'

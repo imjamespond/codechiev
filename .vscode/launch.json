@@ -11,9 +11,10 @@
       // "target": "./bin/executable",
       "cwd": "${workspaceRoot}",
       // "valuesFormatting": "parseText",
- 
+
       // "request": "attach", 
       // "executable": "./build/network/tests/epoll_test",
+      "arguments": "127.0.0.1 22", 
       "target": "/home/test/codechiev/build/network/tcp-forward",
       "ssh": {
         "forwardX11": false,

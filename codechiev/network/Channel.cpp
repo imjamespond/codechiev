@@ -6,7 +6,7 @@
 
 using namespace codechiev::net;
 
-Channel::Channel(int sockfd) : loop(NULL), sockfd(sockfd), events(0)
+Channel::Channel(int sockfd) : loop(NULL), sockfd(sockfd), events(0), mode(0), action(0)
 {}
 
 Channel::ChannelPtr Channel::Create(int sockfd)

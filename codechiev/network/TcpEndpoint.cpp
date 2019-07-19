@@ -9,6 +9,7 @@ using namespace codechiev::base;
 using namespace codechiev::net;
 
 TcpEndpoint::TcpEndpoint(bool edge_mode) : edge_mode(edge_mode),
+                                           event_read(EPOLLIN | (edge_mode ? EPOLLET : 0)),
                                            onConnect(0), onClose(0),
                                            onRead(0), onWrite(0),
                                            onEndReading(0), onEndWriting(0),
@@ -113,10 +114,13 @@ void TcpEndpoint::handle_event_(const ChannelPtr &channel)
 void TcpEndpoint::writing_done_(const ChannelPtr &channel)
 {
   assert(channel->loop);
+
+  channel->setWriting(false);
+
   reinterpret_cast<Loop *>(channel->loop)
       ->getPoll()
-      ->setReadable(channel.get(), channel->readable() ? (EPOLLIN | (edge_mode ? EPOLLET : 0)) : EVENT_HUP_);
-
+      ->setReadable(channel.get(), channel->readingDisabled() ? EVENT_HUP_ : event_read);
+      
   if (onEndWriting)
   {
     onEndWriting(channel);
@@ -148,9 +152,17 @@ int TcpEndpoint::write(const ChannelPtr &channel, const char *buf, int len)
 void TcpEndpoint::flush(const ChannelPtr &channel)
 {
   assert(channel->loop);
-  reinterpret_cast<Loop *>(channel->loop)
-      ->getPoll()
-      ->setWritable(channel.get());
+
+  MutexGuard lock(&mutex);
+
+  if (channel->buffer.readable_bytes())
+  {
+    channel->setWriting();
+
+    reinterpret_cast<Loop *>(channel->loop)
+        ->getPoll()
+        ->setWritable(channel.get());
+  }
 }
 
 void TcpEndpoint::send(const ChannelPtr &channel, const char *msg, int len)
@@ -159,3 +171,23 @@ void TcpEndpoint::send(const ChannelPtr &channel, const char *msg, int len)
   flush(channel);
 }
 
+void TcpEndpoint::disableReading(const ChannelPtr &channel, bool disable)
+{
+  assert(channel->loop);
+
+  {
+    MutexGuard lock(&mutex);
+
+    channel->disableReading(disable);
+
+    if (!channel->writing())
+    {
+      reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
+          ->getPoll()
+          ->setReadable(channel.get(), disable ? EVENT_HUP_ : event_read);
+    }
+  }
+
+
+  LOG_DEBUG << "disableReading: " << channel->getFd();
+}

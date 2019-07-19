@@ -14,7 +14,7 @@ class Channel {
 public:
   const static int BufferSize = 1024;
 
-  typedef codechiev::base::Buffer<BufferSize, BufferSize << 4> Buffer;
+  typedef codechiev::base::Buffer<BufferSize, BufferSize << 10> Buffer;
   typedef boost::shared_ptr<Channel> ChannelPtr;
 
   static Channel* CreateRaw(int);
@@ -41,6 +41,10 @@ public:
   inline int connected() { return (mode & 1); }
   inline int closed() { return (mode & 2); }
 
+  inline void setWriting(bool set = true) { action = (2|action) ^ (set?0:2); }
+  inline int writing() { return (action & 2); }
+  inline void disableReading(bool set = true) { action = (4|action) ^ (set?0:4); }
+  inline int readingDisabled() { return (action & 4); }
 
   Buffer buffer;
   ChannelPtr ptr;
@@ -52,6 +56,7 @@ protected:
   const int sockfd;
   int events;
   int mode;
+  int action; //4 for read disabled
 };
 } // namespace net
 } // namespace codechiev

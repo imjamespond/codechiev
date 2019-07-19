@@ -30,23 +30,23 @@ public:
   // virtual void start(int) = 0;
 
   inline void setOnConnect(const OnConnect &func) { onConnect = func; };
-  inline void setOnWrite(const OnRead &func) { onRead = func; }; //must not lock
-  inline void setOnRead(const OnWrite &func) { onWrite = func; };
+  inline void setOnRead(const OnRead &func) { onRead = func; }; //must not lock
+  inline void setOnWrite(const OnWrite &func) { onWrite = func; };
   inline void setEndReading(const OnEndReading &func) { onEndReading = func; };
   inline void setEndWriting(const OnEndWriting &func) { onEndWriting = func; }; //must not lock
   inline void setOnClose(const OnClose &func) { onClose = func; };
   inline void setCreateChannel(const CreateChannel &func) { createChannel = func; }
 
   void shutdown(const ChannelPtr &);
-  void enableRead(const ChannelPtr &, bool val = true);
+  void disableReading(const ChannelPtr &, bool disable = true);
   void flush(const ChannelPtr &);
-  void flushData(const ChannelPtr &);
   void send(const ChannelPtr &, const char *, int);
   int write(const ChannelPtr &, const char *, int);
 
 protected:
   codechiev::base::Mutex mutex;
-  int edge_mode; //false for level triggered, true for edge triggered
+  const int edge_mode; //false for level triggered, true for edge triggered
+  const int event_read;
 
   OnConnect onConnect;
   OnClose onClose;
