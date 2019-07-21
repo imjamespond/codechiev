@@ -8,6 +8,8 @@
 using namespace codechiev::base;
 using namespace codechiev::net;
 
+#define BUFF_SPAN 1024
+
 TcpEndpoint::TcpEndpoint(bool edge_mode) : edge_mode(edge_mode),
                                            event_read(EPOLLIN | (edge_mode ? EPOLLET : 0)),
                                            onConnect(0), onClose(0),
@@ -21,7 +23,7 @@ void TcpEndpoint::handle_event_(const ChannelPtr &channel)
 {
   if (channel->readable())
   {
-    char buffer[1024];
+    char buffer[BUFF_SPAN];
     size_t buf_len = sizeof buffer;
 
     for (;;)
@@ -62,6 +64,13 @@ void TcpEndpoint::handle_event_(const ChannelPtr &channel)
 
   else if (channel->writable())
   {
+
+    if (channel->closing())
+    {
+      channel->shutdown();
+      return ;
+    }
+
     for (;;)
     {
       ssize_t len;
@@ -103,6 +112,7 @@ void TcpEndpoint::handle_event_(const ChannelPtr &channel)
       }
       // SetTcpNoDelay(channel->getFd());
     }
+
   }
 
   else
@@ -143,6 +153,12 @@ int TcpEndpoint::write(const ChannelPtr &channel, const char *buf, int len)
     LOG_ERROR << "append to buffer failed: " << len
               << ", readable_bytes: " << channel->buffer.readable_bytes()
               << ", writable_bytes: " << channel->buffer.writable_bytes();
+    return -1;
+  }
+
+  int writable = channel->buffer.writable_bytes();
+  if (writable < BUFF_SPAN)
+  {
     return -1;
   }
 
@@ -189,5 +205,20 @@ void TcpEndpoint::disableReading(const ChannelPtr &channel, bool disable)
   }
 
 
-  LOG_DEBUG << "disableReading: " << channel->getFd();
+  LOG_DEBUG << "disableReading: " << channel->getFd() << ", disable: " << disable;
+}
+
+void TcpEndpoint::shutdown(const ChannelPtr &channel)
+{ 
+  MutexGuard lock(&mutex); 
+
+  // if (!channel->closing())
+  // {
+    channel->setClosing();
+
+    assert(channel->loop);
+    reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
+        ->getPoll()
+        ->setWritable(channel.get());
+  // }
 }

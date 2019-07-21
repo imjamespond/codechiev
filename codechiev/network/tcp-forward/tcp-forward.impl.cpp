@@ -31,7 +31,7 @@ void onConnect(const ChannelPtr &channel, TcpServer *serv, TcpClient *cli)
 bool onRead(const ChannelPtr &channel, const char *buf, int len, TcpServer *serv, TcpClient *cli)
 {
   LOG_DEBUG << "read fd: " << channel->getFd()
-        << ", buf: " << buf
+        // << ", buf: " << buf
         << ", len: " << len; 
 
   PipeChannel *conn = static_cast<PipeChannel *>(channel.get());
@@ -69,12 +69,12 @@ void onEndWriting(const ChannelPtr &channel, TcpServer *serv, TcpClient *cli)
   }
 }
 
-void onClose(const ChannelPtr &channel)
+void onClose(const ChannelPtr &channel, TcpServer *serv, TcpClient *cli)
 {
   PipeChannel *conn = static_cast<PipeChannel *>(channel.get());
   if (ChannelPtr cliConn = conn->pipe.lock())
-  {
-    cliConn->shutdown();
+  { 
+    cli->shutdown(cliConn); 
   }
   LOG_INFO << "close fd: " << channel->getFd();
 }
@@ -89,7 +89,7 @@ void onCliConnect(const ChannelPtr &channel, TcpClient *cli)
 bool onCliRead(const ChannelPtr &channel, const char *buf, int len, TcpServer *serv, TcpClient *cli)
 {
   LOG_DEBUG << "read fd: " << channel->getFd()
-        << ", buf: " << buf
+        // << ", buf: " << buf
         << ", len: " << len; 
 
   PipeChannel *conn = static_cast<PipeChannel *>(channel.get());
@@ -127,54 +127,12 @@ void onCliEndWriting(const ChannelPtr &channel, TcpServer *serv, TcpClient *cli)
   }
 }
 
-void onCliClose(const ChannelPtr &channel)
+void onCliClose(const ChannelPtr &channel, TcpServer *serv, TcpClient *cli)
 {
   PipeChannel *conn = static_cast<PipeChannel *>(channel.get());
   if (ChannelPtr servConn = conn->pipe.lock())
   {
-    servConn->shutdown();
+    serv->shutdown(servConn); 
   }
   LOG_INFO << "close fd: " << channel->getFd();
 }
-
-
-
-
-// void onPartialWrite(const ChannelPtr &channel, const char *msg, int len, TcpServer *serv)
-// {
-//   servSent += len;
-// }
-
-
-
-// void onClientConnect(const ChannelPtr &channel, TcpClient *cli)
-// {
-//   // client_num++;
-//   // LOG_INFO << "connect fd: " << channel->getFd();
-//   // printSockopt(channel->getFd());
-
-// }
-
-// void onClientPartialWrite(const ChannelPtr &channel, const char *msg, int len, TcpClient *endpoint)
-// {
-//   cliSent += len;
-// }
-// void onClientWrite(const ChannelPtr &channel, TcpClient *cli, TcpServer *serv)
-// {
-//   TunnelChannel *conn = static_cast<TunnelChannel *>(channel.get());
-
-//   if (ChannelPtr tunnel = conn->tunnel.lock())
-//   { 
-//     // LOG_DEBUG << "enableRead: " << tunnel->getFd();
-//     serv->enableRead(tunnel); //when tunnel is writable, then begin to read again
-//   }
-// }
-// void onClientClose(const ChannelPtr &channel, TcpServer *serv, TcpClient *cli)
-// {
-//   TunnelChannel *cli_conn = static_cast<TunnelChannel *>(channel.get());
-
-//   if (ChannelPtr serv_conn = cli_conn->tunnel.lock())
-//   {
-//     serv->shutdown(serv_conn);
-//   }
-// }

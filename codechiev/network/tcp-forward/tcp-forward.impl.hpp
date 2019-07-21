@@ -24,14 +24,13 @@ void onConnect(const ChannelPtr &, TcpServer *, TcpClient *);
 bool onRead(const ChannelPtr &, const char *, int, TcpServer *, TcpClient *);
 void onEndReading(const ChannelPtr &, TcpServer *, TcpClient *);
 void onEndWriting(const ChannelPtr &, TcpServer *, TcpClient *);
-void onClose(const ChannelPtr &);
+void onClose(const ChannelPtr &, TcpServer *, TcpClient *);
 
 void onCliConnect(const ChannelPtr &, TcpClient *);
 bool onCliRead(const ChannelPtr &, const char *, int, TcpServer *, TcpClient *);
 void onCliEndReading(const ChannelPtr &, TcpServer *, TcpClient *);
 void onCliEndWriting(const ChannelPtr &, TcpServer *, TcpClient *);
-void onCliClose(const ChannelPtr &);
-
+void onCliClose(const ChannelPtr &, TcpServer *, TcpClient *);
 
 class PipeChannel : public Channel
 {
