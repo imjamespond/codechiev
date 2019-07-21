@@ -1,4 +1,4 @@
-#include "TcpServer.hpp" 
+#include "TcpServer.hpp"
 #include "socket.h"
 
 #include <boost/bind.hpp>
@@ -8,9 +8,8 @@
 using namespace codechiev::base;
 using namespace codechiev::net;
 
-TcpServer::TcpServer(const char *port, const char *host, bool edge_mode) : 
-  TcpEndpoint(edge_mode), 
-  listenChannel(Channel::CreateRaw(Listen(::atoi(port), host)))
+TcpServer::TcpServer(const char *port, const char *host, bool edge_mode) : TcpEndpoint(edge_mode),
+                                                                           listenChannel(Channel::CreateRaw(Listen(::atoi(port), host)))
 {
   listenChannel->ptr = Channel::ChannelPtr(listenChannel);
 }
@@ -18,7 +17,7 @@ TcpServer::TcpServer(const char *port, const char *host, bool edge_mode) :
 TcpServer::~TcpServer()
 {
   LOG_TRACE;
-  delete listenChannel;
+  listenChannel->ptr.reset();
 }
 
 void TcpServer::start(Loop *loop, bool isWorker)
@@ -43,7 +42,15 @@ void TcpServer::epoll_handler_(const Channel::ChannelPtr &channel, Loop *loop)
     }
     else
     {
-      Channel *conn = Channel::CreateRaw(conn_sock);
+      Channel *conn;
+      if (createChannel)
+      {
+        conn = createChannel(conn_sock);
+      }
+      else 
+      {
+        conn = Channel::CreateRaw(conn_sock);
+      }
       conn->setNonblocking();
       conn->setConnected();
       conn->ptr = Channel::ChannelPtr(conn);
@@ -66,10 +73,14 @@ void TcpServer::epoll_handler_(const Channel::ChannelPtr &channel, Loop *loop)
   else
   {
     handle_event_(channel);
+  }
 
-    if (channel->closed())
+  if (channel->closed())
+  {
+    if (onClose)
     {
-      close_(loop, channel);
+      onClose(channel);
     }
+    close_(loop, channel);
   }
 }

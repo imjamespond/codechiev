@@ -15,6 +15,7 @@ namespace net
 class TcpEndpoint
 {
 public:
+  typedef Eventloop<Epoll> Loop;
   typedef Channel::ChannelPtr ChannelPtr;
   typedef boost::function<void(const ChannelPtr &)> OnConnect;
   typedef boost::function<void(const ChannelPtr &, const char *, int)> OnWrite;
@@ -22,6 +23,7 @@ public:
   typedef boost::function<void(const ChannelPtr &)> OnEndReading;
   typedef boost::function<void(const ChannelPtr &)> OnEndWriting;
   typedef boost::function<void(const ChannelPtr &)> OnClose;
+  typedef boost::function<Channel *(int)> CreateChannel;
 
   TcpEndpoint(bool);
 
@@ -32,7 +34,8 @@ public:
   inline void setOnRead(const OnWrite &func) { onWrite = func; };
   inline void setEndReading(const OnEndReading &func) { onEndReading = func; };
   inline void setEndWriting(const OnEndWriting &func) { onEndWriting = func; }; //must not lock
-  inline void setOnCloseFunc(const OnClose &func) { onClose = func; };
+  inline void setOnClose(const OnClose &func) { onClose = func; };
+  inline void setCreateChannel(const CreateChannel &func) { createChannel = func; }
 
   void shutdown(const ChannelPtr &);
   void enableRead(const ChannelPtr &, bool val = true);
@@ -52,9 +55,11 @@ protected:
   OnEndReading onEndReading;
   OnEndWriting onEndWriting;
 
+  CreateChannel createChannel;
+
   void handle_event_(const ChannelPtr &);
   void writing_done_(const ChannelPtr &);
-  void close_(Eventloop<Epoll> *, const ChannelPtr &); 
+  void close_(Eventloop<Epoll> *, const ChannelPtr &);
 };
 } // namespace net
 } // namespace codechiev

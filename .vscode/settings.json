@@ -45,5 +45,6 @@
     "sstream": "cpp",
     "streambuf": "cpp",
     "strstream": "cpp"
-  }
+  },
+  "C_Cpp.default.browse.path": ["codechiev","boost_1_67_0"],
 }

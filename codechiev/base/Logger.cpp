@@ -95,7 +95,8 @@ Logger::~Logger()
 {
     if (!carriage_)
     {
-        // fwrite(buffer_.str(), 1, buffer_.readable_bytes(), stdout);
+        // fwrite(buffer_.str(), buffer_.readable_bytes(), 1, stdout);
+        // fwrite("\n", 1, 1, stdout);
         // fprintf(stdout, buffer_.str());
         printf("%s\n", buffer_.str());
     }

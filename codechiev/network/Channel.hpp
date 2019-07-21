@@ -45,9 +45,8 @@ public:
   Buffer buffer;
   ChannelPtr ptr;
   void *loop;
-  void *data;
 
-private:
+protected:
   explicit Channel(int); 
 
   const int sockfd;

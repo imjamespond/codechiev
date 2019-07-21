@@ -21,7 +21,6 @@ Epoll::Epoll() : epollEvents(1<<2), epChannel(Channel::CreateRaw(epoll_create__(
 
 Epoll::~Epoll()
 {
-  LOG_TRACE;
   delete epChannel;
 }
 
@@ -117,15 +116,15 @@ int Epoll::setWritable(Channel *channel, int events)
 
 void Epoll::update_channel_(Channel *channel, int events)
 {
-  if (events & (EPOLLHUP | EPOLLRDHUP | EPOLLERR))
+  if (events & EVENT_HUP_)
   {
     channel->setClosed();
   }
-  else if (events & EPOLLOUT)
+  else if (events & EVENT_WRITE_)
   {
     channel->setWritable();
   }
-  else if (events & EPOLLIN)
+  else if (events & EVENT_READ_)
   {
     channel->setReadable();
   }

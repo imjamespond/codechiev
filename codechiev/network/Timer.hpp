@@ -36,6 +36,7 @@ public:
   };
 
   Timer();
+  ~Timer();
 
   void start(Loop *);
   void stop();

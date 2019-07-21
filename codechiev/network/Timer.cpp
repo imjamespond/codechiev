@@ -27,6 +27,11 @@ Timer::Timer()
   timerChannel->ptr = timerChannel;
 }
 
+Timer::~Timer()
+{
+  timerChannel->ptr.reset();
+}
+
 void Timer::start(Loop *loop)
 {
   timerChannel->loop = (void *)loop;

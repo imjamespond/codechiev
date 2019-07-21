@@ -8,6 +8,9 @@
 #include <vector>
 
 // #define MAX_EVENTS 1024*1024
+#define EVENT_READ_ EPOLLIN
+#define EVENT_WRITE_ EPOLLOUT
+#define EVENT_HUP_ (EPOLLHUP | EPOLLRDHUP | EPOLLERR)
 
 namespace codechiev {
 namespace net {

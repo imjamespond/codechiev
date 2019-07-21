@@ -1,20 +1,27 @@
 #include <stdio.h>
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
-#include <boost/unordered_map.hpp> 
+#include <boost/unordered_map.hpp>
+#include <boost/shared_ptr.hpp>
 
-#include <base/Logger.hpp> 
-#include <base/Random.hpp> 
+#include <base/Logger.hpp>
+#include <base/Random.hpp>
 #include <base/Time.hpp>
 
-void foobar(const char*, int, double, bool);
+void foobar(const char *, int, double, bool);
 typedef boost::function<void()> foobar_func_1;
-typedef boost::function<void(const char*)> foobar_func_2;
-typedef boost::function<void(const char*, int, bool, double)> foobar_func_3;
-typedef boost::function<void(int, const char*)> foobar_func_4;
+typedef boost::function<void(const char *)> foobar_func_2;
+typedef boost::function<void(const char *, int, bool, double)> foobar_func_3;
+typedef boost::function<void(int, const char *)> foobar_func_4;
 
-int main ()
-{ 
+struct SP
+{
+  ~SP();
+};
+typedef boost::shared_ptr<SP> SP_PTR;
+
+int main()
+{
   //functor
   foobar_func_1 func1 = boost::bind(foobar, "first func", 1, .111, true);
   func1();
@@ -26,19 +33,19 @@ int main ()
   func4(0, "forth func");
 
   //random
-  //unordered map 
+  //unordered map
   codechiev::base::Time begin = codechiev::base::Time::Now();
   boost::unordered_map<int, int> map;
-  for(int i(0); i<99999; i++)
+  for (int i(0); i < 99999; i++)
   {
-    int rand = codechiev::base::random(0,1000000);
+    int rand = codechiev::base::random(0, 1000000);
     map[rand] = rand;
-  } 
+  }
   codechiev::base::Time now = codechiev::base::Time::Now();
-  LOG_INFO<<(int)map.size()<<", "<<(now - begin);
+  LOG_INFO << (int)map.size() << ", " << (now - begin);
 
   begin = codechiev::base::Time::Now();
-  for(int i(0); i<99999; i++)
+  for (int i(0); i < 99999; i++)
   {
     codechiev::base::GetRandom<int>();
   }
@@ -46,10 +53,28 @@ int main ()
   int rand = codechiev::base::GetRandom<int>();
   LOG_INFO << rand << ", " << (now - begin);
 
+  //
+  // Shared pointer
+  //
+  SP_PTR spOutter;
+  {
+    SP_PTR spInner(new SP);
+    spOutter = spInner;
+    spInner.reset();
+  }
+  LOG_INFO << "before destroying sp, ref count: " << spOutter.use_count();
+  spOutter.reset();
+  LOG_INFO << "after destroying sp";
+
   return 0;
 }
 
-void foobar(const char* str, int i, double d, bool b)
+void foobar(const char *str, int i, double d, bool b)
 {
   printf("%s, %d, %f, %d\n", str, i, d, b);
+}
+
+SP::~SP()
+{
+  LOG_DEBUG << "destroy SP";
 }

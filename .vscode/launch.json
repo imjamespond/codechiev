@@ -14,7 +14,7 @@
  
       // "request": "attach", 
       // "executable": "./build/network/tests/epoll_test",
-      "target": "/home/test/codechiev/build/network/tests/epoll_test",
+      "target": "/home/test/codechiev/build/network/tcp-forward",
       "ssh": {
         "forwardX11": false,
         "host": "yy",
