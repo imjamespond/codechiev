@@ -25,22 +25,18 @@ void onConnect(const ChannelPtr &channel, TcpServer *serv, TcpClient *cli)
   serv_conn->pipe = cli_conn->ptr;
   cli->connect(cli_conn);
 
-  LOG_INFO << "connect fd: " << channel->getFd();
+  LOG_INFO << channel->getFd();
 }
 
 bool onRead(const ChannelPtr &channel, const char *buf, int len, TcpServer *serv, TcpClient *cli)
 {
-  LOG_DEBUG << "read fd: " << channel->getFd()
-        // << ", buf: " << buf
-        << ", len: " << len; 
-
   PipeChannel *conn = static_cast<PipeChannel *>(channel.get());
 
   if (ChannelPtr pipe = conn->pipe.lock())
-  {
+  { 
     if (cli->write(pipe, buf, len) < 0) 
     {
-      serv->disableReading(channel); //make sure stop read before send
+      serv->disableReading(channel);
       cli->flush(pipe);
       return true;
     }
@@ -67,6 +63,8 @@ void onEndWriting(const ChannelPtr &channel, TcpServer *serv, TcpClient *cli)
   {
     cli->disableReading(pipe, false);
   }
+
+  LOG_INFO << channel->getFd();
 }
 
 void onClose(const ChannelPtr &channel, TcpServer *serv, TcpClient *cli)
@@ -76,22 +74,18 @@ void onClose(const ChannelPtr &channel, TcpServer *serv, TcpClient *cli)
   { 
     cli->shutdown(cliConn); 
   }
-  LOG_INFO << "close fd: " << channel->getFd();
+  LOG_INFO << channel->getFd();
 }
 
 void onCliConnect(const ChannelPtr &channel, TcpClient *cli)
 {
   cli->flush(channel);
 
-  LOG_INFO << "connect fd: " << channel->getFd();
+  LOG_INFO << channel->getFd();
 }
 
 bool onCliRead(const ChannelPtr &channel, const char *buf, int len, TcpServer *serv, TcpClient *cli)
 {
-  LOG_DEBUG << "read fd: " << channel->getFd()
-        // << ", buf: " << buf
-        << ", len: " << len; 
-
   PipeChannel *conn = static_cast<PipeChannel *>(channel.get());
 
   if (ChannelPtr pipe = conn->pipe.lock())
@@ -125,6 +119,8 @@ void onCliEndWriting(const ChannelPtr &channel, TcpServer *serv, TcpClient *cli)
   {
     serv->disableReading(pipe, false);
   }
+
+  LOG_INFO << channel->getFd();
 }
 
 void onCliClose(const ChannelPtr &channel, TcpServer *serv, TcpClient *cli)
@@ -134,5 +130,5 @@ void onCliClose(const ChannelPtr &channel, TcpServer *serv, TcpClient *cli)
   {
     serv->shutdown(servConn); 
   }
-  LOG_INFO << "close fd: " << channel->getFd();
+  LOG_INFO << channel->getFd();
 }

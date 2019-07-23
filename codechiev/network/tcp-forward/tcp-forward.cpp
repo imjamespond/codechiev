@@ -21,8 +21,8 @@ int main(int argc, const char **args)
 
   LOG_INFO << "host: " << host << ", port: " << port;
 
-  TcpServer serv1(servPort, "0.0.0.0", true); //avoid listen channel destroy before loop joined
-  TcpClient client(true);
+  TcpServer serv1(servPort, "0.0.0.0", false); //level triggered
+  TcpClient client(false);                     //level triggered
 
   serv1.setCreateChannel(boost::bind(&createPipeChannel, _1));
   serv1.setOnConnect(boost::bind(&onConnect, _1, &serv1, &client));

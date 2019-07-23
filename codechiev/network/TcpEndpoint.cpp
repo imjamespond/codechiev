@@ -64,57 +64,68 @@ void TcpEndpoint::handle_event_(const ChannelPtr &channel)
 
   else if (channel->writable())
   {
-
-    if (channel->closing())
+    bool writing_done(false);
     {
-      channel->shutdown();
-      return ;
-    }
+      MutexGuard lock(&mutex);
 
-    for (;;)
-    {
-      ssize_t len;
+      if (channel->closing() && !channel->closed())
       {
-        MutexGuard lock(&mutex);
-
-        len = ::write(channel->getFd(), channel->buffer.buf(), channel->buffer.readable_bytes());
-
-        if (len > 0)
-        {
-          if (onWrite)
-          {
-            onWrite(channel, channel->buffer.buf(), len);
-          }
-
-          channel->buffer.read(len);
-          channel->buffer.move();
-        }
-        else if (-1 == len)
-        {
-          // TODO check writting buffer of the channel which might not be sent completely
-          if (errno == EAGAIN)
-          {
-            writing_done_(channel);
-            break;
-          }
-          else if (errno == EPIPE)
-          {
-            channel->setClosed(); // broken pipe
-            break;
-          }
-        }
-        else if (0 == len)
-        {
-          // 0 will be returned without causing any other effect
-          writing_done_(channel);
-          break;
-        }
+        channel->shutdown();
+        channel->setClosed();
+        return;
       }
-      // SetTcpNoDelay(channel->getFd());
+
+      for (;;)
+      {
+        ssize_t len;
+        {
+          len = ::write(channel->getFd(), channel->buffer.buf(), channel->buffer.readable_bytes());
+
+          LOG_DEBUG
+              << "write fd: " << channel->getFd()
+              << ", len: " << len
+              << ", errno: " << errno;
+
+          if (len > 0)
+          {
+            if (onWrite)
+            {
+              onWrite(channel, channel->buffer.buf(), len);
+            }
+
+            channel->buffer.read(len);
+            channel->buffer.move();
+          }
+          else if (-1 == len)
+          {
+            // TODO check writting buffer of the channel which might not be sent completely
+            if (errno == EAGAIN)
+            {
+              writing_done = true;
+              break;
+            }
+            else if (errno == EPIPE)
+            {
+              channel->setClosed(); // broken pipe
+              break;
+            }
+          }
+          else if (0 == len)
+          {
+            // 0 will be returned without causing any other effect
+            writing_done = true;
+            break;
+          }
+        }
+        // SetTcpNoDelay(channel->getFd());
+      }
     }
 
+    if (writing_done)
+    {
+      writing_done_(channel);
+    }
   }
-
   else
   {
     LOG_DEBUG << "????";
@@ -125,15 +136,19 @@ void TcpEndpoint::writing_done_(const ChannelPtr &channel)
 {
   assert(channel->loop);
 
-  channel->setWriting(false);
+  {
+    MutexGuard lock(&mutex);
 
-  reinterpret_cast<Loop *>(channel->loop)
-      ->getPoll()
-      ->setReadable(channel.get(), channel->readingDisabled() ? EVENT_HUP_ : event_read);
+    channel->setWriting(false);
+
+    reinterpret_cast<Loop *>(channel->loop)
+        ->getPoll()
+        ->setReadable(channel.get(), channel->readingDisabled() ? EVENT_HUP_ : event_read);
+  }
       
   if (onEndWriting)
   {
-    onEndWriting(channel);
+    onEndWriting(channel); // might lock other thread, so release lock above
   }
 }
 
@@ -156,10 +171,14 @@ int TcpEndpoint::write(const ChannelPtr &channel, const char *buf, int len)
     return -1;
   }
 
-  int writable = channel->buffer.writable_bytes();
+  int writable = channel->buffer.writable_bytes(); 
   if (writable < BUFF_SPAN)
   {
-    return -1;
+    channel->buffer.resize(writable, BUFF_SPAN);
+    if (writable < BUFF_SPAN)
+    {
+      return -1;
+    }
   }
 
   return 0;
@@ -178,7 +197,10 @@ void TcpEndpoint::flush(const ChannelPtr &channel)
     reinterpret_cast<Loop *>(channel->loop)
         ->getPoll()
         ->setWritable(channel.get());
+        
+    LOG_DEBUG << "flush fd: " << channel->getFd();
   }
+
 }
 
 void TcpEndpoint::send(const ChannelPtr &channel, const char *msg, int len)
