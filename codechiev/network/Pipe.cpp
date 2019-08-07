@@ -33,7 +33,7 @@ Pipe::~Pipe()
     p1->ptr.reset();
 }
 
-void Pipe::start(Loop *loop)
+void Pipe::init(Channel::Loop *loop)
 {
     loop->getPoll()->ctlAdd(p0);
     loop->getPoll()->ctlAdd(p1);
@@ -41,9 +41,9 @@ void Pipe::start(Loop *loop)
     p0->loop = loop;
     p1->loop = loop;
 
-    Handler handler = boost::bind(&Pipe::epoll_handler_, this, _1);
-    loop->getPoll()->setHandler(handler);
-    loop->loop();
+    Channel::Handler handler = boost::bind(&TcpEndpoint::handle, this, _1);
+    p0->handler = handler;
+    p1->handler = handler;
 }
 
 void Pipe::notify(const void *data, int len)
@@ -58,9 +58,4 @@ void Pipe::notify(const void *data, int len)
     {
         this->send(p1->ptr, (const char *)data, len);
     }
-}
-
-void Pipe::epoll_handler_(const Channel::ChannelPtr &channel)
-{
-    handle_event_(channel);
 }

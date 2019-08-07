@@ -39,14 +39,15 @@ int main(int argc, const char **args)
   client.setOnClose(boost::bind(&onCliClose, _1, &serv1, &client));
 
   {
-    TcpServer::Loop serv1Loop;
-    TcpClient::Loop cliLoop;
+    Channel::Loop loop;
 
-    serv1.start(&serv1Loop);
+    serv1.init(&loop);
 
     Time::SleepMillis(1000l);
     
-    client.start(&cliLoop);
+    client.init(&loop);
+
+    loop.loop();
   }
 
 }

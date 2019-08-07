@@ -4,18 +4,34 @@
 #include <fcntl.h>
 #include <sys/socket.h>
 #include <boost/shared_ptr.hpp>
+#include <boost/function.hpp>
 
 #include <base/Buffer.h>
+
+#include "Eventloop.hpp"
+#include "Epoll.hpp"
+
+#define INITIAL_SIZE 128
 
 namespace codechiev {
 namespace net {
 
 class Channel {
 public:
-  const static int BufferSize = 1024;
+  const static int BufferSize = INITIAL_SIZE << 10;
 
-  typedef codechiev::base::Buffer<BufferSize, BufferSize << 4> Buffer;
+  typedef Eventloop<Epoll> Loop;
+  typedef codechiev::base::Buffer<INITIAL_SIZE, BufferSize> Buffer;
   typedef boost::shared_ptr<Channel> ChannelPtr;
+
+  typedef boost::function<void(const ChannelPtr &)> Handler;
+
+  typedef boost::function<void(const ChannelPtr &)> OnConnect;
+  typedef boost::function<void(const ChannelPtr &, const char *, int)> OnWrite;
+  typedef boost::function<bool(const ChannelPtr &, const char *, int)> OnRead;
+  typedef boost::function<void(const ChannelPtr &)> OnEndReading;
+  typedef boost::function<void(const ChannelPtr &)> OnEndWriting;
+  typedef boost::function<void(const ChannelPtr &)> OnClose;
 
   static Channel* CreateRaw(int);
   static ChannelPtr Create(int);
@@ -43,14 +59,14 @@ public:
 
   inline void setClosing(bool set = true) { action = (1 | action) ^ (set ? 0 : 1); }
   inline int closing() { return (action & 1); } 
-  inline void setWriting(bool set = true) { action = (2|action) ^ (set?0:2); }
-  inline int writing() { return (action & 4); }
   inline void disableReading(bool set = true) { action = (4|action) ^ (set?0:4); }
   inline int readingDisabled() { return (action & 4); }
 
+  Handler handler;
+
   Buffer buffer;
   ChannelPtr ptr;
-  void *loop;
+  Loop *loop;
 
 protected:
   explicit Channel(int); 

@@ -22,9 +22,11 @@ int main()
     pipe.setEndReading(boost::bind(&onPipeRead, _1));
 
     {
-        TcpEndpoint::Loop loop;
+        Channel::Loop loop;
 
-        pipe.start(&loop);
+        pipe.init(&loop);
+
+        loop.loop();
 
         Time::SleepMillis(500l);
 
@@ -38,5 +40,5 @@ void onPipeRead(const ChannelPtr &channel)
 {
     LOG_INFO << " fd: " << channel->getFd();
     
-    ((TcpEndpoint::Loop*)channel->loop)->stop();
+    channel->loop->stop();
 }

@@ -18,12 +18,9 @@ PipeChannel *createPipeChannel(int sockfd)
 void onConnect(const ChannelPtr &channel, TcpServer *serv, TcpClient *cli)
 { 
   PipeChannel *serv_conn = static_cast<PipeChannel *>(channel.get());
-  int conn_sock = Connect(port, host);
-  PipeChannel *cli_conn = createPipeChannel(conn_sock);
-  cli_conn->ptr = ChannelPtr(cli_conn);
+  PipeChannel *cli_conn = static_cast<PipeChannel *>(cli->connect(port, host));
   cli_conn->pipe = serv_conn->ptr;
-  serv_conn->pipe = cli_conn->ptr;
-  cli->connect(cli_conn);
+  serv_conn->pipe = cli_conn->ptr; 
 
   LOG_INFO << channel->getFd();
 }

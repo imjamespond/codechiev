@@ -5,7 +5,6 @@
 #include "Epoll.hpp"
 #include "Eventloop.hpp"
 
-#include <base/Mutex.hpp>
 #include <boost/function.hpp>
 
 namespace codechiev
@@ -15,7 +14,6 @@ namespace net
 class TcpEndpoint
 {
 public:
-  typedef Eventloop<Epoll> Loop;
   typedef Channel::ChannelPtr ChannelPtr;
   typedef boost::function<void(const ChannelPtr &)> OnConnect;
   typedef boost::function<void(const ChannelPtr &, const char *, int)> OnWrite;
@@ -23,6 +21,7 @@ public:
   typedef boost::function<void(const ChannelPtr &)> OnEndReading;
   typedef boost::function<void(const ChannelPtr &)> OnEndWriting;
   typedef boost::function<void(const ChannelPtr &)> OnClose;
+
   typedef boost::function<Channel *(int)> CreateChannel;
 
   TcpEndpoint(bool);
@@ -35,6 +34,7 @@ public:
   inline void setEndReading(const OnEndReading &func) { onEndReading = func; };
   inline void setEndWriting(const OnEndWriting &func) { onEndWriting = func; }; //must not lock
   inline void setOnClose(const OnClose &func) { onClose = func; };
+
   inline void setCreateChannel(const CreateChannel &func) { createChannel = func; }
 
   void shutdown(const ChannelPtr &);
@@ -43,8 +43,9 @@ public:
   void send(const ChannelPtr &, const char *, int);
   int write(const ChannelPtr &, const char *, int);
 
+  void handle(const ChannelPtr &);
+
 protected:
-  codechiev::base::Mutex mutex;
   const int edge_mode; //false for level triggered, true for edge triggered
   const int event_read;
 
@@ -54,12 +55,11 @@ protected:
   OnWrite onWrite;
   OnEndReading onEndReading;
   OnEndWriting onEndWriting;
-
+  
   CreateChannel createChannel;
 
-  void handle_event_(const ChannelPtr &);
   void writing_done_(const ChannelPtr &);
-  void close_(Eventloop<Epoll> *, const ChannelPtr &);
+  void close_(Channel::Loop *, const ChannelPtr &);
 };
 } // namespace net
 } // namespace codechiev

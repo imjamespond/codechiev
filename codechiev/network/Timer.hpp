@@ -20,7 +20,7 @@ public:
   typedef std::deque<Task> Tasks;
   typedef codechiev::base::Time Time;
   typedef Eventloop<Epoll> Loop;
-  typedef Epoll::EpollHandler Handler;
+  typedef Channel::Handler Handler;
 
   struct Task
   {
@@ -46,7 +46,7 @@ private:
   Channel::ChannelPtr timerChannel;
   Tasks tasks;
 
-  void handler_(const Channel::ChannelPtr &, Loop *);
+  void handler_(const Channel::ChannelPtr &);
   void exec_task_();
   void schedule_(long, long intervalMillis = 0);
 };

@@ -12,14 +12,14 @@ using namespace codechiev::net;
 
 TcpEndpoint::TcpEndpoint(bool edge_mode) : edge_mode(edge_mode),
                                            event_read(EPOLLIN | (edge_mode ? EPOLLET : 0)),
-                                           onConnect(0), onClose(0),
-                                           onRead(0), onWrite(0),
-                                           onEndReading(0), onEndWriting(0),
+                                          //  onConnect(0), onClose(0),
+                                          //  onRead(0), onWrite(0),
+                                          //  onEndReading(0), onEndWriting(0),
                                            createChannel(0)
 {
 }
 
-void TcpEndpoint::handle_event_(const ChannelPtr &channel)
+void TcpEndpoint::handle(const ChannelPtr &channel)
 {
   if (channel->readable())
   {
@@ -60,21 +60,19 @@ void TcpEndpoint::handle_event_(const ChannelPtr &channel)
         break;
       }
     }
+
+    flush(channel); //reading end and check if there is something to write in the channel!
   }
 
   else if (channel->writable())
   {
     bool writing_done(false);
+    if (channel->closing() && !channel->closed())
     {
-      MutexGuard lock(&mutex);
-
-      if (channel->closing() && !channel->closed())
-      {
-        channel->shutdown();
-        channel->setClosed();
-        return;
-      }
-
+      channel->setClosed();
+    }
+    else
+    {
       for (;;)
       {
         ssize_t len;
@@ -126,9 +124,14 @@ void TcpEndpoint::handle_event_(const ChannelPtr &channel)
       writing_done_(channel);
     }
   }
-  else
+
+  if (channel->closed())
   {
-    LOG_DEBUG << "????";
+    if (onClose)
+    {
+      onClose(channel);
+    }
+    close_(channel->loop, channel);
   }
 }
 
@@ -136,32 +139,24 @@ void TcpEndpoint::writing_done_(const ChannelPtr &channel)
 {
   assert(channel->loop);
 
-  {
-    MutexGuard lock(&mutex);
+  channel->loop->getPoll()
+      ->setReadable(channel.get(), channel->readingDisabled() ? EVENT_HUP_ : event_read);
 
-    channel->setWriting(false);
-
-    reinterpret_cast<Loop *>(channel->loop)
-        ->getPoll()
-        ->setReadable(channel.get(), channel->readingDisabled() ? EVENT_HUP_ : event_read);
-  }
-      
   if (onEndWriting)
   {
     onEndWriting(channel); // might lock other thread, so release lock above
   }
 }
 
-void TcpEndpoint::close_(Loop *loop, const ChannelPtr &channel)
+void TcpEndpoint::close_(Channel::Loop *loop, const ChannelPtr &channel)
 {
   loop->getPoll()->ctlDel(channel.get());
-
+  channel->shutdown();
   channel->ptr.reset();
 }
 
 int TcpEndpoint::write(const ChannelPtr &channel, const char *buf, int len)
 {
-  MutexGuard lock(&mutex);
 
   if (channel->buffer.append(buf, len) < 0)
   {
@@ -171,14 +166,11 @@ int TcpEndpoint::write(const ChannelPtr &channel, const char *buf, int len)
     return -1;
   }
 
-  int writable = channel->buffer.writable_bytes(); 
-  if (writable < BUFF_SPAN)
+  int readable = channel->buffer.readable_bytes();
+  const int max = Channel::BufferSize - BUFF_SPAN;
+  if (readable > max)
   {
-    channel->buffer.resize(writable, BUFF_SPAN);
-    if (writable < BUFF_SPAN)
-    {
-      return -1;
-    }
+    return -1;
   }
 
   return 0;
@@ -186,18 +178,13 @@ int TcpEndpoint::write(const ChannelPtr &channel, const char *buf, int len)
 
 void TcpEndpoint::flush(const ChannelPtr &channel)
 {
-  assert(channel->loop);
-
-  MutexGuard lock(&mutex);
+  assert(channel->loop); 
 
   if (channel->buffer.readable_bytes())
   {
-    channel->setWriting();
+    channel->loop->getPoll()
+           ->setWritable(channel.get());
 
-    reinterpret_cast<Loop *>(channel->loop)
-        ->getPoll()
-        ->setWritable(channel.get());
-        
     LOG_DEBUG << "flush fd: " << channel->getFd();
   }
 
@@ -213,34 +200,19 @@ void TcpEndpoint::disableReading(const ChannelPtr &channel, bool disable)
 {
   assert(channel->loop);
 
-  {
-    MutexGuard lock(&mutex);
+  channel->disableReading(disable);
 
-    channel->disableReading(disable);
-
-    if (!channel->writing())
-    {
-      reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
-          ->getPoll()
-          ->setReadable(channel.get(), disable ? EVENT_HUP_ : event_read);
-    }
-  }
-
+  channel->loop->getPoll()
+      ->setReadable(channel.get(), disable ? EVENT_HUP_ : event_read);
 
   LOG_DEBUG << "disableReading: " << channel->getFd() << ", disable: " << disable;
 }
 
 void TcpEndpoint::shutdown(const ChannelPtr &channel)
-{ 
-  MutexGuard lock(&mutex); 
+{
+  channel->setClosing();
 
-  // if (!channel->closing())
-  // {
-    channel->setClosing();
-
-    assert(channel->loop);
-    reinterpret_cast<Eventloop<Epoll> *>(channel->loop)
-        ->getPoll()
-        ->setWritable(channel.get());
-  // }
+  assert(channel->loop);
+  channel->loop->getPoll()
+      ->setWritable(channel.get());
 }

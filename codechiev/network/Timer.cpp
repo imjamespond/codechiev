@@ -34,10 +34,10 @@ Timer::~Timer()
 
 void Timer::start(Loop *loop)
 {
-  timerChannel->loop = (void *)loop;
+  timerChannel->loop = loop;
 
-  Handler handler = boost::bind(&Timer::handler_, this, _1, loop);
-  loop->getPoll()->setHandler(handler);
+  Handler handler = boost::bind(&Timer::handler_, this, _1);
+  timerChannel->handler = handler;
 
   assert(timerChannel->ptr);
   loop->getPoll()->ctlAdd(timerChannel.get(), EPOLLIN);
@@ -50,7 +50,7 @@ void Timer::stop()
   loop->getPoll()->ctlDel(timerChannel.get());
 }
 
-void Timer::handler_(const Channel::ChannelPtr &channel, Loop *loop)
+void Timer::handler_(const Channel::ChannelPtr &channel)
 {
   if (channel->readable())
   {

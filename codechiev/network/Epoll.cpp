@@ -1,3 +1,4 @@
+#include "Channel.hpp"
 #include "Epoll.hpp"
 #include "socket.h"
 #include <base/Logger.hpp>
@@ -94,11 +95,11 @@ void Epoll::wait()
     }
 
     st_epoll_event &event = epollEvents[n];
-    if (handler)
+    Channel *channel = reinterpret_cast<Channel *>(event.data.ptr);
+    update_channel_(channel, event.events);
+    if (channel->handler)
     {
-      Channel *channel = reinterpret_cast<Channel *>(event.data.ptr);
-      update_channel_(channel, event.events);
-      handler(channel->ptr);
+      channel->handler(channel->ptr);
     }
   }
 }

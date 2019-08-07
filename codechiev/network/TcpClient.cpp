@@ -12,7 +12,12 @@ TcpClient::TcpClient(bool edge_mode) : TcpEndpoint(edge_mode), loop(NULL)
 {
 }
 
-void TcpClient::connect(const char *port, const char *host)
+void TcpClient::init(Channel::Loop * loop)
+{
+  this->loop = loop;
+}
+
+Channel *TcpClient::connect(const char *port, const char *host)
 {
   assert(loop);
   int conn_sock = Connect(port, host);
@@ -26,34 +31,24 @@ void TcpClient::connect(const char *port, const char *host)
   {
     conn = Channel::CreateRaw(conn_sock);
   }
+
+  Channel::Handler handler = boost::bind(&TcpClient::conn_handler_, this, _1);
+  conn->handler = handler;
   conn->loop = loop;
   conn->ptr = Channel::ChannelPtr(conn);
 
-  loop->getPoll()->ctlAdd(conn, EPOLLOUT | EPOLLERR);
+  loop->getPoll()->ctlAdd(conn, EVENT_WRITE_ | EVENT_HUP_);
+
+  return conn;
 }
 
-void TcpClient::connect(Channel *channel)
-{
-  channel->loop = loop;
-
-  loop->getPoll()->ctlAdd(channel, EPOLLOUT | EPOLLERR);
-}
-
-void TcpClient::start(Loop *loop)
-{
-  this->loop = loop;
-  Handler handler = boost::bind(&TcpClient::epoll_handler_, this, _1);
-  loop->getPoll()->setHandler(handler);
-  loop->loop();
-}
-
-void TcpClient::epoll_handler_(const Channel::ChannelPtr &channel)
+void TcpClient::conn_handler_(const Channel::ChannelPtr &channel)
 {
   // LOG_DEBUG << "fd: " << channel->getFd() << ", events: " << channel->getEvents();
 
   if (channel->connected())
   {
-    handle_event_(channel);
+    handle(channel);
   }
   else if (channel->writable())
   {
@@ -73,12 +68,4 @@ void TcpClient::epoll_handler_(const Channel::ChannelPtr &channel)
     }
   }
 
-  if (channel->closed())
-  {
-    if (onClose)
-    {
-      onClose(channel);
-    }
-    close_(loop, channel);
-  }
 }

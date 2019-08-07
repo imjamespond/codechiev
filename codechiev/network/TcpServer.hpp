@@ -12,16 +12,15 @@ namespace net
 class TcpServer : public TcpEndpoint
 {
 public:
-  typedef Eventloop<Epoll> Loop;
-  typedef Epoll::EpollHandler Handler;
+  typedef Channel::Loop Loop;
 
   explicit TcpServer(const char *, const char *host = NULL, bool edge_mode = false);
   ~TcpServer();
 
-  void start(Loop *, bool isWorker = true);
+  void init(Loop *, bool main = true);
 
 protected:
-  void epoll_handler_(const Channel::ChannelPtr &, Loop *);
+  void accept_handler_(const Channel::ChannelPtr &, Loop *);
 
   Channel* listenChannel;
 };

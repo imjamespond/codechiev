@@ -46,15 +46,14 @@ int main(int num, const char **args)
   client.setOnClose(boost::bind(&onCliClose, _1));
 
   {
-    TcpServer::Loop serv1Loop;
-    TcpClient::Loop cliLoop;
+    Channel::Loop loop;
 
-    serv1.start(&serv1Loop);
+    serv1.init(&loop);
+    client.init(&loop);
 
-    Time::SleepMillis(1000l);
-    
-    client.start(&cliLoop);
-    for (int i(0); i<100; i++ )
+    loop.loop();
+
+    for (int i(0); i<10; i++ )
     { 
       client.connect(port, host);
       Time::SleepMillis(10l);

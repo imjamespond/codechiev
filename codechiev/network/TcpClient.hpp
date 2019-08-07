@@ -11,20 +11,18 @@ namespace net
 {
 class TcpClient : public TcpEndpoint
 {
-public:
-  typedef Eventloop<Epoll> Loop;
-  typedef Epoll::EpollHandler Handler;
+public: 
+  // typedef Epoll::EpollHandler Handler;
 
   explicit TcpClient(bool edge_mode = false);
 
-  void connect(const char *, const char *host = "127.0.0.1");
-  void connect(Channel *);
-  void start(Loop *loop);
+  Channel *connect(const char *, const char *host = "127.0.0.1");
+  void init(Channel::Loop *);
 
 private:
-  void epoll_handler_(const Channel::ChannelPtr &);
+  void conn_handler_(const Channel::ChannelPtr &);
 
-  Loop *loop;
+  Channel::Loop *loop;
 };
 } // namespace net
 } // namespace codechiev

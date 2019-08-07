@@ -20,53 +20,49 @@ TcpServer::~TcpServer()
   listenChannel->ptr.reset();
 }
 
-void TcpServer::start(Loop *loop, bool isWorker)
+void TcpServer::init(Loop *loop, bool main)
 {
-  Handler handler = boost::bind(&TcpServer::epoll_handler_, this, _1, loop);
-  loop->getPoll()->setHandler(handler);
-  if (isWorker)
+  Channel::Handler handler = boost::bind(&TcpServer::accept_handler_, this, _1, loop);
+  listenChannel->handler = handler;
+  listenChannel->loop = loop;
+  if (main)
   {
-    loop->getPoll()->ctlAdd(listenChannel, EPOLLIN);
+    loop->getPoll()->ctlAdd(listenChannel, EVENT_READ_);
   }
-  loop->loop();
 }
 
-void TcpServer::epoll_handler_(const Channel::ChannelPtr &channel, Loop *loop)
+void TcpServer::accept_handler_(const Channel::ChannelPtr &channel, Loop *loop)
 {
-  if (channel->getFd() == listenChannel->getFd())
-  {
-    int conn_sock = Accept(channel->getFd());
-    if (conn_sock < 0)
-    {
-      LOG_ERROR << "Accept failed";
-    }
-    else
-    {
-      Channel *conn;
-      if (createChannel)
-      {
-        conn = createChannel(conn_sock);
-      }
-      else 
-      {
-        conn = Channel::CreateRaw(conn_sock);
-      }
-      conn->setNonblocking();
-      conn->setConnected();
-      conn->ptr = Channel::ChannelPtr(conn);
-      conn->loop = loop;
-      
-      loop->getPoll()->ctlAdd(conn, event_read);
 
-      if (onConnect)
-      {
-        onConnect(conn->ptr);
-      }
-    }
+  int conn_sock = Accept(channel->getFd());
+  if (conn_sock < 0)
+  {
+    LOG_ERROR << "Accept failed";
   }
   else
   {
-    handle_event_(channel);
+    Channel *conn;
+    if (createChannel)
+    {
+      conn = createChannel(conn_sock);
+    }
+    else
+    {
+      conn = Channel::CreateRaw(conn_sock);
+    }
+    conn->setNonblocking();
+    conn->setConnected();
+    conn->ptr = Channel::ChannelPtr(conn);
+    Channel::Handler handler = boost::bind(&TcpEndpoint::handle, this, _1);
+    conn->handler = handler;
+    conn->loop = loop;
+
+    loop->getPoll()->ctlAdd(conn, event_read);
+
+    if (onConnect)
+    {
+      onConnect(conn->ptr);
+    }
   }
 
   if (channel->closed())
