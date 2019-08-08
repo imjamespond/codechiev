@@ -75,5 +75,13 @@ void TcpClient::conn_handler_(const Channel::ChannelPtr &channel)
       }
       close(channel);
     }
+  } 
+  else if (channel->closed())
+  {
+    if (onClose)
+    {
+      onClose(channel);
+    }
+    close(channel);
   }
 }
