@@ -1,6 +1,10 @@
 #include <signal.h>
 #include "tcp-forward.impl.hpp"
 
+void sigpipe_handler(int unused)
+{
+}
+
 int main(int argc, const char **args)
 { 
   if (argc > 1)
@@ -16,8 +20,8 @@ int main(int argc, const char **args)
     servPort = args[3];
   }
 
-  struct sigaction sa;
-  sigaction(SIGPIPE, &sa, NULL);
+  struct sigaction st[] = {SIG_IGN};
+  sigaction(SIGPIPE, st, NULL);
 
   LOG_INFO << "host: " << host << ", port: " << port;
 
