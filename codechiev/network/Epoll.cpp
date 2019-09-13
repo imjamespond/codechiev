@@ -116,7 +116,7 @@ int Epoll::setWritable(Channel *channel, int events)
 
 
 void Epoll::update_channel_(Channel *channel, int events)
-{
+{ 
   if (events & EVENT_HUP_)
   {
     channel->setClosed();

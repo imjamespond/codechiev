@@ -71,6 +71,6 @@ void TcpServer::accept_handler_(const Channel::ChannelPtr &channel, Loop *loop)
     {
       onClose(channel);
     }
-    close_(loop, channel);
+    close(channel);
   }
 }

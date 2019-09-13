@@ -38,6 +38,7 @@ public:
   inline void setCreateChannel(const CreateChannel &func) { createChannel = func; }
 
   void shutdown(const ChannelPtr &);
+  void close(const ChannelPtr &);
   void disableReading(const ChannelPtr &, bool disable = true);
   void flush(const ChannelPtr &);
   void send(const ChannelPtr &, const char *, int);
@@ -59,7 +60,6 @@ protected:
   CreateChannel createChannel;
 
   void writing_done_(const ChannelPtr &);
-  void close_(Channel::Loop *, const ChannelPtr &);
 };
 } // namespace net
 } // namespace codechiev

@@ -67,12 +67,12 @@ void TcpEndpoint::handle(const ChannelPtr &channel)
   else if (channel->writable())
   {
     bool writing_done(false);
-    if (channel->closing() && !channel->closed())
-    {
-      channel->setClosed();
-    }
-    else
-    {
+    // if (channel->closing() && !channel->closed())
+    // {
+    //   channel->setClosed();
+    // }
+    // else
+    // {
       for (;;)
       {
         ssize_t len;
@@ -117,7 +117,7 @@ void TcpEndpoint::handle(const ChannelPtr &channel)
         }
         // SetTcpNoDelay(channel->getFd());
       }
-    }
+    // }
 
     if (writing_done)
     {
@@ -131,7 +131,7 @@ void TcpEndpoint::handle(const ChannelPtr &channel)
     {
       onClose(channel);
     }
-    close_(channel->loop, channel);
+    close(channel);
   }
 }
 
@@ -146,13 +146,6 @@ void TcpEndpoint::writing_done_(const ChannelPtr &channel)
   {
     onEndWriting(channel); // might lock other thread, so release lock above
   }
-}
-
-void TcpEndpoint::close_(Channel::Loop *loop, const ChannelPtr &channel)
-{
-  loop->getPoll()->ctlDel(channel.get());
-  channel->shutdown();
-  channel->ptr.reset();
 }
 
 int TcpEndpoint::write(const ChannelPtr &channel, const char *buf, int len)
@@ -180,7 +173,7 @@ void TcpEndpoint::flush(const ChannelPtr &channel)
 {
   assert(channel->loop); 
 
-  if (channel->buffer.readable_bytes())
+  if (channel->connected() && channel->buffer.readable_bytes())
   {
     channel->loop->getPoll()
            ->setWritable(channel.get());
@@ -208,11 +201,15 @@ void TcpEndpoint::disableReading(const ChannelPtr &channel, bool disable)
   LOG_DEBUG << "disableReading: " << channel->getFd() << ", disable: " << disable;
 }
 
+
+void TcpEndpoint::close(const ChannelPtr &channel)
+{ 
+  channel->loop->getPoll()->ctlDel(channel.get());
+  channel->shutdown();
+  channel->ptr.reset();
+}
+
 void TcpEndpoint::shutdown(const ChannelPtr &channel)
 {
-  channel->setClosing();
-
-  assert(channel->loop);
-  channel->loop->getPoll()
-      ->setWritable(channel.get());
+  channel->setClosed(); 
 }
