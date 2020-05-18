@@ -61,7 +61,7 @@ void onEndWriting(const ChannelPtr &channel, TcpServer *serv, TcpClient *cli)
     cli->disableReading(pipe, false);
   }
 
-  LOG_INFO << channel->getFd();
+  // LOG_INFO << channel->getFd();
 }
 
 void onClose(const ChannelPtr &channel, TcpServer *serv, TcpClient *cli)
@@ -117,7 +117,7 @@ void onCliEndWriting(const ChannelPtr &channel, TcpServer *serv, TcpClient *cli)
     serv->disableReading(pipe, false);
   }
 
-  LOG_INFO << channel->getFd();
+  // LOG_INFO << channel->getFd();
 }
 
 void onCliClose(const ChannelPtr &channel, TcpServer *serv, TcpClient *cli)

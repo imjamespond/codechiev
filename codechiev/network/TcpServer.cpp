@@ -65,12 +65,12 @@ void TcpServer::accept_handler_(const Channel::ChannelPtr &channel, Loop *loop)
     }
   }
 
-  if (channel->closed())
-  {
-    if (onClose)
-    {
-      onClose(channel);
-    }
-    close(channel);
-  }
+  // if (channel->closed())
+  // {
+  //   if (onClose)
+  //   {
+  //     onClose(channel);
+  //   }
+  //   close(channel);
+  // }
 }
