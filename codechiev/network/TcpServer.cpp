@@ -8,8 +8,8 @@
 using namespace codechiev::base;
 using namespace codechiev::net;
 
-TcpServer::TcpServer(const char *port, const char *host, bool edge_mode) : TcpEndpoint(edge_mode),
-                                                                           listenChannel(Channel::CreateRaw(Listen(::atoi(port), host)))
+TcpServer::TcpServer(const char *port, const char *host) : TcpEndpoint(),
+                                                           listenChannel(Channel::CreateRaw(Listen(::atoi(port), host)))
 {
   listenChannel->ptr = Channel::ChannelPtr(listenChannel);
 }
@@ -20,18 +20,16 @@ TcpServer::~TcpServer()
   listenChannel->ptr.reset();
 }
 
-void TcpServer::init(Loop *loop, bool main)
+void TcpServer::init(Loop *loop)
 {
-  Channel::Handler handler = boost::bind(&TcpServer::accept_handler_, this, _1, loop);
+  Channel::Handler handler = boost::bind(&TcpServer::acceptHandler, this, _1, loop);
   listenChannel->handler = handler;
   listenChannel->loop = loop;
-  if (main)
-  {
-    loop->getPoll()->ctlAdd(listenChannel, EVENT_READ_);
-  }
+  loop->getPoll()
+      ->ctlAdd(listenChannel, __READABLE__);
 }
 
-void TcpServer::accept_handler_(const Channel::ChannelPtr &channel, Loop *loop)
+void TcpServer::acceptHandler(const Channel::ChannelPtr &channel, Loop *loop)
 {
 
   int conn_sock = Accept(channel->getFd());
@@ -57,20 +55,11 @@ void TcpServer::accept_handler_(const Channel::ChannelPtr &channel, Loop *loop)
     conn->handler = handler;
     conn->loop = loop;
 
-    loop->getPoll()->ctlAdd(conn, event_read);
+    loop->getPoll()->ctlAdd(conn, __EVENT_READ__);
 
     if (onConnect)
     {
       onConnect(conn->ptr);
     }
   }
-
-  // if (channel->closed())
-  // {
-  //   if (onClose)
-  //   {
-  //     onClose(channel);
-  //   }
-  //   close(channel);
-  // }
 }

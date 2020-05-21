@@ -26,11 +26,11 @@ namespace codechiev
 namespace net
 {
 
-typedef struct sockaddr sock_address;
-typedef struct sockaddr_in sock_address_in;
-typedef socklen_t socklen_type;
+typedef struct sockaddr SockAddressT;
+typedef struct sockaddr_in SockAddressInT;
+typedef socklen_t SocklenType;
 
-inline void set_sock_address(sock_address_in &sin, int port, const char *host = NULL)
+inline void SetSockAddress(SockAddressInT &sin, int port, const char *host = NULL)
 {
   ::memset(&sin, 0, sizeof(sin));
   sin.sin_family = AF_INET;   // IPv4 Internet protocols
@@ -111,8 +111,8 @@ inline void printSockopt(int sockfd)
 inline int Listen(int port, const char *host = NULL)
 {
 
-  sock_address_in addr;
-  set_sock_address(addr, port, host);
+  SockAddressInT addr;
+  SetSockAddress(addr, port, host);
 
   int listenfd = GetSockfd();
   if (listenfd == -1)
@@ -121,7 +121,7 @@ inline int Listen(int port, const char *host = NULL)
   if (SetReuseAddr(listenfd) == -1)
     return -1;
 
-  if (::bind(listenfd, (sock_address *)&addr, sizeof(sock_address)) == -1)
+  if (::bind(listenfd, (SockAddressT *)&addr, sizeof(SockAddressT)) == -1)
     perror("bind");
 #define LISTEN_BACKLOG 8192
   if (::listen(listenfd, LISTEN_BACKLOG) == -1)
@@ -132,8 +132,8 @@ inline int Listen(int port, const char *host = NULL)
 
 inline int Accept(int fd)
 {
-  sock_address_in addr;
-  socklen_type addrlen = sizeof(addr);
+  SockAddressInT addr;
+  SocklenType addrlen = sizeof(addr);
 
   int conn_sock = ::accept(fd, (struct sockaddr *)&addr, &addrlen);
   if (conn_sock == -1)
@@ -203,8 +203,8 @@ inline int Connect(const char *port = "80", const char *host = "localhost")
 
   // ::freeaddrinfo(result); /* No longer needed */
 
-  sock_address_in addr;
-  set_sock_address(addr, ::atoi(port), host);
+  SockAddressInT addr;
+  SetSockAddress(addr, ::atoi(port), host);
 
   int sockfd = GetSockfd();
   if (sockfd == -1)
@@ -213,7 +213,7 @@ inline int Connect(const char *port = "80", const char *host = "localhost")
   if (SetReuseAddr(sockfd) == -1)
     return -1;
 
-  int res = ::connect(sockfd, (struct sockaddr *)&addr, sizeof(sock_address));
+  int res = ::connect(sockfd, (struct sockaddr *)&addr, sizeof(SockAddressT));
   if (res == -1)
   {
     if (EINPROGRESS != errno)

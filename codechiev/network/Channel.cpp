@@ -6,7 +6,13 @@
 
 using namespace codechiev::net;
 
-Channel::Channel(int sockfd) : loop(NULL), sockfd(sockfd), events(0), mode(0), action(0)
+Channel::Channel(int sockfd) : 
+  loop(NULL), 
+  connected(false),
+  closed(false),
+  readDisabled(false),
+  sockfd(sockfd), 
+  events(0)
 {}
 
 Channel::ChannelPtr Channel::Create(int sockfd)
@@ -24,19 +30,19 @@ Channel::~Channel()
   close();
 }
 
-bool Channel::check()
+bool Channel::connectFailed()
 {
   int result;
-  socklen_t result_len = sizeof(result);
-  if (::getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &result, &result_len) < 0) {
-      return false;
+  socklen_t resultLen = sizeof(result);
+  if (::getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &result, &resultLen) < 0) {
+      return true;
   }
 
   if (result != 0) {
-      return false;
+      return true;
   }
 
-  return true;
+  return false;
 }
 
 

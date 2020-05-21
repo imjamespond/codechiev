@@ -26,13 +26,6 @@ public:
 
   typedef boost::function<void(const ChannelPtr &)> Handler;
 
-  typedef boost::function<void(const ChannelPtr &)> OnConnect;
-  typedef boost::function<void(const ChannelPtr &, const char *, int)> OnWrite;
-  typedef boost::function<bool(const ChannelPtr &, const char *, int)> OnRead;
-  typedef boost::function<void(const ChannelPtr &)> OnEndReading;
-  typedef boost::function<void(const ChannelPtr &)> OnEndWriting;
-  typedef boost::function<void(const ChannelPtr &)> OnClose;
-
   static Channel* CreateRaw(int);
   static ChannelPtr Create(int);
   ~Channel();
@@ -41,40 +34,35 @@ public:
   inline int getEvents() { return events;}
 
   void setNonblocking();
-  bool check();
-  void close();
+  bool connectFailed();
   void shutdown();
-
-  // not thread safe with underscore
+ 
   inline void setReadable() { events = 1; }
-  inline void setWritable() { events = 2; }
-
-  inline void setConnected() { mode = 1; }
-  inline void setClosed() { mode = 2; }
-
   inline int readable() { return (events & 1); }
-  inline int writable() { return (events & 2); }
-  inline int connected() { return (mode & 1); }
-  inline int closed() { return (mode & 2); }
 
-  inline void setClosing(bool set = true) { action = (1 | action) ^ (set ? 0 : 1); }
-  inline int closing() { return (action & 1); } 
-  inline void disableReading(bool set = true) { action = (4|action) ^ (set?0:4); }
-  inline int readingDisabled() { return (action & 4); }
+  inline void setWritable() { events = 2; }
+  inline int writable() { return (events & 2); }
 
   Handler handler;
-
   Buffer buffer;
   ChannelPtr ptr;
   Loop *loop;
 
+  bool connected;
+  bool closed;
+  bool readDisabled;
+
+  inline void disableReading(bool val = true) { readDisabled = val; }
+  inline void setClosed() { closed = true; }
+  inline void setConnected() { connected = true; }
+
 protected:
   explicit Channel(int); 
 
+  void close();
+
   const int sockfd;
   int events;
-  int mode;
-  int action; //4 for read disabled
 };
 } // namespace net
 } // namespace codechiev

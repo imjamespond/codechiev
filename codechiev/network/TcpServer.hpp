@@ -14,13 +14,13 @@ class TcpServer : public TcpEndpoint
 public:
   typedef Channel::Loop Loop;
 
-  explicit TcpServer(const char *, const char *host = NULL, bool edge_mode = false);
+  explicit TcpServer(const char *, const char *host = NULL);
   ~TcpServer();
 
-  void init(Loop *, bool main = true);
+  void init(Loop *);
 
 protected:
-  void accept_handler_(const Channel::ChannelPtr &, Loop *);
+  void acceptHandler(const Channel::ChannelPtr &, Loop *);
 
   Channel* listenChannel;
 };

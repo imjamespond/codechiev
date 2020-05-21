@@ -6,6 +6,7 @@
 #include <base/Singleton.hpp>
 #include <base/Time.hpp>
 #include <vector>
+#include <signal.h>
 
 using namespace codechiev::base;
 using namespace codechiev::net;
@@ -35,15 +36,18 @@ int main(int num, const char **args)
     port = args[2]; 
   }
 
+  struct sigaction st[] = {SIG_IGN};
+  sigaction(SIGPIPE, st, NULL);
+
   LOG_INFO << "host: " << host << ", port: " << port;
 
-  TcpServer serv1(port, host, true); //avoid listen channel destroy before loop joined
-  serv1.setOnConnect(boost::bind(&onConnect, _1, &serv1));
-  serv1.setOnClose(boost::bind(&onClose, _1));
+  TcpServer serv1(port, host); 
+  serv1.onConnect=(boost::bind(&onConnect, _1, &serv1));
+  serv1.onClose=(boost::bind(&onClose, _1));
 
-  TcpClient client(true);
-  client.setOnConnect(boost::bind(&onCliConnect, _1, &client));
-  client.setOnClose(boost::bind(&onCliClose, _1));
+  TcpClient client = TcpClient();
+  client.onConnect=(boost::bind(&onCliConnect, _1, &client));
+  client.onClose=(boost::bind(&onCliClose, _1));
 
   {
     Channel::Loop loop;
@@ -53,27 +57,27 @@ int main(int num, const char **args)
 
     loop.loop();
 
-    for (int i(0); i<10; i++ )
+    for (int i(0); i<1; i++ )
     { 
+      Time::SleepMillis(1000l);
       client.connect(port, host);
-      Time::SleepMillis(10l);
     }
 
-    Time::SleepMillis(1000l);
+    // Time::SleepMillis(1000l);
 
-    ChannelList::iterator cliIt;
-    for (cliIt = cliList.begin(); cliIt != cliList.end(); cliIt++ )
-    { 
-      ChannelPtr cli = *cliIt;
-      cli->shutdown();
-    }
+    // ChannelList::iterator cliIt;
+    // for (cliIt = cliList.begin(); cliIt != cliList.end(); cliIt++ )
+    // { 
+    //   ChannelPtr cli = *cliIt;
+    //   cli->shutdown();
+    // }
   }
 
 }
 
 void onConnect(const ChannelPtr &channel, TcpServer *serv)
 { 
-  serv->send(channel , "serv->send", sizeof "serv->send");
+  // serv->send(channel , "serv->send", sizeof "serv->send");
 
   LOG_INFO << "connect fd: " << channel->getFd();
 }

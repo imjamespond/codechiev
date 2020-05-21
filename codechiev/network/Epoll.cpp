@@ -5,18 +5,18 @@
 
 using namespace codechiev::net;
 
-int epoll_create__()
+int __epoll_create__()
 {
   int epollfd = ::epoll_create1(EPOLL_CLOEXEC);
   if (epollfd == -1)
   {
     perror("epoll_create1");
-    exit(EXIT_FAILURE);
+    ::exit(EXIT_FAILURE);
   }
   return epollfd;
 }
 
-Epoll::Epoll() : epollEvents(1<<2), epChannel(Channel::CreateRaw(epoll_create__()))
+Epoll::Epoll() : epollEvents(1<<2), epChannel(Channel::CreateRaw(__epoll_create__()))
 {
 }
 
@@ -43,7 +43,7 @@ int Epoll::ctlAdd(Channel *channel, int events)
   st_epoll_event ev;
   ev.events = events;
   ev.data.ptr = (void *)channel;
-  if (ctl_(channel->getFd(), EPOLL_CTL_ADD, &ev) == -1)
+  if (ctl(channel->getFd(), EPOLL_CTL_ADD, &ev) == -1)
   {
     perror("epoll_ctl: add");
     return -1;
@@ -53,7 +53,7 @@ int Epoll::ctlAdd(Channel *channel, int events)
 
 int Epoll::ctlDel(Channel *channel)
 {
-  if (ctl_(channel->getFd(), EPOLL_CTL_DEL, NULL) == -1)
+  if (ctl(channel->getFd(), EPOLL_CTL_DEL, NULL) == -1)
   {
     perror("epoll_ctl: del");
     return -1;
@@ -66,7 +66,7 @@ int Epoll::ctlMod(Channel *channel, int events)
   st_epoll_event ev;
   ev.events = events;
   ev.data.ptr = (void *)channel;
-  if (ctl_(channel->getFd(), EPOLL_CTL_MOD, &ev) == -1)
+  if (ctl(channel->getFd(), EPOLL_CTL_MOD, &ev) == -1)
   {
     perror("epoll_ctl: mod");
     return -1;
@@ -74,7 +74,7 @@ int Epoll::ctlMod(Channel *channel, int events)
   return 0;
 }
 
-int Epoll::ctl_(int fd, int op, st_epoll_event *ev)
+int Epoll::ctl(int fd, int op, st_epoll_event *ev)
 {
   return ::epoll_ctl(epChannel->getFd(), op, fd, ev);
 }
@@ -96,7 +96,8 @@ void Epoll::wait()
 
     st_epoll_event &event = epollEvents[n];
     Channel *channel = reinterpret_cast<Channel *>(event.data.ptr);
-    update_channel_(channel, event.events);
+    updateChannel(channel, event.events);
+
     if (channel->handler)
     {
       channel->handler(channel->ptr);
@@ -115,17 +116,17 @@ int Epoll::setWritable(Channel *channel, int events)
 }
 
 
-void Epoll::update_channel_(Channel *channel, int events)
+void Epoll::updateChannel(Channel *channel, int events)
 { 
-  if (events & EVENT_HUP_)
+  if (events & __EVENT_CLOSE__)
   {
     channel->setClosed();
   }
-  else if (events & EVENT_WRITE_)
+  else if (events & __WRITABLE__)
   {
     channel->setWritable();
   }
-  else if (events & EVENT_READ_)
+  else if (events & __READABLE__)
   {
     channel->setReadable();
   }

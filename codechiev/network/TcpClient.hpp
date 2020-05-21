@@ -11,16 +11,14 @@ namespace net
 {
 class TcpClient : public TcpEndpoint
 {
-public: 
-  // typedef Epoll::EpollHandler Handler;
-
-  explicit TcpClient(bool edge_mode = false);
+public:
+  TcpClient();
 
   Channel *connect(const char *, const char *host = "127.0.0.1");
   void init(Channel::Loop *);
 
 private:
-  void conn_handler_(const Channel::ChannelPtr &);
+  void handle(const Channel::ChannelPtr &);
 
   Channel::Loop *loop;
 };

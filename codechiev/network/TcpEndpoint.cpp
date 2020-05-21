@@ -8,14 +8,13 @@
 using namespace codechiev::base;
 using namespace codechiev::net;
 
-#define BUFF_SPAN 1024
+#define __BUFF_SPAN__ 1024
 
-TcpEndpoint::TcpEndpoint(bool edge_mode) : edge_mode(edge_mode),
-                                           event_read(EPOLLIN | (edge_mode ? EPOLLET : 0)),
-                                          //  onConnect(0), onClose(0),
-                                          //  onRead(0), onWrite(0),
-                                          //  onEndReading(0), onEndWriting(0),
-                                           createChannel(0)
+TcpEndpoint::TcpEndpoint() : onConnect(0),
+                             onClose(0),
+                             onRead(0), onWrite(0),
+                             onReadEnd(0), onWritten(0),
+                             createChannel(0)
 {
 }
 
@@ -23,7 +22,7 @@ void TcpEndpoint::handle(const ChannelPtr &channel)
 {
   if (channel->readable())
   {
-    char buffer[BUFF_SPAN];
+    char buffer[__BUFF_SPAN__];
     size_t buf_len = sizeof buffer;
 
     for (;;)
@@ -47,9 +46,9 @@ void TcpEndpoint::handle(const ChannelPtr &channel)
       {
         if (errno == EAGAIN)
         {
-          if (onEndReading)
+          if (onReadEnd)
           {
-            onEndReading(channel);
+            onReadEnd(channel);
           }
           break;
         }
@@ -66,66 +65,9 @@ void TcpEndpoint::handle(const ChannelPtr &channel)
 
   else if (channel->writable())
   {
-    bool writing_done(false);
-    // if (channel->closing() && !channel->closed())
-    // {
-    //   channel->setClosed();
-    // }
-    // else
-    // {
-      for (;;)
-      {
-        ssize_t len;
-        {
-          len = ::write(channel->getFd(), channel->buffer.buf(), channel->buffer.readable_bytes());
-
-          LOG_DEBUG
-              << "write fd: " << channel->getFd()
-              << ", len: " << len
-              << ", errno: " << errno;
-
-          if (len > 0)
-          {
-            if (onWrite)
-            {
-              onWrite(channel, channel->buffer.buf(), len);
-            }
-
-            channel->buffer.read(len);
-            channel->buffer.move();
-          }
-          else if (-1 == len)
-          {
-            // TODO check writting buffer of the channel which might not be sent completely
-            if (errno == EAGAIN)
-            {
-              writing_done = true;
-              break;
-            }
-            else if (errno == EPIPE)
-            {
-              channel->setClosed(); // broken pipe
-              break;
-            }
-          }
-          else if (0 == len)
-          {
-            // 0 will be returned without causing any other effect
-            writing_done = true;
-            break;
-          }
-        }
-        // SetTcpNoDelay(channel->getFd());
-      }
-    // }
-
-    if (writing_done)
-    {
-      writing_done_(channel);
-    }
+    handleWrite(channel);
   }
-
-  if (channel->closed())
+  if (channel->closed)
   {
     if (onClose)
     {
@@ -135,16 +77,72 @@ void TcpEndpoint::handle(const ChannelPtr &channel)
   }
 }
 
-void TcpEndpoint::writing_done_(const ChannelPtr &channel)
+void TcpEndpoint::handleWrite(const ChannelPtr &channel)
+{
+  bool done(false);
+
+  for (;;)
+  {
+    ssize_t len;
+    {
+      len = ::write(channel->getFd(), channel->buffer.buf(), channel->buffer.readable_bytes());
+
+      LOG_DEBUG
+          << "write fd: " << channel->getFd()
+          << ", len: " << len
+          << ", errno: " << errno;
+
+      if (len > 0)
+      {
+        if (onWrite)
+        {
+          onWrite(channel, channel->buffer.buf(), len);
+        }
+
+        channel->buffer.read(len);
+        channel->buffer.move();
+      }
+      else if (-1 == len)
+      {
+        // TODO check writting buffer of the channel which might not be sent completely
+        if (errno == EAGAIN)
+        {
+          done = true;
+          break;
+        }
+        else if (errno == EPIPE)
+        {
+          channel->setClosed(); // broken pipe
+          break;
+        }
+      }
+      else if (0 == len)
+      {
+        // 0 will be returned without causing any other effect
+        done = true;
+        break;
+      }
+    }
+    // SetTcpNoDelay(channel->getFd());
+  }
+
+  if (done)
+  {
+    written(channel);
+  }
+}
+
+void TcpEndpoint::written(const ChannelPtr &channel)
 {
   assert(channel->loop);
 
-  channel->loop->getPoll()
-      ->setReadable(channel.get(), channel->readingDisabled() ? EVENT_HUP_ : event_read);
+  channel->loop
+      ->getPoll()
+      ->setReadable(channel.get(), channel->readDisabled ? __EVENT_HUP__ : __EVENT_READ__);
 
-  if (onEndWriting)
+  if (onWritten)
   {
-    onEndWriting(channel); // might lock other thread, so release lock above
+    onWritten(channel);
   }
 }
 
@@ -160,7 +158,7 @@ int TcpEndpoint::write(const ChannelPtr &channel, const char *buf, int len)
   }
 
   int readable = channel->buffer.readable_bytes();
-  const int max = Channel::BufferSize - BUFF_SPAN;
+  const int max = Channel::BufferSize - __BUFF_SPAN__;
   if (readable > max)
   {
     return -1;
@@ -171,16 +169,16 @@ int TcpEndpoint::write(const ChannelPtr &channel, const char *buf, int len)
 
 void TcpEndpoint::flush(const ChannelPtr &channel)
 {
-  assert(channel->loop); 
+  assert(channel->loop);
 
-  if (channel->connected() && channel->buffer.readable_bytes())
+  if (channel->connected && channel->buffer.readable_bytes())
   {
-    channel->loop->getPoll()
-           ->setWritable(channel.get());
+    channel->loop
+        ->getPoll()
+        ->setWritable(channel.get());
 
     LOG_DEBUG << "flush fd: " << channel->getFd();
   }
-
 }
 
 void TcpEndpoint::send(const ChannelPtr &channel, const char *msg, int len)
@@ -195,15 +193,15 @@ void TcpEndpoint::disableReading(const ChannelPtr &channel, bool disable)
 
   channel->disableReading(disable);
 
-  channel->loop->getPoll()
-      ->setReadable(channel.get(), disable ? EVENT_HUP_ : event_read);
+  channel->loop
+      ->getPoll()
+      ->setReadable(channel.get(), disable ? __EVENT_HUP__ : __EVENT_READ__);
 
   LOG_DEBUG << "disableReading: " << channel->getFd() << ", disable: " << disable;
 }
 
-
 void TcpEndpoint::close(const ChannelPtr &channel)
-{ 
+{
   channel->loop->getPoll()->ctlDel(channel.get());
   channel->shutdown();
   channel->ptr.reset();
@@ -211,5 +209,5 @@ void TcpEndpoint::close(const ChannelPtr &channel)
 
 void TcpEndpoint::shutdown(const ChannelPtr &channel)
 {
-  channel->setClosed(); 
+  channel->setClosed();
 }

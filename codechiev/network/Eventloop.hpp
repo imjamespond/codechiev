@@ -11,7 +11,7 @@ namespace net
 class EventloopHelper
 {
 public:
-  static std::string init_thread_name();
+  static std::string InitThreadName();
 };
 
 template <class T>
@@ -20,9 +20,10 @@ class Eventloop
 public:
   typedef codechiev::base::Thread Thread;
 
-  explicit Eventloop() : thread(EventloopHelper::init_thread_name())
+  explicit Eventloop() : thread(EventloopHelper::InitThreadName())
   {
   }
+  
   ~Eventloop()
   {
     this->join();
