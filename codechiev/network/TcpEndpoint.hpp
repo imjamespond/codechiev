@@ -7,6 +7,8 @@
 
 #include <boost/function.hpp>
 
+#define __BUFF_SPAN__ 1024
+
 namespace codechiev
 {
 namespace net
@@ -47,6 +49,7 @@ public:
   void handle(const ChannelPtr &);
 
 protected:
+  void handleRead(const ChannelPtr &);
   void handleWrite(const ChannelPtr &);
   void written(const ChannelPtr &);
 };
