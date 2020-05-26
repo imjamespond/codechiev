@@ -8,7 +8,6 @@
 using namespace codechiev::base;
 using namespace codechiev::net;
 
-
 TcpEndpoint::TcpEndpoint() : onConnect(0),
                              onClose(0),
                              onRead(0), onWrite(0),
@@ -28,7 +27,7 @@ void TcpEndpoint::handle(const ChannelPtr &channel)
   {
     handleWrite(channel);
   }
-  
+
   if (channel->closed)
   {
     if (onClose)
@@ -38,7 +37,6 @@ void TcpEndpoint::handle(const ChannelPtr &channel)
     close(channel);
   }
 }
-
 
 void TcpEndpoint::written(const ChannelPtr &channel)
 {
@@ -85,7 +83,7 @@ void TcpEndpoint::flush(const ChannelPtr &channel)
         ->getPoll()
         ->setWritable(channel.get());
 
-    LOG_DEBUG << "flush fd: " << channel->getFd();
+    /* LOG_DEBUG << "flush fd: " << channel->getFd(); */
   }
 }
 
@@ -101,8 +99,8 @@ void TcpEndpoint::disableReading(const ChannelPtr &channel, bool disable)
 
   channel->disableReading(disable);
   channel->loop
-         ->getPoll()
-         ->setReadable(channel.get(), disable ? __EVENT_HUP__ : __EVENT_READ__);
+      ->getPoll()
+      ->setReadable(channel.get(), disable ? __EVENT_HUP__ : __EVENT_READ__);
 
   LOG_DEBUG << "disableReading: " << channel->getFd() << ", disable: " << disable;
 }
@@ -110,9 +108,9 @@ void TcpEndpoint::disableReading(const ChannelPtr &channel, bool disable)
 void TcpEndpoint::close(const ChannelPtr &channel)
 {
   channel->loop
-         ->getPoll()
-         ->ctlDel(channel.get());
-  channel->shutdown();
+      ->getPoll()
+      ->ctlDel(channel.get());
+  // channel->shutdown();//close write half by user
   channel->ptr.reset();
 }
 

@@ -14,19 +14,25 @@ void TcpEndpoint::handleRead(const ChannelPtr &channel)
 
   for (;;)
   {
+
     ::memset(buffer, 0, buf_len);
     ssize_t len = ::read(channel->getFd(), buffer, buf_len);
 
-    LOG_DEBUG
-        << "read fd: " << channel->getFd()
-        << ", len: " << len
-        << ", errno: " << errno;
+    // LOG_DEBUG
+    //     << "read fd: " << channel->getFd()
+    //     << ", len: " << len
+    //     << ", errno: " << errno;
 
     if (len > 0)
     {
-      if (onRead && onRead(channel, buffer, len))
+      if (onRead)// && onRead(channel, buffer, len))
       {
-        break;
+        onRead(channel, buffer, len);
+
+        if (channel->readDisabled) 
+        {
+          break;
+        } 
       }
     }
     else if (len && -1 == len)

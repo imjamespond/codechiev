@@ -17,10 +17,10 @@ void TcpEndpoint::handleWrite(const ChannelPtr &channel)
     {
       len = ::write(channel->getFd(), channel->buffer.buf(), channel->buffer.readable_bytes());
 
-      LOG_DEBUG
-          << "write fd: " << channel->getFd()
-          << ", len: " << len
-          << ", errno: " << errno;
+      // LOG_DEBUG
+      //     << "write fd: " << channel->getFd()
+      //     << ", len: " << len
+      //     << ", errno: " << errno;
 
       if (len > 0)
       {
