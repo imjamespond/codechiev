@@ -23,11 +23,13 @@ void print2(int val);
 
 void print1(int val)
 {
-  LOG_INFO << "print: " << val;
+  LOG_INFO << "timer1 print: " << val;
 
   if (--count == 0) 
   {
     timer1.stop();
+
+    LOG_INFO << "timer1 stop and timer2 start...";
 
     timer2.schedule(boost::bind(&print2, 2), 2000l, 0);
     timer2.start(&loop);
@@ -35,7 +37,7 @@ void print1(int val)
 }
 void print2(int val)
 {
-  LOG_INFO << "print: " << val;
+  LOG_INFO << "timer2 print: " << val;
 
   if (count++ == 5)
   {

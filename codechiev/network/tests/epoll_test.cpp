@@ -28,6 +28,8 @@ void onCliWrite(const ChannelPtr &, const char *, int);
 
 typedef std::vector<ChannelPtr> ChannelList; 
 ChannelList cliList; 
+ChannelList svrList; 
+
 int totalWrite(0);
 int totalRead(0);
 int totalConnected(0);
@@ -74,19 +76,35 @@ int main(int num, const char **args)
 
     loop.loop();
 
-    for (int i(0); i<100; i++ )
+    for (int i(0); i<10; i++ )
     { 
       Time::SleepMillis(10l);
       client.connect(port, host);
     }
 
-    Time::SleepMillis(3000l);//wait for all clients connected
+    Time::SleepMillis(2000l);//wait for all clients connected
+
+    // set server to hup and client send
+    ChannelList::iterator svrIt;
+    for (svrIt = svrList.begin(); svrIt != svrList.end(); svrIt++ )
+    { 
+      ChannelPtr channel = *svrIt;
+    }
 
     ChannelList::iterator cliIt;
     for (cliIt = cliList.begin(); cliIt != cliList.end(); cliIt++ )
     { 
-      ChannelPtr cli = *cliIt;
-      cli->shutdown();
+      ChannelPtr channel = *cliIt;
+      const char *msg = "testtesttesttesttesttesttesttesttesttesttesttesttesttesttest";
+      client.send(channel , msg, ::strlen(msg) );
+    }
+
+    Time::SleepMillis(2000l);
+
+    for (cliIt = cliList.begin(); cliIt != cliList.end(); cliIt++ )
+    { 
+      ChannelPtr channel = *cliIt;
+      channel->shutdown();
     }
   }
 
@@ -94,6 +112,7 @@ int main(int num, const char **args)
 
 void onConnect(const ChannelPtr &channel, TcpServer *serv)
 { 
+  svrList.push_back(channel);
   serv->send(channel , "serv->send", sizeof "serv->send");
   LOG_INFO << "connect fd: " << channel->getFd() << ", " << ++totalConnected;
 }

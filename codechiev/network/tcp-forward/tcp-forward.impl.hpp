@@ -21,13 +21,13 @@ using namespace codechiev::net;
 typedef Channel::ChannelPtr ChannelPtr;
 
 void onConnect(const ChannelPtr &, TcpServer *, TcpClient *);
-bool onRead(const ChannelPtr &, const char *, int, TcpServer *, TcpClient *);
+void onRead(const ChannelPtr &, const char *, int, TcpServer *, TcpClient *);
 void onEndReading(const ChannelPtr &, TcpServer *, TcpClient *);
 void onEndWriting(const ChannelPtr &, TcpServer *, TcpClient *);
 void onClose(const ChannelPtr &, TcpServer *, TcpClient *);
 
 void onCliConnect(const ChannelPtr &, TcpClient *);
-bool onCliRead(const ChannelPtr &, const char *, int, TcpServer *, TcpClient *);
+void onCliRead(const ChannelPtr &, const char *, int, TcpServer *, TcpClient *);
 void onCliEndReading(const ChannelPtr &, TcpServer *, TcpClient *);
 void onCliEndWriting(const ChannelPtr &, TcpServer *, TcpClient *);
 void onCliClose(const ChannelPtr &, TcpServer *, TcpClient *);

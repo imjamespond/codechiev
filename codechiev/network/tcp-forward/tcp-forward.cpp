@@ -46,9 +46,6 @@ int main(int argc, const char **args)
     Channel::Loop loop;
 
     serv1.init(&loop);
-
-    Time::SleepMillis(1000l);
-    
     client.init(&loop);
 
     loop.loop();
