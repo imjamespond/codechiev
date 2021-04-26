@@ -1,0 +1,7 @@
+SET (Lib learn_thread)
+FILE(GLOB SOURCE_FILES "*.cpp")
+ADD_LIBRARY (${Lib} ${SOURCE_FILES}) 
+TARGET_LINK_LIBRARIES (${Lib} pthread rt)
+
+ENABLE_TESTING()
+ADD_SUBDIRECTORY(tests)
