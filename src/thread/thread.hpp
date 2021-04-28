@@ -13,7 +13,6 @@ namespace learn_cpp
     explicit Thread(thread_func_t); // avoid created by passing arguments?
     ~Thread();
 
-    void create();
     void start();
     void run();
     void join();

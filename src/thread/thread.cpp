@@ -13,11 +13,6 @@ start_routine(void *arg)
   return NULL;
 }
 
-void Thread::create()
-{
-  printf("create");
-}
-
 void Thread::start()
 {
   int s;
@@ -40,6 +35,10 @@ void Thread::run()
 
 void Thread::join()
 {
+  if (this->pthread_ == 0l)
+  {
+    return;
+  }
   int s = ::pthread_join(this->pthread_, NULL);
   if (s != 0)
   {
@@ -47,7 +46,7 @@ void Thread::join()
   }
 }
 
-Thread::Thread(thread_func_t func)
+Thread::Thread(thread_func_t func) : pthread_(0l)
 {
   this->thread_func_ = func;
 }
