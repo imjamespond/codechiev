@@ -1,0 +1,9 @@
+{
+  "C_Cpp.default.systemIncludePath": [
+    "${workspaceRoot}/include"
+  ],
+  "files.associations": {
+    "map": "cpp",
+    "iostream": "cpp"
+  }
+}

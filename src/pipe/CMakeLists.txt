@@ -1,0 +1,8 @@
+SET (Test test-pipe)
+
+FILE(GLOB SOURCE_FILES "*.cpp")
+# ADD_LIBRARY (cc_base ${SOURCE_FILES})
+ADD_EXECUTABLE (${Test} ${SOURCE_FILES})
+TARGET_LINK_LIBRARIES (${Test} pthread rt)
+
+# ADD_SUBDIRECTORY(tests)
