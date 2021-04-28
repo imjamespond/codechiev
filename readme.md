@@ -2,7 +2,7 @@
 `` yum install gcc cmake gcc-c++ gdb ``  
 
 # VS Code Native Debug
-debug gcc remotely
+debug gcc remotely, 可选中cpp文件进行debug, 根据launch.json中的设置
 
 # Samba 配置
 ## 启动

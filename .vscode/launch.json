@@ -6,7 +6,7 @@
       "type": "gdb",
       "request": "launch",
       "name": "Launch Program (SSH)",
-      "target": "/root/projects/learn-cpp/build/pipe/test-pipe",
+      "target": "/root/projects/learn-cpp/build/${relativeFileDirname}/${fileBasenameNoExtension}",
       "cwd": "${workspaceRoot}",
       "arguments": "foobar", 
       "ssh": {
