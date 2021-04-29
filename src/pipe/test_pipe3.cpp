@@ -9,7 +9,9 @@
 #include <string.h> // memset,
 
 int pipefd[2];
-char buf[4];
+char buf[2];
+const int bufLen = sizeof(buf);
+
 void print();
 
 int main(int argc, char *argv[])
@@ -37,14 +39,25 @@ void print()
 {
 
   ::printf("start read\n");
-  ::memset(buf, 0, sizeof(buf));
-  while (::read(pipefd[0], buf, sizeof(buf)-1) > 0)
+  int len;
+  // while ((len = ::read(pipefd[0], buf, bufLen)) > 0)
+  while (1)
   {
-    ::printf("%s,", buf);
-    ::memset(buf, 0, sizeof(buf));
+    ::memset(buf, 0, bufLen);
+    len = ::read(pipefd[0], buf, bufLen);
+    if (len > 0)
+    {
+      std::string str(buf, buf + len);
+      ::printf("%s$%d,", str.c_str(), len);
+    }
+    else
+    {
+      ::printf("close\n");
+      ::close(pipefd[0]);
+      break; // If nobody has the pipe open for writing, read() will always return 0 bytes and not block
+    }
   }
-  ::close(pipefd[0]);
-  ::printf("\nend\n");
+  ::printf("end\n");
 
   ::sleep(3);
 }
