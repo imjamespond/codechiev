@@ -2,24 +2,28 @@
 #define Thread_HPP
 
 #include <pthread.h>
+#include <boost/function.hpp>
 
 namespace learn_cpp
 {
   class Thread
   {
   public:
-    typedef void (*thread_func_t)();
+    typedef void (*t_func)();
+    typedef boost::function<void()> t_thread_func;
+    typedef pthread_t t_pthread;
 
-    explicit Thread(thread_func_t); // avoid created by passing arguments?
+    explicit Thread(t_func); // avoid created by passing arguments?
     ~Thread();
 
     void start();
-    void run();
     void join();
-
+    
+    void runInThread();
+    inline void setFunc(const t_thread_func & func) { this->thread_func_ = func; }
   private:
-    pthread_t pthread_; 
-    thread_func_t thread_func_;
+    t_pthread pthread_; 
+    t_thread_func thread_func_;
   };
 }
 

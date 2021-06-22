@@ -1,12 +1,18 @@
-echo $PATH
+#!/bin/bash 
 
-buildpath='build'
+curpath=`pwd`
+boostpath="${curpath}/${boost:-boost}"
+echo $boostpath
+
+buildpath='build' 
+buildtype='Debug'
 
 mkdir -p $buildpath
 cd $buildpath
 
 cmake . ../ \
-  -DCMAKE_BUILD_TYPE=${buildtype} \
-  -DLOGGER_LEVEL=${loglevel}
+-DLOGGER_LEVEL=${loglevel} \
+-DCMAKE_BUILD_TYPE=${buildtype} 
+#-DBOOST_DIR=${boostpath} \
 
 make -j 4

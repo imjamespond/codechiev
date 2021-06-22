@@ -1,6 +1,6 @@
 #include <stdio.h>  // perror
 #include <stdlib.h> // exit
-
+#include <boost/bind/bind.hpp>
 #include <thread/thread.hpp>
 
 using namespace learn_cpp;
@@ -9,7 +9,7 @@ static void *
 start_routine(void *arg)
 {
   Thread *thread = static_cast<Thread *>(arg);
-  thread->run();
+  thread->runInThread();
   return NULL;
 }
 
@@ -24,7 +24,7 @@ void Thread::start()
   }
 }
 
-void Thread::run()
+void Thread::runInThread()
 {
   if (thread_func_)
   {
@@ -46,9 +46,12 @@ void Thread::join()
   }
 }
 
-Thread::Thread(thread_func_t func) : pthread_(0l)
+Thread::Thread(t_func func) : pthread_(0l)
 {
-  this->thread_func_ = func;
+  if (func) 
+  {
+    this->thread_func_ = boost::bind(func);
+  }
 }
 Thread::~Thread()
 {

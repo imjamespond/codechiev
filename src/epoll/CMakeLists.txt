@@ -1,0 +1,7 @@
+SET (Lib learn_epoll)
+FILE(GLOB SOURCE_FILES "*.cpp")
+ADD_LIBRARY (${Lib} ${SOURCE_FILES}) 
+TARGET_LINK_LIBRARIES (${Lib} learn_thread)
+
+ENABLE_TESTING()
+ADD_SUBDIRECTORY(tests)
