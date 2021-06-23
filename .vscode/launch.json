@@ -16,7 +16,7 @@
         "keyfile": "${env:HOME}/.ssh/id_rsa",
         "user": "root",
         // Optional, content will be executed on the SSH host before the debugger call.
-        "bootstrap": "cd /root/projects/learn-cpp && bash ./make.sh"
+        //"bootstrap": "cd /root/projects/learn-cpp && bash ./make.sh"
       },
       "valuesFormatting": "parseText"
     }

@@ -10,10 +10,14 @@ using namespace learn_cpp;
 
 void print(int events, Timer *timer, int count) 
 {
-  ::printf("wait 3 secs, events: %d, count: %d\n", events, count);
-  if (count<5) 
+  ::printf("wait 2 secs, events: %d, count: %d\n", events, count);
+  if (count<3) 
   {
-    timer->timeout(boost::bind(&print, boost::placeholders::_1, timer, ++count), 3000);
+    timer->timeout(boost::bind(&print, boost::placeholders::_1, timer, ++count), 2000);
+  }
+  else 
+  {
+    throw "stop loop";
   }
 }
 

@@ -49,7 +49,15 @@ private:
     // assert(Thread::GetMainId() != Thread::GetCurrentThreadId());
     for (;;)
     {
-      poll.wait();
+      try 
+      {
+        poll.wait();
+      }
+      catch (const char *ex)
+      {
+        printf("loop break: %s\n", ex);
+        break;
+      }
     }
   }
 };

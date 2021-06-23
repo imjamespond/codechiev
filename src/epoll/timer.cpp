@@ -43,6 +43,7 @@ void Timer::handle(int events)
     {
       uint64_t exp;
       int len = ::read(this->chan.getFd(), &exp, sizeof(uint64_t));
+      printf("read len: %d, %lu\n", len, exp);
       if (-1 == len && errno == EAGAIN)
       {
         if (this->func)

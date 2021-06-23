@@ -14,6 +14,10 @@ public:
   ~Channel();
   static Channel* Create(t_fd);
   inline t_fd getFd() { return fd; }
+
+  void close();
+  void shutdown();
+  void setNonblocking();
 protected:
   const t_fd fd;
 public:
