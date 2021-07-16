@@ -18,7 +18,8 @@ public:
   Pipe();
   ~Pipe();
 
-  // inline Channel *getChan() { return &chan; }
+  inline Channel *getChan0() { return &chan0; }
+  inline Channel *getChan1() { return &chan1; }
   void readSync();
   void writeSync(const char *, int);
 private:
@@ -27,8 +28,10 @@ private:
   Channel chan0;
   Channel chan1;
   Channel::t_func func;
+  std:string writeBuf;
 
-  void handle(int );
+  void readAsync(int );
+  void writeAsync(int );
 }; 
 
 } // namespace 

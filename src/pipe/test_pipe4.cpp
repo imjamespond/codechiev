@@ -12,10 +12,17 @@ learn_cpp::Pipe pp;
 
 int main(int argc, char *argv[])
 {
- 
-  pid_t pid; 
+	std::stringstream ss;
+	ss << "before fork" << std::endl;
+	::write(STDOUT_FILENO, ss.str().c_str(), ss.str().length());
+  
+	// https://stackoverflow.com/questions/7253659/why-the-address-of-variable-of-child-process-and-parent-process-is-same
+  pid_t pid; // virtual address is the same in child process, but value is not!
   pid = fork();
 
+	ss.str("");
+	ss << "fork pid: " << pid << ", addr: " << &pid << std::endl;
+	::write(STDOUT_FILENO, ss.str().c_str(), ss.str().length());
 	
 	if(pid > 0)//父进程
 	{
