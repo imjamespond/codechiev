@@ -5,6 +5,7 @@
 #include <epoll/epoll.hpp> 
 #include <epoll/loop.hpp> 
 #include <epoll/timer.hpp> 
+#include <epoll/pipe.hpp> 
 
 using namespace learn_cpp;
 

@@ -2,7 +2,9 @@
 #define Time_hpp
 
 #include <sys/time.h>
-#include <stdint.h> 
+#include <stdint.h>
+#include <string>
+#include <ctime>
 
 namespace learn_cpp
 { 
@@ -38,6 +40,11 @@ public:
         perror("clock_gettime()");
 
     return Time(SECS_TO_MILLIS(now.tv_sec) + NANOS_TO_MILLIS(now.tv_nsec));
+  }
+  static inline std::string LocalTime()
+  {
+      std::time_t result = std::time(NULL);
+      return std::asctime(std::localtime(&result));
   }
 
   Time(int64_t t = 0){ millis = t;}
