@@ -10,16 +10,22 @@
 #include <epoll/pipe.hpp> 
 #include <utils/log.hpp> 
 
-learn_cpp::Pipe pp;
 
-pid_t p1();
-pid_t p2(pid_t);
+pid_t p1(const int (&fd)[2]);
+pid_t p2(pid_t, const int (&fd)[2]);
 
 int main(int argc, char *argv[])
 { 
+	int fd[2];
+  if (::pipe(fd) == -1)
+  {
+    ::perror("pipe");
+    ::exit(EXIT_FAILURE);
+  } 
+
 	pid_t pid1, pid2;
-	if ((pid1 = p1()) != 0) {
-		if ((pid2 = p2(pid1)) != 0) {
+	if ((pid1 = p1(fd)) != 0) {
+		if ((pid2 = p2(pid1,fd)) != 0) {
 			Log() << "waitpid: " << pid1 << "," << pid2; 
 			int wstatus(0);
 			::waitpid(pid1, &wstatus, 0); 
@@ -30,7 +36,7 @@ int main(int argc, char *argv[])
 	} 
 }
 
-pid_t p1()
+pid_t p1(const int (&fd)[2])
 { 
 	Log() << "before fork";
   
@@ -49,7 +55,8 @@ pid_t p1()
 		while (total < 10)
 		{
 			::memset(buf, 0, bufLen);
-			len = pp.readSync(buf, bufLen);
+			::close(fd[1]);
+			len = ::read(fd[0], buf, bufLen); // automatically reopen fd1
 			if (len > 0)
 			{
 				total += len;
@@ -62,7 +69,7 @@ pid_t p1()
 } 
 
 
-pid_t p2(pid_t pid1)
+pid_t p2(pid_t pid1,const int (&fd)[2])
 { 
 	Log() << "before fork" ; 
   
@@ -84,7 +91,8 @@ pid_t p2(pid_t pid1)
 				Log() << "kill pid1:" << pid1 << ", " << rc;  
 				break;
 			} else {
-				pp.writeSync(input.c_str(), input.length());
+				::close(fd[0]);
+				::write(fd[1], input.c_str(), input.length()); // automatically open fd0
 			}
 		}
 	}
