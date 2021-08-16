@@ -28,7 +28,7 @@ int main(int argc, const char * argv[]) {
   {
     Eventloop<Epoll> loop;
     Epoll *epp = loop.getPoll();
-    epp->ctlAdd(timer.getChan(), EPOLLIN);
+    epp->CtlAdd(timer.GetChan(), EPOLLIN);
     loop.loop();
   }
 

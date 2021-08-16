@@ -16,33 +16,65 @@ Pipe::PipeFd::PipeFd()
   }
 }
 
-Pipe::Pipe(): pipe(), chan0(pipe.fd[0]), chan1(pipe.fd[1])
+Pipe::Pipe(): pipe(), _chan0( Channel::Create(pipe.fd[0])), _chan1( Channel::Create(pipe.fd[1])), chan0(_chan0), chan1(_chan1)
 {
-  this->chan0.func = boost::bind(&Pipe::readAsync, this, boost::placeholders::_1); 
-  // this->chan1.func = boost::bind(&Pipe::handle, this, boost::placeholders::_1); 
+  chan0->func = boost::bind(&Pipe::ReadAsync, this, boost::placeholders::_1); 
+  //chan1.func = boost::bind(&Pipe::handle, this, boost::placeholders::_1); 
 }
 Pipe::~Pipe()
 {
-  chan1.close();
+  chan0->Close();
+  chan1->Close();
 }
 
 int Pipe::readSync(char *buf, int bufLen)
 { 
-	::close(chan1.getFd());
-  return ::read(chan0.getFd(), buf, bufLen); // automatically reopen fd1
+	::close(chan1->GetFd());
+  return ::read(chan0->GetFd(), buf, bufLen); // automatically reopen fd1
 }
 
 void Pipe::writeSync(const char * str, int len)
 {
-  ::close(chan0.getFd());
-  ::write(chan1.getFd(), str, len); // automatically open fd0
+  ::close(chan0->GetFd());
+  ::write(chan1->GetFd(), str, len); // automatically open fd0
 }
 
 
-void Pipe::readAsync(int events)
+void Pipe::ReadAsync(int events)
 { 
+  char buffer[1<<10];
+  size_t buf_len = sizeof buffer;
+
+  for (;;)
+  {
+
+    ::memset(buffer, 0, buf_len);
+    ssize_t len = ::read(chan0->GetFd(), buffer, buf_len);
+
+    if (len > 0 && onRead)
+    {
+      if (onRead(chan0, buffer, len)) 
+      {
+        break;
+      } 
+    }
+    else if (-1 == len)
+    {
+      if (errno == EAGAIN && onReadEnd)
+      {
+        onReadEnd(chan0);
+        break;
+      }
+    }
+    else
+    { 
+      break;
+    }
+  }
+
+  // flush(channel); //reading end and check if there is something to write in the channel!
 }
 
-void Pipe::writeAsync(int events)
+void Pipe::WriteAsync(int events)
 {
 }

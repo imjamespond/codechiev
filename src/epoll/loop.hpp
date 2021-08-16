@@ -51,7 +51,7 @@ private:
     {
       try 
       {
-        poll.wait();
+        poll.Wait();
       }
       catch (const char *ex)
       {

@@ -14,9 +14,10 @@ public:
   ~Timer();
 
   void timeout(const Channel::t_func &, long);
-  inline Channel *getChan() { return &chan; }
+  Channel* GetChan(){ return this->_chan; }
 private:
-  Channel chan;
+  Channel* _chan;
+  ChannelPtr chan;
   Channel::t_func func;
 
   void handle(int );

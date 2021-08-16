@@ -35,10 +35,10 @@ public:
   Epoll();
   ~Epoll();
 
-  int ctlAdd(Channel*, int mode = EPOLLIN | EPOLLET); // EPOLLET only notify once
-  int ctlDel(Channel*);
-  int ctlMod(Channel*, int); 
-  void wait();
+  int CtlAdd(Channel*, int mode = EPOLLIN | EPOLLET); // EPOLLET only notify once
+  int CtlDel(Channel*);
+  int CtlMod(Channel*, int); 
+  void Wait();
 
   inline Channel::t_fd getEpfd() { return this->fd; };
   

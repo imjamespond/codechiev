@@ -12,7 +12,7 @@ const long Sec = MilliSec * 1000;
 class DummyPool 
 {
   public:
-    void wait() 
+    void Wait() 
     {
       ::printf("usleep\n");
       ::usleep( Sec * 3 );

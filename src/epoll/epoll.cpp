@@ -19,30 +19,30 @@ Epoll::~Epoll()
 { 
 }
 
-int Epoll::ctlAdd(Channel* chan, int events)
+int Epoll::CtlAdd(Channel* chan, int events)
 {
   struct_epoll_event ev;
   ev.events = events;
   ev.data.ptr = (void *)chan; 
-  return epoll_ctl__(this->fd, EPOLL_CTL_ADD,  chan->getFd(), &ev);
+  return epoll_ctl__(this->fd, EPOLL_CTL_ADD,  chan->GetFd(), &ev);
 }
 
-int Epoll::ctlDel(Channel* chan)
+int Epoll::CtlDel(Channel* chan)
 { 
-  int rt = epoll_ctl__(this->fd, EPOLL_CTL_DEL,  chan->getFd(), NULL);
+  int rt = epoll_ctl__(this->fd, EPOLL_CTL_DEL,  chan->GetFd(), NULL);
   return rt;
 }
 
-int Epoll::ctlMod(Channel* chan, int events)
+int Epoll::CtlMod(Channel* chan, int events)
 {
   struct_epoll_event ev;
   ev.events = events;
   ev.data.ptr = (void *)chan; //memory leak caution
-  return epoll_ctl__(this->fd, EPOLL_CTL_MOD, chan->getFd(), &ev);
+  return epoll_ctl__(this->fd, EPOLL_CTL_MOD, chan->GetFd(), &ev);
 }
 
 
-void Epoll::wait()
+void Epoll::Wait()
 {
   int nfds = ::epoll_wait(this->fd, events.data(), static_cast<int>(events.size()), -1);
   if (nfds == -1)

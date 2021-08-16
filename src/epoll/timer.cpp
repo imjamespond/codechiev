@@ -14,9 +14,9 @@ void
 timerfd_settime__(int , long , long );
 
 
-Timer::Timer() : chan(timerfd_create__()), func()
+Timer::Timer() : _chan( Channel::Create(timerfd_create__())), chan(_chan), func()
 {
-  this->chan.func = boost::bind(&Timer::handle, this, boost::placeholders::_1); 
+  this->chan->func = boost::bind(&Timer::handle, this, boost::placeholders::_1); 
 }
 Timer::~Timer() 
 {}
@@ -25,7 +25,7 @@ void Timer::timeout(const Channel::t_func &func, long millis)
   this->func = func;
 
   Time now = Time::NowClock(); 
-  timerfd_settime__(this->chan.getFd(), now.getMillis() + millis, 0l);
+  timerfd_settime__(this->chan->GetFd(), now.getMillis() + millis, 0l);
 } 
 void Timer::handle(int events)
 { 
@@ -42,7 +42,7 @@ void Timer::handle(int events)
     for (;;)
     {
       uint64_t exp;
-      int len = ::read(this->chan.getFd(), &exp, sizeof(uint64_t));
+      int len = ::read(this->chan->GetFd(), &exp, sizeof(uint64_t));
       printf("read len: %d, %lu\n", len, exp);
       if (-1 == len && errno == EAGAIN)
       {
