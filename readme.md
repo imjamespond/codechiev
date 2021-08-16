@@ -1,6 +1,9 @@
 # GCC
 `` yum install gcc cmake gcc-c++ gdb ``  
 
+# VS code cppdbg
+直接remote ssh, 配合launch.json type 为 cppdbg即可
+
 # VS Code Native Debug
 debug gcc remotely, 可选中cpp文件进行debug, 根据launch.json中的设置
 

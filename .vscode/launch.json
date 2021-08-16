@@ -3,22 +3,42 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "gdb",
+      "name": "(gdb) Launch",
+      "type": "cppdbg",
       "request": "launch",
-      "name": "Launch Program (SSH)",
-      "target": "/root/projects/learn-cpp/build/${relativeFileDirname}/${fileBasenameNoExtension}",
-      "cwd": "${workspaceRoot}",
-      "arguments": "foobar", 
-      "ssh": {
-        "forwardX11": false,
-        "host": "test",
-        "cwd": "/root/projects/learn-cpp",
-        "keyfile": "${env:HOME}/.ssh/id_rsa",
-        "user": "root",
-        // Optional, content will be executed on the SSH host before the debugger call.
-        //"bootstrap": "cd /root/projects/learn-cpp && bash ./make.sh"
-      },
-      "valuesFormatting": "parseText"
+      "program": "${workspaceFolder}/build/${relativeFileDirname}/${fileBasenameNoExtension}",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${fileDirname}",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "setupCommands": [
+          {
+              "description": "Enable pretty-printing for gdb",
+              "text": "-enable-pretty-printing",
+              "ignoreFailures": true
+          }
+      ]
     }
+
+    // {
+    //   "type": "gdb",
+    //   "request": "launch",
+    //   "name": "Launch Program (SSH)",
+    //   "target": "/root/projects/learn-cpp/build/${relativeFileDirname}/${fileBasenameNoExtension}",
+    //   "cwd": "${workspaceRoot}",
+    //   "arguments": "foobar", 
+    //   "ssh": {
+    //     "forwardX11": false,
+    //     "host": "test",
+    //     "cwd": "/root/projects/learn-cpp",
+    //     "keyfile": "${env:HOME}/.ssh/id_rsa",
+    //     "user": "root",
+    //     // Optional, content will be executed on the SSH host before the debugger call.
+    //     //"bootstrap": "cd /root/projects/learn-cpp && bash ./make.sh"
+    //   },
+    //   "valuesFormatting": "parseText"
+    // }
   ]
 }
