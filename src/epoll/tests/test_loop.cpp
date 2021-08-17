@@ -22,9 +22,9 @@ class DummyPool
 
 int main(int num, const char **args)
 {
-  lc::Eventloop<DummyPool> loop;
+  lc::EventLoop<DummyPool> loop;
 
-  loop.loop();
+  loop.Loop();
 
   return 1;
 }

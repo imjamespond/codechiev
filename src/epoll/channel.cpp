@@ -1,4 +1,4 @@
-#include <stdio.h> 
+#include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/socket.h>
@@ -7,17 +7,20 @@
 
 using namespace learn_cpp;
 
-Channel::Channel(t_fd sockfd) : fd(sockfd), func()
-{}
+Channel::Channel(t_fd sockfd) : fd(sockfd), handle()
+{
+}
 
 Channel::~Channel()
 {
   Log() << "~Channel() " << fd;
 }
 
-Channel* Channel::Create(t_fd fd)
+Channel *Channel::Create(t_fd fd)
 {
-  return new Channel(fd);
+  Channel *chan = new Channel(fd);
+  chan->self.reset(chan);
+  return chan;
 }
 
 void Channel::Close()
@@ -38,11 +41,7 @@ void Channel::Shutdown()
 
 void Channel::SetNonblocking()
 {
-  int flags;
-  if (-1 == (flags = ::fcntl(fd, F_GETFL, 0)))
-  {
-    flags = 0;
-  }
+  int flags = ::fcntl(fd, F_GETFL, 0);
   if (-1 == ::fcntl(fd, F_SETFL, flags | O_NONBLOCK))
   {
     perror("fcntl()");

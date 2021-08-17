@@ -9,11 +9,11 @@ namespace learn_cpp
   class Thread
   {
   public:
-    typedef void (*t_func)();
+    typedef void (*HandleFunc)();
     typedef boost::function<void()> t_thread_func;
     typedef pthread_t t_pthread;
 
-    explicit Thread(t_func); // avoid created by passing arguments?
+    explicit Thread(HandleFunc); // avoid created by passing arguments?
     ~Thread();
 
     void start();

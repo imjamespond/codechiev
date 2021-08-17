@@ -7,60 +7,52 @@
 namespace learn_cpp
 {
 
-template <class T>
-class Eventloop
-{
-public:
-
-  explicit Eventloop() : thread(NULL)
-  { 
-  }
-  ~Eventloop()
+  template <class T>
+  class EventLoop
   {
-    this->join();
-  }
-
-  void loop()
-  {
-    Thread::t_thread_func loopFunc = boost::bind(&Eventloop::runInThread, this);
-    thread.setFunc(loopFunc);
-    thread.start();
-  }
-
-  void stop()
-  {
-    // thread.cancel();
-  }
-
-  void join() 
-  {
-    thread.join();
-  }
-
-
-  T *getPoll() { return &poll; }
-
-private:
-  T poll;
-  Thread thread;
-
-  void runInThread()
-  {
-    // assert(Thread::GetMainId() != Thread::GetCurrentThreadId());
-    for (;;)
+  public:
+    explicit EventLoop() : thread(NULL)
     {
-      try 
+    }
+    ~EventLoop()
+    {
+    }
+
+    void Loop()
+    {
+      Thread::t_thread_func loopFunc = boost::bind(&EventLoop::runInThread, this);
+      thread.setFunc(loopFunc);
+      thread.start();
+    } 
+
+    void Join()
+    {
+      thread.join();
+    }
+
+    T *GetPoll() { return &poll; }
+
+  private:
+    T poll;
+    Thread thread;
+
+    void runInThread()
+    {
+      // assert(Thread::GetMainId() != Thread::GetCurrentThreadId());
+      for (;;)
       {
-        poll.Wait();
-      }
-      catch (const char *ex)
-      {
-        printf("loop break: %s\n", ex);
-        break;
+        try
+        {
+          poll.Wait();
+        }
+        catch (const char *ex)
+        {
+          // printf("loop break: %s\n", ex);
+          break;
+        }
       }
     }
-  }
-};
+  };
 
 } // namespace learn_cpp
 

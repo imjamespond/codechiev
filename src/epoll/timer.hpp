@@ -13,14 +13,13 @@ public:
   Timer();
   ~Timer();
 
-  void timeout(const Channel::t_func &, long);
-  Channel* GetChan(){ return this->_chan; }
-private:
-  Channel* _chan;
-  ChannelPtr chan;
-  Channel::t_func func;
+  void timeout(const Channel::HandleFunc &, long);
+  Channel* GetChan(){ return this->chan; }
+private: 
+  Channel* chan;
+  Channel::HandleFunc func;
 
-  void handle(int );
+  void handle(const ChannelPtr&, int );
 }; 
 
 } // namespace 

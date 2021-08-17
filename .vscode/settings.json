@@ -63,6 +63,11 @@
     "tuple": "cpp",
     "utility": "cpp",
     "typeindex": "cpp",
-    "typeinfo": "cpp"
-  }
+    "typeinfo": "cpp",
+    "cstddef": "cpp",
+    "*.ipp": "cpp",
+    "strstream": "cpp",
+    "string": "cpp"
+  },
+  "C_Cpp.errorSquiggles": "Disabled"
 }

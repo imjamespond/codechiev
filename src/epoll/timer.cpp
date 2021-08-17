@@ -14,20 +14,22 @@ void
 timerfd_settime__(int , long , long );
 
 
-Timer::Timer() : _chan( Channel::Create(timerfd_create__())), chan(_chan), func()
+Timer::Timer() : chan(Channel::Create(timerfd_create__()))
 {
-  this->chan->func = boost::bind(&Timer::handle, this, boost::placeholders::_1); 
+  this->chan->handle = boost::bind(&Timer::handle, this, boost::placeholders::_1 , boost::placeholders::_2); 
 }
 Timer::~Timer() 
-{}
-void Timer::timeout(const Channel::t_func &func, long millis)
+{
+  chan->Reset();
+}
+void Timer::timeout(const Channel::HandleFunc &func, long millis)
 {
   this->func = func;
 
   Time now = Time::NowClock(); 
   timerfd_settime__(this->chan->GetFd(), now.getMillis() + millis, 0l);
 } 
-void Timer::handle(int events)
+void Timer::handle(const ChannelPtr &chan, int events)
 { 
   // if (events & EVENT_HUP_) 
   // { 
@@ -37,18 +39,18 @@ void Timer::handle(int events)
   // { 
   // } 
   // else 
-  if (events & EVENT_READ_)
+  if (events & __EVENT_READ__)
   {
     for (;;)
     {
       uint64_t exp;
-      int len = ::read(this->chan->GetFd(), &exp, sizeof(uint64_t));
+      int len = ::read(chan->GetFd(), &exp, sizeof(uint64_t));
       printf("read len: %d, %lu\n", len, exp);
       if (-1 == len && errno == EAGAIN)
       {
         if (this->func)
         {
-          this->func(events);
+          this->func(chan, events);
         }
         break;
       }

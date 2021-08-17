@@ -1,6 +1,7 @@
 #ifndef Time_hpp
 #define Time_hpp
 
+#include <stdio.h>  // perror
 #include <sys/time.h>
 #include <stdint.h>
 #include <string>

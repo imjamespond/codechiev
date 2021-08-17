@@ -8,12 +8,12 @@
 
 using namespace learn_cpp;
 
-void print(int events, Timer *timer, int count) 
+void print(const ChannelPtr &chan,int events, Timer *timer, int count) 
 {
   ::printf("wait 2 secs, events: %d, count: %d\n", events, count);
   if (count<3) 
   {
-    timer->timeout(boost::bind(&print, boost::placeholders::_1, timer, ++count), 2000);
+    timer->timeout(boost::bind(&print, boost::placeholders::_1, boost::placeholders::_2, timer, ++count), 2000);
   }
   else 
   {
@@ -23,13 +23,13 @@ void print(int events, Timer *timer, int count)
 
 int main(int argc, const char * argv[]) {
   Timer timer;
-  print(0, &timer, 0);
+  timer.timeout(boost::bind(&print, boost::placeholders::_1, boost::placeholders::_2, &timer, 0), 2000);
 
   {
-    Eventloop<Epoll> loop;
-    Epoll *epp = loop.getPoll();
+    EventLoop<Epoll> loop;
+    Epoll *epp = loop.GetPoll();
     epp->CtlAdd(timer.GetChan(), EPOLLIN);
-    loop.loop();
+    loop.Loop();
   }
 
 }

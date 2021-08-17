@@ -87,15 +87,15 @@ int epoll_ctl__(int epfd, int op, int fd, struct_epoll_event *evp)
 
 void handle__(Channel *chan, int events)
 { 
-  // if (events & EVENT_HUP_)
+  // if (events & __EVENT_HUP__)
   //   chan->setClosed();
-  // else if (events & EVENT_WRITE_)
+  // else if (events & __EVENT_WRITE__)
   //   chan->setWritable();
-  // else if (events & EVENT_READ_)
+  // else if (events & __EVENT_READ__)
   //   chan->setReadable();
 
-  if (chan->func) 
+  if (chan->handle) 
   {
-    chan->func(events);
+    chan->handle(chan->GetPtr(), events);
   }
 }

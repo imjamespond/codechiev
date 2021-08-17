@@ -8,9 +8,9 @@
 #include "channel.hpp"
 
 // #define MAX_EVENTS 1024*1024
-#define EVENT_READ_ EPOLLIN
-#define EVENT_WRITE_ EPOLLOUT
-#define EVENT_HUP_ (EPOLLHUP | EPOLLRDHUP | EPOLLERR)
+#define __EVENT_READ__ EPOLLIN
+#define __EVENT_WRITE__ EPOLLOUT
+#define __EVENT_HUP__ (EPOLLHUP | EPOLLRDHUP | EPOLLERR)
 
 namespace learn_cpp {
 

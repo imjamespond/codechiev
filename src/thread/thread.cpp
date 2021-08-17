@@ -46,7 +46,7 @@ void Thread::join()
   }
 }
 
-Thread::Thread(t_func func) : pthread_(0l)
+Thread::Thread(HandleFunc func) : pthread_(0l)
 {
   if (func) 
   {
