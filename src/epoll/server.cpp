@@ -96,6 +96,7 @@ void Server::handle(const ChannelPtr &chan, int events)
 {
   if (events & __EVENT_HUP__)
   { // chan->setClosed();
+    Log() << "__EVENT_HUP__" << chan->GetFd();
   }
   else if (events & __EVENT_WRITE__)
   {

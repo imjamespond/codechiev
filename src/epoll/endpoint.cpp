@@ -23,9 +23,12 @@ void Endpoint::handleRead(const ChannelPtr &chan)
     }
     else if (-1 == len)
     {
-      if (errno == EAGAIN && onReadEnd)
+      if (errno == EAGAIN)
       {
-        onReadEnd(chan);
+        if (onReadEnd)
+        {
+          onReadEnd(chan);
+        }
         break;
       }
     }
@@ -45,6 +48,7 @@ void Endpoint::handleWrite(const ChannelPtr &chan)
   {
     if (queue.size() == 0)
     {
+      loop->GetPoll()->CtlMod(chan.get(), __EVENT_READ__);
       break;
     }
     std::string str = queue.front();
@@ -63,6 +67,7 @@ void Endpoint::handleWrite(const ChannelPtr &chan)
     {
       if (errno == EAGAIN)
       {
+        loop->GetPoll()->CtlMod(chan.get(), __EVENT_READ__);
         break;
       }
       else if (errno == EPIPE)

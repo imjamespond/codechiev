@@ -20,7 +20,7 @@
               "ignoreFailures": true
           }
       ],
-      "preLaunchTask": "cmake"
+      // "preLaunchTask": "cmake"
     }
 
     // {
