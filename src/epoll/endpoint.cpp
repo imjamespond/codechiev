@@ -41,8 +41,8 @@ void Endpoint::handleRead(const ChannelPtr &chan)
 
 void Endpoint::handleWrite(const ChannelPtr &chan)
 {
-
   MutexGuard lock(&mutex);
+
   uint written(0);
   for (;;)
   {
@@ -56,9 +56,8 @@ void Endpoint::handleWrite(const ChannelPtr &chan)
     len = ::write(chan->GetFd(), str.c_str() + written, str.length() - written);
 
     if (len > 0)
-    {
-      written += len;
-      if (written + 1 >= str.length())
+    { 
+      if ((written += len) >= str.length())
       {
         queue.pop();
       }
