@@ -2,7 +2,6 @@
 #define Endpoint_hpp
 
 #include <boost/function.hpp>
-#include <queue>
 #include <string>
 #include <thread/mutex.hpp>
 #include "epoll.hpp"
@@ -31,12 +30,12 @@ namespace learn_cpp
     Endpoint(Loop *);
 
     void Write(const ChannelPtr &, const std::string &);
+    void SetWriteEvent(const ChannelPtr &);
 
   protected:
     void handleRead(const ChannelPtr &);
     void handleWrite(const ChannelPtr &);
 
-    std::queue<std::string> queue;
     Mutex mutex;
     Loop *loop;
   };

@@ -12,9 +12,15 @@ void connect(const ChannelPtr &chan)
 }
 void read_func(const ChannelPtr &chan, const char *msg, int size, Server *svr)
 {
-  std::string str(msg, size);
-  svr->Write(chan, str);
+  chan->buffer += std::string(msg, size);
   Log() << "read " << size << ", fd " << chan->GetFd();
+}
+void readend_func(const ChannelPtr &chan, Server *svr)
+{
+  svr->Write(chan, chan->buffer.c_str());
+  svr->SetWriteEvent(chan);
+  chan->buffer.clear();
+  Log() << "read end " << chan->GetFd();
 }
 void write_func(const ChannelPtr &chan, const char *msg, int size)
 {
@@ -24,14 +30,15 @@ void write_func(const ChannelPtr &chan, const char *msg, int size)
 void send();
 
 int main(int num, const char **args)
-{ 
+{
   Endpoint::Loop loop;
   Server svr(&loop);
   svr.onConnect = boost::bind(&connect, _1);
-  svr.onRead = boost::bind(&read_func, _1, _2, _3,  &svr);
+  svr.onRead = boost::bind(&read_func, _1, _2, _3, &svr);
+  svr.onReadEnd = boost::bind(&readend_func, _1, &svr);
   svr.onWrite = boost::bind(&write_func, _1, _2, _3);
- 
-  loop.Loop(); 
+
+  loop.Loop();
   loop.Join();
   return 1;
 }

@@ -1,6 +1,7 @@
 #ifndef Channel_hpp
 #define Channel_hpp
 
+#include <deque>
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
@@ -35,6 +36,8 @@ namespace learn_cpp
 
   public:
     HandleFunc handle;
+    std::deque<std::string> queue;
+    std::string buffer;
   };
 
 }

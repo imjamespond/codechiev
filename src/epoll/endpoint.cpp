@@ -9,7 +9,7 @@ Endpoint::Endpoint(Endpoint::Loop *_loop) : loop(_loop)
 
 void Endpoint::handleRead(const ChannelPtr &chan)
 {
-  char buffer[1 << 10];
+  char buffer[1 << 2];
   std::size_t buf_len = sizeof buffer;
 
   for (;;)
@@ -21,19 +21,18 @@ void Endpoint::handleRead(const ChannelPtr &chan)
     {
       onRead(chan, buffer, len);
     }
-    else if (-1 == len)
+    else if (-1 == len && errno == EAGAIN)
     {
-      if (errno == EAGAIN)
+      if (onReadEnd)
       {
-        if (onReadEnd)
-        {
-          onReadEnd(chan);
-        }
-        break;
+        onReadEnd(chan);
       }
+      break;
     }
     else
     {
+      loop->GetPoll()->CtlDel(chan.get());
+      chan->Reset();
       break;
     }
   }
@@ -46,27 +45,35 @@ void Endpoint::handleWrite(const ChannelPtr &chan)
   uint written(0);
   for (;;)
   {
+    std::deque<std::string> &queue = chan->queue;
     if (queue.size() == 0)
     {
-      loop->GetPoll()->CtlMod(chan.get(), __EVENT_READ__);
       break;
     }
     std::string str = queue.front();
-    ssize_t len;
-    len = ::write(chan->GetFd(), str.c_str() + written, str.length() - written);
+    ssize_t len(0);
+    int size = str.length() - written;
+    len = ::write(chan->GetFd(), str.c_str() + written, size); // limit size > 4 ? 4 : size
 
     if (len > 0)
-    { 
+    {
       if ((written += len) >= str.length())
       {
-        queue.pop();
+        queue.pop_front();
+      }
+      if (onWrite)
+      {
+        onWrite(chan, NULL, len);
       }
     }
     else if (-1 == len)
     {
       if (errno == EAGAIN)
       {
-        loop->GetPoll()->CtlMod(chan.get(), __EVENT_READ__);
+        if (onWritten)
+        {
+          onWritten(chan);
+        }
         break;
       }
       else if (errno == EPIPE)
@@ -80,13 +87,20 @@ void Endpoint::handleWrite(const ChannelPtr &chan)
       break;
     }
   }
+
+  loop->GetPoll()->CtlMod(chan.get(), __EVENT_READ__);
 }
 
 void Endpoint::Write(const ChannelPtr &chan, const std::string &str)
 {
+  std::deque<std::string> &queue = chan->queue;
   {
     MutexGuard lock(&mutex);
-    queue.push(str);
+    queue.push_back(str);
   }
+}
+
+void Endpoint::SetWriteEvent(const ChannelPtr &chan)
+{
   loop->GetPoll()->CtlMod(chan.get(), __EVENT_WRITE__);
 }
